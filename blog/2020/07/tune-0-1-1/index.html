@@ -1,0 +1,201 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>tune 0.1.1</title><meta property="og:title" content="tune 0.1.1"><meta property="og:description" content="A new version of the tune package brings better visualizations,  engine-specific parameter tuning, and other features."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2020/07/tune-0-1-1/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="tune 0.1.1 - Tidyverse"><meta property="description" content="A new version of the tune package brings better visualizations,  engine-specific parameter tuning, and other features."><meta property="og:description" content="A new version of the tune package brings better visualizations,  engine-specific parameter tuning, and other features."><meta property="og:image" content="https://www.tidyverse.org/blog/2020/07/tune-0-1-1/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2020/07/tune-0-1-1/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>tune 0.1.1</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2020/07/tune-0-1-1/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/Q2S0IIXtExU>Giuseppe Azzon</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2020/07/13</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/tidymodels/>tidymodels</a>,
+<a href=/tags/tune/>tune</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Max Kuhn</p><div class=article-content><p>We&rsquo;re pleased to announce the release of
+<a href=https://tune.tidymodels.org/ target=_blank rel=noopener>tune</a> 0.1.1. tune is a tidy interface for optimizing model tuning parameters.</p><p>You can install it from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>install.packages</span><span class=p>(</span><span class=s>&#34;tune&#34;</span><span class=p>)</span>
+</code></pre></div><p>You can see a full list of changes in the
+<a href=https://tune.tidymodels.org/news/index.html target=_blank rel=noopener>release notes</a>. The release was originally motivated by
+<a href=https://www.tidyverse.org/tags/dplyr-1-0-0 target=_blank rel=noopener>dplyr 1.0.0 changes</a> although there are a lot of nice, new features to talk about.</p><h2 id=better-autoplot>Better <code>autoplot()</code>
+<a href=#better-autoplot><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The previous plot method produces what we refer to as a <em>marginal plot</em>; each predictor was plotted against performance. That is probably the best that we can do for non-regular grids (which tends to be the default in tune). Here&rsquo;s an example using the
+<a href=https://bookdown.org/max/FES/chicago-intro.html target=_blank rel=noopener>Chicago train data</a>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>tidymodels</span><span class=p>)</span>
+
+<span class=nf>data</span><span class=p>(</span><span class=n>Chicago</span><span class=p>,</span> <span class=n>package</span> <span class=o>=</span> <span class=s>&#34;modeldata&#34;</span><span class=p>)</span>
+
+<span class=c1># Time-series resampling</span>
+<span class=nf>set.seed</span><span class=p>(</span><span class=m>7898</span><span class=p>)</span>
+<span class=n>data_folds</span> <span class=o>&lt;-</span>
+  <span class=nf>rolling_origin</span><span class=p>(</span>
+    <span class=n>Chicago</span><span class=p>,</span>
+    <span class=n>initial</span> <span class=o>=</span> <span class=m>364</span> <span class=o>*</span> <span class=m>15</span><span class=p>,</span>
+    <span class=n>assess</span> <span class=o>=</span> <span class=m>7</span> <span class=o>*</span> <span class=m>4</span><span class=p>,</span>
+    <span class=n>skip</span> <span class=o>=</span> <span class=m>7</span> <span class=o>*</span> <span class=m>4</span><span class=p>,</span>
+    <span class=n>cumulative</span> <span class=o>=</span> <span class=kc>FALSE</span>
+  <span class=p>)</span>
+
+<span class=n>svm_mod</span> <span class=o>&lt;-</span> 
+  <span class=nf>svm_rbf</span><span class=p>(</span><span class=n>cost</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>(),</span> <span class=n>rbf_sigma</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>(</span><span class=s>&#34;kernel parameter&#34;</span><span class=p>))</span> <span class=o>%&gt;%</span> 
+  <span class=nf>set_mode</span><span class=p>(</span><span class=s>&#34;regression&#34;</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>set_engine</span><span class=p>(</span><span class=s>&#34;kernlab&#34;</span><span class=p>)</span>
+
+<span class=n>ctrl</span> <span class=o>&lt;-</span> <span class=nf>control_grid</span><span class=p>(</span><span class=n>save_pred</span> <span class=o>=</span> <span class=kc>TRUE</span><span class=p>)</span>
+
+<span class=nf>set.seed</span><span class=p>(</span><span class=m>2893</span><span class=p>)</span>
+<span class=n>non_regular_grid</span> <span class=o>&lt;-</span>
+  <span class=n>svm_mod</span> <span class=o>%&gt;%</span>
+  <span class=nf>tune_grid</span><span class=p>(</span>
+    <span class=n>ridership</span> <span class=o>~</span> <span class=n>Harlem</span> <span class=o>+</span> <span class=n>Archer_35th</span><span class=p>,</span>
+    <span class=n>resamples</span> <span class=o>=</span> <span class=n>data_folds</span><span class=p>,</span>
+    <span class=n>grid</span> <span class=o>=</span> <span class=m>36</span><span class=p>,</span>
+    <span class=n>control</span> <span class=o>=</span> <span class=n>ctrl</span>
+  <span class=p>)</span>
+</code></pre></div><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>autoplot</span><span class=p>(</span><span class=n>non_regular_grid</span><span class=p>,</span> <span class=n>metric</span> <span class=o>=</span> <span class=s>&#34;rmse&#34;</span><span class=p>)</span> <span class=o>+</span> 
+  <span class=nf>ggtitle</span><span class=p>(</span><span class=s>&#34;old method, irregular grid&#34;</span><span class=p>)</span>
+</code></pre></div><p><img src=figure/irreg-plot-old-1.svg title="plot of chunk irreg-plot-old" alt="plot of chunk irreg-plot-old" style=display:block;margin:auto></p><p>Not bad but it could be improved in a few ways:</p><ul><li><p>Both tuning parameters are generated on log scales. The data are shown above in the natural units and the data at the low end of the scale gets smashed together.</p></li><li><p>We could show its parameter label (e.g. &ldquo;Radial Basis Function sigma&rdquo;) when no parameter ID is given.</p></li></ul><p>What happens when a regular (i.e. factorial) grid is used?</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>grid</span> <span class=o>&lt;-</span> 
+  <span class=n>svm_mod</span> <span class=o>%&gt;%</span> 
+  <span class=nf>parameters</span><span class=p>()</span> <span class=o>%&gt;%</span> 
+  <span class=nf>grid_regular</span><span class=p>(</span><span class=n>levels</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=m>3</span><span class=p>,</span> <span class=m>12</span><span class=p>))</span>
+
+<span class=n>grid</span>
+</code></pre></div><pre><code>## # A tibble: 36 x 2
+##         cost `kernel parameter`
+##        &lt;dbl&gt;              &lt;dbl&gt;
+##  1  0.000977     0.0000000001  
+##  2  0.177        0.0000000001  
+##  3 32            0.0000000001  
+##  4  0.000977     0.000000000811
+##  5  0.177        0.000000000811
+##  6 32            0.000000000811
+##  7  0.000977     0.00000000658 
+##  8  0.177        0.00000000658 
+##  9 32            0.00000000658 
+## 10  0.000977     0.0000000534  
+## # … with 26 more rows
+</code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>set.seed</span><span class=p>(</span><span class=m>2893</span><span class=p>)</span>
+<span class=n>regular_grid</span> <span class=o>&lt;-</span>
+  <span class=n>svm_mod</span> <span class=o>%&gt;%</span>
+  <span class=nf>tune_grid</span><span class=p>(</span>
+    <span class=n>ridership</span> <span class=o>~</span> <span class=n>Harlem</span> <span class=o>+</span> <span class=n>Archer_35th</span><span class=p>,</span>
+    <span class=n>resamples</span> <span class=o>=</span> <span class=n>data_folds</span><span class=p>,</span>
+    <span class=n>grid</span> <span class=o>=</span> <span class=n>grid</span><span class=p>,</span>
+    <span class=n>control</span> <span class=o>=</span> <span class=n>ctrl</span>
+  <span class=p>)</span>
+</code></pre></div><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>autoplot</span><span class=p>(</span><span class=n>regular_grid</span><span class=p>,</span> <span class=n>metric</span> <span class=o>=</span> <span class=s>&#34;rmse&#34;</span><span class=p>)</span> <span class=o>+</span> 
+  <span class=nf>ggtitle</span><span class=p>(</span><span class=s>&#34;old method, regular grid&#34;</span><span class=p>)</span>
+</code></pre></div><p><img src=figure/reg-plot-old-1.svg title="plot of chunk reg-plot-old" alt="plot of chunk reg-plot-old" style=display:block;margin:auto></p><p>This visualization also could be improved, since there might be a pattern in one parameter for each value of the other.</p><p>The new version of tune creates improved versions of both of these plots:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>autoplot</span><span class=p>(</span><span class=n>non_regular_grid</span><span class=p>,</span> <span class=n>metric</span> <span class=o>=</span> <span class=s>&#34;rmse&#34;</span><span class=p>)</span> <span class=o>+</span> 
+  <span class=nf>ggtitle</span><span class=p>(</span><span class=s>&#34;new method, irregular grid&#34;</span><span class=p>)</span>
+</code></pre></div><p><img src=figure/ap-irr-new-1.svg title="plot of chunk ap-irr-new" alt="plot of chunk ap-irr-new" style=display:block;margin:auto></p><p>This tells a completely different story than the previous version where the parameters were in their natural units.</p><p>The regular grid results are also much better and tell a cleaner story:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>autoplot</span><span class=p>(</span><span class=n>regular_grid</span><span class=p>,</span> <span class=n>metric</span> <span class=o>=</span> <span class=s>&#34;rmse&#34;</span><span class=p>)</span> <span class=o>+</span> 
+  <span class=nf>ggtitle</span><span class=p>(</span><span class=s>&#34;new method, regular grid&#34;</span><span class=p>)</span>
+</code></pre></div><p><img src=figure/ap-reg-new-1.svg title="plot of chunk ap-reg-new" alt="plot of chunk ap-reg-new" style=display:block;margin:auto></p><p>Extra arguments can be passed when a numeric grouping column is used;l these are given to <code>format()</code>. To avoid scientific notation:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>autoplot</span><span class=p>(</span><span class=n>regular_grid</span><span class=p>,</span> <span class=n>metric</span> <span class=o>=</span> <span class=s>&#34;rmse&#34;</span><span class=p>,</span> <span class=n>digits</span> <span class=o>=</span> <span class=m>3</span><span class=p>,</span> <span class=n>scientific</span> <span class=o>=</span> <span class=kc>FALSE</span><span class=p>)</span> <span class=o>+</span> 
+  <span class=nf>ggtitle</span><span class=p>(</span><span class=s>&#34;Formatting for coloring column&#34;</span><span class=p>)</span>
+</code></pre></div><p><img src=figure/ap-reg-new-new-1.svg title="plot of chunk ap-reg-new-new" alt="plot of chunk ap-reg-new-new" style=display:block;margin:auto></p><h2 id=a-ggplot2-coord-for-plotting-observed-and-predicted-values>A ggplot2 <code>coord</code> for plotting observed and predicted values
+<a href=#a-ggplot2-coord-for-plotting-observed-and-predicted-values><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>One helpful visualization of the fit of a regression model is to plot the true outcome value against the predictions. These <em>should</em> be on the same scale. Let&rsquo;s look at such a plot:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>best_values</span> <span class=o>&lt;-</span> <span class=nf>select_best</span><span class=p>(</span><span class=n>regular_grid</span><span class=p>,</span> <span class=n>metric</span> <span class=o>=</span> <span class=s>&#34;rmse&#34;</span><span class=p>)</span>
+<span class=n>best_values</span>
+</code></pre></div><pre><code>## # A tibble: 1 x 3
+##    cost `kernel parameter` .config
+##   &lt;dbl&gt;              &lt;dbl&gt; &lt;chr&gt;  
+## 1    32             0.0152 Model30
+</code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>holdout_predictions</span> <span class=o>&lt;-</span> 
+  <span class=n>regular_grid</span> <span class=o>%&gt;%</span> 
+  <span class=nf>collect_predictions</span><span class=p>(</span><span class=n>parameters</span> <span class=o>=</span> <span class=n>best_values</span><span class=p>)</span>
+<span class=n>holdout_predictions</span>
+</code></pre></div><pre><code>## # A tibble: 224 x 7
+##    id     .pred  .row  cost `kernel parameter` ridership .config
+##    &lt;chr&gt;  &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt;              &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;  
+##  1 Slice1 17.8   5461    32             0.0152     19.6  Model30
+##  2 Slice1 18.9   5462    32             0.0152     20.0  Model30
+##  3 Slice1 17.5   5463    32             0.0152     20.4  Model30
+##  4 Slice1  8.88  5464    32             0.0152     20.4  Model30
+##  5 Slice1  3.03  5465    32             0.0152     20.1  Model30
+##  6 Slice1  6.07  5466    32             0.0152      4.78 Model30
+##  7 Slice1  4.48  5467    32             0.0152      3.26 Model30
+##  8 Slice1 12.6   5468    32             0.0152     19.3  Model30
+##  9 Slice1 15.6   5469    32             0.0152     19.3  Model30
+## 10 Slice1 15.4   5470    32             0.0152     19.9  Model30
+## # … with 214 more rows
+</code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>ggplot</span><span class=p>(</span><span class=n>holdout_predictions</span><span class=p>,</span> <span class=nf>aes</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=n>ridership</span><span class=p>,</span> <span class=n>y</span> <span class=o>=</span> <span class=n>.pred</span><span class=p>))</span> <span class=o>+</span> 
+  <span class=nf>geom_abline</span><span class=p>(</span><span class=n>lty</span> <span class=o>=</span> <span class=m>2</span><span class=p>)</span> <span class=o>+</span> 
+  <span class=nf>geom_point</span><span class=p>(</span><span class=n>alpha</span> <span class=o>=</span> <span class=m>0.3</span><span class=p>)</span>
+</code></pre></div><p><img src=figure/obs-pred-old-1.svg title="plot of chunk obs-pred-old" alt="plot of chunk obs-pred-old" style=display:block;margin:auto></p><p>This is very helpful but there are a few possible improvements. The new version of tune has <code>coord_obs_pred()</code> that produces a square plot with the same axes:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>ggplot</span><span class=p>(</span><span class=n>holdout_predictions</span><span class=p>,</span> <span class=nf>aes</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=n>ridership</span><span class=p>,</span> <span class=n>y</span> <span class=o>=</span> <span class=n>.pred</span><span class=p>))</span> <span class=o>+</span> 
+  <span class=nf>geom_abline</span><span class=p>(</span><span class=n>lty</span> <span class=o>=</span> <span class=m>2</span><span class=p>)</span> <span class=o>+</span> 
+  <span class=nf>geom_point</span><span class=p>(</span><span class=n>alpha</span> <span class=o>=</span> <span class=m>0.3</span><span class=p>)</span> <span class=o>+</span> 
+  <span class=nf>coord_obs_pred</span><span class=p>()</span>
+</code></pre></div><p><img src=figure/obs-pred-new-1.svg title="plot of chunk obs-pred-new" alt="plot of chunk obs-pred-new" style=display:block;margin:auto></p><h2 id=tuning-engine-parameters>Tuning engine parameters
+<a href=#tuning-engine-parameters><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><a href=https://github.com/brunaw target=_blank rel=noopener>Bruna Wundervald</a> (from Maynooth University) gave a
+<a href=https://brunaw.com/slides/rladies-helsinki/talk.html#1 target=_blank rel=noopener>great presentation</a> that used tidymodels packages. She ran into the problem that, if you wanted to tune parameters that were specific to the engine, you&rsquo;d have to go through a lot of trouble to do so. This used to work well in a previous version of tune. Unfortunately, we accidentally broke it, but now you can once again tune engine specific parameters. One feature in this version of tune, along with the new 0.0.8 version of the dials package, is that we have added dials <code>parameter</code> objects for every parameter that users might tuned with the existing engines that we support (this was not as difficult as it sounds).</p><p>To demonstrate, we&rsquo;ll use the time series data above, but this time we&rsquo;ll optimize the ranger parameters that Bruna was interested in.</p><p>Since parsnip has a pre-defined list of models and engines, we&rsquo;ve gone ahead and set up the infrastructure for tuning most engine-specific values. For example, in the above example we could tune two regularization parameters specific to ranger.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>rf_mod</span> <span class=o>&lt;-</span> 
+  <span class=nf>rand_forest</span><span class=p>(</span><span class=n>min_n</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>())</span> <span class=o>%&gt;%</span>
+  <span class=nf>set_mode</span><span class=p>(</span><span class=s>&#34;regression&#34;</span><span class=p>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>set_engine</span><span class=p>(</span><span class=s>&#34;ranger&#34;</span><span class=p>,</span> 
+             <span class=n>regularization.factor</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>(),</span> 
+             <span class=n>regularization.usedepth</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>())</span>
+
+<span class=c1># Are there dials objects to work with these? </span>
+<span class=n>rf_param</span> <span class=o>&lt;-</span> <span class=nf>parameters</span><span class=p>(</span><span class=n>rf_mod</span><span class=p>)</span>
+<span class=n>rf_param</span>
+</code></pre></div><pre><code>## Collection of 3 parameters for tuning
+## 
+##                       id          parameter type object class
+##                    min_n                   min_n    nparam[+]
+##    regularization.factor   regularization.factor    nparam[+]
+##  regularization.usedepth regularization.usedepth    dparam[+]
+</code></pre><p>There are parameter objects for these (and they keep their original names). You can adjust the ranges and values for these parameters using the <code>update()</code> function as you would for others. To see their underlying functions:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>rf_param</span><span class=o>$</span><span class=n>object[[2]]</span>
+</code></pre></div><pre><code>## Gain Penalization  (quantitative)
+## Range: [0, 1]
+</code></pre><p>From here, the standard tools in the tune package can be used. You can use one of the <code>grid_*()</code> functions to create a grid of values, let <code>tune_grid()</code> create a set for you, or use Bayesian optimization to find appropriate values sequentially.</p><p>The new <code>autoplot()</code> method can also be used to produce nice visualizations of the relationship between performance and the parameters.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>set.seed</span><span class=p>(</span><span class=m>4976</span><span class=p>)</span>
+<span class=n>ranger_params</span> <span class=o>&lt;-</span>
+  <span class=n>rf_mod</span> <span class=o>%&gt;%</span>
+  <span class=nf>tune_grid</span><span class=p>(</span>
+    <span class=n>ridership</span> <span class=o>~</span> <span class=n>Harlem</span> <span class=o>+</span> <span class=n>Archer_35th</span><span class=p>,</span>
+    <span class=n>resamples</span> <span class=o>=</span> <span class=n>data_folds</span><span class=p>,</span>
+    <span class=n>grid</span> <span class=o>=</span> <span class=m>10</span><span class=p>,</span>
+    <span class=n>control</span> <span class=o>=</span> <span class=n>ctrl</span>
+  <span class=p>)</span>
+
+<span class=nf>autoplot</span><span class=p>(</span><span class=n>ranger_params</span><span class=p>,</span> <span class=n>metric</span> <span class=o>=</span> <span class=s>&#34;rmse&#34;</span><span class=p>)</span> <span class=o>+</span> 
+  <span class=nf>theme</span><span class=p>(</span><span class=n>legend.position</span> <span class=o>=</span> <span class=s>&#34;top&#34;</span><span class=p>)</span>
+</code></pre></div><p><img src=figure/rf-tune-1.svg title="plot of chunk rf-tune" alt="plot of chunk rf-tune" style=display:block;margin:auto></p><p>Note that the tuning parameter labels (i.e. &ldquo;Gain Penalization&rdquo; instead of &ldquo;<code>regularization.factor</code>&rdquo;) are used.</p><p>I&rsquo;m sure that we missed someone&rsquo;s favorite engine-specific parameter so please put in a
+<a href=https://github.com/tidymodels/dials/issues target=_blank rel=noopener>GitHub issue for dials</a> to let us know.</p><h2 id=config-columns><code>.config</code> columns
+<a href=#config-columns><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>When model tuning is conducted, the tune package now saves a new column in the output called <code>.config</code>. This column is a qualitative identification column for unique tuning parameter combinations. It often reflects what is being tuned. A value of <code>.config = "Recipe1_Model3"</code> indicates that the first recipe tuning parameter set is being evaluated in conjunction with the third set of model parameters. Here&rsquo;s an example from the random forest model that we just fit:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>ranger_params</span> <span class=o>%&gt;%</span> 
+  <span class=nf>collect_metrics</span><span class=p>()</span> <span class=o>%&gt;%</span> 
+  <span class=c1># get the unique tuning parameter combinations:</span>
+  <span class=nf>select</span><span class=p>(</span><span class=n>min_n</span><span class=p>,</span> <span class=n>regularization.factor</span><span class=p>,</span> <span class=n>regularization.usedepth</span><span class=p>,</span> <span class=n>.config</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>distinct</span><span class=p>()</span>
+</code></pre></div><pre><code>## # A tibble: 10 x 4
+##    min_n regularization.factor regularization.usedepth .config
+##    &lt;int&gt;                 &lt;dbl&gt; &lt;lgl&gt;                   &lt;chr&gt;  
+##  1     7                0.288  TRUE                    Model01
+##  2    20                0.322  FALSE                   Model02
+##  3    25                0.703  FALSE                   Model03
+##  4    14                0.0781 FALSE                   Model04
+##  5    36                0.882  TRUE                    Model05
+##  6    29                0.192  FALSE                   Model06
+##  7    35                0.404  TRUE                    Model07
+##  8    24                0.687  TRUE                    Model08
+##  9     3                0.580  FALSE                   Model09
+## 10    10                0.968  TRUE                    Model10
+</code></pre><h2 id=other-changes>Other changes
+<a href=#other-changes><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><ul><li><p><code>conf_mat_resampled()</code> is a new function that computes the average confusion matrix across resampling statistics for a single model.</p></li><li><p><code>show_best()</code> and the <code>select_*()</code> functions will now use the first metric in the metric set if no metric is supplied.</p></li><li><p><code>filter_parameters()</code> can trim the <code>.metrics</code> column of unwanted results (as well as columns <code>.predictions</code> and <code>.extracts</code>) from <code>tune_*</code> objects.</p></li><li><p>If a grid is given, parameters do not need to be finalized to be used in the <code>tune_*()</code> functions.</p></li></ul><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Thanks to everyone who contributed code or filed issues since the last version:
+<a href=https://github.com/cimentadaj target=_blank rel=noopener>@cimentadaj</a>,
+<a href=https://github.com/connor-french target=_blank rel=noopener>@connor-french</a>,
+<a href=https://github.com/cwchang-nelson target=_blank rel=noopener>@cwchang-nelson</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/dcossyleon target=_blank rel=noopener>@dcossyleon</a>,
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/jg43b target=_blank rel=noopener>@jg43b</a>,
+<a href=https://github.com/JHucker target=_blank rel=noopener>@JHucker</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/karaesmen target=_blank rel=noopener>@karaesmen</a>,
+<a href=https://github.com/kbzsl target=_blank rel=noopener>@kbzsl</a>,
+<a href=https://github.com/kylegilde target=_blank rel=noopener>@kylegilde</a>,
+<a href=https://github.com/LucyMcGowan target=_blank rel=noopener>@LucyMcGowan</a>,
+<a href=https://github.com/mdancho84 target=_blank rel=noopener>@mdancho84</a>,
+<a href=https://github.com/py9mrg target=_blank rel=noopener>@py9mrg</a>,
+<a href=https://github.com/realauggieheschmeyer target=_blank rel=noopener>@realauggieheschmeyer</a>,
+<a href=https://github.com/robyjos target=_blank rel=noopener>@robyjos</a>,
+<a href=https://github.com/rorynolan target=_blank rel=noopener>@rorynolan</a>,
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>,
+<a href=https://github.com/ThomasWolf0701 target=_blank rel=noopener>@ThomasWolf0701</a>, and
+<a href=https://github.com/UnclAlDeveloper target=_blank rel=noopener>@UnclAlDeveloper</a>.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#better-autoplot>Better <code>autoplot()</code></a></li><li><a href=#a-ggplot2-coord-for-plotting-observed-and-predicted-values>A ggplot2 <code>coord</code> for plotting observed and predicted values</a></li><li><a href=#tuning-engine-parameters>Tuning engine parameters</a></li><li><a href=#config-columns><code>.config</code> columns</a></li><li><a href=#other-changes>Other changes</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

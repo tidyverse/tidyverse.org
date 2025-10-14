@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>cpp11 | Tidyverse</title><link>https://www.tidyverse.org/tags/cpp11/</link><atom:link href="https://www.tidyverse.org/tags/cpp11/index.xml" rel="self" type="application/rss+xml"/><description>cpp11</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 10 Sep 2021 00:00:00 +0000</lastBuildDate><item><title>Pathway to success - updating your package to cpp11</title><link>https://www.tidyverse.org/blog/2021/09/updating-to-cpp11/</link><pubDate>Fri, 10 Sep 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/09/updating-to-cpp11/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>Over the summer I had the pleasure of working with Jim Hester on the
+&lt;a href="https://cpp11.r-lib.org/" target="_blank" rel="noopener">cpp11 package&lt;/a> as a tidyverse summer intern. The cpp11 package is a header-only R package that helps R package developers handle R objects with C++ code. Its goals and syntax are similar to the excellent Rcpp package. During most of my internship, I worked on triaging issues, fixing bugs, and adding new features to cpp11. Near the end of the summer, I got to work with Jenny Bryan on
+&lt;a href="https://github.com/tidyverse/readxl/pull/659" target="_blank" rel="noopener">converting readxl to using cpp11&lt;/a>. Jim has written a
+&lt;a href="https://cpp11.r-lib.org/articles/converting.html" target="_blank" rel="noopener">great post&lt;/a> about converting packages from Rcpp to cpp11, which I heavily referenced during the process. But there were still some challenges I encountered. To help others going through a similar process, I wanted to review the workflows and tools we used to make this easier.&lt;/p>
+&lt;p>The entire process took about a week. Using both Rcpp and cpp11 at the same time in a package is okay for short term work like this, so I didn&amp;rsquo;t feel rushed. To get started, I followed the initial set-up steps outlined in Jim&amp;rsquo;s article and then recompiled, to confirm it was successful. Next, I needed to include either the &lt;code>cpp11/R.hpp&lt;/code> header or the macros &lt;code>R_NO_REMAP&lt;/code> and &lt;code>STRICT_R_HEADERS&lt;/code>. I found it easier to include the macros since the header file needs to come before any headers that use Rcpp.&lt;/p>
+&lt;h2 id="step-by-step-integration">Step-by-step integration
+&lt;a href="#step-by-step-integration">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>After I&amp;rsquo;d set-up my environment it was time to start converting the files. Initially, I made the mistake of selecting the most interconnected file in the readxl package. Since this file was central to the package, I would have had to convert the entire package over to cpp11 before the compilation errors or test failures would stop. After Jenny and Jim helped me select a more approachable file, the process was more incremental and I successfully maintained my sanity 🙌.&lt;/p>
+&lt;p>When I was finished with a file, I would recompile the package and fix the compilation errors. To fix errors, I sometimes had to edit other functions in other files, but I only edited files enough to fix the failures. If I did too much it was difficult for me to know what was causing the failures. Then I&amp;rsquo;d run the tests for the readxl package. Thankfully, Jenny had great test coverage for the readxl package prior to this project, so we didn&amp;rsquo;t need to write more tests.&lt;/p>
+&lt;p>Another incremental approach I used was to convert one function in a file, and then recompile and run the tests. This approach worked best for larger files. Once everything was passing, I&amp;rsquo;d commit and push to the PR so that my gracious reviewers could review my changes in stages, rather than in one big batch. This also allowed me to benefit from continuous integration, i.e. my changes were checked on a greater variety of R versions and operating systems, thanks to the checks we run via GitHub Actions. It&amp;rsquo;s a win-win!&lt;/p>
+&lt;h2 id="the-nitty-gritty">The nitty-gritty
+&lt;a href="#the-nitty-gritty">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>For the nitty-gritty details of converting the code, I definitely took advantage of
+&lt;a href="https://cpp11.r-lib.org/articles/converting.html#class-comparison-table-1" target="_blank" rel="noopener">the table in Jim&amp;rsquo;s post!&lt;/a> That comparison table is great for converting between Rcpp and cpp11 classes. The table also provided me with information on whether a class was readable, writable or both. This new feature in cpp11 is great, since writable vectors are costly because the data must be fully copied, so using readable where appropriate is a good idea. When I was unsure of whether an object should be readable or writable, I would make it readable and then recompile to see if I was correct.&lt;/p>
+&lt;h2 id="almost-done">Almost done
+&lt;a href="#almost-done">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>When I had finished converting all the objects to cpp11, I removed the macros &lt;code>R_NO_REMAP&lt;/code> and &lt;code>STRICT_R_HEADERS&lt;/code> and any stray &lt;code>#include &amp;quot;Rcpp.h&amp;quot;&lt;/code> directives. Finally, to check for any other updates that might be required, such as in the DESCRIPTION file, I also ran &lt;code>devtools::check()&lt;/code>. And that&amp;rsquo;s it!&lt;/p>
+&lt;p>I had so much fun working with the tidyverse team. And a big thank you to Jim for all the support over the summer and to Jenny for their help on readxl! If you&amp;rsquo;re looking for more examples of updating packages to using cpp11, Jim has also gone through the process of
+&lt;a href="https://github.com/tidyverse/readr/pull/1109" target="_blank" rel="noopener">converting readr to using cpp11&lt;/a>. RStudio is a great place to look for summer internship opportunities. They had a variety of opportunities this summer and I&amp;rsquo;d encourage anyone looking for summer internships to apply for 2022!&lt;/p></description></item></channel></rss>

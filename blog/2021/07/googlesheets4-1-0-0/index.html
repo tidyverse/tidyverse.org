@@ -1,0 +1,153 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>googlesheets4 1.0.0</title><meta property="og:title" content="googlesheets4 1.0.0"><meta property="og:description" content="Version 1.0.0 marks the graduation of googlesheets4 from experimental to stable."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2021/07/googlesheets4-1-0-0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="googlesheets4 1.0.0 - Tidyverse"><meta property="description" content="Version 1.0.0 marks the graduation of googlesheets4 from experimental to stable."><meta property="og:description" content="Version 1.0.0 marks the graduation of googlesheets4 from experimental to stable."><meta property="og:image" content="https://www.tidyverse.org/blog/2021/07/googlesheets4-1-0-0/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2021/07/googlesheets4-1-0-0/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>googlesheets4 1.0.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2021/07/googlesheets4-1-0-0/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/VqYzKAviJ10>Hendri Sabri</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2021/07/26</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/gargle/>gargle</a>,
+<a href=/tags/googlesheets4/>googlesheets4</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Jenny Bryan</p><div class=article-content><p>We&rsquo;re over the moon to announce the release of googlesheets4, version 1.0.0 (<a href=https://googlesheets4.tidyverse.org>https://googlesheets4.tidyverse.org</a>).</p><p>googlesheets4 is a package to work with Google Sheets from R. It wraps
+<a href=https://developers.google.com/sheets/api/reference/rest target=_blank rel=noopener>v4 of the Sheets API</a>. googlesheets4 is focused on spreadsheet-y tasks that require a notion of worksheets, cells, and ranges, while the companion package
+<a href=https://googledrive.tidyverse.org target=_blank rel=noopener>googledrive</a> handles more general file operations, such as renaming, sharing, or moving.</p><p>Install googlesheets4 from CRAN like so:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span><span class=o>(</span><span class=s>"googlesheets4"</span><span class=o>)</span></code></pre></div><p>Then attach it for use via:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://googlesheets4.tidyverse.org>googlesheets4</a></span><span class=o>)</span></code></pre></div><p>The release of version 1.0.0 means googlesheets4 has graduated from being experimental to being stable, in terms of the
+<a href=https://lifecycle.r-lib.org/articles/stages.html target=_blank rel=noopener>tidyverse lifecycle stages</a>. <sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup></p><p>Since we
+<a href=https://www.tidyverse.org/blog/2020/05/googlesheets4-0-2-0/ target=_blank rel=noopener>last blogged about it</a>, googlesheets4 has seen some &ldquo;quality of life&rdquo; improvements, but no earthshaking changes. The overall interface is more polished, we automatically retry requests that yield the dreaded <code>429 RESOURCE_EXHAUSTED</code>, and there&rsquo;s better handling of some empty cell edge cases. We&rsquo;re also bumping the required version of the gargle package (<a href=https://gargle.r-lib.org>https://gargle.r-lib.org</a>), which handles everything around auth.</p><p>You can see a full list of changes in the
+<a href=https://googlesheets4.tidyverse.org/news/index.html target=_blank rel=noopener>release notes</a>.</p><h2 id=auth-updates>Auth updates
+<a href=#auth-updates><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>If you are generally fairly passive about googlesheets4 auth, then you should just sit back and let things happen organically during usage. If you&rsquo;ve used googlesheets4 before, you can expect to see some messages about cleaning and relocating the token cache when you first use v1.0.0. You can also expect to re-authenticate yourself with Google and re-authorize the &ldquo;Tidyverse API Packages&rdquo; to work with your files. This is all due to changes in gargle.</p><p>If your usage requires you to be more proactive about auth, read the
+<a href=https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/ target=_blank rel=noopener>blog post for gargle&rsquo;s recent v1.2.0 release</a>. A key point is that we have rolled the built-in OAuth client, which is why those relying on it will need to re-auth.</p><p><strong>If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call</strong> that you should be using your own OAuth client or, quite possibly, an entirely different method of auth. Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.</p><p>If you often use googlesheets4 together with googledrive, remember that the article
+<a href=https://googlesheets4.tidyverse.org/articles/articles/drive-and-sheets.html target=_blank rel=noopener>Using googlesheets4 with googledrive</a> gives some tips for how to coordinate auth.</p><h2 id=retries>Retries
+<a href=#retries><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The Sheets API has
+<a href=https://developers.google.com/sheets/api/reference/limits target=_blank rel=noopener>usage limits</a> that are low enough even regular folks bump up against them occasionally:</p><ul><li>100 requests per 100 seconds per user</li><li>500 requests per 100 seconds per project</li></ul><p>When you hit one of these limits, your request fails with the error code <code>429 RESOURCE_EXHAUSTED</code>. Thanks to a change in gargle, we now automatically retry such a request and, if it looks like you&rsquo;ve exhausted your <strong>user</strong> quota, that first wait is > 100 seconds (!!).</p><p>If this happens to you fairly often, you should contemplate whether your code relies on some self-defeating pattern, like hitting the Sheets API repeatedly in a tight loop. Here&rsquo;s an example of bad vs. good googlesheets4 code:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>gapminder</span> <span class=o>&lt;-</span> <span class=nf><a href=https://googlesheets4.tidyverse.org/reference/gs4_examples.html>gs4_example</a></span><span class=o>(</span><span class=s>"gapminder"</span><span class=o>)</span>
+<span class=nv>sp</span> <span class=o>&lt;-</span> <span class=nf><a href=https://googlesheets4.tidyverse.org/reference/sheet_properties.html>sheet_properties</a></span><span class=o>(</span><span class=nv>gapminder</span><span class=o>)</span>
+<span class=o>(</span><span class=nv>n</span> <span class=o>&lt;-</span> <span class=nv>sp</span><span class=o>$</span><span class=nv>grid_rows</span><span class=o>[</span><span class=nv>sp</span><span class=o>$</span><span class=nv>name</span> <span class=o>==</span> <span class=s>"Africa"</span><span class=o>]</span><span class=o>)</span>
+<span class=c>#&gt; [1] 625</span>
+
+<span class=c># this is BAD IDEA = reading individual cells in a loop</span>
+<span class=kr>for</span> <span class=o>(</span><span class=nv>i</span> <span class=kr>in</span> <span class=nf><a href=https://rdrr.io/r/base/seq.html>seq_len</a></span><span class=o>(</span><span class=nv>n</span><span class=o>)</span><span class=o>)</span> <span class=o>&#123;</span>
+  <span class=nv>gapminder</span> <span class=o><a href=https://googlesheets4.tidyverse.org/reference/pipe.html>%&gt;%</a></span>
+    <span class=nf><a href=https://googlesheets4.tidyverse.org/reference/range_read.html>range_read</a></span><span class=o>(</span>sheet <span class=o>=</span> <span class=s>"Africa"</span>, range <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/sprintf.html>sprintf</a></span><span class=o>(</span><span class=s>"C%i"</span>, <span class=nv>i</span><span class=o>)</span><span class=o>)</span>
+<span class=o>&#125;</span>
+<span class=c>#&gt; ✓ Reading from "gapminder".</span>
+<span class=c>#&gt; ✓ Range ''Africa'!C1'.</span>
+<span class=c>#&gt; ...</span>
+<span class=c>#&gt; x Request failed [429]. Retry 1 happens in 100.8 seconds ...</span>
+<span class=c>#&gt; ✓ Range ''Africa'!C28'.</span>
+<span class=c>#&gt; ...</span>
+<span class=c>#&gt; x Request failed [429]. Retry 1 happens in 100.4 seconds ...</span>
+<span class=c>#&gt; x Request failed [429]. Retry 2 happens in 8.8 seconds ...</span>
+<span class=c>#&gt; ...</span>
+
+<span class=c># this is a GOOD IDEA = reading all cells at once</span>
+<span class=nv>gapminder</span> <span class=o><a href=https://googlesheets4.tidyverse.org/reference/pipe.html>%&gt;%</a></span>
+  <span class=nf><a href=https://googlesheets4.tidyverse.org/reference/range_read.html>range_read</a></span><span class=o>(</span>sheet <span class=o>=</span> <span class=s>"Africa"</span>, range <span class=o>=</span> <span class=s>"C:C"</span><span class=o>)</span> <span class=o><a href=https://googlesheets4.tidyverse.org/reference/pipe.html>%&gt;%</a></span>
+  <span class=nf><a href=https://rdrr.io/r/utils/head.html>head</a></span><span class=o>(</span><span class=o>)</span>
+<span class=c>#&gt; ✓ Reading from "gapminder".</span>
+<span class=c>#&gt; ✓ Range ''Africa'!C:C'.</span>
+<span class=c>#&gt; # A tibble: 6 x 1</span>
+<span class=c>#&gt;    year</span>
+<span class=c>#&gt;   &lt;dbl&gt;</span>
+<span class=c>#&gt; 1  1952</span>
+<span class=c>#&gt; 2  1957</span>
+<span class=c>#&gt; 3  1962</span>
+<span class=c>#&gt; 4  1967</span>
+<span class=c>#&gt; 5  1972</span>
+<span class=c>#&gt; 6  1977</span></code></pre></div><p>Lesson: work in bulk as much as possible, as opposed to making lots of little piecemeal requests.</p><p>What about the per project limit? If you are auth&rsquo;ed as a regular user, using the built-in OAuth client, this project refers to the Tidyverse API Packages. Yes, that means you&rsquo;re sharing project-level quota with all your fellow useRs who also auth&rsquo;ed this way!</p><p>If you hit per project limits regularly and it upsets your workflow, the universe is telling you that it&rsquo;s time to configure your own OAuth client or use an entirely different method of auth, such as a service account token. Read more in the gargle article
+<a href=https://gargle.r-lib.org/articles/get-api-credentials.html target=_blank rel=noopener>How to get your own API credentials</a>.</p><p>Casual googlesheets4 users can go with the flow and accept that the occasional request will need an automatic retry. If you want to learn more, the functionality comes from
+<a href=https://gargle.r-lib.org/reference/request_retry.html target=_blank rel=noopener><code>gargle::request_retry()</code></a>. In the development version of gargle, we retry for an even larger set of error codes (408, 429, 500, 502, and 503). If that appeals to you and you&rsquo;re willing to install a pre-release package, we&rsquo;d love to hear how this works for you.</p><h2 id=user-interface>User interface
+<a href=#user-interface><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The googlesheets4 user interface (UI) has gotten more stylish, thanks to the cli package (<a href=https://cli.r-lib.org>https://cli.r-lib.org</a>). This applies to informational messages, as well as to errors.</p><p>The semantic UI encouraged by cli is a great fit for googlesheets4, where it&rsquo;s useful to apply distinct inline styles for (spread)Sheet name, (work)sheet name, and cell range. Also bullets! Here is a fictional message that shows off some of these lovely things:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c>#&gt; Hey, we're doing exciting things in the <span style=color:#0bb>chicken_sheet</span>!</span>
+<span class=c>#&gt; <span style=color:#0bb>ℹ</span> Did you know it has a worksheet called <span style=color:#0b0>chicken_scratch</span>?</span>
+<span class=c>#&gt; <span style=color:#b00>✖</span> Uh-oh, in range <span style=color:#bb0>A1:D4</span>, some data appears to be encoded in the cell color :(</span></code></pre></div><p>In a more technical vein, all errors thrown by googlesheets4 now route through
+<a href=https://rlang.r-lib.org/reference/abort.html target=_blank rel=noopener><code>rlang::abort()</code></a>. This has various benefits, including better access to the backtrace and error data. All errors thrown by googlesheets4 now bear the class <code>"googlesheets4_error"</code>.</p><p><code>googlesheets4_quiet</code> is a new option to suppress informational messages from googlesheets4.
+<a href=https://googlesheets4.tidyverse.org/reference/googlesheets4-configuration.html target=_blank rel=noopener><code>local_gs4_quiet()</code></a> and
+<a href=https://googlesheets4.tidyverse.org/reference/googlesheets4-configuration.html target=_blank rel=noopener><code>with_gs4_quiet()</code></a> are
+<a href=https://withr.r-lib.org target=_blank rel=noopener>withr-style</a> convenience helpers for setting <code>googlesheets4_quiet = TRUE</code>.</p><h2 id=empty-cells>Empty cells
+<a href=#empty-cells><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>It&rsquo;s (not so) funny how much effort goes into handling the absence of data and googlesheets4 is no exception. We&rsquo;ve made a few improvements to how we read or write nothing.</p><p>The <code>na</code> argument of
+<a href=https://googlesheets4.tidyverse.org/reference/range_read.html target=_blank rel=noopener><code>read_sheet()</code></a> has become more capable and more consistent with readr. Specifically, <code>na = character()</code> (or the general lack of <code>""</code> among the <code>na</code> strings) results in cells with no data appearing as the empty string <code>""</code> within a character vector, as opposed to <code>NA</code>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>dat</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/data.frame.html>data.frame</a></span><span class=o>(</span>
+  x <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"one"</span>, <span class=s>""</span>, <span class=s>"three"</span><span class=o>)</span>
+<span class=o>)</span>
+<span class=nv>ss</span> <span class=o>&lt;-</span> <span class=nf><a href=https://googlesheets4.tidyverse.org/reference/gs4_create.html>gs4_create</a></span><span class=o>(</span><span class=s>"blog-post-blanks"</span>, sheets <span class=o>=</span> <span class=nv>dat</span><span class=o>)</span>
+<span class=c>#&gt; ✓ Creating new Sheet: "blog-post-blanks".</span>
+
+<span class=nf><a href=https://googlesheets4.tidyverse.org/reference/range_read.html>read_sheet</a></span><span class=o>(</span><span class=nv>ss</span><span class=o>)</span>
+<span class=c>#&gt; ✓ Reading from "blog-post-blanks".</span>
+<span class=c>#&gt; ✓ Range 'dat'.</span>
+<span class=c>#&gt; # A tibble: 3 x 1</span>
+<span class=c>#&gt;   x    </span>
+<span class=c>#&gt;   &lt;chr&gt;</span>
+<span class=c>#&gt; 1 one  </span>
+<span class=c>#&gt; 2 &lt;NA&gt; </span>
+<span class=c>#&gt; 3 three</span>
+
+<span class=nf><a href=https://googlesheets4.tidyverse.org/reference/range_read.html>read_sheet</a></span><span class=o>(</span><span class=nv>ss</span>, na <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/character.html>character</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span>
+<span class=c>#&gt; ✓ Reading from "blog-post-blanks".</span>
+<span class=c>#&gt; ✓ Range 'dat'.</span>
+<span class=c>#&gt; # A tibble: 3 x 1</span>
+<span class=c>#&gt;   x      </span>
+<span class=c>#&gt;   &lt;chr&gt;  </span>
+<span class=c>#&gt; 1 "one"  </span>
+<span class=c>#&gt; 2 ""     </span>
+<span class=c>#&gt; 3 "three"</span></code></pre></div><p>Explicit <code>NULL</code>s are also now written properly, i.e. as an empty cell. This can come up with list-columns. List-columns can easily creep in when working with Sheets edited by humans, who tend to create mixed columns by accident, i.e. mixing numbers and text.</p><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>We&rsquo;d like to thank everyone who has helped to shape googlesheets4, since the release of v0.2.0, through their contributions in issues and pull requests:</p><p><a href=https://github.com/aaronmams target=_blank rel=noopener>@aaronmams</a>,
+<a href=https://github.com/ajjitn target=_blank rel=noopener>@ajjitn</a>,
+<a href=https://github.com/akgold target=_blank rel=noopener>@akgold</a>,
+<a href=https://github.com/AvinaHunjan target=_blank rel=noopener>@AvinaHunjan</a>,
+<a href=https://github.com/batpigandme target=_blank rel=noopener>@batpigandme</a>,
+<a href=https://github.com/bwganblack target=_blank rel=noopener>@bwganblack</a>,
+<a href=https://github.com/cmichaud92 target=_blank rel=noopener>@cmichaud92</a>,
+<a href=https://github.com/comicalequation target=_blank rel=noopener>@comicalequation</a>,
+<a href=https://github.com/CorradoLanera target=_blank rel=noopener>@CorradoLanera</a>,
+<a href=https://github.com/cpilat97 target=_blank rel=noopener>@cpilat97</a>,
+<a href=https://github.com/daattali target=_blank rel=noopener>@daattali</a>,
+<a href=https://github.com/davidski target=_blank rel=noopener>@davidski</a>,
+<a href=https://github.com/devu123 target=_blank rel=noopener>@devu123</a>,
+<a href=https://github.com/dgmdevelopment target=_blank rel=noopener>@dgmdevelopment</a>,
+<a href=https://github.com/douglascm target=_blank rel=noopener>@douglascm</a>,
+<a href=https://github.com/dulearnaux target=_blank rel=noopener>@dulearnaux</a>,
+<a href=https://github.com/ericcrandall target=_blank rel=noopener>@ericcrandall</a>,
+<a href=https://github.com/ericpgreen target=_blank rel=noopener>@ericpgreen</a>,
+<a href=https://github.com/featherduino target=_blank rel=noopener>@featherduino</a>,
+<a href=https://github.com/felixetorres target=_blank rel=noopener>@felixetorres</a>,
+<a href=https://github.com/ferguskeatinge target=_blank rel=noopener>@ferguskeatinge</a>,
+<a href=https://github.com/ghost target=_blank rel=noopener>@ghost</a>,
+<a href=https://github.com/Helena-D target=_blank rel=noopener>@Helena-D</a>,
+<a href=https://github.com/jasonboots target=_blank rel=noopener>@jasonboots</a>,
+<a href=https://github.com/jcheng5 target=_blank rel=noopener>@jcheng5</a>,
+<a href=https://github.com/jennybc target=_blank rel=noopener>@jennybc</a>,
+<a href=https://github.com/JimboMahoney target=_blank rel=noopener>@JimboMahoney</a>,
+<a href=https://github.com/johnbde target=_blank rel=noopener>@johnbde</a>,
+<a href=https://github.com/jpawlata target=_blank rel=noopener>@jpawlata</a>,
+<a href=https://github.com/lpevzner target=_blank rel=noopener>@lpevzner</a>,
+<a href=https://github.com/marcusbrito target=_blank rel=noopener>@marcusbrito</a>,
+<a href=https://github.com/MateusMaiaDS target=_blank rel=noopener>@MateusMaiaDS</a>,
+<a href=https://github.com/mathlete76 target=_blank rel=noopener>@mathlete76</a>,
+<a href=https://github.com/mattle24 target=_blank rel=noopener>@mattle24</a>,
+<a href=https://github.com/mikegunn target=_blank rel=noopener>@mikegunn</a>,
+<a href=https://github.com/milamyslov target=_blank rel=noopener>@milamyslov</a>,
+<a href=https://github.com/MonkmanMH target=_blank rel=noopener>@MonkmanMH</a>,
+<a href=https://github.com/nicholailidow target=_blank rel=noopener>@nicholailidow</a>,
+<a href=https://github.com/nikosbosse target=_blank rel=noopener>@nikosbosse</a>,
+<a href=https://github.com/nilescbn target=_blank rel=noopener>@nilescbn</a>,
+<a href=https://github.com/OmarGonD target=_blank rel=noopener>@OmarGonD</a>,
+<a href=https://github.com/paulvern target=_blank rel=noopener>@paulvern</a>,
+<a href=https://github.com/pschloss target=_blank rel=noopener>@pschloss</a>,
+<a href=https://github.com/py9mrg target=_blank rel=noopener>@py9mrg</a>,
+<a href=https://github.com/rhamo target=_blank rel=noopener>@rhamo</a>,
+<a href=https://github.com/rhgof target=_blank rel=noopener>@rhgof</a>,
+<a href=https://github.com/robitalec target=_blank rel=noopener>@robitalec</a>,
+<a href=https://github.com/RussBowdrey target=_blank rel=noopener>@RussBowdrey</a>,
+<a href=https://github.com/sacrevert target=_blank rel=noopener>@sacrevert</a>,
+<a href=https://github.com/sanjmeh target=_blank rel=noopener>@sanjmeh</a>,
+<a href=https://github.com/SebastianJHM target=_blank rel=noopener>@SebastianJHM</a>,
+<a href=https://github.com/timothoms target=_blank rel=noopener>@timothoms</a>,
+<a href=https://github.com/TMax66 target=_blank rel=noopener>@TMax66</a>,
+<a href=https://github.com/tomcardoso target=_blank rel=noopener>@tomcardoso</a>,
+<a href=https://github.com/uhhiitsphilia target=_blank rel=noopener>@uhhiitsphilia</a>, and
+<a href=https://github.com/YlanAllouche target=_blank rel=noopener>@YlanAllouche</a>.</p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>The deprecated <code>sheets_*()</code> functions have been removed, as promised in the warning they have been throwing for over a year. No functionality was lost: this is just the result of the function (re-)naming scheme adopted in googlesheets4 >= 0.2.0. This
+<a href=https://googlesheets4.tidyverse.org/articles/articles/function-class-names.html#previous-use-of-sheets-prefix target=_blank rel=noopener>internal documentation</a> has a table that maps deprecated functions to their current counterparts. <a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#auth-updates>Auth updates</a></li><li><a href=#retries>Retries</a></li><li><a href=#user-interface>User interface</a></li><li><a href=#empty-cells>Empty cells</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

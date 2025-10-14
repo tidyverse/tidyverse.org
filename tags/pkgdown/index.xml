@@ -1,0 +1,1274 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>pkgdown | Tidyverse</title><link>https://www.tidyverse.org/tags/pkgdown/</link><atom:link href="https://www.tidyverse.org/tags/pkgdown/index.xml" rel="self" type="application/rss+xml"/><description>pkgdown</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 08 Jul 2024 00:00:00 +0000</lastBuildDate><item><title>pkgdown 2.1.0</title><link>https://www.tidyverse.org/blog/2024/07/pkgdown-2-1-0/</link><pubDate>Mon, 08 Jul 2024 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2024/07/pkgdown-2-1-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [s] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re delighted to announce the release of
+&lt;a href="http://pkgdown.r-lib.org/" target="_blank" rel="noopener">pkgdown&lt;/a> 2.1.0. pkgdown is designed to make it quick and easy to build a beautiful and accessible website for your package.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"pkgdown"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This is a massive release with a bunch of new features. I&amp;rsquo;ll highlight the most important here, but as always, I highlight recommend skimming the
+&lt;a href="https://github.com/r-lib/pkgdown/releases/tag/v2.1.0" target="_blank" rel="noopener">release notes&lt;/a> for other smaller improvements and bug fixes.&lt;/p>
+&lt;p>First, and most importantly, please join me in welcoming two new authors to pkgdown:
+&lt;a href="https://github.com/olivroy" target="_blank" rel="noopener">Olivier Roy&lt;/a> and
+&lt;a href="https://github.com/salim-b" target="_blank" rel="noopener">Salim Brüggemann&lt;/a>. They have both contributed many improvements to the package and I&amp;rsquo;m very happy to officially have them aboard as package authors.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://pkgdown.r-lib.org/'>pkgdown&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="lifecycle-changes">Lifecycle changes
+&lt;a href="#lifecycle-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Let&amp;rsquo;s get started with the important stuff, the
+&lt;a href="https://www.tidyverse.org/blog/2021/02/lifecycle-1-0-0/" target="_blank" rel="noopener">lifecycle updates&lt;/a>. Most important we&amp;rsquo;ve decided to deprecate support for Bootstrap 3, which was superseded in December 2021. We&amp;rsquo;re starting to more directly encourage folks to move away from it as maintaining two separate sets of site templates is a time sink. If you&amp;rsquo;re still using BS3, now&amp;rsquo;s the
+&lt;a href="https://www.tidyverse.org/blog/2021/12/pkgdown-2-0-0/#bootstrap-5" target="_blank" rel="noopener">time to upgrade&lt;/a>.&lt;/p>
+&lt;p>There are three other changes that are less likely to affect folks:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>The &lt;code>document&lt;/code> argument to
+&lt;a href="https://pkgdown.r-lib.org/reference/build_site.html" target="_blank" rel="noopener">&lt;code>build_site()&lt;/code>&lt;/a> and
+&lt;a href="https://pkgdown.r-lib.org/reference/build_reference.html" target="_blank" rel="noopener">&lt;code>build_reference()&lt;/code>&lt;/a> has been removed after being deprecated in pkgdown 1.4.0; use the
+&lt;a href="https://pkgdown.r-lib.org/reference/build_site.html#arg-devel" target="_blank" rel="noopener">&lt;code>devel&lt;/code> argument&lt;/a> instead.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://pkgdown.r-lib.org/reference/autolink_html.html" target="_blank" rel="noopener">&lt;code>autolink_html()&lt;/code>&lt;/a> was deprecated in pkgdown 1.6.0 and now warns every time you use it; use
+&lt;a href="https://downlit.r-lib.org/reference/downlit_html_path.html" target="_blank" rel="noopener">&lt;code>downlit::downlit_html_path()&lt;/code>&lt;/a> instead.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://pkgdown.r-lib.org/reference/preview_page.html" target="_blank" rel="noopener">&lt;code>preview_page()&lt;/code>&lt;/a> has been deprecated; use
+&lt;a href="https://pkgdown.r-lib.org/reference/preview_site.html" target="_blank" rel="noopener">&lt;code>preview_site()&lt;/code>&lt;/a> instead.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="major-new-features">Major new features
+&lt;a href="#major-new-features">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>pkgdown 2.1.0 has two major new features: support for Quarto vignettes and a new light switch that toggles between light and dark modes.&lt;/p>
+&lt;h3 id="quarto-support">Quarto support
+&lt;a href="#quarto-support">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>
+&lt;a href="https://pkgdown.r-lib.org/reference/build_articles.html" target="_blank" rel="noopener">&lt;code>build_article()&lt;/code>&lt;/a>/
+&lt;a href="https://pkgdown.r-lib.org/reference/build_articles.html" target="_blank" rel="noopener">&lt;code>build_articles()&lt;/code>&lt;/a> now support articles and vignettes written with Quarto. To use it, make sure you have the the latest version of Quarto, 1.5, which was released last week. By and large you should be able to just write in Quarto and things will just work, but you will need to make a small change to your GitHub action. Learn more at
+&lt;a href="https://pkgdown.r-lib.org/articles/quarto.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;quarto&amp;quot;)&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>Combining the individual quarto and pkgdown templating systems is a delicate art, so while I&amp;rsquo;ve done my best to make it work, there may be some rough edges. Check out the current known limitations in
+&lt;a href="https://pkgdown.r-lib.org/articles/quarto.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;quarto&amp;quot;)&lt;/code>&lt;/a>, and please file an issue if you encounter a quarto feature that doesn&amp;rsquo;t work quite right.&lt;/p>
+&lt;h3 id="light-switch">Light switch
+&lt;a href="#light-switch">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>pkgdown sites can now provide a &amp;ldquo;light switch&amp;rdquo; that allows the reader to switch between light and dark modes (based on work in bslib by
+&lt;a href="https://github.com/gadenbuie" target="_blank" rel="noopener">@gadenbuie&lt;/a>). You can try it out on &lt;a href="https://pkgdown.r-lib.org">https://pkgdown.r-lib.org&lt;/a>: the light switch appears at the far right at the navbar and remembers the users choice between visits to your site.&lt;/p>
+&lt;p>(Note that the light switch works differently to quarto dark mode. In quarto, you can provide two completely different themes for light and dark mode. In pkgdown, dark mode is a relatively thin overlay that based on your light theme colours.)&lt;/p>
+&lt;p>For now, you&amp;rsquo;ll need to opt-in to the light-switch by adding the following to your &lt;code>_pkgdown.yml&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-yaml" data-lang="yaml">template&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">light-switch&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In the future we hope to turn it on automatically.&lt;/p>
+&lt;p>You can learn more about customising the light switch in
+&lt;a href="https://pkgdown.r-lib.org/articles/customise.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;customise&amp;quot;)&lt;/code>&lt;/a>: you can choose to select your own syntax highlighting scheme for dark mode, override dark-specific BS lib variables, and move its location in the navbar.&lt;/p>
+&lt;h2 id="user-experience">User experience
+&lt;a href="#user-experience">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;ve made a bunch of small changes to enhance the user experience of pkgdown sites:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>We&amp;rsquo;ve continued in our efforts to make pkgdown sites as accessible as possible by now warning if you&amp;rsquo;ve forgotten to add alt text to images (including plots) in your articles. We&amp;rsquo;ve also added a new
+&lt;a href="https://pkgdown.r-lib.org/articles/accessibility.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;accessibility&amp;quot;)&lt;/code>&lt;/a> which describes additional manual tasks you can perform to make your site as accessible as possible.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://pkgdown.r-lib.org/reference/build_reference.html" target="_blank" rel="noopener">&lt;code>build_reference()&lt;/code>&lt;/a> adds anchors to arguments making it possible to link directly to an argument. This is very useful when you&amp;rsquo;re trying to direct folks to the documentation for a specific argument, e.g. &lt;a href="https://pkgdown.r-lib.org/reference/build_site.html#arg-devel">https://pkgdown.r-lib.org/reference/build_site.html#arg-devel&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://pkgdown.r-lib.org/reference/build_reference.html" target="_blank" rel="noopener">&lt;code>build_reference_index()&lt;/code>&lt;/a> now displays function lifecycle badges
+&lt;a href="https://pkgdown.r-lib.org/reference/index.html#deprecated-functions" target="_blank" rel="noopener">next to the function name&lt;/a>. If you want to gather together (e.g.) all the deprecated function in one spot in the reference index, you can use the new topic selector &lt;code>has_lifecycle(&amp;quot;deprecated&amp;quot;)&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The new &lt;code>template.math-rendering&lt;/code> option allows you to control how math is rendered on your site. The default uses &lt;code>mathml&lt;/code> which is zero dependency but has the lowest fidelity. If you use a lot of math on your site, you can switch back to the previous method with &lt;code>mathjax&lt;/code>, or try out &lt;code>katex&lt;/code>, a faster alternative.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>pkgdown sites no longer depend on external content distribution networks (CDN) for common javascript, CSS, and font files. CDNs no longer provide
+&lt;a href="https://www.stefanjudis.com/notes/say-goodbye-to-resource-caching-across-sites-and-domains/" target="_blank" rel="noopener">any performance advantages&lt;/a> and make deployment harder inside certain locked-down corporate environments.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>pkgdown includes translations for more terms including &amp;ldquo;Abstract&amp;rdquo; and &amp;ldquo;Search site&amp;rdquo;. A big thanks to @jplecavalier, @dieghernan, @krlmlr, @LDalby, @rich-iannone, @jmaspons, and @mine-cetinkaya-rundel for providing updated translations in French, Spanish, Portugese, Germna, Catalan, and Turkish!&lt;/p>
+&lt;p>I&amp;rsquo;ve also written
+&lt;a href="https://pkgdown.r-lib.org/articles/translations.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;translations&amp;quot;)&lt;/code>&lt;/a>, a brief vignette that discusses how translation works for non-English sites, and includes how you can create translations for new languages. (This is a great way to contribute to pkgdown if you are multi-lingual!)&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="developer-experience">Developer experience
+&lt;a href="#developer-experience">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>We&amp;rsquo;ve also made a bunch of minor improvements to make improve the package developer experience:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>YAML validation has been substantially improved so you should get much clearer errors if you have made a mistake in your &lt;code>_pkgdown.yml&lt;/code>. Please
+&lt;a href="https://github.com/r-lib/pkgdown/issues/new" target="_blank" rel="noopener">file an issue&lt;/a> if you find a case where the error message is not helpful.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The &lt;code>build_*()&lt;/code> functions (apart from
+&lt;a href="https://pkgdown.r-lib.org/reference/build_site.html" target="_blank" rel="noopener">&lt;code>build_site()&lt;/code>&lt;/a>) no longer automatically preview in interactive sessions since they all emit clickable links to any files that have changed. You can continue to use
+&lt;a href="https://pkgdown.r-lib.org/reference/preview_site.html" target="_blank" rel="noopener">&lt;code>preview_site()&lt;/code>&lt;/a> to open the site in your browser.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The &lt;code>build_*()&lt;/code> functions now work better if you&amp;rsquo;re previewing just part of a site and haven&amp;rsquo;t built the whole thing. It should no longer be necessary to run
+&lt;a href="https://pkgdown.r-lib.org/reference/init_site.html" target="_blank" rel="noopener">&lt;code>init_site()&lt;/code>&lt;/a> in most cases, and you shouldn&amp;rsquo;t be able to get into a state where you&amp;rsquo;re told to run
+&lt;a href="https://pkgdown.r-lib.org/reference/init_site.html" target="_blank" rel="noopener">&lt;code>init_site()&lt;/code>&lt;/a> and then it doesn&amp;rsquo;t work.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>We give more and clearer details of the site building process including reporting on exactly what is generated by bslib, what is copied from templates, and what redirects are generated.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all 212 folks who contributed to this release!
+&lt;a href="https://github.com/Adafede" target="_blank" rel="noopener">@Adafede&lt;/a>,
+&lt;a href="https://github.com/AEBilgrau" target="_blank" rel="noopener">@AEBilgrau&lt;/a>,
+&lt;a href="https://github.com/albertocasagrande" target="_blank" rel="noopener">@albertocasagrande&lt;/a>,
+&lt;a href="https://github.com/alex-d13" target="_blank" rel="noopener">@alex-d13&lt;/a>,
+&lt;a href="https://github.com/AliSajid" target="_blank" rel="noopener">@AliSajid&lt;/a>,
+&lt;a href="https://github.com/arkadiuszbeer" target="_blank" rel="noopener">@arkadiuszbeer&lt;/a>,
+&lt;a href="https://github.com/ArneBab" target="_blank" rel="noopener">@ArneBab&lt;/a>,
+&lt;a href="https://github.com/asadow" target="_blank" rel="noopener">@asadow&lt;/a>,
+&lt;a href="https://github.com/ateucher" target="_blank" rel="noopener">@ateucher&lt;/a>,
+&lt;a href="https://github.com/avhz" target="_blank" rel="noopener">@avhz&lt;/a>,
+&lt;a href="https://github.com/banfai" target="_blank" rel="noopener">@banfai&lt;/a>,
+&lt;a href="https://github.com/barcaroli" target="_blank" rel="noopener">@barcaroli&lt;/a>,
+&lt;a href="https://github.com/BartJanvanRossum" target="_blank" rel="noopener">@BartJanvanRossum&lt;/a>,
+&lt;a href="https://github.com/bastistician" target="_blank" rel="noopener">@bastistician&lt;/a>,
+&lt;a href="https://github.com/ben18785" target="_blank" rel="noopener">@ben18785&lt;/a>,
+&lt;a href="https://github.com/bijoychandraAU" target="_blank" rel="noopener">@bijoychandraAU&lt;/a>,
+&lt;a href="https://github.com/Bisaloo" target="_blank" rel="noopener">@Bisaloo&lt;/a>,
+&lt;a href="https://github.com/bkmgit" target="_blank" rel="noopener">@bkmgit&lt;/a>,
+&lt;a href="https://github.com/bnprks" target="_blank" rel="noopener">@bnprks&lt;/a>,
+&lt;a href="https://github.com/brycefrank" target="_blank" rel="noopener">@brycefrank&lt;/a>,
+&lt;a href="https://github.com/bschilder" target="_blank" rel="noopener">@bschilder&lt;/a>,
+&lt;a href="https://github.com/bundfussr" target="_blank" rel="noopener">@bundfussr&lt;/a>,
+&lt;a href="https://github.com/cararthompson" target="_blank" rel="noopener">@cararthompson&lt;/a>,
+&lt;a href="https://github.com/Carol-seven" target="_blank" rel="noopener">@Carol-seven&lt;/a>,
+&lt;a href="https://github.com/cbailiss" target="_blank" rel="noopener">@cbailiss&lt;/a>,
+&lt;a href="https://github.com/cboettig" target="_blank" rel="noopener">@cboettig&lt;/a>,
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/chlebowa" target="_blank" rel="noopener">@chlebowa&lt;/a>,
+&lt;a href="https://github.com/chuxinyuan" target="_blank" rel="noopener">@chuxinyuan&lt;/a>,
+&lt;a href="https://github.com/cromanpa94" target="_blank" rel="noopener">@cromanpa94&lt;/a>,
+&lt;a href="https://github.com/cthombor" target="_blank" rel="noopener">@cthombor&lt;/a>,
+&lt;a href="https://github.com/d-morrison" target="_blank" rel="noopener">@d-morrison&lt;/a>,
+&lt;a href="https://github.com/DanChaltiel" target="_blank" rel="noopener">@DanChaltiel&lt;/a>,
+&lt;a href="https://github.com/DarioS" target="_blank" rel="noopener">@DarioS&lt;/a>,
+&lt;a href="https://github.com/davidchall" target="_blank" rel="noopener">@davidchall&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dbosak01" target="_blank" rel="noopener">@dbosak01&lt;/a>,
+&lt;a href="https://github.com/dchiu911" target="_blank" rel="noopener">@dchiu911&lt;/a>,
+&lt;a href="https://github.com/ddsjoberg" target="_blank" rel="noopener">@ddsjoberg&lt;/a>,
+&lt;a href="https://github.com/DeepanshKhurana" target="_blank" rel="noopener">@DeepanshKhurana&lt;/a>,
+&lt;a href="https://github.com/dhersz" target="_blank" rel="noopener">@dhersz&lt;/a>,
+&lt;a href="https://github.com/dieghernan" target="_blank" rel="noopener">@dieghernan&lt;/a>,
+&lt;a href="https://github.com/djhocking" target="_blank" rel="noopener">@djhocking&lt;/a>,
+&lt;a href="https://github.com/dkarletsos" target="_blank" rel="noopener">@dkarletsos&lt;/a>,
+&lt;a href="https://github.com/dmurdoch" target="_blank" rel="noopener">@dmurdoch&lt;/a>,
+&lt;a href="https://github.com/dshemetov" target="_blank" rel="noopener">@dshemetov&lt;/a>,
+&lt;a href="https://github.com/dsweber2" target="_blank" rel="noopener">@dsweber2&lt;/a>,
+&lt;a href="https://github.com/dvg-p4" target="_blank" rel="noopener">@dvg-p4&lt;/a>,
+&lt;a href="https://github.com/DyfanJones" target="_blank" rel="noopener">@DyfanJones&lt;/a>,
+&lt;a href="https://github.com/ecmerkle" target="_blank" rel="noopener">@ecmerkle&lt;/a>,
+&lt;a href="https://github.com/eddelbuettel" target="_blank" rel="noopener">@eddelbuettel&lt;/a>,
+&lt;a href="https://github.com/eeholmes" target="_blank" rel="noopener">@eeholmes&lt;/a>,
+&lt;a href="https://github.com/eitsupi" target="_blank" rel="noopener">@eitsupi&lt;/a>,
+&lt;a href="https://github.com/eliocamp" target="_blank" rel="noopener">@eliocamp&lt;/a>,
+&lt;a href="https://github.com/elong0527" target="_blank" rel="noopener">@elong0527&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/erikarasnick" target="_blank" rel="noopener">@erikarasnick&lt;/a>,
+&lt;a href="https://github.com/esimms999" target="_blank" rel="noopener">@esimms999&lt;/a>,
+&lt;a href="https://github.com/espinielli" target="_blank" rel="noopener">@espinielli&lt;/a>,
+&lt;a href="https://github.com/etiennebacher" target="_blank" rel="noopener">@etiennebacher&lt;/a>,
+&lt;a href="https://github.com/ewenharrison" target="_blank" rel="noopener">@ewenharrison&lt;/a>,
+&lt;a href="https://github.com/filipsch" target="_blank" rel="noopener">@filipsch&lt;/a>,
+&lt;a href="https://github.com/FlukeAndFeather" target="_blank" rel="noopener">@FlukeAndFeather&lt;/a>,
+&lt;a href="https://github.com/francoisluc" target="_blank" rel="noopener">@francoisluc&lt;/a>,
+&lt;a href="https://github.com/friendly" target="_blank" rel="noopener">@friendly&lt;/a>,
+&lt;a href="https://github.com/fweber144" target="_blank" rel="noopener">@fweber144&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">@gaborcsardi&lt;/a>,
+&lt;a href="https://github.com/gadenbuie" target="_blank" rel="noopener">@gadenbuie&lt;/a>,
+&lt;a href="https://github.com/galachad" target="_blank" rel="noopener">@galachad&lt;/a>,
+&lt;a href="https://github.com/gangstR" target="_blank" rel="noopener">@gangstR&lt;/a>,
+&lt;a href="https://github.com/gavinsimpson" target="_blank" rel="noopener">@gavinsimpson&lt;/a>,
+&lt;a href="https://github.com/GeoBosh" target="_blank" rel="noopener">@GeoBosh&lt;/a>,
+&lt;a href="https://github.com/GFabien" target="_blank" rel="noopener">@GFabien&lt;/a>,
+&lt;a href="https://github.com/ggcostoya" target="_blank" rel="noopener">@ggcostoya&lt;/a>,
+&lt;a href="https://github.com/ghost" target="_blank" rel="noopener">@ghost&lt;/a>,
+&lt;a href="https://github.com/givison" target="_blank" rel="noopener">@givison&lt;/a>,
+&lt;a href="https://github.com/gladkia" target="_blank" rel="noopener">@gladkia&lt;/a>,
+&lt;a href="https://github.com/glin" target="_blank" rel="noopener">@glin&lt;/a>,
+&lt;a href="https://github.com/gmbecker" target="_blank" rel="noopener">@gmbecker&lt;/a>,
+&lt;a href="https://github.com/gravesti" target="_blank" rel="noopener">@gravesti&lt;/a>,
+&lt;a href="https://github.com/GregorDeCillia" target="_blank" rel="noopener">@GregorDeCillia&lt;/a>,
+&lt;a href="https://github.com/gregorypenn" target="_blank" rel="noopener">@gregorypenn&lt;/a>,
+&lt;a href="https://github.com/gsmolinski" target="_blank" rel="noopener">@gsmolinski&lt;/a>,
+&lt;a href="https://github.com/gsrohde" target="_blank" rel="noopener">@gsrohde&lt;/a>,
+&lt;a href="https://github.com/gungorMetehan" target="_blank" rel="noopener">@gungorMetehan&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/harshkrishna17" target="_blank" rel="noopener">@harshkrishna17&lt;/a>,
+&lt;a href="https://github.com/HenrikBengtsson" target="_blank" rel="noopener">@HenrikBengtsson&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/hrecht" target="_blank" rel="noopener">@hrecht&lt;/a>,
+&lt;a href="https://github.com/hsloot" target="_blank" rel="noopener">@hsloot&lt;/a>,
+&lt;a href="https://github.com/idavydov" target="_blank" rel="noopener">@idavydov&lt;/a>,
+&lt;a href="https://github.com/idmn" target="_blank" rel="noopener">@idmn&lt;/a>,
+&lt;a href="https://github.com/igordot" target="_blank" rel="noopener">@igordot&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/jabenninghoff" target="_blank" rel="noopener">@jabenninghoff&lt;/a>,
+&lt;a href="https://github.com/jack-davison" target="_blank" rel="noopener">@jack-davison&lt;/a>,
+&lt;a href="https://github.com/jangorecki" target="_blank" rel="noopener">@jangorecki&lt;/a>,
+&lt;a href="https://github.com/jayhesselberth" target="_blank" rel="noopener">@jayhesselberth&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jeroen" target="_blank" rel="noopener">@jeroen&lt;/a>,
+&lt;a href="https://github.com/JerryWho" target="_blank" rel="noopener">@JerryWho&lt;/a>,
+&lt;a href="https://github.com/jhelvy" target="_blank" rel="noopener">@jhelvy&lt;/a>,
+&lt;a href="https://github.com/jmaspons" target="_blank" rel="noopener">@jmaspons&lt;/a>,
+&lt;a href="https://github.com/john-harrold" target="_blank" rel="noopener">@john-harrold&lt;/a>,
+&lt;a href="https://github.com/john-ioannides" target="_blank" rel="noopener">@john-ioannides&lt;/a>,
+&lt;a href="https://github.com/jonasmuench" target="_blank" rel="noopener">@jonasmuench&lt;/a>,
+&lt;a href="https://github.com/jonnybaik" target="_blank" rel="noopener">@jonnybaik&lt;/a>,
+&lt;a href="https://github.com/josherrickson" target="_blank" rel="noopener">@josherrickson&lt;/a>,
+&lt;a href="https://github.com/joshualerickson" target="_blank" rel="noopener">@joshualerickson&lt;/a>,
+&lt;a href="https://github.com/JosiahParry" target="_blank" rel="noopener">@JosiahParry&lt;/a>,
+&lt;a href="https://github.com/jplecavalier" target="_blank" rel="noopener">@jplecavalier&lt;/a>,
+&lt;a href="https://github.com/JSchoenbachler" target="_blank" rel="noopener">@JSchoenbachler&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/jwimberl" target="_blank" rel="noopener">@jwimberl&lt;/a>,
+&lt;a href="https://github.com/kalaschnik" target="_blank" rel="noopener">@kalaschnik&lt;/a>,
+&lt;a href="https://github.com/kevinushey" target="_blank" rel="noopener">@kevinushey&lt;/a>,
+&lt;a href="https://github.com/klmr" target="_blank" rel="noopener">@klmr&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/LDalby" target="_blank" rel="noopener">@LDalby&lt;/a>,
+&lt;a href="https://github.com/ldecicco-USGS" target="_blank" rel="noopener">@ldecicco-USGS&lt;/a>,
+&lt;a href="https://github.com/lhdjung" target="_blank" rel="noopener">@lhdjung&lt;/a>,
+&lt;a href="https://github.com/LiNk-NY" target="_blank" rel="noopener">@LiNk-NY&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/Liripo" target="_blank" rel="noopener">@Liripo&lt;/a>,
+&lt;a href="https://github.com/lorenzwalthert" target="_blank" rel="noopener">@lorenzwalthert&lt;/a>,
+&lt;a href="https://github.com/lschneiderbauer" target="_blank" rel="noopener">@lschneiderbauer&lt;/a>,
+&lt;a href="https://github.com/mabesa" target="_blank" rel="noopener">@mabesa&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/maRce10" target="_blank" rel="noopener">@maRce10&lt;/a>,
+&lt;a href="https://github.com/margotbligh" target="_blank" rel="noopener">@margotbligh&lt;/a>,
+&lt;a href="https://github.com/marine-ecologist" target="_blank" rel="noopener">@marine-ecologist&lt;/a>,
+&lt;a href="https://github.com/markfairbanks" target="_blank" rel="noopener">@markfairbanks&lt;/a>,
+&lt;a href="https://github.com/martinlaw" target="_blank" rel="noopener">@martinlaw&lt;/a>,
+&lt;a href="https://github.com/matt-dray" target="_blank" rel="noopener">@matt-dray&lt;/a>,
+&lt;a href="https://github.com/mattfidler" target="_blank" rel="noopener">@mattfidler&lt;/a>,
+&lt;a href="https://github.com/matthewjnield" target="_blank" rel="noopener">@matthewjnield&lt;/a>,
+&lt;a href="https://github.com/MattPM" target="_blank" rel="noopener">@MattPM&lt;/a>,
+&lt;a href="https://github.com/mccarthy-m-g" target="_blank" rel="noopener">@mccarthy-m-g&lt;/a>,
+&lt;a href="https://github.com/MEO265" target="_blank" rel="noopener">@MEO265&lt;/a>,
+&lt;a href="https://github.com/merliseclyde" target="_blank" rel="noopener">@merliseclyde&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/mikeblazanin" target="_blank" rel="noopener">@mikeblazanin&lt;/a>,
+&lt;a href="https://github.com/mikeroswell" target="_blank" rel="noopener">@mikeroswell&lt;/a>,
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>,
+&lt;a href="https://github.com/MLopez-Ibanez" target="_blank" rel="noopener">@MLopez-Ibanez&lt;/a>,
+&lt;a href="https://github.com/Moohan" target="_blank" rel="noopener">@Moohan&lt;/a>,
+&lt;a href="https://github.com/mpadge" target="_blank" rel="noopener">@mpadge&lt;/a>,
+&lt;a href="https://github.com/mrcaseb" target="_blank" rel="noopener">@mrcaseb&lt;/a>,
+&lt;a href="https://github.com/mrchypark" target="_blank" rel="noopener">@mrchypark&lt;/a>,
+&lt;a href="https://github.com/ms609" target="_blank" rel="noopener">@ms609&lt;/a>,
+&lt;a href="https://github.com/msberends" target="_blank" rel="noopener">@msberends&lt;/a>,
+&lt;a href="https://github.com/musvaage" target="_blank" rel="noopener">@musvaage&lt;/a>,
+&lt;a href="https://github.com/nanxstats" target="_blank" rel="noopener">@nanxstats&lt;/a>,
+&lt;a href="https://github.com/nathaneastwood" target="_blank" rel="noopener">@nathaneastwood&lt;/a>,
+&lt;a href="https://github.com/netique" target="_blank" rel="noopener">@netique&lt;/a>,
+&lt;a href="https://github.com/nicholascarey" target="_blank" rel="noopener">@nicholascarey&lt;/a>,
+&lt;a href="https://github.com/nicolerg" target="_blank" rel="noopener">@nicolerg&lt;/a>,
+&lt;a href="https://github.com/olivroy" target="_blank" rel="noopener">@olivroy&lt;/a>,
+&lt;a href="https://github.com/pearsonca" target="_blank" rel="noopener">@pearsonca&lt;/a>,
+&lt;a href="https://github.com/peterdesmet" target="_blank" rel="noopener">@peterdesmet&lt;/a>,
+&lt;a href="https://github.com/phauchamps" target="_blank" rel="noopener">@phauchamps&lt;/a>,
+&lt;a href="https://github.com/przmv" target="_blank" rel="noopener">@przmv&lt;/a>,
+&lt;a href="https://github.com/quantsch" target="_blank" rel="noopener">@quantsch&lt;/a>,
+&lt;a href="https://github.com/ramiromagno" target="_blank" rel="noopener">@ramiromagno&lt;/a>,
+&lt;a href="https://github.com/rcannood" target="_blank" rel="noopener">@rcannood&lt;/a>,
+&lt;a href="https://github.com/rempsyc" target="_blank" rel="noopener">@rempsyc&lt;/a>,
+&lt;a href="https://github.com/rgaiacs" target="_blank" rel="noopener">@rgaiacs&lt;/a>,
+&lt;a href="https://github.com/rich-iannone" target="_blank" rel="noopener">@rich-iannone&lt;/a>,
+&lt;a href="https://github.com/rickhelmus" target="_blank" rel="noopener">@rickhelmus&lt;/a>,
+&lt;a href="https://github.com/rmflight" target="_blank" rel="noopener">@rmflight&lt;/a>,
+&lt;a href="https://github.com/robmoss" target="_blank" rel="noopener">@robmoss&lt;/a>,
+&lt;a href="https://github.com/royfrancis" target="_blank" rel="noopener">@royfrancis&lt;/a>,
+&lt;a href="https://github.com/rsangole" target="_blank" rel="noopener">@rsangole&lt;/a>,
+&lt;a href="https://github.com/ryantibs" target="_blank" rel="noopener">@ryantibs&lt;/a>,
+&lt;a href="https://github.com/salim-b" target="_blank" rel="noopener">@salim-b&lt;/a>,
+&lt;a href="https://github.com/samuel-marsh" target="_blank" rel="noopener">@samuel-marsh&lt;/a>,
+&lt;a href="https://github.com/SebKrantz" target="_blank" rel="noopener">@SebKrantz&lt;/a>,
+&lt;a href="https://github.com/SESjo" target="_blank" rel="noopener">@SESjo&lt;/a>,
+&lt;a href="https://github.com/sgvignali" target="_blank" rel="noopener">@sgvignali&lt;/a>,
+&lt;a href="https://github.com/spsanderson" target="_blank" rel="noopener">@spsanderson&lt;/a>,
+&lt;a href="https://github.com/srfall" target="_blank" rel="noopener">@srfall&lt;/a>,
+&lt;a href="https://github.com/stefanoborini" target="_blank" rel="noopener">@stefanoborini&lt;/a>,
+&lt;a href="https://github.com/stephenashton-dhsc" target="_blank" rel="noopener">@stephenashton-dhsc&lt;/a>,
+&lt;a href="https://github.com/strengejacke" target="_blank" rel="noopener">@strengejacke&lt;/a>,
+&lt;a href="https://github.com/swsoyee" target="_blank" rel="noopener">@swsoyee&lt;/a>,
+&lt;a href="https://github.com/t-kalinowski" target="_blank" rel="noopener">@t-kalinowski&lt;/a>,
+&lt;a href="https://github.com/talgalili" target="_blank" rel="noopener">@talgalili&lt;/a>,
+&lt;a href="https://github.com/tanho63" target="_blank" rel="noopener">@tanho63&lt;/a>,
+&lt;a href="https://github.com/tedmoorman" target="_blank" rel="noopener">@tedmoorman&lt;/a>,
+&lt;a href="https://github.com/telphick" target="_blank" rel="noopener">@telphick&lt;/a>,
+&lt;a href="https://github.com/TFKentUSDA" target="_blank" rel="noopener">@TFKentUSDA&lt;/a>,
+&lt;a href="https://github.com/ThierryO" target="_blank" rel="noopener">@ThierryO&lt;/a>,
+&lt;a href="https://github.com/thisisnic" target="_blank" rel="noopener">@thisisnic&lt;/a>,
+&lt;a href="https://github.com/thomasp85" target="_blank" rel="noopener">@thomasp85&lt;/a>,
+&lt;a href="https://github.com/tomsing1" target="_blank" rel="noopener">@tomsing1&lt;/a>,
+&lt;a href="https://github.com/tony-aw" target="_blank" rel="noopener">@tony-aw&lt;/a>,
+&lt;a href="https://github.com/trevorld" target="_blank" rel="noopener">@trevorld&lt;/a>,
+&lt;a href="https://github.com/tylerlittlefield" target="_blank" rel="noopener">@tylerlittlefield&lt;/a>,
+&lt;a href="https://github.com/uriahf" target="_blank" rel="noopener">@uriahf&lt;/a>,
+&lt;a href="https://github.com/urswilke" target="_blank" rel="noopener">@urswilke&lt;/a>,
+&lt;a href="https://github.com/ValValetl" target="_blank" rel="noopener">@ValValetl&lt;/a>,
+&lt;a href="https://github.com/venpopov" target="_blank" rel="noopener">@venpopov&lt;/a>,
+&lt;a href="https://github.com/vincentvanhees" target="_blank" rel="noopener">@vincentvanhees&lt;/a>,
+&lt;a href="https://github.com/wangq13" target="_blank" rel="noopener">@wangq13&lt;/a>,
+&lt;a href="https://github.com/willgearty" target="_blank" rel="noopener">@willgearty&lt;/a>,
+&lt;a href="https://github.com/wviechtb" target="_blank" rel="noopener">@wviechtb&lt;/a>,
+&lt;a href="https://github.com/xuyiqing" target="_blank" rel="noopener">@xuyiqing&lt;/a>,
+&lt;a href="https://github.com/yjunechoe" target="_blank" rel="noopener">@yjunechoe&lt;/a>,
+&lt;a href="https://github.com/ynsec37" target="_blank" rel="noopener">@ynsec37&lt;/a>,
+&lt;a href="https://github.com/zeehio" target="_blank" rel="noopener">@zeehio&lt;/a>, and
+&lt;a href="https://github.com/zkamvar" target="_blank" rel="noopener">@zkamvar&lt;/a>.&lt;/p></description></item><item><title>pkgdown 2.0.0</title><link>https://www.tidyverse.org/blog/2021/12/pkgdown-2-0-0/</link><pubDate>Fri, 03 Dec 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/12/pkgdown-2-0-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re very chuffed to announce the release of
+&lt;a href="https://pkgdown.r-lib.org" target="_blank" rel="noopener">pkgdown&lt;/a> 2.0.0. pkgdown is designed to make it quick and easy to build a website for your package. Install it with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"pkgdown"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This is a massive release that brings a major visual refresh and a huge number of improvements. This release would not have been possible without pkgdown&amp;rsquo;s newest author,
+&lt;a href="https://masalmon.eu" target="_blank" rel="noopener">Maëlle Salmon&lt;/a>, who was the powerhouse behind many of the improvements in this release, particularly the switch to Bootstrap 5, improved customisation, and implementation of local search.&lt;/p>
+&lt;p>There are way too many changes to describe individually here, so this post will focus on the most important new features:&lt;/p>
+&lt;ul>
+&lt;li>The new template that uses Bootstrap 5.&lt;/li>
+&lt;li>The exciting new ways to customise your site.&lt;/li>
+&lt;li>Some of the biggest changes to code display.&lt;/li>
+&lt;li>A grab bag of other cool features.&lt;/li>
+&lt;/ul>
+&lt;p>See the
+&lt;a href="https://pkgdown.r-lib.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a> for a complete list of everything that&amp;rsquo;s changed.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://pkgdown.r-lib.org'>pkgdown&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="bootstrap-5">Bootstrap 5
+&lt;a href="#bootstrap-5">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>pkgdown comes with a refreshed template that uses
+&lt;a href="https://getbootstrap.com/docs/5.1/getting-started/introduction/" target="_blank" rel="noopener">Bootstrap 5&lt;/a>, a major update over the previous
+&lt;a href="https://getbootstrap.com/docs/3.4/" target="_blank" rel="noopener">Bootstrap 3&lt;/a>. (Bootstrap is the collection of HTML, CSS, and JS files that give pkgdown sites their basic style). Because this is a major change, you&amp;rsquo;ll need to opt-in by setting the &lt;code>boostrap&lt;/code> version in your &lt;code>_pkgdown.yml&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="k">template&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">bootstrap&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The old Bootstrap 3 template is superseded; it will continue to work for some time, but it won&amp;rsquo;t gain any new features and we encourage you to switch to the new template the next time you&amp;rsquo;re working on your package.&lt;/p>
+&lt;p>The new theme includes:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>A number of minor improvements to accessibility, including a larger font size, greater use of &lt;code>aria&lt;/code> attributes, and an
+&lt;a href="https://apreshill.github.io/rmda11y/arrow.html" target="_blank" rel="noopener">accessible syntax highlighting colour scheme&lt;/a>, designed by Alison Hill.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Support for new features like in-line footnotes and
+&lt;a href="https://bookdown.org/yihui/rmarkdown-cookbook/html-tabs.html" target="_blank" rel="noopener">tabsets in articles&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Since so many packages have lovely logos, the package logo is now displayed on every page and made even more prominent on the home page.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>As an added incentive to upgrade your template to Bootstrap 5, you&amp;rsquo;ll get site search for &amp;ldquo;free&amp;rdquo;: pkgdown now supports searching with no external dependencies and no setup. Learn more in
+&lt;a href="https://pkgdown.r-lib.org/articles/search.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;search&amp;quot;)&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="customisation">Customisation
+&lt;a href="#customisation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The new template is also much easier to customise. A few of the most important features are noted below to whet your appetite; learn more in
+&lt;a href="https://pkgdown.r-lib.org/articles/customise.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;customise&amp;quot;)&lt;/code>&lt;/a>.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>You can now easily change the overall visual appearance by picking a Bootswatch theme:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="k">template&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">bootstrap&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">bootswatch&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>cyborg&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Or by selectively overriding the &amp;ldquo;
+&lt;a href="https://rstudio.github.io/bslib/" target="_blank" rel="noopener">bslib&lt;/a>&amp;rdquo; variables used to generate the CSS:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="k">template&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">bootstrap&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">bslib&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">bg&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;#202123&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">fg&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;#B8BCC2&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">primary&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;#306cc9&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">base_font&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>{&lt;span class="k">google&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;Roboto&amp;#34;&lt;/span>}&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can also choose a different syntax highlighting theme:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="k">template&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">bootstrap&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">theme&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>arrow-dark&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>If any of these options sound intriguing, read
+&lt;a href="https://pkgdown.r-lib.org/articles/customise.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;customise&amp;quot;)&lt;/code>&lt;/a> to get the full details!&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>You can now translate the English text that pkgdown contributes to each page. This means that if you&amp;rsquo;ve written your package documentation in another language, you can ensure that language is also used on every part of the page. Activate the translations by setting the &lt;code>lang&lt;/code> field in &lt;code>_pkgdown.yaml&lt;/code>, e.g.:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="k">lang&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>fr&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>pkgdown includes translations for Spanish (es), German (de), French (fr), Portuguese (pt), Turkish (tr) and Chinese (zh_CN). A big thanks to my colleagues who provided the initial translations, and to
+&lt;a href="https://github.com/dieghernan" target="_blank" rel="noopener">@dieghernan&lt;/a>,
+&lt;a href="https://github.com/rivaquiroga" target="_blank" rel="noopener">@rivaquiroga&lt;/a>,
+&lt;a href="https://github.com/jplecavalier" target="_blank" rel="noopener">@jplecavalier&lt;/a> who supplied additional improvements. If you&amp;rsquo;re interested in adding translations for your language please
+&lt;a href="https://github.com/r-lib/pkgdown/issues" target="_blank" rel="noopener">file an issue&lt;/a> and we&amp;rsquo;ll help you get started.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>You can add arbitrary HTML to every page with the new &lt;code>includes&lt;/code> parameter. This makes it easy to add analytics to your site, e.g. to use
+&lt;a href="https://plausible.io" target="_blank" rel="noopener">plausible.io&lt;/a>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="k">templates&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">includes&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">in_header&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="sd">|
+&lt;/span>&lt;span class="sd"> &amp;lt;script defer data-domain=&amp;#34;{YOUR DOMAIN}&amp;#34; src=&amp;#34;https://plausible.io/js/plausible.js&amp;#34;&amp;gt;&amp;lt;/script&amp;gt;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Learn more in
+&lt;a href="https://pkgdown.r-lib.org/reference/build_site.html" target="_blank" rel="noopener">&lt;code>?build_site&lt;/code>&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The author, sidebar, and footer configuration is much more flexible, allowing you to customise individual components while keeping most of the defaults (previously customisation was mostly all or nothing). See
+&lt;a href="https://pkgdown.r-lib.org/reference/build_home.html" target="_blank" rel="noopener">&lt;code>?build_home&lt;/code>&lt;/a> and
+&lt;a href="https://pkgdown.r-lib.org/reference/build_site.html" target="_blank" rel="noopener">&lt;code>?build_site&lt;/code>&lt;/a> for details.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="code-display">Code display
+&lt;a href="#code-display">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We made a bunch of smaller tweaks to the display of code:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Errors, warnings, and messages are styled minimally to make it easier for package authors to use their own colours and styles.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Articles now include colours and font formatting applied by the
+&lt;a href="https://cli.r-lib.org" target="_blank" rel="noopener">cli&lt;/a> or crayon packages.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Long lines in code output are now wrapped, not scrolled. This better matches
+&lt;a href="https://pkgs.rstudio.com/rmarkdown/reference/html_document.html" target="_blank" rel="noopener">&lt;code>rmarkdown::html_document()&lt;/code>&lt;/a> and what you see in the console.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>You can globally set the &lt;code>width&lt;/code> of code output (in reference and articles) with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="k">code&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">width&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">50&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>The copy button now automatically omits output lines (e.g. &lt;code>#&amp;gt;&lt;/code>).&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="other-new-features">Other new features
+&lt;a href="#other-new-features">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>
+&lt;p>If you need to move pages, you can provide &lt;code>redirects&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="k">redirects&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>- &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;articles/old-vignette-name.html&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;articles/new-vignette-name.html&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>- &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;articles/another-old-vignette-name.html&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;articles/new-vignette-name.html&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>- &lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;articles/yet-another-old-vignette-name.html&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;https://pkgdown.r-lib.org/dev&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>(Old path on the left, new path on the right)&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>You can selectively show HTML only on the devel or release site by adding class &lt;code>pkgdown-devel&lt;/code> or &lt;code>pkgdown-release&lt;/code>. This is most easily accessed from &lt;code>.Rmd&lt;/code> files where you can use pandoc&amp;rsquo;s &lt;code>&amp;lt;div&amp;gt;&lt;/code> syntax to control where a block of markdown will display. For example, you can use the following markdown in your README to only show GitHub install instructions on the development version of your site:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-md" data-lang="md">::: {.pkgdown-devel}
+You can install the development version of pkgdown from GitHub with:
+&lt;span class="sb">`remotes::install_github(&amp;#34;r-lib/pkgdown&amp;#34;)`&lt;/span>
+:::
+&lt;/code>&lt;/pre>&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>Support for &lt;code>as_is: true&lt;/code> and custom output formats for vignettes/articles has been somewhat improved. Support is fundamentally limited due to the challenges of integrating HTML from output formats that pkgdown doesn&amp;rsquo;t know about, but it should be a little more reliable and a little better documented.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://github.com/1beb" target="_blank" rel="noopener">@1beb&lt;/a>,
+&lt;a href="https://github.com/a-beretta" target="_blank" rel="noopener">@a-beretta&lt;/a>,
+&lt;a href="https://github.com/aaamini" target="_blank" rel="noopener">@aaamini&lt;/a>,
+&lt;a href="https://github.com/adamsma" target="_blank" rel="noopener">@adamsma&lt;/a>,
+&lt;a href="https://github.com/AdrianAntico" target="_blank" rel="noopener">@AdrianAntico&lt;/a>,
+&lt;a href="https://github.com/alanaw1" target="_blank" rel="noopener">@alanaw1&lt;/a>,
+&lt;a href="https://github.com/aleruete" target="_blank" rel="noopener">@aleruete&lt;/a>,
+&lt;a href="https://github.com/amirmasoudabdol" target="_blank" rel="noopener">@amirmasoudabdol&lt;/a>,
+&lt;a href="https://github.com/Anirban166" target="_blank" rel="noopener">@Anirban166&lt;/a>,
+&lt;a href="https://github.com/apreshill" target="_blank" rel="noopener">@apreshill&lt;/a>,
+&lt;a href="https://github.com/arisp99" target="_blank" rel="noopener">@arisp99&lt;/a>,
+&lt;a href="https://github.com/atusy" target="_blank" rel="noopener">@atusy&lt;/a>,
+&lt;a href="https://github.com/ayushnoori" target="_blank" rel="noopener">@ayushnoori&lt;/a>,
+&lt;a href="https://github.com/b4D8" target="_blank" rel="noopener">@b4D8&lt;/a>,
+&lt;a href="https://github.com/bastistician" target="_blank" rel="noopener">@bastistician&lt;/a>,
+&lt;a href="https://github.com/bbolker" target="_blank" rel="noopener">@bbolker&lt;/a>,
+&lt;a href="https://github.com/Bisaloo" target="_blank" rel="noopener">@Bisaloo&lt;/a>,
+&lt;a href="https://github.com/c4f3a0ce" target="_blank" rel="noopener">@c4f3a0ce&lt;/a>,
+&lt;a href="https://github.com/cbailiss" target="_blank" rel="noopener">@cbailiss&lt;/a>,
+&lt;a href="https://github.com/cboettig" target="_blank" rel="noopener">@cboettig&lt;/a>,
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/chrarnold" target="_blank" rel="noopener">@chrarnold&lt;/a>,
+&lt;a href="https://github.com/colearendt" target="_blank" rel="noopener">@colearendt&lt;/a>,
+&lt;a href="https://github.com/cpsievert" target="_blank" rel="noopener">@cpsievert&lt;/a>,
+&lt;a href="https://github.com/crazycapivara" target="_blank" rel="noopener">@crazycapivara&lt;/a>,
+&lt;a href="https://github.com/davidchall" target="_blank" rel="noopener">@davidchall&lt;/a>,
+&lt;a href="https://github.com/DavidPatShuiFong" target="_blank" rel="noopener">@DavidPatShuiFong&lt;/a>,
+&lt;a href="https://github.com/dcnorris" target="_blank" rel="noopener">@dcnorris&lt;/a>,
+&lt;a href="https://github.com/dcousin3" target="_blank" rel="noopener">@dcousin3&lt;/a>,
+&lt;a href="https://github.com/debruine" target="_blank" rel="noopener">@debruine&lt;/a>,
+&lt;a href="https://github.com/dfriend21" target="_blank" rel="noopener">@dfriend21&lt;/a>,
+&lt;a href="https://github.com/dieghernan" target="_blank" rel="noopener">@dieghernan&lt;/a>,
+&lt;a href="https://github.com/djnavarro" target="_blank" rel="noopener">@djnavarro&lt;/a>,
+&lt;a href="https://github.com/dmurdoch" target="_blank" rel="noopener">@dmurdoch&lt;/a>,
+&lt;a href="https://github.com/drwilkins" target="_blank" rel="noopener">@drwilkins&lt;/a>,
+&lt;a href="https://github.com/earowang" target="_blank" rel="noopener">@earowang&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/exploringfinance" target="_blank" rel="noopener">@exploringfinance&lt;/a>,
+&lt;a href="https://github.com/fangzhou-xie" target="_blank" rel="noopener">@fangzhou-xie&lt;/a>,
+&lt;a href="https://github.com/fenguoerbian" target="_blank" rel="noopener">@fenguoerbian&lt;/a>,
+&lt;a href="https://github.com/francojc" target="_blank" rel="noopener">@francojc&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">@gaborcsardi&lt;/a>,
+&lt;a href="https://github.com/gadenbuie" target="_blank" rel="noopener">@gadenbuie&lt;/a>,
+&lt;a href="https://github.com/GeoBosh" target="_blank" rel="noopener">@GeoBosh&lt;/a>,
+&lt;a href="https://github.com/GitHunter0" target="_blank" rel="noopener">@GitHunter0&lt;/a>,
+&lt;a href="https://github.com/gustavdelius" target="_blank" rel="noopener">@gustavdelius&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/HenrikBengtsson" target="_blank" rel="noopener">@HenrikBengtsson&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/ijlyttle" target="_blank" rel="noopener">@ijlyttle&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/JakeVestal" target="_blank" rel="noopener">@JakeVestal&lt;/a>,
+&lt;a href="https://github.com/jakob-wirbel" target="_blank" rel="noopener">@jakob-wirbel&lt;/a>,
+&lt;a href="https://github.com/JamesHWade" target="_blank" rel="noopener">@JamesHWade&lt;/a>,
+&lt;a href="https://github.com/jayhesselberth" target="_blank" rel="noopener">@jayhesselberth&lt;/a>,
+&lt;a href="https://github.com/JedGrabman" target="_blank" rel="noopener">@JedGrabman&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jessekps" target="_blank" rel="noopener">@jessekps&lt;/a>,
+&lt;a href="https://github.com/jhelvy" target="_blank" rel="noopener">@jhelvy&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/john-harrold" target="_blank" rel="noopener">@john-harrold&lt;/a>,
+&lt;a href="https://github.com/jonkeane" target="_blank" rel="noopener">@jonkeane&lt;/a>,
+&lt;a href="https://github.com/jplecavalier" target="_blank" rel="noopener">@jplecavalier&lt;/a>,
+&lt;a href="https://github.com/jrosen48" target="_blank" rel="noopener">@jrosen48&lt;/a>,
+&lt;a href="https://github.com/jscott6" target="_blank" rel="noopener">@jscott6&lt;/a>,
+&lt;a href="https://github.com/kevinushey" target="_blank" rel="noopener">@kevinushey&lt;/a>,
+&lt;a href="https://github.com/kjhealy" target="_blank" rel="noopener">@kjhealy&lt;/a>,
+&lt;a href="https://github.com/klmr" target="_blank" rel="noopener">@klmr&lt;/a>,
+&lt;a href="https://github.com/krassowski" target="_blank" rel="noopener">@krassowski&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/kuriwaki" target="_blank" rel="noopener">@kuriwaki&lt;/a>,
+&lt;a href="https://github.com/kyleam" target="_blank" rel="noopener">@kyleam&lt;/a>,
+&lt;a href="https://github.com/laresbernardo" target="_blank" rel="noopener">@laresbernardo&lt;/a>,
+&lt;a href="https://github.com/lbusett" target="_blank" rel="noopener">@lbusett&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/ManuelHentschel" target="_blank" rel="noopener">@ManuelHentschel&lt;/a>,
+&lt;a href="https://github.com/MarkEdmondson1234" target="_blank" rel="noopener">@MarkEdmondson1234&lt;/a>,
+&lt;a href="https://github.com/matthewstrasiotto" target="_blank" rel="noopener">@matthewstrasiotto&lt;/a>,
+&lt;a href="https://github.com/mattwarkentin" target="_blank" rel="noopener">@mattwarkentin&lt;/a>,
+&lt;a href="https://github.com/maxheld83" target="_blank" rel="noopener">@maxheld83&lt;/a>,
+&lt;a href="https://github.com/mcanouil" target="_blank" rel="noopener">@mcanouil&lt;/a>,
+&lt;a href="https://github.com/mfherman" target="_blank" rel="noopener">@mfherman&lt;/a>,
+&lt;a href="https://github.com/mikeroswell" target="_blank" rel="noopener">@mikeroswell&lt;/a>,
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>,
+&lt;a href="https://github.com/mjsteinbaugh" target="_blank" rel="noopener">@mjsteinbaugh&lt;/a>,
+&lt;a href="https://github.com/moutikabdessabour" target="_blank" rel="noopener">@moutikabdessabour&lt;/a>,
+&lt;a href="https://github.com/mrcaseb" target="_blank" rel="noopener">@mrcaseb&lt;/a>,
+&lt;a href="https://github.com/msberends" target="_blank" rel="noopener">@msberends&lt;/a>,
+&lt;a href="https://github.com/mtkerbeR" target="_blank" rel="noopener">@mtkerbeR&lt;/a>,
+&lt;a href="https://github.com/nandp1" target="_blank" rel="noopener">@nandp1&lt;/a>,
+&lt;a href="https://github.com/npranav10" target="_blank" rel="noopener">@npranav10&lt;/a>,
+&lt;a href="https://github.com/p-carter" target="_blank" rel="noopener">@p-carter&lt;/a>,
+&lt;a href="https://github.com/pachadotdev" target="_blank" rel="noopener">@pachadotdev&lt;/a>,
+&lt;a href="https://github.com/paulponcet" target="_blank" rel="noopener">@paulponcet&lt;/a>,
+&lt;a href="https://github.com/peterblattmann" target="_blank" rel="noopener">@peterblattmann&lt;/a>,
+&lt;a href="https://github.com/renejuan" target="_blank" rel="noopener">@renejuan&lt;/a>,
+&lt;a href="https://github.com/rich-iannone" target="_blank" rel="noopener">@rich-iannone&lt;/a>,
+&lt;a href="https://github.com/Rmomal" target="_blank" rel="noopener">@Rmomal&lt;/a>,
+&lt;a href="https://github.com/Robinlovelace" target="_blank" rel="noopener">@Robinlovelace&lt;/a>,
+&lt;a href="https://github.com/royfrancis" target="_blank" rel="noopener">@royfrancis&lt;/a>,
+&lt;a href="https://github.com/rundel" target="_blank" rel="noopener">@rundel&lt;/a>,
+&lt;a href="https://github.com/salim-b" target="_blank" rel="noopener">@salim-b&lt;/a>,
+&lt;a href="https://github.com/samuel-marsh" target="_blank" rel="noopener">@samuel-marsh&lt;/a>,
+&lt;a href="https://github.com/samuel-rosa" target="_blank" rel="noopener">@samuel-rosa&lt;/a>,
+&lt;a href="https://github.com/sarahemlin" target="_blank" rel="noopener">@sarahemlin&lt;/a>,
+&lt;a href="https://github.com/SchmidtPaul" target="_blank" rel="noopener">@SchmidtPaul&lt;/a>,
+&lt;a href="https://github.com/statnmap" target="_blank" rel="noopener">@statnmap&lt;/a>,
+&lt;a href="https://github.com/stefanoborini" target="_blank" rel="noopener">@stefanoborini&lt;/a>,
+&lt;a href="https://github.com/strengejacke" target="_blank" rel="noopener">@strengejacke&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>,
+&lt;a href="https://github.com/vandenman" target="_blank" rel="noopener">@vandenman&lt;/a>,
+&lt;a href="https://github.com/wlandau" target="_blank" rel="noopener">@wlandau&lt;/a>,
+&lt;a href="https://github.com/wolski" target="_blank" rel="noopener">@wolski&lt;/a>,
+&lt;a href="https://github.com/wviechtb" target="_blank" rel="noopener">@wviechtb&lt;/a>,
+&lt;a href="https://github.com/ycphs" target="_blank" rel="noopener">@ycphs&lt;/a>, and
+&lt;a href="https://github.com/yitao-li" target="_blank" rel="noopener">@yitao-li&lt;/a>.&lt;/p></description></item><item><title>pkgdown 1.6.0</title><link>https://www.tidyverse.org/blog/2020/09/pkgdown-1-6-0/</link><pubDate>Sat, 12 Sep 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/09/pkgdown-1-6-0/</guid><description>&lt;p>We&amp;rsquo;re stoked to announce the release of
+&lt;a href="%7B%20home%20%7D">pkgdown&lt;/a> 1.6.0. pkgdown is designed to make it quick and easy to build a website for your package. Install it with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>(&lt;span class='s'>"pkgdown"&lt;/span>)
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This release mostly contains a bunch of minor improvements and bug fixes that you can read about in the
+&lt;a href="https://pkgdown.r-lib.org/news/index.html#pkgdown-1-6-0-2020-09-07" target="_blank" rel="noopener">release notes&lt;/a>. But there are two major changes:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>The syntax highlighing and autolinking is now powered by the new
+&lt;a href="https://downlit.r-lib.org" target="_blank" rel="noopener">downlit&lt;/a> package. There should be very little change in behaviour because the code in downlit was extracted from pkgdown, but this will make it easier to use pkgdown&amp;rsquo;s nice linking/highlighting in more places.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>pkgdown now uses the
+&lt;a href="https://ragg.r-lib.org" target="_blank" rel="noopener">ragg&lt;/a> package for graphical output in examples. This should be a little faster and will produce higher quality output that&amp;rsquo;s the same on every operating systems.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="thanks">Thanks!
+&lt;a href="#thanks">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all 55 contributors who helped make this release possible with their bug reports, thoughtful discussion, and code contributions:
+&lt;a href="https://github.com/Anirban166" target="_blank" rel="noopener">@Anirban166&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/bblodfon" target="_blank" rel="noopener">@bblodfon&lt;/a>,
+&lt;a href="https://github.com/benjaminleroy" target="_blank" rel="noopener">@benjaminleroy&lt;/a>,
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/chuxinyuan" target="_blank" rel="noopener">@chuxinyuan&lt;/a>,
+&lt;a href="https://github.com/DanChaltiel" target="_blank" rel="noopener">@DanChaltiel&lt;/a>,
+&lt;a href="https://github.com/dankelley" target="_blank" rel="noopener">@dankelley&lt;/a>,
+&lt;a href="https://github.com/davidchall" target="_blank" rel="noopener">@davidchall&lt;/a>,
+&lt;a href="https://github.com/davidhodge931" target="_blank" rel="noopener">@davidhodge931&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dfsnow" target="_blank" rel="noopener">@dfsnow&lt;/a>,
+&lt;a href="https://github.com/donaldRwilliams" target="_blank" rel="noopener">@donaldRwilliams&lt;/a>,
+&lt;a href="https://github.com/Eluvias" target="_blank" rel="noopener">@Eluvias&lt;/a>,
+&lt;a href="https://github.com/erhla" target="_blank" rel="noopener">@erhla&lt;/a>,
+&lt;a href="https://github.com/fmmattioni" target="_blank" rel="noopener">@fmmattioni&lt;/a>,
+&lt;a href="https://github.com/GegznaV" target="_blank" rel="noopener">@GegznaV&lt;/a>,
+&lt;a href="https://github.com/GregorDeCillia" target="_blank" rel="noopener">@GregorDeCillia&lt;/a>,
+&lt;a href="https://github.com/gustavdelius" target="_blank" rel="noopener">@gustavdelius&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hbaniecki" target="_blank" rel="noopener">@hbaniecki&lt;/a>,
+&lt;a href="https://github.com/jameslamb" target="_blank" rel="noopener">@jameslamb&lt;/a>,
+&lt;a href="https://github.com/jayhesselberth" target="_blank" rel="noopener">@jayhesselberth&lt;/a>,
+&lt;a href="https://github.com/jeffwong-nflx" target="_blank" rel="noopener">@jeffwong-nflx&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jonkeane" target="_blank" rel="noopener">@jonkeane&lt;/a>,
+&lt;a href="https://github.com/jranke" target="_blank" rel="noopener">@jranke&lt;/a>,
+&lt;a href="https://github.com/kevinushey" target="_blank" rel="noopener">@kevinushey&lt;/a>,
+&lt;a href="https://github.com/klmr" target="_blank" rel="noopener">@klmr&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/lcolladotor" target="_blank" rel="noopener">@lcolladotor&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/maxheld83" target="_blank" rel="noopener">@maxheld83&lt;/a>,
+&lt;a href="https://github.com/mladenjovanovic" target="_blank" rel="noopener">@mladenjovanovic&lt;/a>,
+&lt;a href="https://github.com/ms609" target="_blank" rel="noopener">@ms609&lt;/a>,
+&lt;a href="https://github.com/mstr3336" target="_blank" rel="noopener">@mstr3336&lt;/a>,
+&lt;a href="https://github.com/ngreifer" target="_blank" rel="noopener">@ngreifer&lt;/a>,
+&lt;a href="https://github.com/OceaneCsn" target="_blank" rel="noopener">@OceaneCsn&lt;/a>,
+&lt;a href="https://github.com/padpadpadpad" target="_blank" rel="noopener">@padpadpadpad&lt;/a>,
+&lt;a href="https://github.com/pat-s" target="_blank" rel="noopener">@pat-s&lt;/a>,
+&lt;a href="https://github.com/paulponcet" target="_blank" rel="noopener">@paulponcet&lt;/a>,
+&lt;a href="https://github.com/ramiromagno" target="_blank" rel="noopener">@ramiromagno&lt;/a>,
+&lt;a href="https://github.com/randy3k" target="_blank" rel="noopener">@randy3k&lt;/a>,
+&lt;a href="https://github.com/rickhelmus" target="_blank" rel="noopener">@rickhelmus&lt;/a>,
+&lt;a href="https://github.com/royfrancis" target="_blank" rel="noopener">@royfrancis&lt;/a>,
+&lt;a href="https://github.com/schloerke" target="_blank" rel="noopener">@schloerke&lt;/a>,
+&lt;a href="https://github.com/statnmap" target="_blank" rel="noopener">@statnmap&lt;/a>,
+&lt;a href="https://github.com/stefanoborini" target="_blank" rel="noopener">@stefanoborini&lt;/a>,
+&lt;a href="https://github.com/tanho63" target="_blank" rel="noopener">@tanho63&lt;/a>,
+&lt;a href="https://github.com/ThierryO" target="_blank" rel="noopener">@ThierryO&lt;/a>,
+&lt;a href="https://github.com/thomas-neitmann" target="_blank" rel="noopener">@thomas-neitmann&lt;/a>,
+&lt;a href="https://github.com/ttimbers" target="_blank" rel="noopener">@ttimbers&lt;/a>,
+&lt;a href="https://github.com/wkmor1" target="_blank" rel="noopener">@wkmor1&lt;/a>,
+&lt;a href="https://github.com/zeileis" target="_blank" rel="noopener">@zeileis&lt;/a>, and
+&lt;a href="https://github.com/zkamvar" target="_blank" rel="noopener">@zkamvar&lt;/a>.&lt;/p></description></item><item><title>pkgdown 1.5.0</title><link>https://www.tidyverse.org/blog/2020/03/pkgdown-1-5-0/</link><pubDate>Wed, 25 Mar 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/03/pkgdown-1-5-0/</guid><description>&lt;p>We&amp;rsquo;re well chuffed to announce that
+&lt;a href="https://pkgdown.r-lib.org/" target="_blank" rel="noopener">pkgdown&lt;/a> 1.5.0 is now available on CRAN. pkgdown is designed to make it quick and easy to build a website for your package. Install it with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;pkgdown&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The most important changes are highlighted below and you can see a full list of changes in the
+&lt;a href="https://pkgdown.r-lib.org/news/" target="_blank" rel="noopener">changelog&lt;/a>.&lt;/p>
+&lt;h2 id="articles">Articles
+&lt;a href="#articles">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>For packages with many vignettes/articles, we&amp;rsquo;ve provided much greater control over the
+&lt;a href="https://pkgdown.r-lib.org/articles" target="_blank" rel="noopener">articles index&lt;/a> and navbar. There are two major new features in this release:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>The articles index page now displays article &lt;code>description&lt;/code>s, taken from
+YAML metadata in the header of each article. This lets you provide
+more context for each article.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The articles navbar is now controlled by the &lt;code>articles&lt;/code> section in
+&lt;code>_pkgdown.yml&lt;/code>. The ordering of the sections, and articles within
+them, control the order of the articles in the navbar, and you can
+use the new &lt;code>navbar&lt;/code> field to control whether or not each section
+appears in the navbar.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Learn more about both of these features in
+&lt;a href="https://pkgdown.r-lib.org/reference/build_articles.html#index-and-navbar" target="_blank" rel="noopener">?&lt;code>build_articles&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>Thanks to
+&lt;a href="https://github.com/gadenbuie" target="_blank" rel="noopener">Garrick Aden-Buie&lt;/a>, you also get much richer control over Open Graph and Twitter metadata for individual articles. See new
+&lt;a href="https://pkgdown.r-lib.org/articles/metadata.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;metadata&amp;quot;)&lt;/code>&lt;/a> for details.&lt;/p>
+&lt;h2 id="reference-index">Reference index
+&lt;a href="#reference-index">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>For packages with many documentation topics, you can add an additional layer of hierarchy to the reference index, using the new &lt;code>subtitle&lt;/code> field. To give you some sense for what that might look like, here&amp;rsquo;s an example for a partial (and imaginary) dplyr reference index:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="k">references&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>- &lt;span class="k">title&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>Data&lt;span class="w"> &lt;/span>manipulation&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>- &lt;span class="k">subtitle&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>One&lt;span class="w"> &lt;/span>table&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>- &lt;span class="k">contents&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>- arrange&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>- filter&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>- mutate&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>- &lt;span class="k">subtitle&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>two&lt;span class="w"> &lt;/span>table&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>- &lt;span class="k">contents&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>- ends_with(&lt;span class="s2">&amp;#34;_join&amp;#34;&lt;/span>)&lt;span class="w">
+&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>- &lt;span class="k">title&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>Datasets&lt;span class="w">
+&lt;/span>&lt;span class="w">&lt;/span>- &lt;span class="k">contents&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>- has_keyword(&lt;span class="s2">&amp;#34;datasets&amp;#34;&lt;/span>)&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="tables-of-contents">Tables of contents
+&lt;a href="#tables-of-contents">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Sidebar tables of contents now use
+&lt;a href="https://afeld.github.io/bootstrap-toc/" target="_blank" rel="noopener">bootstrap-toc&lt;/a>, which considerably improves navigation for long articles and reference pages.&lt;/p>
+&lt;h2 id="other-source-repositories">Other source repositories
+&lt;a href="#other-source-repositories">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>You can now control the links to source files (in reference pages and articles) and issues and users (in the NEWS) with new the &lt;code>repo$url&lt;/code> config parameter. This makes it easier to use pkgdown with GitHub enterprise, packages in subdirectories, and other source hosts (like bitbucket).&lt;/p>
+&lt;p>The YAML looks something like this:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="k">repo&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">url&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">home&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>https&lt;span class="p">:&lt;/span>//github.com/r-lib/pkgdown/&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">source&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>https&lt;span class="p">:&lt;/span>//github.com/r-lib/pkgdown/blob/master/&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">issue&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>https&lt;span class="p">:&lt;/span>//github.com/r-lib/pkgdown/issues/&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">user&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>https&lt;span class="p">:&lt;/span>//github.com/&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The individual components (e.g. path, issue number, username) are pasted on the end of these urls so they should have trailing &lt;code>/&lt;/code>s.&lt;/p>
+&lt;p>pkgdown now detects GitLab urls automatically (since they use the same structure as GitHub), so you don&amp;rsquo;t need to set these links if you package is hosted on GitLab, and you&amp;rsquo;ve included a link to your source repo in the &lt;code>URL&lt;/code> or &lt;code>BugReports&lt;/code> &lt;code>DESCRIPTION&lt;/code> fields.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thank you goes to
+&lt;a href="https://github.com/jayhesselberth" target="_blank" rel="noopener">@jayhesselberth&lt;/a> (the co-maintainer of pkgdown), and to to the 61 other people who helped make this release possible:
+&lt;a href="https://github.com/AshesITR" target="_blank" rel="noopener">@AshesITR&lt;/a>,
+&lt;a href="https://github.com/baptiste" target="_blank" rel="noopener">@baptiste&lt;/a>,
+&lt;a href="https://github.com/Bisaloo" target="_blank" rel="noopener">@Bisaloo&lt;/a>,
+&lt;a href="https://github.com/carloscinelli" target="_blank" rel="noopener">@carloscinelli&lt;/a>,
+&lt;a href="https://github.com/cboettig" target="_blank" rel="noopener">@cboettig&lt;/a>,
+&lt;a href="https://github.com/coatless" target="_blank" rel="noopener">@coatless&lt;/a>,
+&lt;a href="https://github.com/coolbutuseless" target="_blank" rel="noopener">@coolbutuseless&lt;/a>,
+&lt;a href="https://github.com/DanielEWeeks" target="_blank" rel="noopener">@DanielEWeeks&lt;/a>,
+&lt;a href="https://github.com/davidchall" target="_blank" rel="noopener">@davidchall&lt;/a>,
+&lt;a href="https://github.com/DavorJ" target="_blank" rel="noopener">@DavorJ&lt;/a>,
+&lt;a href="https://github.com/dimagor" target="_blank" rel="noopener">@dimagor&lt;/a>,
+&lt;a href="https://github.com/erikcs" target="_blank" rel="noopener">@erikcs&lt;/a>,
+&lt;a href="https://github.com/ferroao" target="_blank" rel="noopener">@ferroao&lt;/a>,
+&lt;a href="https://github.com/floriandeboissieu" target="_blank" rel="noopener">@floriandeboissieu&lt;/a>,
+&lt;a href="https://github.com/flying-sheep" target="_blank" rel="noopener">@flying-sheep&lt;/a>,
+&lt;a href="https://github.com/fmichonneau" target="_blank" rel="noopener">@fmichonneau&lt;/a>,
+&lt;a href="https://github.com/fmmattioni" target="_blank" rel="noopener">@fmmattioni&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">@gaborcsardi&lt;/a>,
+&lt;a href="https://github.com/genomaths" target="_blank" rel="noopener">@genomaths&lt;/a>,
+&lt;a href="https://github.com/gustavdelius" target="_blank" rel="noopener">@gustavdelius&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hbaniecki" target="_blank" rel="noopener">@hbaniecki&lt;/a>,
+&lt;a href="https://github.com/ijlyttle" target="_blank" rel="noopener">@ijlyttle&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/jangorecki" target="_blank" rel="noopener">@jangorecki&lt;/a>,
+&lt;a href="https://github.com/jayhesselberth" target="_blank" rel="noopener">@jayhesselberth&lt;/a>,
+&lt;a href="https://github.com/jeffwong-nflx" target="_blank" rel="noopener">@jeffwong-nflx&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jeroen" target="_blank" rel="noopener">@jeroen&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/JoshuaSturm" target="_blank" rel="noopener">@JoshuaSturm&lt;/a>,
+&lt;a href="https://github.com/jranke" target="_blank" rel="noopener">@jranke&lt;/a>,
+&lt;a href="https://github.com/kevinushey" target="_blank" rel="noopener">@kevinushey&lt;/a>,
+&lt;a href="https://github.com/kevinwang09" target="_blank" rel="noopener">@kevinwang09&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/lbusett" target="_blank" rel="noopener">@lbusett&lt;/a>,
+&lt;a href="https://github.com/lcolladotor" target="_blank" rel="noopener">@lcolladotor&lt;/a>,
+&lt;a href="https://github.com/lgatto" target="_blank" rel="noopener">@lgatto&lt;/a>,
+&lt;a href="https://github.com/lindeloev" target="_blank" rel="noopener">@lindeloev&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/lorenzwalthert" target="_blank" rel="noopener">@lorenzwalthert&lt;/a>,
+&lt;a href="https://github.com/m-l-1" target="_blank" rel="noopener">@m-l-1&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/mattmalin" target="_blank" rel="noopener">@mattmalin&lt;/a>,
+&lt;a href="https://github.com/meghapsimatrix" target="_blank" rel="noopener">@meghapsimatrix&lt;/a>,
+&lt;a href="https://github.com/mikldk" target="_blank" rel="noopener">@mikldk&lt;/a>,
+&lt;a href="https://github.com/mllg" target="_blank" rel="noopener">@mllg&lt;/a>,
+&lt;a href="https://github.com/ms609" target="_blank" rel="noopener">@ms609&lt;/a>,
+&lt;a href="https://github.com/nealrichardson" target="_blank" rel="noopener">@nealrichardson&lt;/a>,
+&lt;a href="https://github.com/nschiett" target="_blank" rel="noopener">@nschiett&lt;/a>,
+&lt;a href="https://github.com/nteetor" target="_blank" rel="noopener">@nteetor&lt;/a>,
+&lt;a href="https://github.com/pat-s" target="_blank" rel="noopener">@pat-s&lt;/a>,
+&lt;a href="https://github.com/peterdesmet" target="_blank" rel="noopener">@peterdesmet&lt;/a>,
+&lt;a href="https://github.com/rupertoverall" target="_blank" rel="noopener">@rupertoverall&lt;/a>,
+&lt;a href="https://github.com/schloerke" target="_blank" rel="noopener">@schloerke&lt;/a>,
+&lt;a href="https://github.com/slowkow" target="_blank" rel="noopener">@slowkow&lt;/a>,
+&lt;a href="https://github.com/t-kalinowski" target="_blank" rel="noopener">@t-kalinowski&lt;/a>,
+&lt;a href="https://github.com/wendtke" target="_blank" rel="noopener">@wendtke&lt;/a>,
+&lt;a href="https://github.com/ycphs" target="_blank" rel="noopener">@ycphs&lt;/a>,
+&lt;a href="https://github.com/yiluheihei" target="_blank" rel="noopener">@yiluheihei&lt;/a>, and
+&lt;a href="https://github.com/yonicd" target="_blank" rel="noopener">@yonicd&lt;/a>.&lt;/p></description></item><item><title>pkgdown 1.4.0</title><link>https://www.tidyverse.org/blog/2019/09/pkgdown-1-4-0/</link><pubDate>Thu, 05 Sep 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/09/pkgdown-1-4-0/</guid><description>&lt;p>We&amp;rsquo;re happy to announce that
+&lt;a href="https://pkgdown.r-lib.org/" target="_blank" rel="noopener">pkgdown&lt;/a> 1.4.0 is now
+available on CRAN. pkgdown is designed to make it quick and easy to build a
+website for your package. Install it with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;pkgdown&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="development-and-deployment-modes">Development and deployment modes
+&lt;a href="#development-and-deployment-modes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The main change in this version is that
+&lt;a href="https://pkgdown.r-lib.org/reference/build_site.html" target="_blank" rel="noopener">&lt;code>build_site()&lt;/code>&lt;/a>,
+&lt;a href="https://pkgdown.r-lib.org/reference/build_reference.html" target="_blank" rel="noopener">&lt;code>build_reference()&lt;/code>&lt;/a> and
+&lt;a href="https://pkgdown.r-lib.org/reference/build_home.html" target="_blank" rel="noopener">&lt;code>build_home()&lt;/code>&lt;/a> gain a &lt;code>devel&lt;/code> parameter that controls whether you&amp;rsquo;re in deployment or development mode.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>devel = FALSE&lt;/code> activates deployment mode, which installs the package into a
+temporary library, and runs examples/articles in a new process. It&amp;rsquo;s the
+default for &lt;code>build_site()&lt;/code>.&lt;/p>
+&lt;p>If you&amp;rsquo;re using &lt;code>build_site()&lt;/code> as part of an existing deployment workflow,
+you may need to set &lt;code>install = FALSE&lt;/code> so that the package doesn&amp;rsquo;t get
+installed twice.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>devel = TRUE&lt;/code> activates development mode, simulates package loading with
+&lt;code>pkgload::load_all()&lt;/code> and does all work in the same process. This makes it
+most suitable for rapid iteration, and so is the default for
+&lt;code>build_reference()&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>There were two related changes to &lt;code>build_reference()&lt;/code> and &lt;code>build_home()&lt;/code>: &lt;code>build_reference()&lt;/code> no longer runs &lt;code>devtools::document()&lt;/code> and &lt;code>build_home()&lt;/code> no longer rebuilds &lt;code>README.Rmd&lt;/code>. This makes pkgdown&amp;rsquo;s responsibilities more clear: it only modifies files in &lt;code>docs/&lt;/code>.&lt;/p>
+&lt;h2 id="other-important-changes">Other important changes
+&lt;a href="#other-important-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://pkgdown.r-lib.org/reference/build_home.html" target="_blank" rel="noopener">&lt;code>build_home()&lt;/code>&lt;/a> now
+strips quotes from &lt;code>Title&lt;/code> and &lt;code>Description&lt;/code> fields when generating page
+metadata. Additionally, you can now override the defaults via the &lt;code>title&lt;/code>
+and &lt;code>description&lt;/code> fields in the &lt;code>home&lt;/code> section of &lt;code>_pkgdown.yml&lt;/code>. Setting a
+custom title is good practice as it allows you to add &amp;ldquo;R&amp;rdquo; and &amp;ldquo;package&amp;rdquo; to
+the title, which is likely to be useful for SEO.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://pkgdown.r-lib.org/articles/linking.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;linking&amp;quot;)&lt;/code>&lt;/a>
+describes how pkgdown&amp;rsquo;s automatic linking works, and how to ensure that
+cross-package links point to the right place.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>For external packages, if we can&amp;rsquo;t find an existing pkgdown website to link
+to we now link to &lt;a href="https://rdrr.io">https://rdrr.io&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The rendering of &lt;code>\examples{}&lt;/code>, &lt;code>\dots&lt;/code>, &lt;code>\tabular{}&lt;/code>, &lt;code>\subsection{}&lt;/code>,
+and &lt;code>\preformatted{}&lt;/code> has been improved.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The navbar is now automatically hidden with
+&lt;a href="https://wicky.nillia.ms/headroom.js/" target="_blank" rel="noopener">headroom.js&lt;/a>, and the sidebar
+is implemented with pure CSS.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thank you goes to
+&lt;a href="https://github.com/jayhesselberth" target="_blank" rel="noopener">@jayhesselberth&lt;/a> (the co-maintainer of pkgdown), and to to the 77 other people who contributed to the release:
+&lt;a href="https://github.com/abodnahk" target="_blank" rel="noopener">@abodnahk&lt;/a>,
+&lt;a href="https://github.com/agila5" target="_blank" rel="noopener">@agila5&lt;/a>,
+&lt;a href="https://github.com/AliciaSchep" target="_blank" rel="noopener">@AliciaSchep&lt;/a>,
+&lt;a href="https://github.com/andrie" target="_blank" rel="noopener">@andrie&lt;/a>,
+&lt;a href="https://github.com/aravind-j" target="_blank" rel="noopener">@aravind-j&lt;/a>,
+&lt;a href="https://github.com/asardaes" target="_blank" rel="noopener">@asardaes&lt;/a>,
+&lt;a href="https://github.com/Bisaloo" target="_blank" rel="noopener">@Bisaloo&lt;/a>,
+&lt;a href="https://github.com/Blackglade" target="_blank" rel="noopener">@Blackglade&lt;/a>,
+&lt;a href="https://github.com/burgerga" target="_blank" rel="noopener">@burgerga&lt;/a>,
+&lt;a href="https://github.com/cboettig" target="_blank" rel="noopener">@cboettig&lt;/a>,
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/chfleming" target="_blank" rel="noopener">@chfleming&lt;/a>,
+&lt;a href="https://github.com/choisy" target="_blank" rel="noopener">@choisy&lt;/a>,
+&lt;a href="https://github.com/CrumpLab" target="_blank" rel="noopener">@CrumpLab&lt;/a>,
+&lt;a href="https://github.com/davidski" target="_blank" rel="noopener">@davidski&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/ddiez" target="_blank" rel="noopener">@ddiez&lt;/a>,
+&lt;a href="https://github.com/docbiz" target="_blank" rel="noopener">@docbiz&lt;/a>,
+&lt;a href="https://github.com/dongzhuoer" target="_blank" rel="noopener">@dongzhuoer&lt;/a>,
+&lt;a href="https://github.com/dpprdan" target="_blank" rel="noopener">@dpprdan&lt;/a>,
+&lt;a href="https://github.com/echasnovski" target="_blank" rel="noopener">@echasnovski&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/emilyriederer" target="_blank" rel="noopener">@emilyriederer&lt;/a>,
+&lt;a href="https://github.com/espinielli" target="_blank" rel="noopener">@espinielli&lt;/a>,
+&lt;a href="https://github.com/florisvdh" target="_blank" rel="noopener">@florisvdh&lt;/a>,
+&lt;a href="https://github.com/flying-sheep" target="_blank" rel="noopener">@flying-sheep&lt;/a>,
+&lt;a href="https://github.com/Fredo-XVII" target="_blank" rel="noopener">@Fredo-XVII&lt;/a>,
+&lt;a href="https://github.com/grabear" target="_blank" rel="noopener">@grabear&lt;/a>,
+&lt;a href="https://github.com/GregorDeCillia" target="_blank" rel="noopener">@GregorDeCillia&lt;/a>,
+&lt;a href="https://github.com/gustavdelius" target="_blank" rel="noopener">@gustavdelius&lt;/a>,
+&lt;a href="https://github.com/gvegayon" target="_blank" rel="noopener">@gvegayon&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/ijlyttle" target="_blank" rel="noopener">@ijlyttle&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/jackwasey" target="_blank" rel="noopener">@jackwasey&lt;/a>,
+&lt;a href="https://github.com/jangorecki" target="_blank" rel="noopener">@jangorecki&lt;/a>,
+&lt;a href="https://github.com/jemus42" target="_blank" rel="noopener">@jemus42&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jeroen" target="_blank" rel="noopener">@jeroen&lt;/a>,
+&lt;a href="https://github.com/JohnCoene" target="_blank" rel="noopener">@JohnCoene&lt;/a>,
+&lt;a href="https://github.com/katrinleinweber" target="_blank" rel="noopener">@katrinleinweber&lt;/a>,
+&lt;a href="https://github.com/kevinushey" target="_blank" rel="noopener">@kevinushey&lt;/a>,
+&lt;a href="https://github.com/kkmann" target="_blank" rel="noopener">@kkmann&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/maksymiuks" target="_blank" rel="noopener">@maksymiuks&lt;/a>,
+&lt;a href="https://github.com/manish-saraswat-olx" target="_blank" rel="noopener">@manish-saraswat-olx&lt;/a>,
+&lt;a href="https://github.com/maurolepore" target="_blank" rel="noopener">@maurolepore&lt;/a>,
+&lt;a href="https://github.com/maxheld83" target="_blank" rel="noopener">@maxheld83&lt;/a>,
+&lt;a href="https://github.com/maximilianmordig" target="_blank" rel="noopener">@maximilianmordig&lt;/a>,
+&lt;a href="https://github.com/mcanouil" target="_blank" rel="noopener">@mcanouil&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/mitchelloharawild" target="_blank" rel="noopener">@mitchelloharawild&lt;/a>,
+&lt;a href="https://github.com/mjsteinbaugh" target="_blank" rel="noopener">@mjsteinbaugh&lt;/a>,
+&lt;a href="https://github.com/msberends" target="_blank" rel="noopener">@msberends&lt;/a>,
+&lt;a href="https://github.com/muschellij2" target="_blank" rel="noopener">@muschellij2&lt;/a>,
+&lt;a href="https://github.com/NEONKID" target="_blank" rel="noopener">@NEONKID&lt;/a>,
+&lt;a href="https://github.com/noamross" target="_blank" rel="noopener">@noamross&lt;/a>,
+&lt;a href="https://github.com/nteetor" target="_blank" rel="noopener">@nteetor&lt;/a>,
+&lt;a href="https://github.com/paul-buerkner" target="_blank" rel="noopener">@paul-buerkner&lt;/a>,
+&lt;a href="https://github.com/peterdesmet" target="_blank" rel="noopener">@peterdesmet&lt;/a>,
+&lt;a href="https://github.com/ramiromagno" target="_blank" rel="noopener">@ramiromagno&lt;/a>,
+&lt;a href="https://github.com/rorynolan" target="_blank" rel="noopener">@rorynolan&lt;/a>,
+&lt;a href="https://github.com/royfrancis" target="_blank" rel="noopener">@royfrancis&lt;/a>,
+&lt;a href="https://github.com/s-fleck" target="_blank" rel="noopener">@s-fleck&lt;/a>,
+&lt;a href="https://github.com/scizmeli" target="_blank" rel="noopener">@scizmeli&lt;/a>,
+&lt;a href="https://github.com/sdhutchins" target="_blank" rel="noopener">@sdhutchins&lt;/a>,
+&lt;a href="https://github.com/seanhardison1" target="_blank" rel="noopener">@seanhardison1&lt;/a>,
+&lt;a href="https://github.com/seymakalay" target="_blank" rel="noopener">@seymakalay&lt;/a>,
+&lt;a href="https://github.com/sharlagelfand" target="_blank" rel="noopener">@sharlagelfand&lt;/a>,
+&lt;a href="https://github.com/surmann" target="_blank" rel="noopener">@surmann&lt;/a>,
+&lt;a href="https://github.com/talgalili" target="_blank" rel="noopener">@talgalili&lt;/a>,
+&lt;a href="https://github.com/TheOnlyArtz" target="_blank" rel="noopener">@TheOnlyArtz&lt;/a>,
+&lt;a href="https://github.com/thierrygosselin" target="_blank" rel="noopener">@thierrygosselin&lt;/a>,
+&lt;a href="https://github.com/thomasp85" target="_blank" rel="noopener">@thomasp85&lt;/a>,
+&lt;a href="https://github.com/tobyhodges" target="_blank" rel="noopener">@tobyhodges&lt;/a>, and
+&lt;a href="https://github.com/yiluheihei" target="_blank" rel="noopener">@yiluheihei&lt;/a>&lt;/p></description></item><item><title>pkgdown 1.3.0</title><link>https://www.tidyverse.org/blog/2018/12/pkgdown-1-3-0/</link><pubDate>Mon, 10 Dec 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/12/pkgdown-1-3-0/</guid><description>&lt;p>We&amp;rsquo;re happy to announce that
+&lt;a href="https://pkgdown.r-lib.org/" target="_blank" rel="noopener">pkgdown&lt;/a> 1.3.0 is now
+available on CRAN. pkgdown is designed to make it quick and easy to build a
+website for your package. Here, we&amp;rsquo;ll highlight some of the new features, and
+improvements in this version. Note, this blog post describes pkgdown 1.2.0
+and 1.3.0, because we accidentally released 1.3.0 instead of 1.2.1. For a full
+list of changes, please see the
+&lt;a href="https://github.com/r-lib/pkgdown/blob/master/NEWS.md#pkgdown-120" target="_blank" rel="noopener">NEWS&lt;/a>.&lt;/p>
+&lt;h2 id="new-features">New features
+&lt;a href="#new-features">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The new
+&lt;a href="https://pkgdown.r-lib.org/reference/deploy_site_github.html" target="_blank" rel="noopener">&lt;code>deploy_site_github()&lt;/code>&lt;/a>
+function can be used to automatically deploy your package website to GitHub
+Pages with continuous integration systems (like
+&lt;a href="https://travis-ci.org/" target="_blank" rel="noopener">travis&lt;/a>). Setup details can be found
+&lt;a href="https://pkgdown.r-lib.org/reference/deploy_site_github.html#setup" target="_blank" rel="noopener">here&lt;/a>. We
+are gradually moving all tidyverse sites to use this process so that they&amp;rsquo;re
+always up-to-date.&lt;/p>
+&lt;p>
+&lt;a href="https://pkgdown.r-lib.org/reference/build_favicon.html" target="_blank" rel="noopener">&lt;code>build_favicon()&lt;/code>&lt;/a>
+auto-detects the location of your package logo, and runs it through the
+&lt;a href="https://realfavicongenerator.net">https://realfavicongenerator.net&lt;/a> API to build a complete set of favicons with
+different sizes.&lt;/p>
+&lt;p>Lastly, users with limited internet connectivity can now expressly disable
+pkgdown&amp;rsquo;s internet usage by setting &lt;code>options(pkgdown.internet = FALSE)&lt;/code>.&lt;/p>
+&lt;h2 id="front-end-improvements">Front-end improvements
+&lt;a href="#front-end-improvements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>All third-party resources are now fetched from a single CDN and are given an SRI
+hash. The package version displayed in the navbar now has &lt;code>class=&amp;quot;version&amp;quot;&lt;/code>,
+which should make it easier to customize its appearance. The default footer now
+displays the version of pkgdown used to build the site. You&amp;rsquo;ll need to run this
+once and check in the generated files.&lt;/p>
+&lt;h2 id="rd-translation">Rd translation
+&lt;a href="#rd-translation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>
+&lt;a href="https://pkgdown.r-lib.org/reference/rd2html.html" target="_blank" rel="noopener">&lt;code>rd2html()&lt;/code>&lt;/a> is now
+exported to facilitate creation of translation reprexes.&lt;/li>
+&lt;li>Invalid tags now generate more informative errors.&lt;/li>
+&lt;li>&lt;code>\usage{}&lt;/code> now supports qualified functions, eliminating &lt;code>Unknown call: ::&lt;/code>
+errors.&lt;/li>
+&lt;/ul>
+&lt;p>Again, these are just some of the updates, so please be sure to see the
+&lt;a href="https://pkgdown.r-lib.org/news/index.html#pkgdown-1-2-0" target="_blank" rel="noopener">change
+log&lt;/a> for a more
+exhaustive inventory.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thank you goes out to the 59 people who contributed to this release:
+&lt;a href="https://github.com/alexpghayes" target="_blank" rel="noopener">@alexpghayes&lt;/a>,
+&lt;a href="https://github.com/aqualogy" target="_blank" rel="noopener">@aqualogy&lt;/a>,
+&lt;a href="https://github.com/aravind-j" target="_blank" rel="noopener">@aravind-j&lt;/a>,
+&lt;a href="https://github.com/arilamstein" target="_blank" rel="noopener">@arilamstein&lt;/a>,
+&lt;a href="https://github.com/ArtemSokolov" target="_blank" rel="noopener">@ArtemSokolov&lt;/a>,
+&lt;a href="https://github.com/BarkleyBG" target="_blank" rel="noopener">@BarkleyBG&lt;/a>,
+&lt;a href="https://github.com/bastistician" target="_blank" rel="noopener">@bastistician&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/Bisaloo" target="_blank" rel="noopener">@Bisaloo&lt;/a>,
+&lt;a href="https://github.com/BruceZhaoR" target="_blank" rel="noopener">@BruceZhaoR&lt;/a>,
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/daviddoret" target="_blank" rel="noopener">@daviddoret&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dongzhuoer" target="_blank" rel="noopener">@dongzhuoer&lt;/a>,
+&lt;a href="https://github.com/Dripdrop12" target="_blank" rel="noopener">@Dripdrop12&lt;/a>,
+&lt;a href="https://github.com/Fazendaaa" target="_blank" rel="noopener">@Fazendaaa&lt;/a>,
+&lt;a href="https://github.com/GeoBosh" target="_blank" rel="noopener">@GeoBosh&lt;/a>,
+&lt;a href="https://github.com/goldingn" target="_blank" rel="noopener">@goldingn&lt;/a>,
+&lt;a href="https://github.com/GregorDeCillia" target="_blank" rel="noopener">@GregorDeCillia&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/HenrikBengtsson" target="_blank" rel="noopener">@HenrikBengtsson&lt;/a>,
+&lt;a href="https://github.com/HughParsonage" target="_blank" rel="noopener">@HughParsonage&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/jameslamb" target="_blank" rel="noopener">@jameslamb&lt;/a>,
+&lt;a href="https://github.com/jayhesselberth" target="_blank" rel="noopener">@jayhesselberth&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/JiaxiangBU" target="_blank" rel="noopener">@JiaxiangBU&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jmgirard" target="_blank" rel="noopener">@jmgirard&lt;/a>,
+&lt;a href="https://github.com/JohnMount" target="_blank" rel="noopener">@JohnMount&lt;/a>,
+&lt;a href="https://github.com/jpzhangvincent" target="_blank" rel="noopener">@jpzhangvincent&lt;/a>,
+&lt;a href="https://github.com/KasperSkytte" target="_blank" rel="noopener">@KasperSkytte&lt;/a>,
+&lt;a href="https://github.com/kenahoo" target="_blank" rel="noopener">@kenahoo&lt;/a>,
+&lt;a href="https://github.com/klmr" target="_blank" rel="noopener">@klmr&lt;/a>,
+&lt;a href="https://github.com/koheiw" target="_blank" rel="noopener">@koheiw&lt;/a>,
+&lt;a href="https://github.com/kopperud" target="_blank" rel="noopener">@kopperud&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/liao961120" target="_blank" rel="noopener">@liao961120&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/lrutter" target="_blank" rel="noopener">@lrutter&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/maurolepore" target="_blank" rel="noopener">@maurolepore&lt;/a>,
+&lt;a href="https://github.com/maxheld83" target="_blank" rel="noopener">@maxheld83&lt;/a>,
+&lt;a href="https://github.com/md0u80c9" target="_blank" rel="noopener">@md0u80c9&lt;/a>,
+&lt;a href="https://github.com/mllg" target="_blank" rel="noopener">@mllg&lt;/a>,
+&lt;a href="https://github.com/mrchypark" target="_blank" rel="noopener">@mrchypark&lt;/a>,
+&lt;a href="https://github.com/mvinaixa" target="_blank" rel="noopener">@mvinaixa&lt;/a>,
+&lt;a href="https://github.com/nbenn" target="_blank" rel="noopener">@nbenn&lt;/a>,
+&lt;a href="https://github.com/pat-s" target="_blank" rel="noopener">@pat-s&lt;/a>,
+&lt;a href="https://github.com/pbreheny" target="_blank" rel="noopener">@pbreheny&lt;/a>,
+&lt;a href="https://github.com/peterdesmet" target="_blank" rel="noopener">@peterdesmet&lt;/a>,
+&lt;a href="https://github.com/petermeissner" target="_blank" rel="noopener">@petermeissner&lt;/a>,
+&lt;a href="https://github.com/Robinlovelace" target="_blank" rel="noopener">@Robinlovelace&lt;/a>,
+&lt;a href="https://github.com/strengejacke" target="_blank" rel="noopener">@strengejacke&lt;/a>,
+&lt;a href="https://github.com/thiloklein" target="_blank" rel="noopener">@thiloklein&lt;/a>,
+&lt;a href="https://github.com/venelin" target="_blank" rel="noopener">@venelin&lt;/a>,
+&lt;a href="https://github.com/wenjie2wang" target="_blank" rel="noopener">@wenjie2wang&lt;/a>,
+&lt;a href="https://github.com/yihui" target="_blank" rel="noopener">@yihui&lt;/a>, and
+&lt;a href="https://github.com/yonicd" target="_blank" rel="noopener">@yonicd&lt;/a>.&lt;/p></description></item><item><title>pkgdown 1.1.0</title><link>https://www.tidyverse.org/blog/2018/06/pkgdown-1-1-0/</link><pubDate>Tue, 05 Jun 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/06/pkgdown-1-1-0/</guid><description>
+&lt;p>We’re delighted to announce the release of &lt;a href="http://pkgdown.r-lib.org/">pkgdown&lt;/a>
+1.1.0. pkgdown is designed to make it quick and easy to build a website for
+your package. In addition to minor fixes, this release includes front-end and
+Rd-translation improvements. For a full list of changes, please see the
+&lt;a href="https://github.com/r-lib/pkgdown/blob/master/NEWS.md#pkgdown-110">NEWS&lt;/a>.&lt;/p>
+&lt;div id="new-features" class="section level2">
+&lt;h2>New features&lt;/h2>
+&lt;p>&lt;code>build_reference()&lt;/code> and &lt;code>build_site()&lt;/code> have gained a new &lt;code>document&lt;/code> argument,
+which defaults to &lt;code>TRUE&lt;/code>. This ensures that your documentation is up to date
+by automatically running &lt;code>devtools::document()&lt;/code>.&lt;/p>
+&lt;p>The &lt;code>build_site()&lt;/code> function has also gained a &lt;code>new_process&lt;/code> argument. When
+&lt;code>new_process&lt;/code> is set to &lt;code>TRUE&lt;/code> (as it is by default), pkgdown will be run in
+a separate process to improve reproducibility. This also means that in example
+code &lt;code>interactive()&lt;/code> will return &lt;code>FALSE&lt;/code>, making that the best way to run code
+that is truly interactive (as with shiny apps).&lt;/p>
+&lt;p>The new, improved display for icons can be seen in the &lt;a href="http://ggplot2.tidyverse.org/reference/index.html">ggplot2 documentation&lt;/a>. Icons must
+be 30px, and stored in a top-level &lt;a href="https://github.com/tidyverse/ggplot2/tree/master/icons">&lt;code>icons/&lt;/code>&lt;/a>
+directory. Icon names are matched to the name of the Rd file. The icons will be
+embedded in a separate column of the reference index table, rather than inside
+of comments. (See ggplot2’s &lt;a href="https://github.com/tidyverse/ggplot2/blob/master/icons/icons.R">&lt;code>icons.R&lt;/code>&lt;/a>
+for detail).&lt;/p>
+&lt;/div>
+&lt;div id="front-end" class="section level2">
+&lt;h2>Front end&lt;/h2>
+&lt;p>Users can now access search with a keyboard shortcut, &lt;code>shift&lt;/code> + &lt;code>/ (?)&lt;/code>.
+We’ve also improved active-tab highlighting in the navbar, and better isolated
+&lt;code>pkgdown.js&lt;/code> to avoid issues when widgets loaded use a different version of
+jquery.&lt;/p>
+&lt;/div>
+&lt;div id="rd-translation" class="section level2">
+&lt;h2>Rd translation&lt;/h2>
+&lt;p>This release includes several improvements to Rd translation. Automatic linking
+now works for re-exported objects that are not functions. &lt;code>vignette()&lt;/code> calls
+that don’t link to existing vignettes fail silently, instead of generating
+uninformative errors. Empty &lt;code>\section{}&lt;/code>s are now ignored. &lt;code>\Sexpr{}&lt;/code> now
+supports &lt;code>results=text&lt;/code>, &lt;code>results=Rd&lt;/code>, and &lt;code>results=hide&lt;/code>. Lastly, &lt;code>\tabular{}&lt;/code>
+no longer requires a terminal &lt;code>\cr&lt;/code>.&lt;/p>
+&lt;/div>
+&lt;div id="acknowledgements" class="section level2">
+&lt;h2>Acknowledgements&lt;/h2>
+&lt;p>For other minor bug fixes and improvements, please see the &lt;a href="http://pkgdown.r-lib.org/news/index.html#pkgdown-1-1-0">Changelog&lt;/a>.
+Thank you to everyone who contributed to this release:
+&lt;a href="https://github.com/adibender">@adibender&lt;/a>, &lt;a href="https://github.com/aoles">@aoles&lt;/a>, &lt;a href="https://github.com/aravind-j">@aravind-j&lt;/a>, &lt;a href="https://github.com/batpigandme">@batpigandme&lt;/a>, &lt;a href="https://github.com/dchiu911">@dchiu911&lt;/a>, &lt;a href="https://github.com/Enchufa2">@Enchufa2&lt;/a>, &lt;a href="https://github.com/gaborcsardi">@gaborcsardi&lt;/a>, &lt;a href="https://github.com/GeoBosh">@GeoBosh&lt;/a>, &lt;a href="https://github.com/hadley">@hadley&lt;/a>, &lt;a href="https://github.com/hrecht">@hrecht&lt;/a>, &lt;a href="https://github.com/ijlyttle">@ijlyttle&lt;/a>, &lt;a href="https://github.com/IndrajeetPatil">@IndrajeetPatil&lt;/a>, &lt;a href="https://github.com/jackwasey">@jackwasey&lt;/a>, &lt;a href="https://github.com/jakob-r">@jakob-r&lt;/a>, &lt;a href="https://github.com/JasperHG90">@JasperHG90&lt;/a>, &lt;a href="https://github.com/jayhesselberth">@jayhesselberth&lt;/a>, &lt;a href="https://github.com/jennybc">@jennybc&lt;/a>, &lt;a href="https://github.com/jeroen">@jeroen&lt;/a>, &lt;a href="https://github.com/jflournoy">@jflournoy&lt;/a>, &lt;a href="https://github.com/JohnCoene">@JohnCoene&lt;/a>, &lt;a href="https://github.com/kenahoo">@kenahoo&lt;/a>, &lt;a href="https://github.com/krlmlr">@krlmlr&lt;/a>, &lt;a href="https://github.com/mcneney">@mcneney&lt;/a>, &lt;a href="https://github.com/md0u80c9">@md0u80c9&lt;/a>, &lt;a href="https://github.com/merliseclyde">@merliseclyde&lt;/a>, &lt;a href="https://github.com/Miachol">@Miachol&lt;/a>, &lt;a href="https://github.com/pat-s">@pat-s&lt;/a>, &lt;a href="https://github.com/rmendels">@rmendels&lt;/a>, &lt;a href="https://github.com/s-fleck">@s-fleck&lt;/a>, &lt;a href="https://github.com/strengejacke">@strengejacke&lt;/a>, &lt;a href="https://github.com/surh">@surh&lt;/a>, &lt;a href="https://github.com/WastlM">@WastlM&lt;/a>, and &lt;a href="https://github.com/yutannihilation">@yutannihilation&lt;/a>&lt;/p>
+&lt;/div></description></item><item><title>pkgdown 1.0.0</title><link>https://www.tidyverse.org/blog/2018/05/pkgdown-1-0-0/</link><pubDate>Thu, 03 May 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/05/pkgdown-1-0-0/</guid><description>
+&lt;p>I’m very pleased to announce the initial release of &lt;a href="http://pkgdown.r-lib.org">pkgdown&lt;/a> to CRAN! pkgdown is designed to make it quick and easy to build a website for your package. You can see pkgdown in action at &lt;a href="http://pkgdown.r-lib.org" class="uri">http://pkgdown.r-lib.org&lt;/a>: this is the output of pkgdown applied to the latest version of pkgdown. This initial release is version 1.0.0 in recognition that pkgdown has been in development for 6 years (!) and has already been used to make websites for &lt;a href="https://github.com/search?q=pkgdown.css+in%3Apath+path%3Adocs&amp;amp;type=Code">over 1600 packages&lt;/a> (!!).&lt;/p>
+&lt;p>Install pkgdown with:&lt;/p>
+&lt;pre class="r">&lt;code>install.packages(&amp;quot;pkgdown&amp;quot;)&lt;/code>&lt;/pre>
+&lt;div id="usage" class="section level2">
+&lt;h2>Usage&lt;/h2>
+&lt;p>Basic usage is simple: run &lt;code>build_site()&lt;/code> within your package directory:&lt;/p>
+&lt;pre class="r">&lt;code>pkgdown::build_site()&lt;/code>&lt;/pre>
+&lt;p>By default, this will generate a &lt;code>docs/&lt;/code> directory. The home page will be generated from your &lt;code>README.md&lt;/code>, a function reference will be generated from the documentation in the &lt;code>man/&lt;/code> directory, and any &lt;code>vignettes/&lt;/code> will be converted into articles&lt;/p>
+&lt;p>If you are using GitHub, the easiest way to make this your package website is to check it in, push it, then go to repo settings and ensure that the &lt;strong>GitHub pages&lt;/strong> source is set to “master branch /docs folder”.&lt;/p>
+&lt;/div>
+&lt;div id="customisation" class="section level2">
+&lt;h2>Customisation&lt;/h2>
+&lt;p>To customise your site, first read &lt;a href="http://pkgdown.r-lib.org/articles/pkgdown.html">&lt;code>vignette(&amp;quot;pkgdown&amp;quot;)&lt;/code>&lt;/a>, then read the documentation for the functions responsible for building each part of the site:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="http://pkgdown.r-lib.org/reference/init_site.html">&lt;code>init_site()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://pkgdown.r-lib.org/reference/build_home.html">&lt;code>build_home()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://pkgdown.r-lib.org/reference/build_reference.html">&lt;code>build_reference()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://pkgdown.r-lib.org/reference/build_articles.html">&lt;code>build_articles()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://pkgdown.r-lib.org/reference/build_tutorials.html">&lt;code>build_tutorials()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>&lt;a href="http://pkgdown.r-lib.org/reference/build_news.html">&lt;code>build_news()&lt;/code>&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/div>
+&lt;div id="in-the-wild" class="section level2">
+&lt;h2>In the wild&lt;/h2>
+&lt;p>A great way to see what you can do with pkgdown is to look at existing websites. Here are a few examples created by some of the contributors to pkgdown:&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>&lt;a href="http://mc-stan.org/bayesplot/index.html">bayesplot&lt;/a>
+[&lt;a href="https://github.com/stan-dev/bayesplot/tree/gh-pages">source&lt;/a>]:
+plotting functions for posterior analysis, model checking, and MCMC
+diagnostics.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;a href="https://rnabioco.github.io/valr/">valr&lt;/a>
+[&lt;a href="https://github.com/rnabioco/valr">source&lt;/a>]:
+read and manipulate genome intervals and signals.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;a href="http://jranke.github.io/mkin/">mkin&lt;/a>
+[&lt;a href="https://github.com/jranke/mkin">source&lt;/a>]:
+calculation routines based on the FOCUS Kinetics Report&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;a href="http://renozao.github.io/NMF/master/index.html">NMF&lt;/a>
+[&lt;a href="https://github.com/renozao/NMF">source&lt;/a>]:
+a framework to perform non-negative matrix factorization (NMF).&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;/div>
+&lt;div id="acknowledgements" class="section level2">
+&lt;h2>Acknowledgements&lt;/h2>
+&lt;p>pkgdown has been a long time coming, and it wouldn’t have been possible without a devoted community of users, many of whom have gone on to contribute fixes. I’d like to particularly thank &lt;a href="https://hesselberthlab.org">Jay Hesselberth&lt;/a> who put a lot of work into implementing site search in partnership with &lt;a href="https://community.algolia.com/docsearch/">Algolia’s docsearch&lt;/a>.&lt;/p>
+&lt;p>A big thanks goes out to all 184 other people who contributed issues, pull requests, and comments: &lt;a href="https://github.com/aaronrudkin">@aaronrudkin&lt;/a>, &lt;a href="https://github.com/adamkski">@adamkski&lt;/a>, &lt;a href="https://github.com/adibender">@adibender&lt;/a>, &lt;a href="https://github.com/AdrianHordyk">@AdrianHordyk&lt;/a>, &lt;a href="https://github.com/adrtod">@adrtod&lt;/a>, &lt;a href="https://github.com/agrueneberg">@agrueneberg&lt;/a>, &lt;a href="https://github.com/alekrutkowski">@alekrutkowski&lt;/a>, &lt;a href="https://github.com/amatsuo">@amatsuo&lt;/a>, &lt;a href="https://github.com/amrrs">@amrrs&lt;/a>, &lt;a href="https://github.com/andrie">@andrie&lt;/a>, &lt;a href="https://github.com/antuki">@antuki&lt;/a>, &lt;a href="https://github.com/aravind-j">@aravind-j&lt;/a>, &lt;a href="https://github.com/batpigandme">@batpigandme&lt;/a>, &lt;a href="https://github.com/bborgesr">@bborgesr&lt;/a>, &lt;a href="https://github.com/bhaskarvk">@bhaskarvk&lt;/a>, &lt;a href="https://github.com/bowerth">@bowerth&lt;/a>, &lt;a href="https://github.com/BrianDiggs">@BrianDiggs&lt;/a>, &lt;a href="https://github.com/carlosparadis">@carlosparadis&lt;/a>, &lt;a href="https://github.com/cboettig">@cboettig&lt;/a>, &lt;a href="https://github.com/cderv">@cderv&lt;/a>, &lt;a href="https://github.com/chfleming">@chfleming&lt;/a>, &lt;a href="https://github.com/choisy">@choisy&lt;/a>, &lt;a href="https://github.com/christophergandrud">@christophergandrud&lt;/a>, &lt;a href="https://github.com/ck37">@ck37&lt;/a>, &lt;a href="https://github.com/corybrunson">@corybrunson&lt;/a>, &lt;a href="https://github.com/crew102">@crew102&lt;/a>, &lt;a href="https://github.com/czeildi">@czeildi&lt;/a>, &lt;a href="https://github.com/Dasonk">@Dasonk&lt;/a>, &lt;a href="https://github.com/davebraze">@davebraze&lt;/a>, &lt;a href="https://github.com/davidcarslaw">@davidcarslaw&lt;/a>, &lt;a href="https://github.com/DavisVaughan">@DavisVaughan&lt;/a>, &lt;a href="https://github.com/dfalbel">@dfalbel&lt;/a>, &lt;a href="https://github.com/dincerti">@dincerti&lt;/a>, &lt;a href="https://github.com/dirkschumacher">@dirkschumacher&lt;/a>, &lt;a href="https://github.com/dmenne">@dmenne&lt;/a>, &lt;a href="https://github.com/dracodoc">@dracodoc&lt;/a>, &lt;a href="https://github.com/edgararuiz">@edgararuiz&lt;/a>, &lt;a href="https://github.com/edzer">@edzer&lt;/a>, &lt;a href="https://github.com/eibanez">@eibanez&lt;/a>, &lt;a href="https://github.com/eliotmcintire">@eliotmcintire&lt;/a>, &lt;a href="https://github.com/Emaasit">@Emaasit&lt;/a>, &lt;a href="https://github.com/emhart">@emhart&lt;/a>, &lt;a href="https://github.com/Enchufa2">@Enchufa2&lt;/a>, &lt;a href="https://github.com/espinielli">@espinielli&lt;/a>, &lt;a href="https://github.com/famuvie">@famuvie&lt;/a>, &lt;a href="https://github.com/flaviobarros">@flaviobarros&lt;/a>, &lt;a href="https://github.com/flying-sheep">@flying-sheep&lt;/a>, &lt;a href="https://github.com/friendly">@friendly&lt;/a>, &lt;a href="https://github.com/gaborcsardi">@gaborcsardi&lt;/a>, &lt;a href="https://github.com/GegznaV">@GegznaV&lt;/a>, &lt;a href="https://github.com/GeoBosh">@GeoBosh&lt;/a>, &lt;a href="https://github.com/ghost">@ghost&lt;/a>, &lt;a href="https://github.com/goldingn">@goldingn&lt;/a>, &lt;a href="https://github.com/gr8694">@gr8694&lt;/a>, &lt;a href="https://github.com/GShotwell">@GShotwell&lt;/a>, &lt;a href="https://github.com/Guilz">@Guilz&lt;/a>, &lt;a href="https://github.com/gvegayon">@gvegayon&lt;/a>, &lt;a href="https://github.com/hadley">@hadley&lt;/a>, &lt;a href="https://github.com/iagomosqueira">@iagomosqueira&lt;/a>, &lt;a href="https://github.com/ijlyttle">@ijlyttle&lt;/a>, &lt;a href="https://github.com/IndrajeetPatil">@IndrajeetPatil&lt;/a>, &lt;a href="https://github.com/isteves">@isteves&lt;/a>, &lt;a href="https://github.com/jacob-long">@jacob-long&lt;/a>, &lt;a href="https://github.com/jakob-r">@jakob-r&lt;/a>, &lt;a href="https://github.com/jakobbossek">@jakobbossek&lt;/a>, &lt;a href="https://github.com/jamesdunham">@jamesdunham&lt;/a>, &lt;a href="https://github.com/janeshdev">@janeshdev&lt;/a>, &lt;a href="https://github.com/jaredhuling">@jaredhuling&lt;/a>, &lt;a href="https://github.com/javierluraschi">@javierluraschi&lt;/a>, &lt;a href="https://github.com/jbkunst">@jbkunst&lt;/a>, &lt;a href="https://github.com/jefferis">@jefferis&lt;/a>, &lt;a href="https://github.com/jeffwong">@jeffwong&lt;/a>, &lt;a href="https://github.com/jemus42">@jemus42&lt;/a>, &lt;a href="https://github.com/jennybc">@jennybc&lt;/a>, &lt;a href="https://github.com/jentjr">@jentjr&lt;/a>, &lt;a href="https://github.com/jeroenjanssens">@jeroenjanssens&lt;/a>, &lt;a href="https://github.com/jflournoy">@jflournoy&lt;/a>, &lt;a href="https://github.com/jhoobergs">@jhoobergs&lt;/a>, &lt;a href="https://github.com/jimhester">@jimhester&lt;/a>, &lt;a href="https://github.com/jjallaire">@jjallaire&lt;/a>, &lt;a href="https://github.com/jkennel">@jkennel&lt;/a>, &lt;a href="https://github.com/JohnCoene">@JohnCoene&lt;/a>, &lt;a href="https://github.com/JohnMount">@JohnMount&lt;/a>, &lt;a href="https://github.com/jolars">@jolars&lt;/a>, &lt;a href="https://github.com/jonasfoe">@jonasfoe&lt;/a>, &lt;a href="https://github.com/jranke">@jranke&lt;/a>, &lt;a href="https://github.com/jrosen48">@jrosen48&lt;/a>, &lt;a href="https://github.com/jthurner">@jthurner&lt;/a>, &lt;a href="https://github.com/KasperSkytte">@KasperSkytte&lt;/a>, &lt;a href="https://github.com/katrinleinweber">@katrinleinweber&lt;/a>, &lt;a href="https://github.com/kbenoit">@kbenoit&lt;/a>, &lt;a href="https://github.com/KellyLoucks">@KellyLoucks&lt;/a>, &lt;a href="https://github.com/kent37">@kent37&lt;/a>, &lt;a href="https://github.com/keurcien">@keurcien&lt;/a>, &lt;a href="https://github.com/kevinushey">@kevinushey&lt;/a>, &lt;a href="https://github.com/kimyen">@kimyen&lt;/a>, &lt;a href="https://github.com/kmiddleton">@kmiddleton&lt;/a>, &lt;a href="https://github.com/kohske">@kohske&lt;/a>, &lt;a href="https://github.com/krlmlr">@krlmlr&lt;/a>, &lt;a href="https://github.com/kuhnrl30">@kuhnrl30&lt;/a>, &lt;a href="https://github.com/kwstat">@kwstat&lt;/a>, &lt;a href="https://github.com/kylebmetrum">@kylebmetrum&lt;/a>, &lt;a href="https://github.com/lbusett">@lbusett&lt;/a>, &lt;a href="https://github.com/lgatto">@lgatto&lt;/a>, &lt;a href="https://github.com/LiNk-NY">@LiNk-NY&lt;/a>, &lt;a href="https://github.com/lionel-">@lionel-&lt;/a>, &lt;a href="https://github.com/luca-scr">@luca-scr&lt;/a>, &lt;a href="https://github.com/maelle">@maelle&lt;/a>, &lt;a href="https://github.com/MarcinKosinski">@MarcinKosinski&lt;/a>, &lt;a href="https://github.com/marcosci">@marcosci&lt;/a>, &lt;a href="https://github.com/MarkEdmondson1234">@MarkEdmondson1234&lt;/a>, &lt;a href="https://github.com/markusdumke">@markusdumke&lt;/a>, &lt;a href="https://github.com/maurolepore">@maurolepore&lt;/a>, &lt;a href="https://github.com/maxheld83">@maxheld83&lt;/a>, &lt;a href="https://github.com/mdsumner">@mdsumner&lt;/a>, &lt;a href="https://github.com/merliseclyde">@merliseclyde&lt;/a>, &lt;a href="https://github.com/michaellevy">@michaellevy&lt;/a>, &lt;a href="https://github.com/michelk">@michelk&lt;/a>, &lt;a href="https://github.com/mjsteinbaugh">@mjsteinbaugh&lt;/a>, &lt;a href="https://github.com/mooresm">@mooresm&lt;/a>, &lt;a href="https://github.com/Mullefa">@Mullefa&lt;/a>, &lt;a href="https://github.com/mwillumz">@mwillumz&lt;/a>, &lt;a href="https://github.com/nacnudus">@nacnudus&lt;/a>, &lt;a href="https://github.com/nbenn">@nbenn&lt;/a>, &lt;a href="https://github.com/nealrichardson">@nealrichardson&lt;/a>, &lt;a href="https://github.com/newtux">@newtux&lt;/a>, &lt;a href="https://github.com/nhejazi">@nhejazi&lt;/a>, &lt;a href="https://github.com/nite">@nite&lt;/a>, &lt;a href="https://github.com/noamross">@noamross&lt;/a>, &lt;a href="https://github.com/nsheff">@nsheff&lt;/a>, &lt;a href="https://github.com/nuno-agostinho">@nuno-agostinho&lt;/a>, &lt;a href="https://github.com/pachevalier">@pachevalier&lt;/a>, &lt;a href="https://github.com/PascalKieslich">@PascalKieslich&lt;/a>, &lt;a href="https://github.com/pat-s">@pat-s&lt;/a>, &lt;a href="https://github.com/patperry">@patperry&lt;/a>, &lt;a href="https://github.com/privefl">@privefl&lt;/a>, &lt;a href="https://github.com/rajanand">@rajanand&lt;/a>, &lt;a href="https://github.com/randy3k">@randy3k&lt;/a>, &lt;a href="https://github.com/ras44">@ras44&lt;/a>, &lt;a href="https://github.com/renozao">@renozao&lt;/a>, &lt;a href="https://github.com/restonslacker">@restonslacker&lt;/a>, &lt;a href="https://github.com/rickhelmus">@rickhelmus&lt;/a>, &lt;a href="https://github.com/RLesur">@RLesur&lt;/a>, &lt;a href="https://github.com/RLumSK">@RLumSK&lt;/a>, &lt;a href="https://github.com/RMHogervorst">@RMHogervorst&lt;/a>, &lt;a href="https://github.com/robertzk">@robertzk&lt;/a>, &lt;a href="https://github.com/Robinlovelace">@Robinlovelace&lt;/a>, &lt;a href="https://github.com/romainfrancois">@romainfrancois&lt;/a>, &lt;a href="https://github.com/rstub">@rstub&lt;/a>, &lt;a href="https://github.com/sahilseth">@sahilseth&lt;/a>, &lt;a href="https://github.com/samuel-rosa">@samuel-rosa&lt;/a>, &lt;a href="https://github.com/saurfang">@saurfang&lt;/a>, &lt;a href="https://github.com/sckott">@sckott&lt;/a>, &lt;a href="https://github.com/sebastian-c">@sebastian-c&lt;/a>, &lt;a href="https://github.com/sfirke">@sfirke&lt;/a>, &lt;a href="https://github.com/slwu89">@slwu89&lt;/a>, &lt;a href="https://github.com/statsandthings">@statsandthings&lt;/a>, &lt;a href="https://github.com/stephlocke">@stephlocke&lt;/a>, &lt;a href="https://github.com/StevenMMortimer">@StevenMMortimer&lt;/a>, &lt;a href="https://github.com/surmann">@surmann&lt;/a>, &lt;a href="https://github.com/t-kalinowski">@t-kalinowski&lt;/a>, &lt;a href="https://github.com/terrytangyuan">@terrytangyuan&lt;/a>, &lt;a href="https://github.com/ThierryO">@ThierryO&lt;/a>, &lt;a href="https://github.com/thk686">@thk686&lt;/a>, &lt;a href="https://github.com/tjmahr">@tjmahr&lt;/a>, &lt;a href="https://github.com/tomaskrehlik">@tomaskrehlik&lt;/a>, &lt;a href="https://github.com/topepo">@topepo&lt;/a>, &lt;a href="https://github.com/trinker">@trinker&lt;/a>, &lt;a href="https://github.com/Tutuchan">@Tutuchan&lt;/a>, &lt;a href="https://github.com/UweBlock">@UweBlock&lt;/a>, &lt;a href="https://github.com/WastlM">@WastlM&lt;/a>, &lt;a href="https://github.com/wch">@wch&lt;/a>, &lt;a href="https://github.com/wjakethompson">@wjakethompson&lt;/a>, &lt;a href="https://github.com/wlandau">@wlandau&lt;/a>, &lt;a href="https://github.com/wlandau-lilly">@wlandau-lilly&lt;/a>, &lt;a href="https://github.com/wrathematics">@wrathematics&lt;/a>, &lt;a href="https://github.com/wviechtb">@wviechtb&lt;/a>, &lt;a href="https://github.com/xguardi">@xguardi&lt;/a>, &lt;a href="https://github.com/yiluheihei">@yiluheihei&lt;/a>, &lt;a href="https://github.com/yutannihilation">@yutannihilation&lt;/a>, &lt;a href="https://github.com/zappingseb">@zappingseb&lt;/a>, &lt;a href="https://github.com/zbjornson">@zbjornson&lt;/a>, &lt;a href="https://github.com/zkamvar">@zkamvar&lt;/a>, and &lt;a href="https://github.com/znmeb">@znmeb&lt;/a>&lt;/p>
+&lt;/div></description></item></channel></rss>

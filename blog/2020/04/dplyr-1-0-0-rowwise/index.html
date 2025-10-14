@@ -1,0 +1,200 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>dplyr 1.0.0: working within rows</title><meta property="og:title" content="dplyr 1.0.0: working within rows"><meta property="og:description" content="`rowwise()` has been renewed and revamped to make it easier to perform operations row-by-row. This makes it much easier to solve problems that previously required `lapply()`, `map()`, or friends."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-rowwise/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="dplyr 1.0.0: working within rows - Tidyverse"><meta property="description" content="`rowwise()` has been renewed and revamped to make it easier to perform operations row-by-row. This makes it much easier to solve problems that previously required `lapply()`, `map()`, or friends."><meta property="og:description" content="`rowwise()` has been renewed and revamped to make it easier to perform operations row-by-row. This makes it much easier to solve problems that previously required `lapply()`, `map()`, or friends."><meta property="og:image" content="https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-rowwise/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-rowwise/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>dplyr 1.0.0: working within rows</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2020/04/dplyr-1-0-0-rowwise/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/ckZU2xZUjO8>Oleksandr Hrebelnyk</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2020/04/10</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/dplyr/>dplyr</a>,
+<a href=/tags/dplyr-1-0-0/>dplyr-1-0-0</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Hadley Wickham</p><div class=article-content><p>Today, I wanted to talk a little bit about the renewed <code>rowwise()</code> function that makes it easy to perform operations &ldquo;row-by-row&rdquo;. I&rsquo;ll show how you can use <code>rowwise()</code> to compute summaries &ldquo;by row&rdquo;, talk about how <code>rowwise()</code> is a natural pairing with list-columns, and show a couple of use cases that I think are particularly elegant. You can learn more about all of these topics in
+<a href=https://dplyr.tidyverse.org/dev/articles/rowwise.html target=_blank rel=noopener><code>vignette("rowwise")</code></a>.</p><hr><p><strong>Update</strong>: as of June 1, dplyr 1.0.0 is now available on CRAN! Read
+<a href=/blog/2020/06/dplyr-1-0-0/>all about it</a> or install it now with <code>install.packages("dplyr")</code>.</p><hr><h2 id=basic-operation>Basic operation
+<a href=#basic-operation><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><code>rowwise()</code> works like <code>group_by()</code> in the sense that it doesn&rsquo;t change what the data looks like; it changes how dplyr verbs operate on the data. Let&rsquo;s see how this works with a simple example. Here I have some imaginary test results for students in a class:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>dplyr</span><span class=p>,</span> <span class=n>warn.conflicts</span> <span class=o>=</span> <span class=kc>FALSE</span><span class=p>)</span>
+
+<span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>tibble</span><span class=p>(</span>
+  <span class=n>student_id</span> <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>4</span><span class=p>,</span> 
+  <span class=n>test1</span> <span class=o>=</span> <span class=m>10</span><span class=o>:</span><span class=m>13</span><span class=p>,</span> 
+  <span class=n>test2</span> <span class=o>=</span> <span class=m>20</span><span class=o>:</span><span class=m>23</span><span class=p>,</span> 
+  <span class=n>test3</span> <span class=o>=</span> <span class=m>30</span><span class=o>:</span><span class=m>33</span><span class=p>,</span> 
+  <span class=n>test4</span> <span class=o>=</span> <span class=m>40</span><span class=o>:</span><span class=m>43</span>
+<span class=p>)</span>
+<span class=n>df</span>
+<span class=c1>#&gt; # A tibble: 4 x 5</span>
+<span class=c1>#&gt;   student_id test1 test2 test3 test4</span>
+<span class=c1>#&gt;        &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;</span>
+<span class=c1>#&gt; 1          1    10    20    30    40</span>
+<span class=c1>#&gt; 2          2    11    21    31    41</span>
+<span class=c1>#&gt; 3          3    12    22    32    42</span>
+<span class=c1>#&gt; 4          4    13    23    33    43</span>
+</code></pre></div><p>I&rsquo;d like to be able to compute the mean of the test scores for each student, but <code>mutate()</code> and <code>mean()</code> don&rsquo;t do what I want:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>%&gt;%</span> <span class=nf>mutate</span><span class=p>(</span><span class=n>avg</span> <span class=o>=</span> <span class=nf>mean</span><span class=p>(</span><span class=nf>c</span><span class=p>(</span><span class=n>test1</span><span class=p>,</span> <span class=n>test2</span><span class=p>,</span> <span class=n>test3</span><span class=p>,</span> <span class=n>test4</span><span class=p>)))</span>
+<span class=c1>#&gt; # A tibble: 4 x 6</span>
+<span class=c1>#&gt;   student_id test1 test2 test3 test4   avg</span>
+<span class=c1>#&gt;        &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1          1    10    20    30    40  26.5</span>
+<span class=c1>#&gt; 2          2    11    21    31    41  26.5</span>
+<span class=c1>#&gt; 3          3    12    22    32    42  26.5</span>
+<span class=c1>#&gt; 4          4    13    23    33    43  26.5</span>
+</code></pre></div><p>The problem is that I&rsquo;m getting a mean over the whole data frame, not for each student. I can resolve this problem of getting a mean for each student by creating a &ldquo;row-wise&rdquo; data frame with <code>rowwise()</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>rf</span> <span class=o>&lt;-</span> <span class=nf>rowwise</span><span class=p>(</span><span class=n>df</span><span class=p>,</span> <span class=n>student_id</span><span class=p>)</span>
+</code></pre></div><p><code>rowwise()</code> doesn&rsquo;t need any additional arguments unless you have variables that identify the rows, like <code>student_id</code> here. Much like grouping variables, identifier variables will be automatically preserved when you <code>summarise()</code> the data.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>rf</span>
+<span class=c1>#&gt; # A tibble: 4 x 5</span>
+<span class=c1>#&gt; # Rowwise:  student_id</span>
+<span class=c1>#&gt;   student_id test1 test2 test3 test4</span>
+<span class=c1>#&gt;        &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;</span>
+<span class=c1>#&gt; 1          1    10    20    30    40</span>
+<span class=c1>#&gt; 2          2    11    21    31    41</span>
+<span class=c1>#&gt; 3          3    12    22    32    42</span>
+<span class=c1>#&gt; 4          4    13    23    33    43</span>
+</code></pre></div><p><code>rf</code> <em>looks</em> very similar to <code>df</code>, but <em>behaves</em> very differently:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>rf</span> <span class=o>%&gt;%</span> <span class=nf>mutate</span><span class=p>(</span><span class=n>avg</span> <span class=o>=</span> <span class=nf>mean</span><span class=p>(</span><span class=nf>c</span><span class=p>(</span><span class=n>test1</span><span class=p>,</span> <span class=n>test2</span><span class=p>,</span> <span class=n>test3</span><span class=p>,</span> <span class=n>test4</span><span class=p>)))</span>
+<span class=c1>#&gt; # A tibble: 4 x 6</span>
+<span class=c1>#&gt; # Rowwise:  student_id</span>
+<span class=c1>#&gt;   student_id test1 test2 test3 test4   avg</span>
+<span class=c1>#&gt;        &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1          1    10    20    30    40    25</span>
+<span class=c1>#&gt; 2          2    11    21    31    41    26</span>
+<span class=c1>#&gt; 3          3    12    22    32    42    27</span>
+<span class=c1>#&gt; 4          4    13    23    33    43    28</span>
+</code></pre></div><p>An additional advantage of <code>rowwise()</code> is that it&rsquo;s paired with
+<a href=https://dplyr.tidyverse.org/dev/reference/across.html target=_blank rel=noopener><code>c_across()</code></a>, which works like <code>c()</code> but uses the same tidyselect syntax as <code>across()</code>. That makes it easy to operate on multiple variables:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>rf</span> <span class=o>%&gt;%</span> <span class=nf>mutate</span><span class=p>(</span><span class=n>avg</span> <span class=o>=</span> <span class=nf>mean</span><span class=p>(</span><span class=nf>c_across</span><span class=p>(</span><span class=nf>starts_with</span><span class=p>(</span><span class=s>&#34;test&#34;</span><span class=p>))))</span>
+<span class=c1>#&gt; # A tibble: 4 x 6</span>
+<span class=c1>#&gt; # Rowwise:  student_id</span>
+<span class=c1>#&gt;   student_id test1 test2 test3 test4   avg</span>
+<span class=c1>#&gt;        &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1          1    10    20    30    40    25</span>
+<span class=c1>#&gt; 2          2    11    21    31    41    26</span>
+<span class=c1>#&gt; 3          3    12    22    32    42    27</span>
+<span class=c1>#&gt; 4          4    13    23    33    43    28</span>
+</code></pre></div><h3 id=other-ways-of-achieving-the-same-result>Other ways of achieving the same result
+<a href=#other-ways-of-achieving-the-same-result><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>Some summary functions have alternative ways of computing row-wise summaries that take advantage of built-in vectorisation. For example, if you wanted to compute the sum, you could use <code>+</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>%&gt;%</span> <span class=nf>mutate</span><span class=p>(</span><span class=n>total</span> <span class=o>=</span> <span class=n>test1</span> <span class=o>+</span> <span class=n>test2</span> <span class=o>+</span> <span class=n>test3</span> <span class=o>+</span> <span class=n>test4</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 4 x 6</span>
+<span class=c1>#&gt;   student_id test1 test2 test3 test4 total</span>
+<span class=c1>#&gt;        &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;</span>
+<span class=c1>#&gt; 1          1    10    20    30    40   100</span>
+<span class=c1>#&gt; 2          2    11    21    31    41   104</span>
+<span class=c1>#&gt; 3          3    12    22    32    42   108</span>
+<span class=c1>#&gt; 4          4    13    23    33    43   112</span>
+</code></pre></div><p>And you <em>could</em> use the same basic idea to compute the mean:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>%&gt;%</span> <span class=nf>mutate</span><span class=p>(</span><span class=n>avg</span> <span class=o>=</span> <span class=p>(</span><span class=n>test1</span> <span class=o>+</span> <span class=n>test2</span> <span class=o>+</span> <span class=n>test3</span> <span class=o>+</span> <span class=n>test4</span><span class=p>)</span> <span class=o>/</span> <span class=m>4</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 4 x 6</span>
+<span class=c1>#&gt;   student_id test1 test2 test3 test4   avg</span>
+<span class=c1>#&gt;        &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1          1    10    20    30    40    25</span>
+<span class=c1>#&gt; 2          2    11    21    31    41    26</span>
+<span class=c1>#&gt; 3          3    12    22    32    42    27</span>
+<span class=c1>#&gt; 4          4    13    23    33    43    28</span>
+</code></pre></div><p>Another family of summary functions have &ldquo;parallel&rdquo; extensions where you can provide multiple variables in the arguments:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>%&gt;%</span> <span class=nf>mutate</span><span class=p>(</span>
+  <span class=n>min</span> <span class=o>=</span> <span class=nf>pmin</span><span class=p>(</span><span class=n>test1</span><span class=p>,</span> <span class=n>test2</span><span class=p>,</span> <span class=n>test3</span><span class=p>,</span> <span class=n>test4</span><span class=p>),</span> 
+  <span class=n>max</span> <span class=o>=</span> <span class=nf>pmax</span><span class=p>(</span><span class=n>test1</span><span class=p>,</span> <span class=n>test2</span><span class=p>,</span> <span class=n>test3</span><span class=p>,</span> <span class=n>test4</span><span class=p>),</span> 
+  <span class=n>string</span> <span class=o>=</span> <span class=nf>paste</span><span class=p>(</span><span class=n>test1</span><span class=p>,</span> <span class=n>test2</span><span class=p>,</span> <span class=n>test3</span><span class=p>,</span> <span class=n>test4</span><span class=p>,</span> <span class=n>sep</span> <span class=o>=</span> <span class=s>&#34;-&#34;</span><span class=p>)</span>
+<span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 4 x 8</span>
+<span class=c1>#&gt;   student_id test1 test2 test3 test4   min   max string     </span>
+<span class=c1>#&gt;        &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt;      </span>
+<span class=c1>#&gt; 1          1    10    20    30    40    10    40 10-20-30-40</span>
+<span class=c1>#&gt; 2          2    11    21    31    41    11    41 11-21-31-41</span>
+<span class=c1>#&gt; 3          3    12    22    32    42    12    42 12-22-32-42</span>
+<span class=c1>#&gt; 4          4    13    23    33    43    13    43 13-23-33-43</span>
+</code></pre></div><p>Where these functions exist, they&rsquo;ll usually be faster than <code>rowwise()</code>. The advantage of <code>rowwise()</code> is that it works with any function, not just those that are already vectorised.</p><h2 id=list-columns>List-columns
+<a href=#list-columns><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><code>rowwise()</code> is useful for computing simple summaries, but its real power comes when you use it with list-columns. Because lists can contain anything, you can use list-columns to keep related objects together, regardless of what type of thing they are. List-columns give you a convenient storage mechanism and <code>rowwise()</code> gives you a convenient computation mechanism.</p><p>Let&rsquo;s make those ideas concrete by creating a data frame with a list-column. A little later, we&rsquo;ll come back to how you might actually get a list-column in a more realistic situation. The following data frame uses list columns to store things that would otherwise be challenging:</p><ul><li><code>x</code> contains vectors of different lengths.</li><li><code>y</code> contains vectors of different types</li><li><code>z</code> contains functions, which can&rsquo;t usually live in a data frame.</li></ul><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>tibble</span><span class=p>(</span>
+  <span class=n>x</span> <span class=o>=</span> <span class=nf>list</span><span class=p>(</span><span class=m>1</span><span class=p>,</span> <span class=m>2</span><span class=o>:</span><span class=m>3</span><span class=p>,</span> <span class=m>4</span><span class=o>:</span><span class=m>6</span><span class=p>),</span>
+  <span class=n>y</span> <span class=o>=</span> <span class=nf>list</span><span class=p>(</span><span class=kc>TRUE</span><span class=p>,</span> <span class=m>1</span><span class=p>,</span> <span class=s>&#34;a&#34;</span><span class=p>),</span>
+  <span class=n>z</span> <span class=o>=</span> <span class=nf>list</span><span class=p>(</span><span class=n>sum</span><span class=p>,</span> <span class=n>mean</span><span class=p>,</span> <span class=n>sd</span><span class=p>)</span>
+<span class=p>)</span>
+<span class=n>df</span>
+<span class=c1>#&gt; # A tibble: 3 x 3</span>
+<span class=c1>#&gt;   x         y         z     </span>
+<span class=c1>#&gt;   &lt;list&gt;    &lt;list&gt;    &lt;list&gt;</span>
+<span class=c1>#&gt; 1 &lt;dbl [1]&gt; &lt;lgl [1]&gt; &lt;fn&gt;  </span>
+<span class=c1>#&gt; 2 &lt;int [2]&gt; &lt;dbl [1]&gt; &lt;fn&gt;  </span>
+<span class=c1>#&gt; 3 &lt;int [3]&gt; &lt;chr [1]&gt; &lt;fn&gt;</span>
+</code></pre></div><p>When you have list-columns in a row-wise data frame, you can easily compute with each element of the list:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>%&gt;%</span> 
+  <span class=nf>rowwise</span><span class=p>()</span> <span class=o>%&gt;%</span> 
+  <span class=nf>summarise</span><span class=p>(</span>
+    <span class=n>x_length</span> <span class=o>=</span> <span class=nf>length</span><span class=p>(</span><span class=n>x</span><span class=p>),</span>
+    <span class=n>y_type</span> <span class=o>=</span> <span class=nf>typeof</span><span class=p>(</span><span class=n>y</span><span class=p>),</span>
+    <span class=n>z_call</span> <span class=o>=</span> <span class=nf>z</span><span class=p>(</span><span class=m>1</span><span class=o>:</span><span class=m>5</span><span class=p>)</span>
+  <span class=p>)</span>
+<span class=c1>#&gt; `summarise()` ungrouping output (override with `.groups` argument)</span>
+<span class=c1>#&gt; # A tibble: 3 x 3</span>
+<span class=c1>#&gt;   x_length y_type    z_call</span>
+<span class=c1>#&gt;      &lt;int&gt; &lt;chr&gt;      &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1        1 logical    15   </span>
+<span class=c1>#&gt; 2        2 double      3   </span>
+<span class=c1>#&gt; 3        3 character   1.58</span>
+</code></pre></div><p>This makes a row-wise <code>mutate()</code> or <code>summarise()</code> a general vectorisation tool, in the same way as the apply family in base R or the map family in purrr do. It&rsquo;s now much simpler to solve a number of problems where we previously recommended learning about <code>map()</code>, <code>map2()</code>, <code>pmap()</code> and friends.</p><h2 id=use-cases>Use cases
+<a href=#use-cases><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>To finish up, I wanted to show off a couple of use cases where I think <code>rowwise()</code> provides a really elegant solution: simulations and modelling.</p><h3 id=simulation>Simulation
+<a href=#simulation><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>The basic idea of using <code>rowwise()</code> to perform simulation is to store all your simulation paramters in a data frame:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>tribble</span><span class=p>(</span>
+  <span class=o>~</span><span class=n>id</span><span class=p>,</span> <span class=o>~</span> <span class=n>n</span><span class=p>,</span> <span class=o>~</span> <span class=n>min</span><span class=p>,</span> <span class=o>~</span> <span class=n>max</span><span class=p>,</span>
+    <span class=m>1</span><span class=p>,</span>   <span class=m>3</span><span class=p>,</span>     <span class=m>0</span><span class=p>,</span>     <span class=m>1</span><span class=p>,</span>
+    <span class=m>2</span><span class=p>,</span>   <span class=m>2</span><span class=p>,</span>    <span class=m>10</span><span class=p>,</span>   <span class=m>100</span><span class=p>,</span>
+    <span class=m>3</span><span class=p>,</span>   <span class=m>2</span><span class=p>,</span>   <span class=m>100</span><span class=p>,</span>  <span class=m>1000</span><span class=p>,</span>
+<span class=p>)</span>
+</code></pre></div><p>Then you can either generate a list-column containing the simulated values with <code>mutate()</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>%&gt;%</span>
+  <span class=nf>rowwise</span><span class=p>(</span><span class=n>id</span><span class=p>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>mutate</span><span class=p>(</span><span class=n>data</span> <span class=o>=</span> <span class=nf>list</span><span class=p>(</span><span class=nf>runif</span><span class=p>(</span><span class=n>n</span><span class=p>,</span> <span class=n>min</span><span class=p>,</span> <span class=n>max</span><span class=p>)))</span>
+<span class=c1>#&gt; # A tibble: 3 x 5</span>
+<span class=c1>#&gt; # Rowwise:  id</span>
+<span class=c1>#&gt;      id     n   min   max data     </span>
+<span class=c1>#&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;list&gt;   </span>
+<span class=c1>#&gt; 1     1     3     0     1 &lt;dbl [3]&gt;</span>
+<span class=c1>#&gt; 2     2     2    10   100 &lt;dbl [2]&gt;</span>
+<span class=c1>#&gt; 3     3     2   100  1000 &lt;dbl [2]&gt;</span>
+</code></pre></div><p>Or take advantage of
+<a href=https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/ target=_blank rel=noopener><code>summarise()</code>'s new capabilities</a> and return one element per row:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>%&gt;%</span>
+  <span class=nf>rowwise</span><span class=p>(</span><span class=n>id</span><span class=p>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>summarise</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=nf>runif</span><span class=p>(</span><span class=n>n</span><span class=p>,</span> <span class=n>min</span><span class=p>,</span> <span class=n>max</span><span class=p>))</span>
+<span class=c1>#&gt; `summarise()` regrouping output by &#39;id&#39; (override with `.groups` argument)</span>
+<span class=c1>#&gt; # A tibble: 7 x 2</span>
+<span class=c1>#&gt; # Groups:   id [3]</span>
+<span class=c1>#&gt;      id       x</span>
+<span class=c1>#&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     1   0.579</span>
+<span class=c1>#&gt; 2     1   0.269</span>
+<span class=c1>#&gt; 3     1   0.120</span>
+<span class=c1>#&gt; 4     2  29.0  </span>
+<span class=c1>#&gt; 5     2  50.8  </span>
+<span class=c1>#&gt; 6     3 451.   </span>
+<span class=c1>#&gt; 7     3 985.</span>
+</code></pre></div><p>Note that <code>id</code> is preserved in the output here because we defined it as an identifier variable in the call to <code>rowwise()</code>.</p><p><a href=https://dplyr.tidyverse.org/dev/articles/rowwise.html#repeated-function-calls-1 target=_blank rel=noopener><code>vignette("rowwise")</code></a> expands on this idea to show how you can generate parameter grids and vary the random distribution used in each row.</p><h3 id=group-wise-models>Group-wise models
+<a href=#group-wise-models><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>The new <code>nest_by()</code> function works similarly to <code>group_by()</code> but instead of storing the grouping data as metadata, visibly changes the structure. Now we have three rows (one for each group), and we have a list-col, <code>data</code>, that stores the data for that group. Also note that the output is a <code>rowwise()</code> object; this is important because it&rsquo;s going to make working with that list of data frames much easier.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>by_cyl</span> <span class=o>&lt;-</span> <span class=n>mtcars</span> <span class=o>%&gt;%</span> <span class=nf>nest_by</span><span class=p>(</span><span class=n>cyl</span><span class=p>)</span>
+<span class=n>by_cyl</span>
+<span class=c1>#&gt; # A tibble: 3 x 2</span>
+<span class=c1>#&gt; # Rowwise:  cyl</span>
+<span class=c1>#&gt;     cyl                data</span>
+<span class=c1>#&gt;   &lt;dbl&gt; &lt;list&lt;tbl_df[,10]&gt;&gt;</span>
+<span class=c1>#&gt; 1     4           [11 × 10]</span>
+<span class=c1>#&gt; 2     6            [7 × 10]</span>
+<span class=c1>#&gt; 3     8           [14 × 10]</span>
+</code></pre></div><p>Now we can use <code>mutate()</code> to fit a model to each data frame:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>by_cyl</span> <span class=o>&lt;-</span> <span class=n>by_cyl</span> <span class=o>%&gt;%</span> <span class=nf>mutate</span><span class=p>(</span><span class=n>model</span> <span class=o>=</span> <span class=nf>list</span><span class=p>(</span><span class=nf>lm</span><span class=p>(</span><span class=n>mpg</span> <span class=o>~</span> <span class=n>wt</span><span class=p>,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>data</span><span class=p>)))</span>
+<span class=n>by_cyl</span>
+<span class=c1>#&gt; # A tibble: 3 x 3</span>
+<span class=c1>#&gt; # Rowwise:  cyl</span>
+<span class=c1>#&gt;     cyl                data model </span>
+<span class=c1>#&gt;   &lt;dbl&gt; &lt;list&lt;tbl_df[,10]&gt;&gt; &lt;list&gt;</span>
+<span class=c1>#&gt; 1     4           [11 × 10] &lt;lm&gt;  </span>
+<span class=c1>#&gt; 2     6            [7 × 10] &lt;lm&gt;  </span>
+<span class=c1>#&gt; 3     8           [14 × 10] &lt;lm&gt;</span>
+</code></pre></div><p>(Note that we need to wrap the output of <code>lm()</code> into a list; if you forget this, the error message will remind you.)</p><p>And then extract model summaries or coefficients with <code>summarise()</code> and
+<a href=http://broom.tidyverse.org/ target=_blank rel=noopener>broom</a> functions:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>by_cyl</span> <span class=o>%&gt;%</span> <span class=nf>summarise</span><span class=p>(</span><span class=n>broom</span><span class=o>::</span><span class=nf>glance</span><span class=p>(</span><span class=n>model</span><span class=p>))</span>
+<span class=c1>#&gt; `summarise()` regrouping output by &#39;cyl&#39; (override with `.groups` argument)</span>
+<span class=c1>#&gt; # A tibble: 3 x 12</span>
+<span class=c1>#&gt; # Groups:   cyl [3]</span>
+<span class=c1>#&gt;     cyl r.squared adj.r.squared sigma statistic p.value    df logLik   AIC   BIC</span>
+<span class=c1>#&gt;   &lt;dbl&gt;     &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     4     0.509         0.454  3.33      9.32  0.0137     2 -27.7   61.5  62.7</span>
+<span class=c1>#&gt; 2     6     0.465         0.357  1.17      4.34  0.0918     2  -9.83  25.7  25.5</span>
+<span class=c1>#&gt; 3     8     0.423         0.375  2.02      8.80  0.0118     2 -28.7   63.3  65.2</span>
+<span class=c1>#&gt; # … with 2 more variables: deviance &lt;dbl&gt;, df.residual &lt;int&gt;</span>
+
+<span class=n>by_cyl</span> <span class=o>%&gt;%</span> <span class=nf>summarise</span><span class=p>(</span><span class=n>broom</span><span class=o>::</span><span class=nf>tidy</span><span class=p>(</span><span class=n>model</span><span class=p>))</span>
+<span class=c1>#&gt; `summarise()` regrouping output by &#39;cyl&#39; (override with `.groups` argument)</span>
+<span class=c1>#&gt; # A tibble: 6 x 6</span>
+<span class=c1>#&gt; # Groups:   cyl [3]</span>
+<span class=c1>#&gt;     cyl term        estimate std.error statistic    p.value</span>
+<span class=c1>#&gt;   &lt;dbl&gt; &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     4 (Intercept)    39.6      4.35       9.10 0.00000777</span>
+<span class=c1>#&gt; 2     4 wt             -5.65     1.85      -3.05 0.0137    </span>
+<span class=c1>#&gt; 3     6 (Intercept)    28.4      4.18       6.79 0.00105   </span>
+<span class=c1>#&gt; 4     6 wt             -2.78     1.33      -2.08 0.0918    </span>
+<span class=c1>#&gt; 5     8 (Intercept)    23.9      3.01       7.94 0.00000405</span>
+<span class=c1>#&gt; 6     8 wt             -2.19     0.739     -2.97 0.0118</span>
+</code></pre></div></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#basic-operation>Basic operation</a></li><li><a href=#list-columns>List-columns</a></li><li><a href=#use-cases>Use cases</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

@@ -1,0 +1,125 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>finetune 0.0.1</title><meta property="og:title" content="finetune 0.0.1"><meta property="og:description" content="finetune is a new package that adds a few more model tuning methods."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2020/12/finetune-0-0-1/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="finetune 0.0.1 - Tidyverse"><meta property="description" content="finetune is a new package that adds a few more model tuning methods."><meta property="og:description" content="finetune is a new package that adds a few more model tuning methods."><meta property="og:image" content="https://www.tidyverse.org/blog/2020/12/finetune-0-0-1/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2020/12/finetune-0-0-1/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>finetune 0.0.1</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2020/12/finetune-0-0-1/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/nQYqEwimp5o>Rob Wingate</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2020/12/02</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/tidymodels/>tidymodels</a>,
+<a href=/tags/tune/>tune</a>,
+<a href=/tags/finetune/>finetune</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Max Kuhn</p><div class=article-content><p>We&rsquo;re thrilled to announce the first release of the
+<a href=https://finetune.tidymodels.org/ target=_blank rel=noopener>finetune</a> package. finetune adds two additional approaches for model tuning.</p><p>You can install it from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>install.packages</span><span class=p>(</span><span class=s>&#34;finetune&#34;</span><span class=p>)</span>
+</code></pre></div><p>This blog post will describe the two new tools in the package.</p><h2 id=racing>Racing
+<a href=#racing><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Tuning parameters are unknown quantities of a model that cannot be directly estimated from the data. The number of neighbors in a K nearest neighbor model is a good example.</p><p>Grid search is a common method to find good values for model tuning parameters. A pre-defined set of parameters are created and often resampled so that good estimates of model performance are available. The user then choses a tuning parameter value that has acceptable results.</p><p>The problem with this approach is that it requires all of the results to be able to make a decision. For example, if we evaluate 50 tuning parameter values on 10 resamples, 500 model fits are evaluated before any analysis of the results takes place.</p><p>Racing methods, devised by
+<a href="https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Hoeffding+races%3A+Accelerating+model+selection+search+for+classification+and+function+approximation&btnG=" target=_blank rel=noopener>Maron and Moore (1994)</a>, enables a sequential type of grid search. All model parameters are evaluated on a few resamples. Racing methods analyze the initial results to determine if any of the tuning parameters are unacceptable enough to discard. If the analysis discards any parameters, they are not resampled further. This process can considerably reduce the total number of model evaluations. finetune has functions <code>tune_race_anova()</code> and <code>tune_race_win_loss()</code> for this purpose (with syntax similar to <code>tune_grid()</code>). Their analysis details are described in
+<a href=https://arxiv.org/abs/1405.6974 target=_blank rel=noopener>Kuhn (2014)</a>.</p><p>As an example, we&rsquo;ll tune a K nearest neighbor (KNN) model on the sonar data. The grid will consist of 20 tuning parameters values in conjunction with 25 bootstrap resamples.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>tidymodels</span><span class=p>)</span>
+<span class=nf>library</span><span class=p>(</span><span class=n>finetune</span><span class=p>)</span>
+<span class=nf>library</span><span class=p>(</span><span class=n>mlbench</span><span class=p>)</span>
+<span class=nf>data</span><span class=p>(</span><span class=n>Sonar</span><span class=p>)</span>
+
+<span class=c1># create resamples</span>
+<span class=nf>set.seed</span><span class=p>(</span><span class=m>100</span><span class=p>)</span>
+<span class=n>resamp</span> <span class=o>&lt;-</span> <span class=nf>bootstraps</span><span class=p>(</span><span class=n>Sonar</span><span class=p>)</span>
+
+<span class=c1># create a model specification</span>
+<span class=n>model</span> <span class=o>&lt;-</span> 
+  <span class=nf>nearest_neighbor</span><span class=p>(</span><span class=n>neighbors</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>(),</span> <span class=n>weight_func</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>(),</span> 
+                   <span class=n>dist_power</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>())</span> <span class=o>%&gt;%</span> 
+  <span class=nf>set_engine</span><span class=p>(</span><span class=s>&#34;kknn&#34;</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>set_mode</span><span class=p>(</span><span class=s>&#34;classification&#34;</span><span class=p>)</span>
+
+<span class=c1># center and scale the data using a recipe</span>
+<span class=n>norm_rec</span> <span class=o>&lt;-</span> <span class=nf>recipe</span><span class=p>(</span><span class=n>Class</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>Sonar</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>step_normalize</span><span class=p>(</span><span class=nf>all_predictors</span><span class=p>())</span>
+
+<span class=n>ctrl</span> <span class=o>&lt;-</span> <span class=nf>control_race</span><span class=p>(</span><span class=n>verbose_elim</span> <span class=o>=</span> <span class=kc>TRUE</span><span class=p>)</span>
+
+<span class=nf>set.seed</span><span class=p>(</span><span class=m>101</span><span class=p>)</span>
+<span class=n>sonar_race</span> <span class=o>&lt;-</span> 
+  <span class=n>model</span> <span class=o>%&gt;%</span> 
+  <span class=nf>tune_race_anova</span><span class=p>(</span><span class=n>norm_rec</span><span class=p>,</span> <span class=n>resamples</span> <span class=o>=</span> <span class=n>resamp</span><span class=p>,</span> <span class=n>grid</span> <span class=o>=</span> <span class=m>20</span><span class=p>,</span> <span class=n>control</span> <span class=o>=</span> <span class=n>ctrl</span><span class=p>)</span>
+</code></pre></div><pre><code>## ℹ Racing will maximize the roc_auc metric.
+## ℹ Resamples are analyzed in a random order.
+## ℹ Bootstrap23:  9 eliminated; 11 candidates remain.
+## ℹ Bootstrap18:  4 eliminated;  7 candidates remain.
+## ℹ Bootstrap05:  1 eliminated;  6 candidates remain.
+## ℹ Bootstrap06:  0 eliminated;  6 candidates remain. 
+## ℹ Bootstrap08:  1 eliminated;  5 candidates remain.
+## ℹ Bootstrap01:  0 eliminated;  5 candidates remain.
+## ℹ Bootstrap19:  0 eliminated;  5 candidates remain.
+## ℹ Bootstrap15:  0 eliminated;  5 candidates remain.
+## ℹ Bootstrap10:  0 eliminated;  5 candidates remain.
+## ℹ Bootstrap07:  0 eliminated;  5 candidates remain.
+## ℹ Bootstrap16:  2 eliminated;  3 candidates remain.
+## ℹ Bootstrap09:  0 eliminated;  3 candidates remain.
+## ℹ Bootstrap04:  0 eliminated;  3 candidates remain.
+## ℹ Bootstrap24:  0 eliminated;  3 candidates remain.
+## ℹ Bootstrap21:  0 eliminated;  3 candidates remain.
+## ℹ Bootstrap12:  0 eliminated;  3 candidates remain.
+## ℹ Bootstrap03:  0 eliminated;  3 candidates remain.
+## ℹ Bootstrap13:  0 eliminated;  3 candidates remain.
+## ℹ Bootstrap17:  0 eliminated;  3 candidates remain.
+## ℹ Bootstrap11:  0 eliminated;  3 candidates remain.
+## ℹ Bootstrap25:  0 eliminated;  3 candidates remain.
+## ℹ Bootstrap14:  0 eliminated;  3 candidates remain.
+</code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>show_best</span><span class=p>(</span><span class=n>sonar_race</span><span class=p>,</span> <span class=n>metric</span> <span class=o>=</span> <span class=s>&#34;roc_auc&#34;</span><span class=p>)</span>
+</code></pre></div><pre><code>## # A tibble: 3 x 9
+##   neighbors weight_func dist_power .metric .estimator  mean     n std_err
+##       &lt;int&gt; &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+## 1        14 triweight        0.902 roc_auc binary     0.938    25 0.00647
+## 2        11 biweight         1.62  roc_auc binary     0.937    25 0.00627
+## 3        10 biweight         0.501 roc_auc binary     0.934    25 0.00563
+## # … with 1 more variable: .config &lt;chr&gt;
+</code></pre><p>Using this approach, we evaluated 156 models (less than half of the full set of 500). The
+<a href=https://finetune.tidymodels.org/reference/tune_race_anova.html#details target=_blank rel=noopener>help file</a> describes how parallel processing can also be used to further speed up the racing process.</p><p>There is also a handy plotting function that demonstrates how models are eliminated in the racing process:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>plot_race</span><span class=p>(</span><span class=n>sonar_race</span><span class=p>)</span> <span class=o>+</span> <span class=nf>theme_bw</span><span class=p>()</span>
+</code></pre></div><p><img src=figure/race-1.svg alt="plot of chunk race"></p><p>Each line corresponds to a tuning parameter combination. Models with suboptimal ROC scores are eliminated quickly.</p><h2 id=simulated-annealing>Simulated Annealing
+<a href=#simulated-annealing><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Simulated annealing is an old global search method that does a controlled random walk. In our application, the walk is through the tuning parameter space. finetune uses it as an iterative search method where new tuning parameter values are created during the process (as opposed to a pre-defined grid). The <code>tune_sim_anneal()</code> function has syntax that is very similar to the <code>tune_bayes()</code> function.</p><p>For our KNN model:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>ctrl</span> <span class=o>&lt;-</span> <span class=nf>control_sim_anneal</span><span class=p>(</span><span class=n>verbose</span> <span class=o>=</span> <span class=kc>TRUE</span><span class=p>)</span>
+
+<span class=nf>set.seed</span><span class=p>(</span><span class=m>102</span><span class=p>)</span>
+<span class=n>sonar_sa</span> <span class=o>&lt;-</span> 
+  <span class=n>model</span> <span class=o>%&gt;%</span> 
+  <span class=nf>tune_sim_anneal</span><span class=p>(</span><span class=n>norm_rec</span><span class=p>,</span> <span class=n>resamples</span> <span class=o>=</span> <span class=n>resamp</span><span class=p>,</span> <span class=n>iter</span> <span class=o>=</span> <span class=m>25</span><span class=p>,</span> <span class=n>control</span> <span class=o>=</span> <span class=n>ctrl</span><span class=p>)</span>
+</code></pre></div><pre><code>## &gt;  Generating a set of 1 initial parameter results
+## ✓ Initialization complete
+## 
+## Optimizing roc_auc
+## Initial best: 0.91295
+##  1 ◯ accept suboptimal  roc_auc=0.86702	(+/-0.009415)
+##  2 + better suboptimal  roc_auc=0.89481	(+/-0.007461)
+##  3 ♥ new best           roc_auc=0.91818	(+/-0.006982)
+##  4 ♥ new best           roc_auc=0.93033	(+/-0.006978)
+##  5 ♥ new best           roc_auc=0.93181	(+/-0.006744)
+##  6 ◯ accept suboptimal  roc_auc=0.87504	(+/-0.009216)
+##  7 + better suboptimal  roc_auc=0.8849	(+/-0.00875)
+##  8 ♥ new best           roc_auc=0.93647	(+/-0.00611)
+##  9 ◯ accept suboptimal  roc_auc=0.92365	(+/-0.006366)
+## 10 ─ discard suboptimal roc_auc=0.88774	(+/-0.007586)
+## 11 + better suboptimal  roc_auc=0.92405	(+/-0.006807)
+## 12 ◯ accept suboptimal  roc_auc=0.92211	(+/-0.006764)
+## 13 + better suboptimal  roc_auc=0.9297	(+/-0.006814)
+## 14 ─ discard suboptimal roc_auc=0.86171	(+/-0.008326)
+## 15 ─ discard suboptimal roc_auc=0.88501	(+/-0.007397)
+## 16 x restart from best  roc_auc=0.92734	(+/-0.006484)
+## 17 ◯ accept suboptimal  roc_auc=0.93554	(+/-0.006326)
+## 18 ◯ accept suboptimal  roc_auc=0.92682	(+/-0.006275)
+## 19 + better suboptimal  roc_auc=0.93057	(+/-0.006371)
+## 20 ♥ new best           roc_auc=0.94017	(+/-0.006516)
+## 21 ◯ accept suboptimal  roc_auc=0.92589	(+/-0.006573)
+## 22 + better suboptimal  roc_auc=0.92809	(+/-0.006609)
+## 23 + better suboptimal  roc_auc=0.93439	(+/-0.006754)
+## 24 ◯ accept suboptimal  roc_auc=0.9314	(+/-0.00656)
+## 25 ◯ accept suboptimal  roc_auc=0.93076	(+/-0.007003)
+</code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>show_best</span><span class=p>(</span><span class=n>sonar_sa</span><span class=p>,</span> <span class=n>metric</span> <span class=o>=</span> <span class=s>&#34;roc_auc&#34;</span><span class=p>)</span>
+</code></pre></div><pre><code>## # A tibble: 5 x 10
+##   neighbors weight_func dist_power .metric .estimator  mean     n std_err
+##       &lt;int&gt; &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+## 1        10 triweight         1.50 roc_auc binary     0.940    25 0.00652
+## 2        11 biweight          1.78 roc_auc binary     0.936    25 0.00611
+## 3        10 biweight          1.92 roc_auc binary     0.936    25 0.00633
+## 4         8 triweight         1.32 roc_auc binary     0.934    25 0.00675
+## 5         7 cos               1.59 roc_auc binary     0.932    25 0.00674
+## # … with 2 more variables: .config &lt;chr&gt;, .iter &lt;int&gt;
+</code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>autoplot</span><span class=p>(</span><span class=n>sonar_sa</span><span class=p>,</span> <span class=n>type</span> <span class=o>=</span> <span class=s>&#34;performance&#34;</span><span class=p>,</span> <span class=n>metric</span> <span class=o>=</span> <span class=s>&#34;roc_auc&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=nf>theme_bw</span><span class=p>()</span>
+</code></pre></div><p><img src=figure/sa-best-1.svg alt="plot of chunk sa-best"></p><p>We&rsquo;ll have more information on both these methods in a next release of chapters for
+<a href=https://www.tmwr.org/ target=_blank rel=noopener><em>Tidy Modeling with R</em></a>.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#racing>Racing</a></li><li><a href=#simulated-annealing>Simulated Annealing</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

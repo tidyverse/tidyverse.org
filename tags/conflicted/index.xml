@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>conflicted | Tidyverse</title><link>https://www.tidyverse.org/tags/conflicted/</link><atom:link href="https://www.tidyverse.org/tags/conflicted/index.xml" rel="self" type="application/rss+xml"/><description>conflicted</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sat, 02 Jun 2018 00:00:00 +0000</lastBuildDate><item><title>conflicted: a new approach to resolving ambiguity</title><link>https://www.tidyverse.org/blog/2018/06/conflicted/</link><pubDate>Sat, 02 Jun 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/06/conflicted/</guid><description>
+&lt;p>We’re stoked to announce the initial release of the &lt;a href="https://github.com/r-lib/conflicted#conflicted">conflicted&lt;/a> package. The goal of conflicted is to provide an alternative way of resolving conflicts caused by ambiguous function names. R handles ambiguity by reporting conflicts when you load a package, but otherwise lets the most recently loaded package win. This can make it hard to detect conflicts, because it’s easy to miss the messages since you often load packages at the top of the script, and you don’t see a problem until much later. conflicted takes a different approach to resolving ambiguity, instead making every conflict an error and forcing you to explicitly choose which function to use.&lt;/p>
+&lt;p>Install conflicted by running:&lt;/p>
+&lt;pre class="r">&lt;code>install.packages(&amp;quot;conflicted&amp;quot;)&lt;/code>&lt;/pre>
+&lt;div id="how-do-i-use-it" class="section level2">
+&lt;h2>How do I use it?&lt;/h2>
+&lt;p>conflicted does not export any functions. To use it, you just need to load it:&lt;/p>
+&lt;pre class="r">&lt;code>library(conflicted)
+library(dplyr)
+filter(mtcars, am &amp;amp; cyl == 8)
+#&amp;gt; Error: filter found in 2 packages. You must indicate which one you want with ::
+#&amp;gt; * dplyr::filter
+#&amp;gt; * stats::filter&lt;/code>&lt;/pre>
+&lt;p>To resolve conflicts, remove the ambiguity by using &lt;code>::&lt;/code> (i.e. &lt;code>dplyr::filter()&lt;/code> or &lt;code>base::filter()&lt;/code>). To resolve conflicts for your entire session, use &lt;code>&amp;lt;-&lt;/code>:&lt;/p>
+&lt;pre class="r">&lt;code>filter &amp;lt;- dplyr::filter
+filter(mtcars, am &amp;amp; cyl == 8)
+#&amp;gt; mpg cyl disp hp drat wt qsec vs am gear carb
+#&amp;gt; 1 15.8 8 351 264 4.22 3.17 14.5 0 1 5 4
+#&amp;gt; 2 15.0 8 301 335 3.54 3.57 14.6 0 1 5 8&lt;/code>&lt;/pre>
+&lt;p>If you want to make this behaviour the default, you can load conflicted in your &lt;code>~/.Rprofile&lt;/code> (the easiest way to find and edit this file is with &lt;code>usethis::edit_r_profile()&lt;/code>):&lt;/p>
+&lt;pre class="r">&lt;code>if (interactive()) {
+require(conflicted)
+}&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="how-does-it-work" class="section level2">
+&lt;h2>How does it work?&lt;/h2>
+&lt;p>Loading conflicted creates a new “conflicted” environment that is attached just after the global environment. This environment contains an active binding for any object that is exported by multiple packages; the active binding will throw an error message describing how to disambiguate the name.&lt;/p>
+&lt;p>The conflicted environment also contains bindings for &lt;code>library()&lt;/code> and &lt;code>require()&lt;/code>, which suppress the default conflict reporting (i.e. &lt;code>warn.conflicts = FALSE&lt;/code>) and ensure that the conflicted environment is updated with any new conflicts. Because they occur in the search path before the base package, they will be called instead of &lt;code>base::library()&lt;/code> and &lt;code>base::require()&lt;/code>.&lt;/p>
+&lt;/div>
+&lt;div id="what-does-the-future-hold" class="section level2">
+&lt;h2>What does the future hold?&lt;/h2>
+&lt;p>In my use of conflicted, I have noticed two main pain points:&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>When creating the dplyr package I made what I now believe to be a mistake
+and I gave two functions the same name as existing base R functions:
+&lt;code>filter()&lt;/code> and &lt;code>lag()&lt;/code> (I did this because I thought those functions were
+rarely used, but they’re actually important to some communities). However,
+it’s frustrating to have do &lt;code>filter &amp;lt;- dplyr::filter()&lt;/code> everytime you
+load dplyr, so I need to figure out someway to allow you to globally
+prefer either &lt;code>dplyr::filter()&lt;/code> or &lt;code>base::filter()&lt;/code>. It’s possible
+&lt;code>library(tidyverse)&lt;/code> could do this for you, but I’m not sure if that’s too
+aggressive or not.&lt;/p>&lt;/li>
+&lt;li>&lt;p>When we move a function to a different package, we usually leave a function
+behind that tells you the new location. Ideally, this sort of function would
+never trigger a conflict so there’s no additional hassle if you have both
+new and old packages loaded. (Currently the biggest hassle is usethis and
+devtools since so many usethis functions originally lived in devtools). I
+think the right way to handle this is to set an attribute on deprecated
+functions so that conflicted knows to ignore them.&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;p>My goal is to figure out how to eliminate these pain points before the next release.&lt;/p>
+&lt;/div>
+&lt;div id="acknowledgements" class="section level2">
+&lt;h2>Acknowledgements&lt;/h2>
+&lt;p>Thanks to &lt;a href="https://github.com/krlmlr">@krlmlr&lt;/a> for the basic idea. This code was previously part of the experimental &lt;a href="https://github.com/hadley/strict">strict&lt;/a> package, but I decided improved conflict resolution is useful by itself and worth its own package.&lt;/p>
+&lt;/div></description></item></channel></rss>

@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>patchwork | Tidyverse</title><link>https://www.tidyverse.org/tags/patchwork/</link><atom:link href="https://www.tidyverse.org/tags/patchwork/index.xml" rel="self" type="application/rss+xml"/><description>patchwork</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 13 Sep 2024 00:00:00 +0000</lastBuildDate><item><title>patchwork 1.3.0</title><link>https://www.tidyverse.org/blog/2024/09/patchwork-1-3-0/</link><pubDate>Fri, 13 Sep 2024 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2024/09/patchwork-1-3-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>I&amp;rsquo;m excited to present
+&lt;a href="https://patchwork.data-imaginist.com" target="_blank" rel="noopener">patchwork&lt;/a> 1.3.0, our package for creating multifigure plot compositions. This versions adds table support and improves support for &amp;ldquo;free&amp;quot;ing components to span across multiple grid cells.&lt;/p>
+&lt;p>You can install patchwork from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"patchwork"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://patchwork.data-imaginist.com/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://patchwork.data-imaginist.com'>patchwork&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://ggplot2.tidyverse.org'>ggplot2&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://gt.rstudio.com'>gt&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="tables-are-figures-too">Tables are figures too
+&lt;a href="#tables-are-figures-too">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The new and shiny feature of the release is that patchwork now has native support for gt objects, making it possible to compose beautifully formatted tables together with your figures. This has been made possible through Teun Van den Brand&amp;rsquo;s effort to provide grob output to gt. While this means that you can now pass in gt objects to
+&lt;a href="https://patchwork.data-imaginist.com/reference/wrap_elements.html" target="_blank" rel="noopener">&lt;code>wrap_elements()&lt;/code>&lt;/a> in the same way as other supported data types, it also goes one step further, using the semantics of the table design to add table specific formatting options through the new
+&lt;a href="https://patchwork.data-imaginist.com/reference/wrap_table.html" target="_blank" rel="noopener">&lt;code>wrap_table()&lt;/code>&lt;/a> function.&lt;/p>
+&lt;p>But let&amp;rsquo;s take a step back and see how the simplest support works in reality:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p1&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>airquality&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nv'>Day&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>Temp&lt;/span>, colour &lt;span class='o'>=&lt;/span> &lt;span class='nv'>month.name&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>Month&lt;/span>&lt;span class='o'>]&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Month"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>aq&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>airquality&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/nrow.html'>nrow&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>airquality&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='o'>]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>p1&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://gt.rstudio.com/reference/gt.html'>gt&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>aq&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Sample of the dataset"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-2-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>A few things can be gathered already from this small example. Tables can have titles (and subtitles, captions, and tags) like regular plots (in that sense they behave like
+&lt;a href="https://patchwork.data-imaginist.com/reference/wrap_elements.html" target="_blank" rel="noopener">&lt;code>wrap_elements()&lt;/code>&lt;/a> output). Also, and this is perhaps more interesting, patchwork is aware that the first row is special (a header row), and thus places that on top of the panel area so that the plot region of the left plot is aligned with the body of the table, not the full table.&lt;/p>
+&lt;p>Lastly, we see that tables often have a fixed size, contrary to plots which can shrink and expand based on how much room they have. Because of this, our table is overflowing it&amp;rsquo;s region in the plot above creating a not-so-great look.&lt;/p>
+&lt;p>Let&amp;rsquo;s see how we can use
+&lt;a href="https://patchwork.data-imaginist.com/reference/wrap_table.html" target="_blank" rel="noopener">&lt;code>wrap_table()&lt;/code>&lt;/a> to control some of these behaviors. First, while we could decrease the font size in the table to make it smaller, we could also allow it some more space instead. We could do this by using &lt;code>plot_layout(widths = ...)&lt;/code> but it would require a fair amount of guessing on our side to get it just right. Thankfully, patchwork is smart enough to figure it out for us and we can instruct it to do so using the &lt;code>space&lt;/code> argument in
+&lt;a href="https://patchwork.data-imaginist.com/reference/wrap_table.html" target="_blank" rel="noopener">&lt;code>wrap_table()&lt;/code>&lt;/a>. Setting it to &lt;code>&amp;quot;free_y&amp;quot;&lt;/code> instructs it to fix the width to the table width but keep the height free:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p1&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/wrap_table.html'>wrap_table&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>aq&lt;/span>, space &lt;span class='o'>=&lt;/span> &lt;span class='s'>"free_y"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-3-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Setting &lt;code>space&lt;/code> to &lt;code>&amp;quot;fixed&amp;quot;&lt;/code> would constrain both the width and the height of the area it occupies. Since we only have a single row in our layout this would leave us with some empty horizontal space:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p1&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/wrap_table.html'>wrap_table&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>aq&lt;/span>, space &lt;span class='o'>=&lt;/span> &lt;span class='s'>"fixed"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-4-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>If the space is fixed in the y direction and the table has any source notes or footnotes, these will behave like the column header and be placed outside the panel area depending on the &lt;code>panel&lt;/code> setting&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>aq_footer&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://gt.rstudio.com/reference/gt.html'>gt&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>aq&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://gt.rstudio.com/reference/tab_source_note.html'>tab_source_note&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"This is not part of the table body"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>p1&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/wrap_table.html'>wrap_table&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>aq_footer&lt;/span>, space &lt;span class='o'>=&lt;/span> &lt;span class='s'>"fixed"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-5-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>While the space argument is great for making the composition look good and the table well placed in the whole, it can also serve a different purpose of making sure that rows (or columns) are aligned with the axis of a plot. There are no facilities to ensure that the breaks order matches between plots and tables so that is the responsibility of the user, but otherwise this is a great way to use tables to directly augment a plot:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p2&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>airquality&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_boxplot.html'>geom_boxplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nv'>month.name&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>Month&lt;/span>&lt;span class='o'>]&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>Temp&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>axis.text.x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_blank&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, axis.title.x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_blank&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_discrete.html'>scale_x_discrete&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>expand &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0&lt;/span>, &lt;span class='m'>0.5&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Construct our table&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>table&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/cbind.html'>rbind&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/tapply.html'>tapply&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>airquality&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>Temp&lt;/span>, &lt;span class='nv'>airquality&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>Month&lt;/span>, &lt;span class='nv'>max&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/tapply.html'>tapply&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>airquality&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>Temp&lt;/span>, &lt;span class='nv'>airquality&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>Month&lt;/span>, &lt;span class='nv'>median&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/tapply.html'>tapply&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>airquality&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>Temp&lt;/span>, &lt;span class='nv'>airquality&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>Month&lt;/span>, &lt;span class='nv'>min&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/colnames.html'>colnames&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>table&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>month.name&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='m'>5&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>9&lt;/span>&lt;span class='o'>]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>table&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/data.frame.html'>data.frame&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> Measure &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Max"&lt;/span>, &lt;span class='s'>"Median"&lt;/span>, &lt;span class='s'>"Min"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>table&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>table&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://gt.rstudio.com/reference/gt.html'>gt&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>table&lt;/span>, rowname_col &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Measure"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://gt.rstudio.com/reference/cols_width.html'>cols_width&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://tidyselect.r-lib.org/reference/starts_with.html'>contains&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>month.name&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nf'>&lt;a href='https://gt.rstudio.com/reference/px.html'>px&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>100&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://gt.rstudio.com/reference/cols_align.html'>cols_align&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>align &lt;span class='o'>=&lt;/span> &lt;span class='s'>"center"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://gt.rstudio.com/reference/cols_align.html'>cols_align&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>align &lt;span class='o'>=&lt;/span> &lt;span class='s'>"right"&lt;/span>, columns &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Measure"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>p2&lt;/span> &lt;span class='o'>/&lt;/span> &lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/wrap_table.html'>wrap_table&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>table&lt;/span>, space &lt;span class='o'>=&lt;/span> &lt;span class='s'>"fixed"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-6-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Circling back, there was another argument to
+&lt;a href="https://patchwork.data-imaginist.com/reference/wrap_table.html" target="_blank" rel="noopener">&lt;code>wrap_table()&lt;/code>&lt;/a> we didn&amp;rsquo;t get into yet. In the plot above, we see that the row names are conveniently aligned with the axis rather than the panel of the plot above, in the same way as the headers where placed outside the panel area. This is a nice default and generally makes sense for the semantics of a table, but you might want something different. The &lt;code>panel&lt;/code> argument allows you to control this exact behavior. It takes &lt;code>&amp;quot;body&amp;quot;&lt;/code>, &lt;code>&amp;quot;full&amp;quot;&lt;/code>, &lt;code>&amp;quot;rows&amp;quot;&lt;/code>, or &lt;code>&amp;quot;cols&amp;quot;&lt;/code> which indicate what portion of the table should be inside the panel area. The default is &lt;code>&amp;quot;body&amp;quot;&lt;/code> which places row and column names outside the panel. &lt;code>&amp;quot;full&amp;quot;&lt;/code>, on the contrary, places everything inside, while &lt;code>&amp;quot;rows&amp;quot;&lt;/code> and &lt;code>&amp;quot;cols&amp;quot;&lt;/code> are half versions that allows you to keep either column &lt;em>or&lt;/em> row names outside the panel respectively.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># Place all rows (including the header row) inside the panel area&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>p1&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/wrap_table.html'>wrap_table&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>aq&lt;/span>, panel &lt;span class='o'>=&lt;/span> &lt;span class='s'>"rows"&lt;/span>, space &lt;span class='o'>=&lt;/span> &lt;span class='s'>"free_y"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-7-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Just like the tables support ggplot2-like titles, they also support tags, meaning that patchworks auto-tagging works as expected. It can be turned off using the &lt;code>ignore_tag&lt;/code> argument but often you&amp;rsquo;d want to treat it as a figure in the figure text:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p1&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/wrap_table.html'>wrap_table&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>aq&lt;/span>, panel &lt;span class='o'>=&lt;/span> &lt;span class='s'>"rows"&lt;/span>, space &lt;span class='o'>=&lt;/span> &lt;span class='s'>"free_y"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/plot_annotation.html'>plot_annotation&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>tag_levels &lt;span class='o'>=&lt;/span> &lt;span class='s'>"A"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;amp;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>plot.tag &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>margin &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>margin&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0&lt;/span>, &lt;span class='m'>6&lt;/span>, &lt;span class='m'>6&lt;/span>, &lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-8-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h3 id="accesibility">Accesibility
+&lt;a href="#accesibility">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>We truly believe that the features laid out above will be a boon for augmenting your data visualisation with data that can be read precisely at a glance. However, we would be remiss to not note how tables that are part of a patchwork visualisation doesn&amp;rsquo;t have the same accessibility featurees as a gt table included directly in e.g. an HTML output. This is because graphics are rasterised into a PNG file and thus looses all semantical information that is inherent in a table. This should be kept in mind when providing Alt text for your figures so you ensure they are legible for everyone.&lt;/p>
+&lt;h3 id="future">Future
+&lt;a href="#future">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The support on the patchwork end is likely done at this point, but the conversion to grobs that has been added to gt is still somewhat young and will improve over time. It is likely that markdown formatting (through marquee) and other niceties will get added, leading to even more power in composing tables with plots using patchwork as the glue between them. As with the
+&lt;a href="https://quarto.org/docs/blog/posts/2024-07-02-beautiful-tables-in-typst/" target="_blank" rel="noopener">support for gt in typst&lt;/a> the support for gt in patchwork is part of our larger effort to bring the power of gt to more environments and create a single unified solution to table styling.&lt;/p>
+&lt;h2 id="with-freedom-comes-great-responsibility">With freedom comes great responsibility
+&lt;a href="#with-freedom-comes-great-responsibility">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The second leg of this release concerns the
+&lt;a href="https://patchwork.data-imaginist.com/reference/free.html" target="_blank" rel="noopener">&lt;code>free()&lt;/code>&lt;/a> function which was introduced in the last release. I devoted a whole section of my posit::conf talk this year to talk about
+&lt;a href="https://patchwork.data-imaginist.com/reference/free.html" target="_blank" rel="noopener">&lt;code>free()&lt;/code>&lt;/a> and how it was a good thing to say no to requests for functionality until you have a solution that fits into your API and doesn&amp;rsquo;t add clutter. I really like how the API for
+&lt;a href="https://patchwork.data-imaginist.com/reference/free.html" target="_blank" rel="noopener">&lt;code>free()&lt;/code>&lt;/a> turned out but I also knew it could do more. In this release it delivers on those promises with two additional arguments.&lt;/p>
+&lt;h3 id="which-side">Which side?
+&lt;a href="#which-side">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>As it were,
+&lt;a href="https://patchwork.data-imaginist.com/reference/free.html" target="_blank" rel="noopener">&lt;code>free()&lt;/code>&lt;/a> could only be used to completely turn off alignment of a plot, e.g. like below:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p1&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>gear&lt;/span>&lt;span class='o'>)&lt;/span>, fill &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>gear&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_discrete.html'>scale_y_discrete&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>""&lt;/span>,&lt;/span>
+&lt;span> labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"3 gears are often enough"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='s'>"But, you know, 4 is a nice number"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='s'>"I would def go with 5 gears in a modern car"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>p2&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nv'>disp&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/free.html'>free&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>p1&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>/&lt;/span> &lt;span class='nv'>p2&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-9-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>We can see that panel alignment has been turned off both to the left and to the right (and top and bottom if it were visible). But perhaps you are only interested in un-aligning the left side, keeping the legend to the right of both plots. Now you can, thanks to the &lt;code>side&lt;/code> argument which takes a string containing one or more of the &lt;code>t&lt;/code>, &lt;code>r&lt;/code>, &lt;code>b&lt;/code>, and &lt;code>l&lt;/code> characters to indicate which sides to apply the freeing to (default is &lt;code>&amp;quot;trbl&amp;quot;&lt;/code> meaning &amp;ldquo;target all sides&amp;rdquo;).&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/free.html'>free&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>p1&lt;/span>, side &lt;span class='o'>=&lt;/span> &lt;span class='s'>"l"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>/&lt;/span> &lt;span class='nv'>p2&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-10-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Freeing works inside nested patchworks, where you can target various sides at various levels:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p3&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_boxplot.html'>geom_boxplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>gear&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='nv'>disp&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_discrete.html'>scale_y_discrete&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>""&lt;/span>,&lt;/span>
+&lt;span> labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"... and 3"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='s'>"4 of them"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='s'>"5 gears"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>nested&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>p2&lt;/span> &lt;span class='o'>/&lt;/span> &lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/free.html'>free&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>p1&lt;/span>, side &lt;span class='o'>=&lt;/span> &lt;span class='s'>"l"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/free.html'>free&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>nested&lt;/span>, side &lt;span class='o'>=&lt;/span> &lt;span class='s'>"r"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>/&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>p3&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-11-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h3 id="what-does-freeing-means-anyway">What does &amp;ldquo;freeing&amp;rdquo; means anyway?
+&lt;a href="#what-does-freeing-means-anyway">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>While being able to target specific sides is pretty great in and off itself, we are not done yet. After being able to &lt;em>not&lt;/em> align panels the most requested feature was the possibility of moving the axis title closer to the axis text if alignment had pushed it apart. Consider again our unfreed patchwork:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p1&lt;/span> &lt;span class='o'>/&lt;/span> &lt;span class='nv'>p2&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-12-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>While we can &amp;ldquo;fix&amp;rdquo; it by letting the top panel stretch, another way to improve upon it would be to move the dangling y-axis title of the bottom plot closer to the axis. Enter the &lt;code>type&lt;/code> argument to
+&lt;a href="https://patchwork.data-imaginist.com/reference/free.html" target="_blank" rel="noopener">&lt;code>free()&lt;/code>&lt;/a> which informs patchwork how to not align the input. The default (&lt;code>&amp;quot;panel&amp;quot;&lt;/code>) works just as
+&lt;a href="https://patchwork.data-imaginist.com/reference/free.html" target="_blank" rel="noopener">&lt;code>free()&lt;/code>&lt;/a> always has, but the other two values opens up some new nifty goodies. Setting &lt;code>type = &amp;quot;label&amp;quot;&lt;/code> does exactly what we discussed above, freeing the label from alignment so it sticks together with the axis and axis text:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p1&lt;/span> &lt;span class='o'>/&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/free.html'>free&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>p2&lt;/span>, type &lt;span class='o'>=&lt;/span> &lt;span class='s'>"label"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-13-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>The other type is &lt;code>&amp;quot;space&amp;quot;&lt;/code> which works slightly different. Using this you tell patchwork to not reserve any space for what the side(s) contain. This is perfect in situation where you already have empty space next to it that can fit the content. Consider this plot:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/plot_spacer.html'>plot_spacer&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nv'>p1&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>p2&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nv'>p2&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-14-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Ugh, the axis text of the top plot pushes everything apart even though there is ample of space for it in the empty region on the left. This is where &lt;code>type = &amp;quot;space&amp;quot;&lt;/code> comes in handy:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/plot_spacer.html'>plot_spacer&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/free.html'>free&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>p1&lt;/span>, type &lt;span class='o'>=&lt;/span> &lt;span class='s'>"space"&lt;/span>, side &lt;span class='o'>=&lt;/span> &lt;span class='s'>"l"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>p2&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nv'>p2&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-15-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Of course, such power comes with the responsibility of you ensuring there is actually space for it &amp;mdash; otherwise it will escape out of the figure area:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/free.html'>free&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>p1&lt;/span>, type &lt;span class='o'>=&lt;/span> &lt;span class='s'>"space"&lt;/span>, side &lt;span class='o'>=&lt;/span> &lt;span class='s'>"l"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>/&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>p2&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-16-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>All the different types of freeing can be stacked on top of each other so you can have a plot that keeps the left axis label together with the axis while also stretches the right side to take up empty space:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p1&lt;/span> &lt;span class='o'>/&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/free.html'>free&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://patchwork.data-imaginist.com/reference/free.html'>free&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>p2&lt;/span>, &lt;span class='s'>"panel"&lt;/span>, &lt;span class='s'>"r"&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='s'>"label"&lt;/span>, &lt;span class='s'>"l"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-17-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>But as always, don&amp;rsquo;t go overboard. If you find yourself needing to use an elaborate combination of stacked
+&lt;a href="https://patchwork.data-imaginist.com/reference/free.html" target="_blank" rel="noopener">&lt;code>free()&lt;/code>&lt;/a> calls there is a good chance that something with your core composition needs rethinking.&lt;/p>
+&lt;h2 id="the-rest">The rest
+&lt;a href="#the-rest">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The above are the clear highlights of this release. It also contains the standard bug fixes &amp;mdash; especially in the area of axis collecting which was introduced in the last release and came with a bunch of edge cases that were unaccounted for. There is also a new utility function:
+&lt;a href="https://rdrr.io/r/base/merge.html" target="_blank" rel="noopener">&lt;code>merge()&lt;/code>&lt;/a> which is an alternative to the &lt;code>-&lt;/code> operator that I don&amp;rsquo;t think many users understood or used. It allows you to merge all plots together into a nested patchwork so that the right hand side is added to a new composition.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thank you to all people who have contributed issues, code and comments to this release:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/BenVolpe94" target="_blank" rel="noopener">@BenVolpe94&lt;/a>,
+&lt;a href="https://github.com/daniellembecker" target="_blank" rel="noopener">@daniellembecker&lt;/a>,
+&lt;a href="https://github.com/dchiu911" target="_blank" rel="noopener">@dchiu911&lt;/a>,
+&lt;a href="https://github.com/ericKuo722" target="_blank" rel="noopener">@ericKuo722&lt;/a>,
+&lt;a href="https://github.com/Fan-iX" target="_blank" rel="noopener">@Fan-iX&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/jack-davison" target="_blank" rel="noopener">@jack-davison&lt;/a>,
+&lt;a href="https://github.com/karchern" target="_blank" rel="noopener">@karchern&lt;/a>,
+&lt;a href="https://github.com/laresbernardo" target="_blank" rel="noopener">@laresbernardo&lt;/a>,
+&lt;a href="https://github.com/marchtaylor" target="_blank" rel="noopener">@marchtaylor&lt;/a>,
+&lt;a href="https://github.com/mariadelmarq" target="_blank" rel="noopener">@mariadelmarq&lt;/a>,
+&lt;a href="https://github.com/Maschette" target="_blank" rel="noopener">@Maschette&lt;/a>,
+&lt;a href="https://github.com/michaeltopper1" target="_blank" rel="noopener">@michaeltopper1&lt;/a>,
+&lt;a href="https://github.com/mkoohafkan" target="_blank" rel="noopener">@mkoohafkan&lt;/a>,
+&lt;a href="https://github.com/n-kall" target="_blank" rel="noopener">@n-kall&lt;/a>,
+&lt;a href="https://github.com/person-c" target="_blank" rel="noopener">@person-c&lt;/a>,
+&lt;a href="https://github.com/pettyalex" target="_blank" rel="noopener">@pettyalex&lt;/a>,
+&lt;a href="https://github.com/petzi53" target="_blank" rel="noopener">@petzi53&lt;/a>,
+&lt;a href="https://github.com/phispu" target="_blank" rel="noopener">@phispu&lt;/a>,
+&lt;a href="https://github.com/psychelzh" target="_blank" rel="noopener">@psychelzh&lt;/a>,
+&lt;a href="https://github.com/rinivarg" target="_blank" rel="noopener">@rinivarg&lt;/a>,
+&lt;a href="https://github.com/selkamand" target="_blank" rel="noopener">@selkamand&lt;/a>,
+&lt;a href="https://github.com/Soham6298" target="_blank" rel="noopener">@Soham6298&lt;/a>,
+&lt;a href="https://github.com/svraka" target="_blank" rel="noopener">@svraka&lt;/a>,
+&lt;a href="https://github.com/teng-gao" target="_blank" rel="noopener">@teng-gao&lt;/a>,
+&lt;a href="https://github.com/teunbrand" target="_blank" rel="noopener">@teunbrand&lt;/a>,
+&lt;a href="https://github.com/thomasp85" target="_blank" rel="noopener">@thomasp85&lt;/a>,
+&lt;a href="https://github.com/timz0605" target="_blank" rel="noopener">@timz0605&lt;/a>,
+&lt;a href="https://github.com/wish1832" target="_blank" rel="noopener">@wish1832&lt;/a>, and
+&lt;a href="https://github.com/Yunuuuu" target="_blank" rel="noopener">@Yunuuuu&lt;/a>.&lt;/p></description></item></channel></rss>

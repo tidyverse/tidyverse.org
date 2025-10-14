@@ -1,0 +1,563 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>textrecipes | Tidyverse</title><link>https://www.tidyverse.org/tags/textrecipes/</link><atom:link href="https://www.tidyverse.org/tags/textrecipes/index.xml" rel="self" type="application/rss+xml"/><description>textrecipes</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 01 Apr 2022 00:00:00 +0000</lastBuildDate><item><title>Q1 2022 tidymodels digest</title><link>https://www.tidyverse.org/blog/2022/04/tidymodels-2022-q1/</link><pubDate>Fri, 01 Apr 2022 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2022/04/tidymodels-2022-q1/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+&lt;p>The
+&lt;a href="https://www.tidymodels.org/" target="_blank" rel="noopener">tidymodels&lt;/a> framework is a collection of R packages for modeling and machine learning using tidyverse principles.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidymodels&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; ── Attaching packages ──────────────────────────── tidymodels 0.2.0 ──&lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ broom 0.7.12 ✓ rsample 0.1.1 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ dials 0.1.0 ✓ tibble 3.1.6 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ dplyr 1.0.8 ✓ tidyr 1.2.0 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ infer 1.0.0 ✓ tune 0.2.0 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ modeldata 0.1.1 ✓ workflows 0.2.6 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ parsnip 0.2.1 ✓ workflowsets 0.2.1 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ purrr 0.3.4 ✓ yardstick 0.0.9 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ recipes 0.2.0&lt;/span>
+&lt;span class="c1">#&amp;gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──&lt;/span>
+&lt;span class="c1">#&amp;gt; x purrr::discard() masks scales::discard()&lt;/span>
+&lt;span class="c1">#&amp;gt; x dplyr::filter() masks stats::filter()&lt;/span>
+&lt;span class="c1">#&amp;gt; x dplyr::lag() masks stats::lag()&lt;/span>
+&lt;span class="c1">#&amp;gt; x recipes::step() masks stats::step()&lt;/span>
+&lt;span class="c1">#&amp;gt; • Dig deeper into tidy modeling with R at https://www.tmwr.org&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Since the beginning of last year, we have been publishing
+&lt;a href="https://www.tidyverse.org/categories/roundup/" target="_blank" rel="noopener">quarterly updates&lt;/a> here on the tidyverse blog summarizing what&amp;rsquo;s new in the tidymodels ecosystem. The purpose of these regular posts is to share useful new features and any updates you may have missed. You can check out the
+&lt;a href="https://www.tidyverse.org/tags/tidymodels/" target="_blank" rel="noopener">&lt;code>tidymodels&lt;/code> tag&lt;/a> to find all tidymodels blog posts here, including our roundup posts as well as those that are more focused, like these from the past month or so:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://www.tidyverse.org/blog/2022/02/recipes-0-2-0/" target="_blank" rel="noopener">recipes&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://www.tidyverse.org/blog/2022/03/usemodels-0-2-0/" target="_blank" rel="noopener">usemodels&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://www.tidyverse.org/blog/2022/03/parsnip-roundup-2022/" target="_blank" rel="noopener">parsnip and its extension packages&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>Since
+&lt;a href="https://www.tidyverse.org/blog/2021/12/tidymodels-2021-q4/" target="_blank" rel="noopener">our last roundup post&lt;/a>, there have been 21 CRAN releases of tidymodels packages. You can install these updates from CRAN with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="s">&amp;#34;baguette&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;broom&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;brulee&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;dials&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;discrim&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;finetune&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="s">&amp;#34;hardhat&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;multilevelmod&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;parsnip&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;plsmod&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;poissonreg&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="s">&amp;#34;recipes&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;rules&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;stacks&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;textrecipes&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;tune&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="s">&amp;#34;tidymodels&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;usemodels&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;vetiver&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;workflows&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;workflowsets&amp;#34;&lt;/span>
+&lt;span class="p">))&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>NEWS&lt;/code> files are linked here for each package; you&amp;rsquo;ll notice that there are a lot! We know it may be bothersome to keep up with all these changes, so we want to draw your attention to our recent blog posts above and also highlight a few more useful updates in today&amp;rsquo;s blog post.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://baguette.tidymodels.org/news/index.html#baguette-020" target="_blank" rel="noopener">baguette&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://broom.tidymodels.org/news/index.html#broom-0711" target="_blank" rel="noopener">broom&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://tidymodels.github.io/brulee/news/index.html#brulee-010" target="_blank" rel="noopener">brulee&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://dials.tidymodels.org/news/index.html#dials-010" target="_blank" rel="noopener">dials&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://finetune.tidymodels.org/news/index.html#finetune-020" target="_blank" rel="noopener">finetune&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://hardhat.tidymodels.org/news/index.html#hardhat-020" target="_blank" rel="noopener">hardhat&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://hardhat.tidymodels.org/news/index.html#hardhat-020" target="_blank" rel="noopener">hardhat&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://github.com/tidymodels/multilevelmod/blob/main/NEWS.md" target="_blank" rel="noopener">multilevelmod&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://parsnip.tidymodels.org/news/index.html#parsnip-021" target="_blank" rel="noopener">parsnip&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://plsmod.tidymodels.org/news/index.html#plsmod-012" target="_blank" rel="noopener">plsmod&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://poissonreg.tidymodels.org/news/index.html#poissonreg-020" target="_blank" rel="noopener">poissonreg&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://github.com/tidymodels/recipes/blob/HEAD/NEWS.md#recipes-020" target="_blank" rel="noopener">recipes&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://rules.tidymodels.org/news/index.html#rules-020" target="_blank" rel="noopener">rules&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://stacks.tidymodels.org/news/index.html#stacks-022" target="_blank" rel="noopener">stacks&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://textrecipes.tidymodels.org/news/index.html#textrecipes-050" target="_blank" rel="noopener">textrecipes&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://tune.tidymodels.org/news/index.html#tune-020" target="_blank" rel="noopener">tune&lt;/a>&lt;/li>
+&lt;li>the
+&lt;a href="https://tidymodels.tidymodels.org/news/index.html#tidymodels-020" target="_blank" rel="noopener">tidymodels&lt;/a> metapackage itself&lt;/li>
+&lt;li>
+&lt;a href="https://usemodels.tidymodels.org/news/index.html#usemodels-020" target="_blank" rel="noopener">usemodels&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://vetiver.tidymodels.org/news/index.html#vetiver-012" target="_blank" rel="noopener">vetiver&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://workflows.tidymodels.org/news/index.html#workflows-025" target="_blank" rel="noopener">workflows&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://workflowsets.tidymodels.org/news/index.html#workflowsets-021" target="_blank" rel="noopener">workflowsets&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>We&amp;rsquo;re really excited about
+&lt;a href="https://tidymodels.github.io/brulee/" target="_blank" rel="noopener">brulee&lt;/a> and
+&lt;a href="https://vetiver.tidymodels.org/" target="_blank" rel="noopener">vetiver&lt;/a> but will share more in upcoming blog posts.&lt;/p>
+&lt;h2 id="feature-hashing">Feature hashing
+&lt;a href="#feature-hashing">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The newest
+&lt;a href="https://textrecipes.tidymodels.org/" target="_blank" rel="noopener">textrecipes&lt;/a> release provides support for feature hashing, a feature engineering approach that can be helpful when working with high cardinality categorical data or text. A hashing function takes an input of variable size and maps it to an output of fixed size. Hashing functions are commonly used in cryptography and databases, and we can create a hash in R using &lt;code>rlang::hash()&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">textrecipes&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Sacramento&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">123&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">sac_split&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">initial_split&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Sacramento&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">strata&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">price&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">sac_train&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">training&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sac_split&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">sac_test&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">testing&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sac_split&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sac_train&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">zip_hash&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">map_chr&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">zip&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">rlang&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">hash&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">zip&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">zip_hash&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 698 × 2&lt;/span>
+&lt;span class="c1">#&amp;gt; zip zip_hash &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;fct&amp;gt; &amp;lt;chr&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 z95838 32cbb7d319c97f062be64075c2ae6c07&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 z95815 55d08d816f0d2e9ec16af15239826e91&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 z95824 235b72b9a37a6154552498eb3f90e9e3&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 z95841 d973597ab5cc48a0dfe54b84a91249e1&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 z95842 c44537f2eecd51707b19e69027228a85&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 z95820 e1b86cbed49c029f9fa25bba94ede11e&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 z95670 60ee71387789bb8c58748e4632089cc4&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 z95838 32cbb7d319c97f062be64075c2ae6c07&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 z95815 55d08d816f0d2e9ec16af15239826e91&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 z95822 8e212bdf9650ef39a1634e6e18529834&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 688 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The variable &lt;code>zip&lt;/code> in this data on home sales in Sacramento, CA is of
+&lt;a href="https://en.wikipedia.org/wiki/Cardinality_%28SQL_statements%29" target="_blank" rel="noopener">&amp;ldquo;high cardinality&amp;rdquo;&lt;/a> (as ZIP codes often are) with 67 unique values. When we &lt;code>hash()&lt;/code> the ZIP code, we get out, well, a hash value, and we will always get the same hash value for the same input (as you can see for ZIP code 95838 here). We can choose the fixed size of our hashed output to reduce the number of possible values to whatever we want; it turns out this works well in a lot of situations.&lt;/p>
+&lt;p>Let&amp;rsquo;s use a hashing algorithm like this one (with an output size of 16) to create binary indicator variables for this high cardinality &lt;code>zip&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">hash_rec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">price&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">zip&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">beds&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">baths&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">sac_train&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_dummy_hash&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">zip&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">signed&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">FALSE&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">num_terms&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">16L&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">prep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hash_rec&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">bake&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">new_data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">NULL&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 698 × 19&lt;/span>
+&lt;span class="c1">#&amp;gt; dummyhash_zip_01 dummyhash_zip_02 dummyhash_zip_03 dummyhash_zip_04&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 0 0 0 0&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 0 1 0 0&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 0 0 1 0&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 1 0 0 0&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 0 0 0 0&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 0 0 0 0&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 0 1 0 0&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 0 0 0 0&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 0 1 0 0&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 0 0 0 0&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 688 more rows, and 15 more variables:&lt;/span>
+&lt;span class="c1">#&amp;gt; # dummyhash_zip_05 &amp;lt;dbl&amp;gt;, dummyhash_zip_06 &amp;lt;dbl&amp;gt;,&lt;/span>
+&lt;span class="c1">#&amp;gt; # dummyhash_zip_07 &amp;lt;dbl&amp;gt;, dummyhash_zip_08 &amp;lt;dbl&amp;gt;,&lt;/span>
+&lt;span class="c1">#&amp;gt; # dummyhash_zip_09 &amp;lt;dbl&amp;gt;, dummyhash_zip_10 &amp;lt;dbl&amp;gt;,&lt;/span>
+&lt;span class="c1">#&amp;gt; # dummyhash_zip_11 &amp;lt;dbl&amp;gt;, dummyhash_zip_12 &amp;lt;dbl&amp;gt;,&lt;/span>
+&lt;span class="c1">#&amp;gt; # dummyhash_zip_13 &amp;lt;dbl&amp;gt;, dummyhash_zip_14 &amp;lt;dbl&amp;gt;,&lt;/span>
+&lt;span class="c1">#&amp;gt; # dummyhash_zip_15 &amp;lt;dbl&amp;gt;, dummyhash_zip_16 &amp;lt;dbl&amp;gt;, beds &amp;lt;int&amp;gt;, …&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>We now have 16 columns for &lt;code>zip&lt;/code> (along with the other predictors and the outcome), instead of the over 60 we would have had by making regular dummy variables.&lt;/p>
+&lt;p>For more on feature hashing including its benefits (fast and low memory!) and downsides (not directly interpretable!), check out
+&lt;a href="https://smltar.com/mlregression.html#case-study-feature-hashing" target="_blank" rel="noopener">Section 6.7 of &lt;em>Supervised Machine Learning for Text Analysis with R&lt;/em>&lt;/a> and/or
+&lt;a href="https://www.tmwr.org/categorical.html#feature-hashing" target="_blank" rel="noopener">Section 17.4 of &lt;em>Tidy Modeling with R&lt;/em>&lt;/a>.&lt;/p>
+&lt;h2 id="more-customization-for-workflow-sets">More customization for workflow sets
+&lt;a href="#more-customization-for-workflow-sets">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Last year about this time, we introduced
+&lt;a href="https://www.tidyverse.org/blog/2021/03/workflowsets-0-0-1/" target="_blank" rel="noopener">workflowsets&lt;/a>, a new package for creating, handling, and tuning multiple workflows at once. See
+&lt;a href="https://www.tmwr.org/workflows.html#workflow-sets-intro" target="_blank" rel="noopener">Section 7.5&lt;/a> and especially
+&lt;a href="https://www.tmwr.org/workflow-sets.html" target="_blank" rel="noopener">Chapter 15&lt;/a> of &lt;em>Tidy Modeling with R&lt;/em> for more on workflow sets. In the latest release of
+&lt;a href="https://workflowsets.tidymodels.org/" target="_blank" rel="noopener">workflowsets&lt;/a>, we provide finer control of customization for the workflows you create with workflowsets. First you can create a standard workflow set by crossing a set of models with a set of preprocessors (let&amp;rsquo;s just use the feature hashing recipe we already created):&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">glmnet_spec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">linear_reg&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">penalty&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">tune&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="n">mixture&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">tune&lt;/span>&lt;span class="p">())&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">set_engine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;glmnet&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">mars_spec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">mars&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">prod_degree&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">tune&lt;/span>&lt;span class="p">())&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">set_engine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;earth&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">set_mode&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;regression&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">old_set&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">workflow_set&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">preproc&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hash&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">hash_rec&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">models&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">MARS&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mars_spec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">glmnet&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">glmnet_spec&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="n">old_set&lt;/span>
+&lt;span class="c1">#&amp;gt; # A workflow set/tibble: 2 × 4&lt;/span>
+&lt;span class="c1">#&amp;gt; wflow_id info option result &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;list&amp;gt; &amp;lt;list&amp;gt; &amp;lt;list&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 hash_MARS &amp;lt;tibble [1 × 4]&amp;gt; &amp;lt;opts[0]&amp;gt; &amp;lt;list [0]&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 hash_glmnet &amp;lt;tibble [1 × 4]&amp;gt; &amp;lt;opts[0]&amp;gt; &amp;lt;list [0]&amp;gt;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>option&lt;/code> column is a placeholder for any arguments to use when we &lt;em>evaluate&lt;/em> the workflow; the possibilities here are any argument to functions like
+&lt;a href="https://tune.tidymodels.org/reference/tune_grid.html" target="_blank" rel="noopener">&lt;code>tune_grid()&lt;/code>&lt;/a> or
+&lt;a href="https://tune.tidymodels.org/reference/fit_resamples.html" target="_blank" rel="noopener">&lt;code>fit_resamples()&lt;/code>&lt;/a>. But what about arguments that belong not to the workflow as a whole, but to a recipe or a parsnip model? In the new release, we added support for customizing those kinds of arguments via &lt;code>update_workflow_model()&lt;/code> and &lt;code>update_workflow_recipe()&lt;/code>. This lets you, for example, say that you want to use a
+&lt;a href="https://www.tidyverse.org/blog/2020/11/tidymodels-sparse-support/" target="_blank" rel="noopener">sparse blueprint&lt;/a> for fitting:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">sparse_bp&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">hardhat&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">default_recipe_blueprint&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">composition&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;dgCMatrix&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">new_set&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">old_set&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">update_workflow_recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;hash_glmnet&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">hash_rec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">blueprint&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">sparse_bp&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now we can tune this workflow set, with the sparse blueprint for the glmnet model, over a set of resampling folds.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">123&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">folds&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">vfold_cv&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sac_train&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">strata&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">price&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">new_set&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">workflow_map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">resamples&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">folds&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">grid&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">verbose&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; i 1 of 2 tuning: hash_MARS&lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ 1 of 2 tuning: hash_MARS (2.2s)&lt;/span>
+&lt;span class="c1">#&amp;gt; i 2 of 2 tuning: hash_glmnet&lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ 2 of 2 tuning: hash_glmnet (3.9s)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A workflow set/tibble: 2 × 4&lt;/span>
+&lt;span class="c1">#&amp;gt; wflow_id info option result &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;list&amp;gt; &amp;lt;list&amp;gt; &amp;lt;list&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 hash_MARS &amp;lt;tibble [1 × 4]&amp;gt; &amp;lt;opts[2]&amp;gt; &amp;lt;tune[+]&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 hash_glmnet &amp;lt;tibble [1 × 4]&amp;gt; &amp;lt;opts[2]&amp;gt; &amp;lt;tune[+]&amp;gt;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="new-parameter-objects-and-parameter-handling">New parameter objects and parameter handling
+&lt;a href="#new-parameter-objects-and-parameter-handling">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Even if you are a regular tidymodels user, you may not have thought much about
+&lt;a href="https://dials.tidymodels.org/" target="_blank" rel="noopener">dials&lt;/a>. This is an infrastructure package that is used to create and manage model hyperparameters. In the latest release of dials, we provide a handful of new parameters for various models and feature engineering approaches. There are a handful of parameters
+&lt;a href="https://parsnip.tidymodels.org/reference/bart.html" target="_blank" rel="noopener">for the new &lt;code>parsnip::bart()&lt;/code>&lt;/a>, i.e. Bayesian additive regression trees model:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">prior_outcome_range&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; Prior for Outcome Range (quantitative)&lt;/span>
+&lt;span class="c1">#&amp;gt; Range: (0, 5]&lt;/span>
+&lt;span class="nf">prior_terminal_node_coef&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; Terminal Node Prior Coefficient (quantitative)&lt;/span>
+&lt;span class="c1">#&amp;gt; Range: (0, 1]&lt;/span>
+&lt;span class="nf">prior_terminal_node_expo&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; Terminal Node Prior Exponent (quantitative)&lt;/span>
+&lt;span class="c1">#&amp;gt; Range: [0, 3]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This version of dials, along with the new hardhat release, also provides new functions for extracting single parameters and parameter sets from modeling objects.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">price&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">zip&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">beds&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">baths&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">sac_train&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_dummy_hash&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">zip&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">signed&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">FALSE&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">num_terms&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">tune&lt;/span>&lt;span class="p">())&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">extract_parameter_set_dials&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; Collection of 1 parameters for tuning&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; identifier type object&lt;/span>
+&lt;span class="c1">#&amp;gt; num_terms num_terms nparam[+]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can also extract a single parameter by name:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">mars_spec&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">extract_parameter_dials&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;prod_degree&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Degree of Interaction (quantitative)&lt;/span>
+&lt;span class="c1">#&amp;gt; Range: [1, 2]&lt;/span>
+&lt;span class="n">glmnet_spec&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">extract_parameter_dials&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;penalty&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Amount of Regularization (quantitative)&lt;/span>
+&lt;span class="c1">#&amp;gt; Transformer: log-10 &lt;/span>
+&lt;span class="c1">#&amp;gt; Range (transformed scale): [-10, 0]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We’d like to extend our thanks to all of the contributors who helped make these releases during Q1 possible!&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>baguette:
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a> and
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>broom:
+&lt;a href="https://github.com/cgoo4" target="_blank" rel="noopener">@cgoo4&lt;/a>,
+&lt;a href="https://github.com/colinbrislawn" target="_blank" rel="noopener">@colinbrislawn&lt;/a>,
+&lt;a href="https://github.com/DanChaltiel" target="_blank" rel="noopener">@DanChaltiel&lt;/a>,
+&lt;a href="https://github.com/ddsjoberg" target="_blank" rel="noopener">@ddsjoberg&lt;/a>,
+&lt;a href="https://github.com/fschaffner" target="_blank" rel="noopener">@fschaffner&lt;/a>,
+&lt;a href="https://github.com/grantmcdermott" target="_blank" rel="noopener">@grantmcdermott&lt;/a>,
+&lt;a href="https://github.com/hughjonesd" target="_blank" rel="noopener">@hughjonesd&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/Marc-Girondot" target="_blank" rel="noopener">@Marc-Girondot&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/mlaviolet" target="_blank" rel="noopener">@mlaviolet&lt;/a>,
+&lt;a href="https://github.com/oliverbothe" target="_blank" rel="noopener">@oliverbothe&lt;/a>,
+&lt;a href="https://github.com/PursuitOfDataScience" target="_blank" rel="noopener">@PursuitOfDataScience&lt;/a>,
+&lt;a href="https://github.com/simonpcouch" target="_blank" rel="noopener">@simonpcouch&lt;/a>, and
+&lt;a href="https://github.com/vincentarelbundock" target="_blank" rel="noopener">@vincentarelbundock&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>brulee:
+&lt;a href="https://github.com/dfalbel" target="_blank" rel="noopener">@dfalbel&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>dials:
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>, and
+&lt;a href="https://github.com/py9mrg" target="_blank" rel="noopener">@py9mrg&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>discrim:
+&lt;a href="https://github.com/deschen1" target="_blank" rel="noopener">@deschen1&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/jmarshallnz" target="_blank" rel="noopener">@jmarshallnz&lt;/a>, and
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>finetune:
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/Steviey" target="_blank" rel="noopener">@Steviey&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>hardhat:
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/ddsjoberg" target="_blank" rel="noopener">@ddsjoberg&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>, and
+&lt;a href="https://github.com/MasterLuke84" target="_blank" rel="noopener">@MasterLuke84&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>multilevelmod:
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a> and
+&lt;a href="https://github.com/sitendug" target="_blank" rel="noopener">@sitendug&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>parsnip:
+&lt;a href="https://github.com/brunocarlin" target="_blank" rel="noopener">@brunocarlin&lt;/a>,
+&lt;a href="https://github.com/dietrichson" target="_blank" rel="noopener">@dietrichson&lt;/a>,
+&lt;a href="https://github.com/edgararuiz" target="_blank" rel="noopener">@edgararuiz&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/jmarshallnz" target="_blank" rel="noopener">@jmarshallnz&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/mattwarkentin" target="_blank" rel="noopener">@mattwarkentin&lt;/a>,
+&lt;a href="https://github.com/nikhilpathiyil" target="_blank" rel="noopener">@nikhilpathiyil&lt;/a>,
+&lt;a href="https://github.com/nvelden" target="_blank" rel="noopener">@nvelden&lt;/a>,
+&lt;a href="https://github.com/t-kalinowski" target="_blank" rel="noopener">@t-kalinowski&lt;/a>,
+&lt;a href="https://github.com/tiagomaie" target="_blank" rel="noopener">@tiagomaie&lt;/a>,
+&lt;a href="https://github.com/tolliam" target="_blank" rel="noopener">@tolliam&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>plsmod:
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a> and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>poissonreg:
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a> and
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>recipes:
+&lt;a href="https://github.com/agwalker82" target="_blank" rel="noopener">@agwalker82&lt;/a>,
+&lt;a href="https://github.com/AndrewKostandy" target="_blank" rel="noopener">@AndrewKostandy&lt;/a>,
+&lt;a href="https://github.com/aridf" target="_blank" rel="noopener">@aridf&lt;/a>,
+&lt;a href="https://github.com/brunocarlin" target="_blank" rel="noopener">@brunocarlin&lt;/a>,
+&lt;a href="https://github.com/DoktorMike" target="_blank" rel="noopener">@DoktorMike&lt;/a>,
+&lt;a href="https://github.com/duccioa" target="_blank" rel="noopener">@duccioa&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/FieteO" target="_blank" rel="noopener">@FieteO&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/joeycouse" target="_blank" rel="noopener">@joeycouse&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/mattwarkentin" target="_blank" rel="noopener">@mattwarkentin&lt;/a>,
+&lt;a href="https://github.com/mdsteiner" target="_blank" rel="noopener">@mdsteiner&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/spsanderson" target="_blank" rel="noopener">@spsanderson&lt;/a>,
+&lt;a href="https://github.com/themichjam" target="_blank" rel="noopener">@themichjam&lt;/a>,
+&lt;a href="https://github.com/tmastny" target="_blank" rel="noopener">@tmastny&lt;/a>,
+&lt;a href="https://github.com/tomazweiss" target="_blank" rel="noopener">@tomazweiss&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>,
+&lt;a href="https://github.com/walrossker" target="_blank" rel="noopener">@walrossker&lt;/a>, and
+&lt;a href="https://github.com/zenggyu" target="_blank" rel="noopener">@zenggyu&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>rules:
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>, and
+&lt;a href="https://github.com/wdkeyzer" target="_blank" rel="noopener">@wdkeyzer&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>stacks:
+&lt;a href="https://github.com/amcmahon17" target="_blank" rel="noopener">@amcmahon17&lt;/a>,
+&lt;a href="https://github.com/py9mrg" target="_blank" rel="noopener">@py9mrg&lt;/a>,
+&lt;a href="https://github.com/Saarialho" target="_blank" rel="noopener">@Saarialho&lt;/a>,
+&lt;a href="https://github.com/siegfried" target="_blank" rel="noopener">@siegfried&lt;/a>,
+&lt;a href="https://github.com/simonpcouch" target="_blank" rel="noopener">@simonpcouch&lt;/a>,
+&lt;a href="https://github.com/StuieT85" target="_blank" rel="noopener">@StuieT85&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>, and
+&lt;a href="https://github.com/williamshell" target="_blank" rel="noopener">@williamshell&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>textrecipes:
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>, and
+&lt;a href="https://github.com/NLDataScientist" target="_blank" rel="noopener">@NLDataScientist&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>tune:
+&lt;a href="https://github.com/abichat" target="_blank" rel="noopener">@abichat&lt;/a>,
+&lt;a href="https://github.com/AndrewKostandy" target="_blank" rel="noopener">@AndrewKostandy&lt;/a>,
+&lt;a href="https://github.com/dax44" target="_blank" rel="noopener">@dax44&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/felxcon" target="_blank" rel="noopener">@felxcon&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/juanydlh" target="_blank" rel="noopener">@juanydlh&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/mattwarkentin" target="_blank" rel="noopener">@mattwarkentin&lt;/a>,
+&lt;a href="https://github.com/mdancho84" target="_blank" rel="noopener">@mdancho84&lt;/a>,
+&lt;a href="https://github.com/py9mrg" target="_blank" rel="noopener">@py9mrg&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>,
+&lt;a href="https://github.com/walrossker" target="_blank" rel="noopener">@walrossker&lt;/a>,
+&lt;a href="https://github.com/williamshell" target="_blank" rel="noopener">@williamshell&lt;/a>, and
+&lt;a href="https://github.com/wtbxsjy" target="_blank" rel="noopener">@wtbxsjy&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>tidymodels:
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/exsell-jc" target="_blank" rel="noopener">@exsell-jc&lt;/a>,
+&lt;a href="https://github.com/hardin47" target="_blank" rel="noopener">@hardin47&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/PursuitOfDataScience" target="_blank" rel="noopener">@PursuitOfDataScience&lt;/a>,
+&lt;a href="https://github.com/RaymondBalise" target="_blank" rel="noopener">@RaymondBalise&lt;/a>,
+&lt;a href="https://github.com/scottlyden" target="_blank" rel="noopener">@scottlyden&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>usemodels:
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a> and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>vetiver:
+&lt;a href="https://github.com/atheriel" target="_blank" rel="noopener">@atheriel&lt;/a> and
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>workflows:
+&lt;a href="https://github.com/CarstenLange" target="_blank" rel="noopener">@CarstenLange&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dpprdan" target="_blank" rel="noopener">@dpprdan&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>, and
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>workflowsets:
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dvanic" target="_blank" rel="noopener">@dvanic&lt;/a>,
+&lt;a href="https://github.com/gdmcdonald" target="_blank" rel="noopener">@gdmcdonald&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>, and
+&lt;a href="https://github.com/wdefreitas" target="_blank" rel="noopener">@wdefreitas&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>textrecipes 0.0.1</title><link>https://www.tidyverse.org/blog/2018/12/textrecipes-0-0-1/</link><pubDate>Wed, 26 Dec 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/12/textrecipes-0-0-1/</guid><description>&lt;p>We&amp;rsquo;re delighted to announce the release of
+&lt;a href="https://github.com/tidymodels/textrecipes" target="_blank" rel="noopener">textrecipes 0.0.1&lt;/a> on CRAN.
+&lt;a href="https://tidymodels.github.io/textrecipes/" target="_blank" rel="noopener">textrecipes&lt;/a> implements a collection of new steps for the
+&lt;a href="https://github.com/tidymodels/recipes" target="_blank" rel="noopener">recipes&lt;/a> package to deal with text preprocessing. textrecipes is still in early development so any and all feedback is highly appreciated.&lt;/p>
+&lt;p>You can install it by running:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;textrecipes&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="new-steps">New steps
+&lt;a href="#new-steps">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The steps introduced here can be split into 3 types, those that:&lt;/p>
+&lt;ol>
+&lt;li>convert from characters to list-columns and vice versa,&lt;/li>
+&lt;li>modify the elements in list-columns, and&lt;/li>
+&lt;li>convert list-columns to numerics.&lt;/li>
+&lt;/ol>
+&lt;p>This allows for greater flexibility in the preprocessing tasks that can be done while staying inside the
+&lt;a href="https://github.com/tidymodels/recipes" target="_blank" rel="noopener">recipes&lt;/a> framework. This also prevents having a single step with many arguments.&lt;/p>
+&lt;h2 id="workflows">Workflows
+&lt;a href="#workflows">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>First we start by creating a
+&lt;a href="https://tidymodels.github.io/recipes/reference/recipe.html" target="_blank" rel="noopener">&lt;code>recipe&lt;/code>&lt;/a> object from the original data.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;okc_text&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">rec_obj&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">okc_text&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">rec_obj&lt;/span>
+&lt;span class="c1">#&amp;gt; Data Recipe&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Inputs:&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; role #variables&lt;/span>
+&lt;span class="c1">#&amp;gt; predictor 10&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The workflow in textrecipes so far starts with
+&lt;a href="https://tidymodels.github.io/textrecipes/reference/step_tokenize.html" target="_blank" rel="noopener">&lt;code>step_tokenize()&lt;/code>&lt;/a>, followed by a combination of type-1 and type-2 steps ending with a type-3 step.
+&lt;a href="https://tidymodels.github.io/textrecipes/reference/step_tokenize.html" target="_blank" rel="noopener">&lt;code>step_tokenize()&lt;/code>&lt;/a> wraps the
+&lt;a href="https://github.com/ropensci/tokenizers" target="_blank" rel="noopener">tokenizers&lt;/a> package for tokenization, but other tokenization functions can be utilized using the &lt;code>custom_token&lt;/code> argument. More information concerning arguments can be found in the documentation. The shortest possible recipes are &lt;code>step_tokenize()&lt;/code> directly followed by a type-3 step.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">### Feature hashing done on word tokens&lt;/span>
+&lt;span class="n">rec_obj&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_tokenize&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">essay0&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="c1"># token argument defaults to &amp;#34;words&amp;#34;&lt;/span>
+&lt;span class="nf">step_texthash&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">essay0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Data Recipe&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Inputs:&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; role #variables&lt;/span>
+&lt;span class="c1">#&amp;gt; predictor 10&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Operations:&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Tokenization for essay0&lt;/span>
+&lt;span class="c1">#&amp;gt; Feature hashing with essay0&lt;/span>
+&lt;span class="c1">### Counting chacter occurrences&lt;/span>
+&lt;span class="n">rec_obj&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_tokenize&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">essay0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">token&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;character&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_tf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">essay0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Data Recipe&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Inputs:&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; role #variables&lt;/span>
+&lt;span class="c1">#&amp;gt; predictor 10&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Operations:&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Tokenization for essay0&lt;/span>
+&lt;span class="c1">#&amp;gt; Term frequency with essay0&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>If one wanted to calculate the word count of the top 100 most frequently used words after stemming is performed, type-2 steps are needed. Here we use
+&lt;a href="https://tidymodels.github.io/textrecipes/reference/step_stem.html" target="_blank" rel="noopener">&lt;code>step_stem()&lt;/code>&lt;/a> to perform stemming using the
+&lt;a href="https://CRAN.R-project.org/package=SnowballC" target="_blank" rel="noopener">SnowballC&lt;/a> package and
+&lt;a href="https://tidymodels.github.io/textrecipes/reference/step_tokenfilter.html" target="_blank" rel="noopener">&lt;code>step_tokenfilter()&lt;/code>&lt;/a> to keep only the 100 most frequent tokens.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">rec_obj&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_tokenize&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">essay0&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_stem&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">essay0&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_tokenfilter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">essay0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">max_tokens&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">100&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_tf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">essay0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Data Recipe&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Inputs:&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; role #variables&lt;/span>
+&lt;span class="c1">#&amp;gt; predictor 10&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Operations:&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Tokenization for essay0&lt;/span>
+&lt;span class="c1">#&amp;gt; Stemming for essay0&lt;/span>
+&lt;span class="c1">#&amp;gt; Text filtering for essay0&lt;/span>
+&lt;span class="c1">#&amp;gt; Term frequency with essay0&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>For more combinations, please consult the documentation and the
+&lt;a href="https://tidymodels.github.io/textrecipes/articles/cookbook---using-more-complex-recipes-involving-text.html" target="_blank" rel="noopener">vignette&lt;/a>, which includes recipe examples.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thank you goes out to the 6 people who contributed to this release:
+&lt;a href="https://github.com/ClaytonJY" target="_blank" rel="noopener">@ClaytonJY&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/jwijffels" target="_blank" rel="noopener">@jwijffels&lt;/a>,
+&lt;a href="https://github.com/kanishkamisra" target="_blank" rel="noopener">@kanishkamisra&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p></description></item></channel></rss>

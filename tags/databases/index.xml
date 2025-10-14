@@ -1,0 +1,728 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>databases | Tidyverse</title><link>https://www.tidyverse.org/tags/databases/</link><atom:link href="https://www.tidyverse.org/tags/databases/index.xml" rel="self" type="application/rss+xml"/><description>databases</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 04 Aug 2021 00:00:00 +0000</lastBuildDate><item><title>bigrquery 1.4.0</title><link>https://www.tidyverse.org/blog/2021/08/bigrquery-1-4-0/</link><pubDate>Wed, 04 Aug 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/08/bigrquery-1-4-0/</guid><description>&lt;p>We&amp;rsquo;re gratified to announce the release of
+&lt;a href="https://bigrquery.r-dbi.org" target="_blank" rel="noopener">bigrquery&lt;/a> 1.4.0. bigrquery makes it easy to work with data stored in
+&lt;a href="https://developers.google.com/bigquery/" target="_blank" rel="noopener">Google BigQuery&lt;/a>, a hosted database for big data.&lt;/p>
+&lt;p>You can install bigrquery from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"bigrquery"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This release is mostly to fix a bug in
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a>. We&amp;rsquo;re also bumping the required version of the gargle package (&lt;a href="https://gargle.r-lib.org">https://gargle.r-lib.org&lt;/a>), which handles everything around auth.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://bigrquery.r-dbi.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="bq_table_download-bug-fix">&lt;code>bq_table_download()&lt;/code> bug fix
+&lt;a href="#bq_table_download-bug-fix">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> is a good way to bring small-to-medium data out of BigQuery and into R, in the form of a tibble.&lt;/p>
+&lt;p>Under the hood,
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> retrieves the data in chunks, using several simultaneous connections to BigQuery servers, then parses and reassembles it. The use of concurrent requests has a substantial performance benefit, which we think is absolutely worth it. We ask for these chunks in terms of specific rows, but if the server determines the response will be too large, it sends fewer-than-expected rows (plus a token that can be used to pick up where things left off).&lt;/p>
+&lt;p>The bug is that
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> previously did not account for this and silently returned a tibble with the requested shape but, potentially, with lots of missing data. Many users and datasets are unaffected, because all chunks are received in their entirety. But the problem has been seen with datasets with many columns and where data complexity and sparsity mean that different slices of rows have a very different memory footprint.&lt;/p>
+&lt;p>
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> has been heavily refactored to make this phenomenon much less likely and to detect it when it happens:&lt;/p>
+&lt;ul>
+&lt;li>The default value of &lt;code>page_size&lt;/code> is no longer fixed and, instead, is determined empirically. Users are strongly recommended to let bigrquery select &lt;code>page_size&lt;/code> automatically, unless there&amp;rsquo;s a specific reason to do otherwise.&lt;/li>
+&lt;li>If one of our so-called chunks does not fit on a BigQuery page,
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> now throws an error with some advice about &lt;code>page_size&lt;/code>.&lt;/li>
+&lt;li>The &lt;code>max_results&lt;/code> argument has been deprecated in favor of &lt;code>n_max&lt;/code>, which better reflects what we actually do with this number and is consistent with the &lt;code>n_max&lt;/code> argument elsewhere, e.g.,
+&lt;a href="https://readr.tidyverse.org/reference/read_delim.html" target="_blank" rel="noopener">&lt;code>readr::read_csv()&lt;/code>&lt;/a>.&lt;/li>
+&lt;/ul>
+&lt;p>Here&amp;rsquo;s a look at the new and improved
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://bigrquery.r-dbi.org'>bigrquery&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>dat&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://bigrquery.r-dbi.org/reference/bq_table_download.html'>bq_table_download&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+&lt;span class='s'>"bigquery-public-data.chicago_taxi_trips.taxi_trips"&lt;/span>,
+n_max &lt;span class='o'>=&lt;/span> &lt;span class='m'>100000&lt;/span>,
+bigint &lt;span class='o'>=&lt;/span> &lt;span class='s'>"integer64"&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; Downloading first chunk of data.&lt;/span>
+&lt;span class='c'>#&amp;gt; Received 29,221 rows in the first chunk.&lt;/span>
+&lt;span class='c'>#&amp;gt; Downloading the remaining 70,779 rows in 4 chunks of (up to) 21,915 rows.&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/head.html'>tail&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>dat&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; # A tibble: 6 x 23&lt;/span>
+&lt;span class='c'>#&amp;gt; unique_key taxi_id trip_start_timesta… trip_end_timestamp trip_seconds&lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dttm&amp;gt; &amp;lt;dttm&amp;gt; &amp;lt;int64&amp;gt;&lt;/span>
+&lt;span class='c'>#&amp;gt; 1 1ad3f7df79d3… 0caf3d04eb… 2013-12-27 12:45:00 2013-12-27 13:00:00 840&lt;/span>
+&lt;span class='c'>#&amp;gt; 2 3c982851afee… d7f7e8e4b0… 2014-01-25 19:45:00 2014-01-25 20:00:00 720&lt;/span>
+&lt;span class='c'>#&amp;gt; 3 da7428c5329e… 46e168456e… 2014-01-06 17:45:00 2014-01-06 18:00:00 540&lt;/span>
+&lt;span class='c'>#&amp;gt; 4 b0bb177ea839… 8d1222551a… 2014-01-08 11:45:00 2014-01-08 12:00:00 540&lt;/span>
+&lt;span class='c'>#&amp;gt; 5 eee61e8e6c6d… ac39a2b21a… 2014-01-07 20:45:00 2014-01-07 21:00:00 540&lt;/span>
+&lt;span class='c'>#&amp;gt; 6 4cc0ba56e6de… 25c1126afa… 2013-12-16 22:45:00 2013-12-16 22:45:00 420&lt;/span>
+&lt;span class='c'>#&amp;gt; # … with 18 more variables: trip_miles &amp;lt;dbl&amp;gt;, pickup_census_tract &amp;lt;int64&amp;gt;,&lt;/span>
+&lt;span class='c'>#&amp;gt; # dropoff_census_tract &amp;lt;int64&amp;gt;, pickup_community_area &amp;lt;int64&amp;gt;,&lt;/span>
+&lt;span class='c'>#&amp;gt; # dropoff_community_area &amp;lt;int64&amp;gt;, fare &amp;lt;dbl&amp;gt;, tips &amp;lt;dbl&amp;gt;, tolls &amp;lt;dbl&amp;gt;,&lt;/span>
+&lt;span class='c'>#&amp;gt; # extras &amp;lt;dbl&amp;gt;, trip_total &amp;lt;dbl&amp;gt;, payment_type &amp;lt;chr&amp;gt;, company &amp;lt;chr&amp;gt;,&lt;/span>
+&lt;span class='c'>#&amp;gt; # pickup_latitude &amp;lt;dbl&amp;gt;, pickup_longitude &amp;lt;dbl&amp;gt;, pickup_location &amp;lt;chr&amp;gt;,&lt;/span>
+&lt;span class='c'>#&amp;gt; # dropoff_latitude &amp;lt;dbl&amp;gt;, dropoff_longitude &amp;lt;dbl&amp;gt;, dropoff_location &amp;lt;chr&amp;gt;&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="auth-updates">Auth updates
+&lt;a href="#auth-updates">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If you are generally fairly passive about bigrquery auth, then you should just sit back and let things happen organically during usage. If you&amp;rsquo;ve used bigrquery before, you can expect to see some messages about cleaning and relocating the token cache when you first use v1.4.0. You can also expect to re-authenticate yourself with Google and re-authorize the &amp;ldquo;Tidyverse API Packages&amp;rdquo; to work with your files. This is all due to changes in gargle.&lt;/p>
+&lt;p>If your usage requires you to be more proactive about auth, read the
+&lt;a href="https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/" target="_blank" rel="noopener">blog post for gargle&amp;rsquo;s recent v1.2.0 release&lt;/a>. A key point is that we have rolled the built-in OAuth client, which is why those relying on it will need to re-auth.&lt;/p>
+&lt;p>&lt;strong>If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call&lt;/strong> that you should be using your own OAuth client or, quite possibly, an entirely different method of auth. Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.&lt;/p>
+&lt;p>gargle v1.2.0 offers support for a new method of auth that is especially relevant to bigrquery users: &lt;em>workload identity federation&lt;/em>. This is a new (as of April 2021) keyless authentication mechanism offered by Google. Identity federation allows applications running on a non-Google Cloud platform, such as AWS, to access Google Cloud resources without using a conventional service account token, eliminating the security problem posed by long-lived, powerful service account credential files. Basically, instead of storing sensitive information in a file that must be managed with great care, the necessary secrets are obtained on-the-fly and exchanged for short-lived tokens, with very granular control over what actions are allowed. There is a cost, of course, which is that this auth method requires substantial configuration on both the GCP and AWS sides.&lt;/p>
+&lt;p>See the
+&lt;a href="https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/" target="_blank" rel="noopener">gargle v1.2.0 blog post&lt;/a> and the docs for
+&lt;a href="https://gargle.r-lib.org/reference/credentials_external_account.html" target="_blank" rel="noopener">&lt;code>gargle::credentials_external_account()&lt;/code>&lt;/a> to learn more.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank everyone who has furthered the development of bigrquery, since the last major release (v1.0.0), through their contributions in issues and pull requests:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/414theodore" target="_blank" rel="noopener">@414theodore&lt;/a>,
+&lt;a href="https://github.com/abalter" target="_blank" rel="noopener">@abalter&lt;/a>,
+&lt;a href="https://github.com/acvelozo" target="_blank" rel="noopener">@acvelozo&lt;/a>,
+&lt;a href="https://github.com/adhi-r" target="_blank" rel="noopener">@adhi-r&lt;/a>,
+&lt;a href="https://github.com/afalcioni" target="_blank" rel="noopener">@afalcioni&lt;/a>,
+&lt;a href="https://github.com/ahmohamed" target="_blank" rel="noopener">@ahmohamed&lt;/a>,
+&lt;a href="https://github.com/ajhindle" target="_blank" rel="noopener">@ajhindle&lt;/a>,
+&lt;a href="https://github.com/AlekseyBuzmakov" target="_blank" rel="noopener">@AlekseyBuzmakov&lt;/a>,
+&lt;a href="https://github.com/analyse9823" target="_blank" rel="noopener">@analyse9823&lt;/a>,
+&lt;a href="https://github.com/andirey" target="_blank" rel="noopener">@andirey&lt;/a>,
+&lt;a href="https://github.com/ArbenKqiku" target="_blank" rel="noopener">@ArbenKqiku&lt;/a>,
+&lt;a href="https://github.com/arvhug" target="_blank" rel="noopener">@arvhug&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/bbrewington" target="_blank" rel="noopener">@bbrewington&lt;/a>,
+&lt;a href="https://github.com/bhargavimoorthyrao" target="_blank" rel="noopener">@bhargavimoorthyrao&lt;/a>,
+&lt;a href="https://github.com/btrx-sreddy" target="_blank" rel="noopener">@btrx-sreddy&lt;/a>,
+&lt;a href="https://github.com/byapparov" target="_blank" rel="noopener">@byapparov&lt;/a>,
+&lt;a href="https://github.com/carbocation" target="_blank" rel="noopener">@carbocation&lt;/a>,
+&lt;a href="https://github.com/CartWill" target="_blank" rel="noopener">@CartWill&lt;/a>,
+&lt;a href="https://github.com/chrisherold" target="_blank" rel="noopener">@chrisherold&lt;/a>,
+&lt;a href="https://github.com/ChrisJohnsonUMG" target="_blank" rel="noopener">@ChrisJohnsonUMG&lt;/a>,
+&lt;a href="https://github.com/cpcgoogle" target="_blank" rel="noopener">@cpcgoogle&lt;/a>,
+&lt;a href="https://github.com/danny-molamola" target="_blank" rel="noopener">@danny-molamola&lt;/a>,
+&lt;a href="https://github.com/deflaux" target="_blank" rel="noopener">@deflaux&lt;/a>,
+&lt;a href="https://github.com/dmoimpact" target="_blank" rel="noopener">@dmoimpact&lt;/a>,
+&lt;a href="https://github.com/downloaderfan" target="_blank" rel="noopener">@downloaderfan&lt;/a>,
+&lt;a href="https://github.com/dsolito" target="_blank" rel="noopener">@dsolito&lt;/a>,
+&lt;a href="https://github.com/dujm" target="_blank" rel="noopener">@dujm&lt;/a>,
+&lt;a href="https://github.com/eamcvey" target="_blank" rel="noopener">@eamcvey&lt;/a>,
+&lt;a href="https://github.com/eddelbuettel" target="_blank" rel="noopener">@eddelbuettel&lt;/a>,
+&lt;a href="https://github.com/edgararuiz-zz" target="_blank" rel="noopener">@edgararuiz-zz&lt;/a>,
+&lt;a href="https://github.com/eduardodrc" target="_blank" rel="noopener">@eduardodrc&lt;/a>,
+&lt;a href="https://github.com/evandropp10" target="_blank" rel="noopener">@evandropp10&lt;/a>,
+&lt;a href="https://github.com/everron" target="_blank" rel="noopener">@everron&lt;/a>,
+&lt;a href="https://github.com/geotheory" target="_blank" rel="noopener">@geotheory&lt;/a>,
+&lt;a href="https://github.com/gikis1" target="_blank" rel="noopener">@gikis1&lt;/a>,
+&lt;a href="https://github.com/gjuggler" target="_blank" rel="noopener">@gjuggler&lt;/a>,
+&lt;a href="https://github.com/gkmuralimech" target="_blank" rel="noopener">@gkmuralimech&lt;/a>,
+&lt;a href="https://github.com/grantmcdermott" target="_blank" rel="noopener">@grantmcdermott&lt;/a>,
+&lt;a href="https://github.com/guillaumed90" target="_blank" rel="noopener">@guillaumed90&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/HarlanH" target="_blank" rel="noopener">@HarlanH&lt;/a>,
+&lt;a href="https://github.com/hlynurhallgrims" target="_blank" rel="noopener">@hlynurhallgrims&lt;/a>,
+&lt;a href="https://github.com/htappen" target="_blank" rel="noopener">@htappen&lt;/a>,
+&lt;a href="https://github.com/Iuiu1234" target="_blank" rel="noopener">@Iuiu1234&lt;/a>,
+&lt;a href="https://github.com/izzetagoren" target="_blank" rel="noopener">@izzetagoren&lt;/a>,
+&lt;a href="https://github.com/j450h1" target="_blank" rel="noopener">@j450h1&lt;/a>,
+&lt;a href="https://github.com/janejuenyang" target="_blank" rel="noopener">@janejuenyang&lt;/a>,
+&lt;a href="https://github.com/jayBana" target="_blank" rel="noopener">@jayBana&lt;/a>,
+&lt;a href="https://github.com/jberninger" target="_blank" rel="noopener">@jberninger&lt;/a>,
+&lt;a href="https://github.com/jcheng5" target="_blank" rel="noopener">@jcheng5&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimmyg3g" target="_blank" rel="noopener">@jimmyg3g&lt;/a>,
+&lt;a href="https://github.com/joetortorelli" target="_blank" rel="noopener">@joetortorelli&lt;/a>,
+&lt;a href="https://github.com/jordanwebb10" target="_blank" rel="noopener">@jordanwebb10&lt;/a>,
+&lt;a href="https://github.com/jpryda" target="_blank" rel="noopener">@jpryda&lt;/a>,
+&lt;a href="https://github.com/jrecasens" target="_blank" rel="noopener">@jrecasens&lt;/a>,
+&lt;a href="https://github.com/Ka2wei" target="_blank" rel="noopener">@Ka2wei&lt;/a>,
+&lt;a href="https://github.com/KarimZaoui" target="_blank" rel="noopener">@KarimZaoui&lt;/a>,
+&lt;a href="https://github.com/kesnalawrence" target="_blank" rel="noopener">@kesnalawrence&lt;/a>,
+&lt;a href="https://github.com/kevinwang09" target="_blank" rel="noopener">@kevinwang09&lt;/a>,
+&lt;a href="https://github.com/kkmann" target="_blank" rel="noopener">@kkmann&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/Kvit" target="_blank" rel="noopener">@Kvit&lt;/a>,
+&lt;a href="https://github.com/ldanai" target="_blank" rel="noopener">@ldanai&lt;/a>,
+&lt;a href="https://github.com/leemc-data-ed" target="_blank" rel="noopener">@leemc-data-ed&lt;/a>,
+&lt;a href="https://github.com/LukasWallrich" target="_blank" rel="noopener">@LukasWallrich&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/mapinas" target="_blank" rel="noopener">@mapinas&lt;/a>,
+&lt;a href="https://github.com/mauricioita" target="_blank" rel="noopener">@mauricioita&lt;/a>,
+&lt;a href="https://github.com/meystingray" target="_blank" rel="noopener">@meystingray&lt;/a>,
+&lt;a href="https://github.com/meztez" target="_blank" rel="noopener">@meztez&lt;/a>,
+&lt;a href="https://github.com/mr2dark" target="_blank" rel="noopener">@mr2dark&lt;/a>,
+&lt;a href="https://github.com/mwilson19" target="_blank" rel="noopener">@mwilson19&lt;/a>,
+&lt;a href="https://github.com/paleolimbot" target="_blank" rel="noopener">@paleolimbot&lt;/a>,
+&lt;a href="https://github.com/paulsendavidjay" target="_blank" rel="noopener">@paulsendavidjay&lt;/a>,
+&lt;a href="https://github.com/philbrierley" target="_blank" rel="noopener">@philbrierley&lt;/a>,
+&lt;a href="https://github.com/ras44" target="_blank" rel="noopener">@ras44&lt;/a>,
+&lt;a href="https://github.com/rasmusab" target="_blank" rel="noopener">@rasmusab&lt;/a>,
+&lt;a href="https://github.com/reliscu" target="_blank" rel="noopener">@reliscu&lt;/a>,
+&lt;a href="https://github.com/riccardopinosio" target="_blank" rel="noopener">@riccardopinosio&lt;/a>,
+&lt;a href="https://github.com/Saikri5hna" target="_blank" rel="noopener">@Saikri5hna&lt;/a>,
+&lt;a href="https://github.com/samudzi" target="_blank" rel="noopener">@samudzi&lt;/a>,
+&lt;a href="https://github.com/santic113" target="_blank" rel="noopener">@santic113&lt;/a>,
+&lt;a href="https://github.com/saptarshiguha" target="_blank" rel="noopener">@saptarshiguha&lt;/a>,
+&lt;a href="https://github.com/Schumzy" target="_blank" rel="noopener">@Schumzy&lt;/a>,
+&lt;a href="https://github.com/SeagleLiu" target="_blank" rel="noopener">@SeagleLiu&lt;/a>,
+&lt;a href="https://github.com/selcukakbas" target="_blank" rel="noopener">@selcukakbas&lt;/a>,
+&lt;a href="https://github.com/selesnow" target="_blank" rel="noopener">@selesnow&lt;/a>,
+&lt;a href="https://github.com/siroros" target="_blank" rel="noopener">@siroros&lt;/a>,
+&lt;a href="https://github.com/skydavis435" target="_blank" rel="noopener">@skydavis435&lt;/a>,
+&lt;a href="https://github.com/spgarbet" target="_blank" rel="noopener">@spgarbet&lt;/a>,
+&lt;a href="https://github.com/spiddy69" target="_blank" rel="noopener">@spiddy69&lt;/a>,
+&lt;a href="https://github.com/srkpratap" target="_blank" rel="noopener">@srkpratap&lt;/a>,
+&lt;a href="https://github.com/stelsemeyer" target="_blank" rel="noopener">@stelsemeyer&lt;/a>,
+&lt;a href="https://github.com/stevecondylios" target="_blank" rel="noopener">@stevecondylios&lt;/a>,
+&lt;a href="https://github.com/svmakarovv" target="_blank" rel="noopener">@svmakarovv&lt;/a>,
+&lt;a href="https://github.com/tchaithonov" target="_blank" rel="noopener">@tchaithonov&lt;/a>,
+&lt;a href="https://github.com/tdsmith" target="_blank" rel="noopener">@tdsmith&lt;/a>,
+&lt;a href="https://github.com/theclue" target="_blank" rel="noopener">@theclue&lt;/a>,
+&lt;a href="https://github.com/tinoater" target="_blank" rel="noopener">@tinoater&lt;/a>,
+&lt;a href="https://github.com/valentas-kurauskas" target="_blank" rel="noopener">@valentas-kurauskas&lt;/a>,
+&lt;a href="https://github.com/valentinumbach" target="_blank" rel="noopener">@valentinumbach&lt;/a>,
+&lt;a href="https://github.com/victorz-ca" target="_blank" rel="noopener">@victorz-ca&lt;/a>,
+&lt;a href="https://github.com/warnes" target="_blank" rel="noopener">@warnes&lt;/a>,
+&lt;a href="https://github.com/YuanyuanZhang1986" target="_blank" rel="noopener">@YuanyuanZhang1986&lt;/a>,
+&lt;a href="https://github.com/zacdav" target="_blank" rel="noopener">@zacdav&lt;/a>,
+&lt;a href="https://github.com/ZainRizvi" target="_blank" rel="noopener">@ZainRizvi&lt;/a>,
+&lt;a href="https://github.com/zerobytes" target="_blank" rel="noopener">@zerobytes&lt;/a>, and
+&lt;a href="https://github.com/zoews" target="_blank" rel="noopener">@zoews&lt;/a>.&lt;/p></description></item><item><title>dbplyr 1.4.0</title><link>https://www.tidyverse.org/blog/2019/04/dbplyr-1-4-0/</link><pubDate>Tue, 30 Apr 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/04/dbplyr-1-4-0/</guid><description>&lt;p>We&amp;rsquo;re stoked to announce the release of
+&lt;a href="https://dbplyr.tidyverse.org" target="_blank" rel="noopener">dbplyr 1.4.0&lt;/a>, the database backend for dplyr that translates R code into SQL. dbplyr allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr turns it into SQL for you.&lt;/p>
+&lt;p>You can install the released version from CRAN:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;dbplyr&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>While there are many small improvements and bug fixes (see the full full details in the
+&lt;a href="https://dbplyr.tidyverse.org/news/index.html" target="_blank" rel="noopener">changelog&lt;/a>), the biggest improvements in this release are related to SQL generation. In this blog post, I&amp;rsquo;ll show you how find out what dplyr is doing behind the scenes, discuss some major simplifications to the SQL that dbplyr generates, and then show off a few of the new function translations.&lt;/p>
+&lt;p>To get started, I&amp;rsquo;ll load dplyr and dbplyr:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dplyr&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dbplyr&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="sql-simulation">SQL simulation
+&lt;a href="#sql-simulation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This version of dbplyr substantially improves the tools that allow you to see what SQL dbplyr generates without needing to connect to a live database. You won&amp;rsquo;t generally need these tools for real data, but they&amp;rsquo;re very useful for blog posts (like this one!), for generating reprexes (as discussed in the new
+&lt;a href="https://dbplyr.tidyverse.org/articles/reprex.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;reprex&amp;quot;)&lt;/code>&lt;/a>), and for dbplyr&amp;rsquo;s internal tests.&lt;/p>
+&lt;p>The basic idea is that you can create a &amp;ldquo;lazy&amp;rdquo; frame:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">df1&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">lazy_frame&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>I call this tibble lazy because dplyr operations don&amp;rsquo;t do any work; instead they just record the action so it can later be turned in to a SQL query. You can see this query by printing the lazy tibble:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">df1&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;SQL&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; SELECT *&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM `df`&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This is most useful when you add on a few steps:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">df1&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">summarise&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">z&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">mean&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">y&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;SQL&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; Warning: Missing values are always removed in SQL.&lt;/span>
+&lt;span class="c1">#&amp;gt; Use `mean(x, na.rm = TRUE)` to silence this warning&lt;/span>
+&lt;span class="c1">#&amp;gt; This warning is displayed only once per session.&lt;/span>
+&lt;span class="c1">#&amp;gt; SELECT `x`, AVG(`y`) AS `z`&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM `df`&lt;/span>
+&lt;span class="c1">#&amp;gt; GROUP BY `x`&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>(This example also highlights another small improvement to dbplyr: it&amp;rsquo;ll only warn you about missing values being automatically removed in the database once per session.)&lt;/p>
+&lt;p>Importantly, &lt;code>lazy_frame()&lt;/code> has a &lt;code>con&lt;/code> argument that allows you to specify which database should be used for the translation. This makes it easier to see the differences in SQL generation between databases:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">df1&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">z&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">paste&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;item:&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">head&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;SQL&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; SELECT `x`, `y`, CONCAT_WS(&amp;#39; &amp;#39;, &amp;#39;item:&amp;#39;, `x`) AS `z`&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM `df`&lt;/span>
+&lt;span class="c1">#&amp;gt; LIMIT 5&lt;/span>
+&lt;span class="n">df2&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">lazy_frame&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">con&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">simulate_mssql&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="n">df2&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">z&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">paste&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;item:&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">head&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;SQL&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; SELECT TOP(5) `x`, `y`, &amp;#39;item:&amp;#39; + &amp;#39; &amp;#39; + `x` AS `z`&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM `df`&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>When you don&amp;rsquo;t specify a connection, dplyr uses its standard translation, which tries to follow the ANSI SQL standard as closely as possible.&lt;/p>
+&lt;h2 id="simpler-sql">Simpler SQL
+&lt;a href="#simpler-sql">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Two improvements have considerably reduced the number of subqueries that dbplyr needs:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Joins, semi joins, and set operations no longer add additional unneeded
+subqueries, and now generate the minimum set:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">df1&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">lazy_frame&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">df2&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">lazy_frame&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">b&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">union&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">df2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;SQL&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; (SELECT `x`, `y`, `a`, NULL AS `b`&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM `df`)&lt;/span>
+&lt;span class="c1">#&amp;gt; UNION&lt;/span>
+&lt;span class="c1">#&amp;gt; (SELECT `x`, `y`, NULL AS `a`, `b`&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM `df`)&lt;/span>
+&lt;span class="nf">left_join&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">df2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">by&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;x&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;y&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;SQL&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; SELECT `LHS`.`x` AS `x`, `LHS`.`y` AS `y`, `LHS`.`a` AS `a`, `RHS`.`b` AS `b`&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM `df` AS `LHS`&lt;/span>
+&lt;span class="c1">#&amp;gt; LEFT JOIN `df` AS `RHS`&lt;/span>
+&lt;span class="c1">#&amp;gt; ON (`LHS`.`x` = `RHS`.`x` AND `LHS`.`y` = `RHS`.`y`)&lt;/span>
+&lt;span class="nf">semi_join&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">df2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">by&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;x&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;y&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;SQL&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; SELECT * FROM `df` AS `LHS`&lt;/span>
+&lt;span class="c1">#&amp;gt; WHERE EXISTS (&lt;/span>
+&lt;span class="c1">#&amp;gt; SELECT 1 FROM `df` AS `RHS`&lt;/span>
+&lt;span class="c1">#&amp;gt; WHERE (`LHS`.`x` = `RHS`.`x` AND `LHS`.`y` = `RHS`.`y`)&lt;/span>
+&lt;span class="c1">#&amp;gt; )&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>Many sequences of &lt;code>mutate()&lt;/code>, &lt;code>select()&lt;/code>, &lt;code>rename()&lt;/code>, and &lt;code>transmute()&lt;/code>
+steps are collapsed into a single query:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">df&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">lazy_frame&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">df&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">2&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">2&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">2&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">2&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">z&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">x&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">y&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;SQL&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; SELECT `x` + `y` AS `z`, `y`, `x`&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM `df`&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;/li>
+&lt;/ul>
+&lt;p>Note that dbplyr will still generate multiple subqueries from a single mutate statement when needed. This resolves one of my biggest frustrations with SQL:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">df&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">x&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">b1&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">a&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">b2&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">a&lt;/span> &lt;span class="n">^&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">c&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">b1&lt;/span> &lt;span class="o">/&lt;/span> &lt;span class="n">b2&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;SQL&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; SELECT `x`, `y`, `a`, `b1`, `b2`, `b1` / `b2` AS `c`&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM (SELECT `x`, `y`, `a`, `a` * 3.0 AS `b1`, POWER(`a`, 2.0) AS `b2`&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM (SELECT `x`, `y`, `x` + 1.0 AS `a`&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM `df`) `dbplyr_001`) `dbplyr_002`&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>I touch on this advantage of dbplyr over SQL in a new vignette,
+&lt;a href="https://dbplyr.tidyverse.org/dev/articles/sql.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;sql&amp;quot;)&lt;/code>&lt;/a>, which also gives some advice about how to write literal SQL, when dbplyr&amp;rsquo;s built-in translations don&amp;rsquo;t work.&lt;/p>
+&lt;h2 id="sql-translation">SQL translation
+&lt;a href="#sql-translation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>As well as improving the translation of high-level dplyr functions, we&amp;rsquo;ve also considerably added to the set of low-level vector functions that dbplyr can translate. Firstly,
+&lt;a href="https://dev.mysql.com/doc/refman/8.0/en/window-functions.html" target="_blank" rel="noopener">MySQL&lt;/a> (&amp;gt;= 8.0),
+&lt;a href="https://mariadb.com/kb/en/library/window-functions/" target="_blank" rel="noopener">MariaDB&lt;/a> (&amp;gt;= 10.2) and
+&lt;a href="https://www.sqlite.org/windowfunctions.html" target="_blank" rel="noopener">SQLite&lt;/a> (&amp;gt;3.25) gain support for
+&lt;a href="https://dbplyr.tidyverse.org/dev/articles/translation-function.html#window-functions" target="_blank" rel="noopener">window functions&lt;/a>. These allow you to use summary functions (like &lt;code>mean()&lt;/code> or &lt;code>sum()&lt;/code>) inside of &lt;code>mutate()&lt;/code>, as well as unlocking useful function like &lt;code>min_rank()&lt;/code>, &lt;code>first()&lt;/code>, and &lt;code>lead()&lt;/code>/&lt;code>lag()&lt;/code>.&lt;/p>
+&lt;p>Thanks to
+&lt;a href="http://github.com/colearendt" target="_blank" rel="noopener">Cole Arendt&lt;/a>, dbplyr now supports translations for a selection of useful functions from stringr (&lt;code>str_c()&lt;/code>, &lt;code>str_sub()&lt;/code>, &lt;code>str_length()&lt;/code>, &lt;code>str_to_upper()&lt;/code>, &lt;code>str_to_lower()&lt;/code>, and &lt;code>str_to_title()&lt;/code>), and lubridate ( &lt;code>today()&lt;/code>, &lt;code>now()&lt;/code>, &lt;code>year()&lt;/code>, &lt;code>month()&lt;/code> (numeric value only), &lt;code>day()&lt;/code>, &lt;code>hour()&lt;/code>, &lt;code>minute()&lt;/code>, &lt;code>second()&lt;/code>):&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">df&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">lazy_frame&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">character&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="n">birthday&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">character&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="n">df&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">transmute&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">str_to_lower&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">month&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">month&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">birthday&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">mday&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">mday&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">birthday&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;SQL&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; SELECT LOWER(`name`) AS `name`, EXTRACT(month FROM `birthday`) AS `month`, EXTRACT(day FROM `birthday`) AS `mday`&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM `df`&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Thanks to
+&lt;a href="http://github.com/davidchall" target="_blank" rel="noopener">David C Hall&lt;/a> we have translations for bitwise operations (&lt;code>bitwNot()&lt;/code>, &lt;code>bitwAnd()&lt;/code>, &lt;code>bitwOr()&lt;/code>, &lt;code>bitwXor()&lt;/code>, &lt;code>bitwShiftL()&lt;/code>, and &lt;code>bitwShiftR()&lt;/code>):&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">df&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">lazy_frame&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">integer&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">integer&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="n">df&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">transmute&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">and&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">bitwAnd&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">or&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">bitwOr&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;SQL&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; SELECT `x` &amp;amp; `y` AS `and`, `x` | `y` AS `or`&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM `df`&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Thanks to
+&lt;a href="http://github.com/edavidaja" target="_blank" rel="noopener">E. David Aja&lt;/a>&amp;lsquo;s research on tidyverse developer day we have improved translations for &lt;code>median()&lt;/code> and &lt;code>quantile()&lt;/code> for all ANSI compliant databases (SQL Server, Postgres, MariaDB), along with custom translations for Hive and Teradata.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">lazy_frame&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">g&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">character&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">numeric&lt;/span>&lt;span class="p">())&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">g&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">summarise&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">median&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;SQL&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; SELECT `g`, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY `x`) AS `y`&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM `df`&lt;/span>
+&lt;span class="c1">#&amp;gt; GROUP BY `g`&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Finally, I have improved translation of &lt;code>[&lt;/code>, so that you can use expressions like &lt;code>sum(a[b == 0])&lt;/code> as you would in R:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">tbl_lazy&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">cyl&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">summarise&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg_vs&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">sum&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg[vs&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">na.rm&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;SQL&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; SELECT `cyl`, SUM(CASE WHEN (`vs` = 1.0) THEN (`mpg`) END) AS `mpg_vs`&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM `df`&lt;/span>
+&lt;span class="c1">#&amp;gt; GROUP BY `cyl`&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can also now use use &lt;code>x$y&lt;/code> to access nested fields:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">lazy_frame&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">())&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">z&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">y&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">z&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;SQL&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; SELECT `x`, `x`.`y`.`z` AS `z`&lt;/span>
+&lt;span class="c1">#&amp;gt; FROM `df`&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>As always, a big thank goes to the entire community who helped make this release of dbplyr a reality - I really appreciated all your bug reports, helpful comments, SQL suggestions, and pull requests!&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/alex-gable" target="_blank" rel="noopener">@alex-gable&lt;/a>,
+&lt;a href="https://github.com/blairj09" target="_blank" rel="noopener">@blairj09&lt;/a>,
+&lt;a href="https://github.com/carvalhomb" target="_blank" rel="noopener">@carvalhomb&lt;/a>,
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/colearendt" target="_blank" rel="noopener">@colearendt&lt;/a>,
+&lt;a href="https://github.com/DanielStay" target="_blank" rel="noopener">@DanielStay&lt;/a>,
+&lt;a href="https://github.com/davidchall" target="_blank" rel="noopener">@davidchall&lt;/a>,
+&lt;a href="https://github.com/dlindelof" target="_blank" rel="noopener">@dlindelof&lt;/a>,
+&lt;a href="https://github.com/edgararuiz" target="_blank" rel="noopener">@edgararuiz&lt;/a>,
+&lt;a href="https://github.com/FrancoisGuillem" target="_blank" rel="noopener">@FrancoisGuillem&lt;/a>,
+&lt;a href="https://github.com/FranGoitia" target="_blank" rel="noopener">@FranGoitia&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/imanuelcostigan" target="_blank" rel="noopener">@imanuelcostigan&lt;/a>,
+&lt;a href="https://github.com/JakeRuss" target="_blank" rel="noopener">@JakeRuss&lt;/a>,
+&lt;a href="https://github.com/javierluraschi" target="_blank" rel="noopener">@javierluraschi&lt;/a>,
+&lt;a href="https://github.com/jcfisher" target="_blank" rel="noopener">@jcfisher&lt;/a>,
+&lt;a href="https://github.com/jkylearmstrong" target="_blank" rel="noopener">@jkylearmstrong&lt;/a>,
+&lt;a href="https://github.com/JohnMount" target="_blank" rel="noopener">@JohnMount&lt;/a>,
+&lt;a href="https://github.com/jrisi256" target="_blank" rel="noopener">@jrisi256&lt;/a>,
+&lt;a href="https://github.com/jsekamane" target="_blank" rel="noopener">@jsekamane&lt;/a>,
+&lt;a href="https://github.com/klmedeiros" target="_blank" rel="noopener">@klmedeiros&lt;/a>,
+&lt;a href="https://github.com/leungi" target="_blank" rel="noopener">@leungi&lt;/a>,
+&lt;a href="https://github.com/Liubuntu" target="_blank" rel="noopener">@Liubuntu&lt;/a>,
+&lt;a href="https://github.com/lpatruno" target="_blank" rel="noopener">@lpatruno&lt;/a>,
+&lt;a href="https://github.com/lymanmark" target="_blank" rel="noopener">@lymanmark&lt;/a>,
+&lt;a href="https://github.com/mkearney" target="_blank" rel="noopener">@mkearney&lt;/a>,
+&lt;a href="https://github.com/mkirzon" target="_blank" rel="noopener">@mkirzon&lt;/a>,
+&lt;a href="https://github.com/mpettis" target="_blank" rel="noopener">@mpettis&lt;/a>,
+&lt;a href="https://github.com/mtoto" target="_blank" rel="noopener">@mtoto&lt;/a>,
+&lt;a href="https://github.com/N1h1l1sT" target="_blank" rel="noopener">@N1h1l1sT&lt;/a>,
+&lt;a href="https://github.com/nwstephens" target="_blank" rel="noopener">@nwstephens&lt;/a>,
+&lt;a href="https://github.com/QuLogic" target="_blank" rel="noopener">@QuLogic&lt;/a>,
+&lt;a href="https://github.com/r2evans" target="_blank" rel="noopener">@r2evans&lt;/a>,
+&lt;a href="https://github.com/rlh1994" target="_blank" rel="noopener">@rlh1994&lt;/a>,
+&lt;a href="https://github.com/shgoke" target="_blank" rel="noopener">@shgoke&lt;/a>,
+&lt;a href="https://github.com/tomauer" target="_blank" rel="noopener">@tomauer&lt;/a>, and
+&lt;a href="https://github.com/verajosemanuel" target="_blank" rel="noopener">@verajosemanuel&lt;/a>&lt;/p></description></item><item><title>bigrquery 1.1.0</title><link>https://www.tidyverse.org/blog/2019/02/bigrquery-1-1-0/</link><pubDate>Fri, 15 Feb 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/02/bigrquery-1-1-0/</guid><description>&lt;p>We&amp;rsquo;re delighted to announce that
+&lt;a href="https://bigrquery.r-dbi.org/" target="_blank" rel="noopener">bigrquery&lt;/a> 1.1.0 is now on CRAN. bigrquery makes it easy to work with data stored in
+&lt;a href="https://developers.google.com/bigquery/" target="_blank" rel="noopener">Google BigQuery&lt;/a>, a hosted database for big data. This is a minor release, with some improved type support, and SQL translation. For a complete list of updates, please see the
+&lt;a href="https://bigrquery.r-dbi.org/news/index.html#bigrquery-1-1-0" target="_blank" rel="noopener">Changelog&lt;/a>.&lt;/p>
+&lt;h2 id="improved-type-support">Improved type support
+&lt;a href="#improved-type-support">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> and the
+&lt;a href="https://www.rdocumentation.org/packages/DBI/versions/0.5-1/topics/dbConnect" target="_blank" rel="noopener">&lt;code>DBI::dbConnect&lt;/code>&lt;/a> method now have a &lt;code>bigint&lt;/code> argument, which governs how BigQuery integer columns are imported into R. As before, the default will be &lt;code>bigint = &amp;quot;integer&amp;quot;&lt;/code>. However, you can now set &lt;code>bigint = &amp;quot;integer64&amp;quot;&lt;/code> to import BigQuery integer columns as &lt;code>bit64::integer64&lt;/code> columns in R. This allows for values outside the range of integer (&lt;code>-2147483647&lt;/code> to &lt;code>2147483647&lt;/code>). Thanks to
+&lt;a href="https://github.com/rasmusab" target="_blank" rel="noopener">Rasmus Bååth&lt;/a> for implementing these changes.&lt;/p>
+&lt;p>&lt;code>bq_table_download()&lt;/code> now treats &lt;code>NUMERIC&lt;/code> columns in the same way as &lt;code>FLOAT&lt;/code> columns.&lt;/p>
+&lt;p>&lt;code>bq_table_upload()&lt;/code> now works with date-time (&lt;code>POSIXct&lt;/code>) variables. Unparseable date times return &lt;code>NA&lt;/code>.&lt;/p>
+&lt;h2 id="sql-translation">SQL translation
+&lt;a href="#sql-translation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>&lt;code>as.character()&lt;/code> now translates to &lt;code>SAFE_CAST(x AS STRING)&lt;/code>.&lt;/li>
+&lt;li>&lt;code>median()&lt;/code> now translates to &lt;code>APPROX_QUANTILES(x, 2)[SAFE_ORDINAL(2)]&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;h2 id="minor-fixes">Minor fixes
+&lt;a href="#minor-fixes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_refs.html" target="_blank" rel="noopener">&lt;code>bq_job()&lt;/code>&lt;/a> tracks location, so bigrquery now works painlessly with non-US/EU locations.&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thank you to everyone who contributed to this release:
+&lt;a href="https://github.com/414theodore" target="_blank" rel="noopener">@414theodore&lt;/a>,
+&lt;a href="https://github.com/ajh3000" target="_blank" rel="noopener">@ajh3000&lt;/a>,
+&lt;a href="https://github.com/AlekseyBuzmakov" target="_blank" rel="noopener">@AlekseyBuzmakov&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/byapparov" target="_blank" rel="noopener">@byapparov&lt;/a>,
+&lt;a href="https://github.com/ChrisJohnsonUMG" target="_blank" rel="noopener">@ChrisJohnsonUMG&lt;/a>,
+&lt;a href="https://github.com/cpcgoogle" target="_blank" rel="noopener">@cpcgoogle&lt;/a>,
+&lt;a href="https://github.com/dujm" target="_blank" rel="noopener">@dujm&lt;/a>,
+&lt;a href="https://github.com/eddelbuettel" target="_blank" rel="noopener">@eddelbuettel&lt;/a>,
+&lt;a href="https://github.com/edgararuiz" target="_blank" rel="noopener">@edgararuiz&lt;/a>,
+&lt;a href="https://github.com/everron" target="_blank" rel="noopener">@everron&lt;/a>,
+&lt;a href="https://github.com/guillaumed90" target="_blank" rel="noopener">@guillaumed90&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/Iuiu1234" target="_blank" rel="noopener">@Iuiu1234&lt;/a>,
+&lt;a href="https://github.com/izzetagoren" target="_blank" rel="noopener">@izzetagoren&lt;/a>,
+&lt;a href="https://github.com/j450h1" target="_blank" rel="noopener">@j450h1&lt;/a>,
+&lt;a href="https://github.com/jberninger" target="_blank" rel="noopener">@jberninger&lt;/a>,
+&lt;a href="https://github.com/jordanwebb10" target="_blank" rel="noopener">@jordanwebb10&lt;/a>,
+&lt;a href="https://github.com/jrecasens" target="_blank" rel="noopener">@jrecasens&lt;/a>,
+&lt;a href="https://github.com/KarimZaoui" target="_blank" rel="noopener">@KarimZaoui&lt;/a>,
+&lt;a href="https://github.com/ldanai" target="_blank" rel="noopener">@ldanai&lt;/a>,
+&lt;a href="https://github.com/paulsendavidjay" target="_blank" rel="noopener">@paulsendavidjay&lt;/a>,
+&lt;a href="https://github.com/ras44" target="_blank" rel="noopener">@ras44&lt;/a>,
+&lt;a href="https://github.com/rasmusab" target="_blank" rel="noopener">@rasmusab&lt;/a>,
+&lt;a href="https://github.com/Saikri5hna" target="_blank" rel="noopener">@Saikri5hna&lt;/a>,
+&lt;a href="https://github.com/selcukakbas" target="_blank" rel="noopener">@selcukakbas&lt;/a>,
+&lt;a href="https://github.com/SergeiMakarovWeb" target="_blank" rel="noopener">@SergeiMakarovWeb&lt;/a>,
+&lt;a href="https://github.com/skydavis435" target="_blank" rel="noopener">@skydavis435&lt;/a>,
+&lt;a href="https://github.com/tdsmith" target="_blank" rel="noopener">@tdsmith&lt;/a>,
+&lt;a href="https://github.com/tinoater" target="_blank" rel="noopener">@tinoater&lt;/a>,
+&lt;a href="https://github.com/tortorellij1" target="_blank" rel="noopener">@tortorellij1&lt;/a>,
+&lt;a href="https://github.com/valentinumbach" target="_blank" rel="noopener">@valentinumbach&lt;/a>, and
+&lt;a href="https://github.com/zacdav" target="_blank" rel="noopener">@zacdav&lt;/a>.&lt;/p></description></item><item><title>bigrquery 1.0.0</title><link>https://www.tidyverse.org/blog/2018/04/bigrquery-1-0-0/</link><pubDate>Tue, 24 Apr 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/04/bigrquery-1-0-0/</guid><description>
+&lt;p>I’m very excited to announce that bigrquery 1.0.0 is now on CRAN. This package makes it easy to work with data stored in &lt;a href="https://developers.google.com/bigquery/">Google BigQuery&lt;/a>, a hosted database for big data. The bigrquery package provides three levels of abstraction on top of BigQuery:&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>The low-level API provides thin wrappers over the underlying REST API. In
+this version, all the low-level functions start with &lt;code>bq_&lt;/code>, and mostly have
+the form &lt;code>bq_noun_verb()&lt;/code>. This level of abstraction is most appropriate if
+you’re familiar with the REST API and you want do something not supported in
+the higher-level APIs.&lt;/p>&lt;/li>
+&lt;li>&lt;p>The &lt;a href="http://www.r-dbi.org">DBI interface&lt;/a> wraps the low-level API and
+makes working with BigQuery like working with any other database system.
+This is the most convenient layer if you want to execute SQL queries in
+BigQuery or upload smaller amounts (i.e. &amp;lt;100 MB) of data.&lt;/p>&lt;/li>
+&lt;li>&lt;p>The &lt;a href="http://dbplyr.tidyverse.org/">dplyr interface&lt;/a> lets you treat BigQuery
+tables as if they are in-memory data frames. This is the most convenient
+layer if you don’t want to write SQL, but instead want dbplyr to write it
+for you.&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;p>Install it with:&lt;/p>
+&lt;pre class="r">&lt;code>install.packages(&amp;quot;bigrquery&amp;quot;)&lt;/code>&lt;/pre>
+&lt;p>Four big changes in this version of bigrquery are described in detail below:&lt;/p>
+&lt;ul>
+&lt;li>Support for repeated and nested fields.&lt;/li>
+&lt;li>Easier cross-dataset queries.&lt;/li>
+&lt;li>Greatly improved download speeds.&lt;/li>
+&lt;li>A new low-level API.&lt;/li>
+&lt;/ul>
+&lt;p>There are also many smaller improvements and bug fixes, as described in the &lt;a href="https://github.com/r-dbi/bigrquery/releases/tag/v1.0.0">release notes&lt;/a>.&lt;/p>
+&lt;div id="nested-and-repeated-fields" class="section level2">
+&lt;h2>Nested and repeated fields&lt;/h2>
+&lt;p>One of the neatest things about BigQuery is that it supports nested and repeated fields, which are also called structs (or records) and arrays. bigrquery now supports those types of fields, reading them into list-columns:&lt;/p>
+&lt;ul>
+&lt;li>Repeated values become list-columns containing vectors.&lt;/li>
+&lt;li>Nested values become list-columns containing named lists.&lt;/li>
+&lt;li>Repeated nested values become list-columns containing data frames.&lt;/li>
+&lt;/ul>
+&lt;p>The following code illustrates the output for the two most important types: an array, and an array of structs:&lt;/p>
+&lt;pre class="r">&lt;code>library(bigrquery)
+con &amp;lt;- DBI::dbConnect(bigquery(), project = bq_test_project())
+sql &amp;lt;- &amp;quot;SELECT
+[1, 2, 3] as list,
+[STRUCT(1 as a, &amp;#39;a&amp;#39; as b), STRUCT(2, &amp;#39;b&amp;#39;), STRUCT(3, &amp;#39;c&amp;#39;)] as df
+&amp;quot;
+out &amp;lt;- DBI::dbGetQuery(con, sql)
+#&amp;gt; Auto-refreshing stale OAuth token.
+out
+#&amp;gt; # A tibble: 1 x 2
+#&amp;gt; list df
+#&amp;gt; &amp;lt;list&amp;gt; &amp;lt;list&amp;gt;
+#&amp;gt; 1 &amp;lt;int [3]&amp;gt; &amp;lt;tibble [3 × 2]&amp;gt;
+out$list[[1]]
+#&amp;gt; [1] 1 2 3
+out$df[[1]]
+#&amp;gt; # A tibble: 3 x 2
+#&amp;gt; a b
+#&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt;
+#&amp;gt; 1 1 a
+#&amp;gt; 2 2 b
+#&amp;gt; 3 3 c&lt;/code>&lt;/pre>
+&lt;p>Note that results are now returned as tibbles, not data frames, because the base print method does not handle list columns well. If for some reason you do need a data frame, use &lt;code>as.data.frame()&lt;/code> to convert back.&lt;/p>
+&lt;p>This work has made me think a bunch about list-colums and df-columns (which might be a better fit for non-repeated nested fields). The germination of these ideas is likely to have widespread (if subtle) infuence throughout the tidyverse, with initial impacts most likely to be felt in &lt;a href="http://tidyr.tidyverse.org/">tidyr&lt;/a>.&lt;/p>
+&lt;/div>
+&lt;div id="cross-dataset-queries" class="section level2">
+&lt;h2>Cross-dataset queries&lt;/h2>
+&lt;p>In the previous version of bigrquery it was difficult to perform queries across datasets because &lt;code>dbConnect()&lt;/code> forced you to specify a &lt;code>dataset&lt;/code> and only allowed you to reference tables within that dataset. Now the dataset is optional (the only required argument to &lt;code>DBI::dbConnect()&lt;/code> is a project to bill) and both DBI and dplyr interfaces accept qualified table names: either &lt;code>dataset.table&lt;/code> or &lt;code>project.dataset.table&lt;/code>.&lt;/p>
+&lt;p>The following example demonstrates with my test project, which contains a &lt;code>basedata&lt;/code> dataset containing the &lt;code>mtcars&lt;/code> table:&lt;/p>
+&lt;pre class="r">&lt;code>library(bigrquery)
+con &amp;lt;- DBI::dbConnect(bigquery(), project = bq_test_project())
+mtcars1 &amp;lt;- DBI::dbReadTable(con, &amp;quot;basedata.mtcars&amp;quot;)
+head(mtcars1)
+#&amp;gt; # A tibble: 6 x 11
+#&amp;gt; mpg cyl disp hp drat wt qsec vs am gear carb
+#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+#&amp;gt; 1 24.4 4. 147. 62. 3.69 3.19 20.0 1. 0. 4. 2.
+#&amp;gt; 2 21.5 4. 120. 97. 3.70 2.46 20.0 1. 0. 3. 1.
+#&amp;gt; 3 18.1 6. 225. 105. 2.76 3.46 20.2 1. 0. 3. 1.
+#&amp;gt; 4 21.4 6. 258. 110. 3.08 3.22 19.4 1. 0. 3. 1.
+#&amp;gt; 5 15.2 8. 276. 180. 3.07 3.78 18.0 0. 0. 3. 3.
+#&amp;gt; 6 17.3 8. 276. 180. 3.07 3.73 17.6 0. 0. 3. 3.
+mtcars2 &amp;lt;- dplyr::tbl(con, &amp;quot;basedata.mtcars&amp;quot;)
+head(mtcars2)
+#&amp;gt; # Source: lazy query [?? x 11]
+#&amp;gt; # Database: BigQueryConnection
+#&amp;gt; mpg cyl disp hp drat wt qsec vs am gear carb
+#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+#&amp;gt; 1 24.4 4. 147. 62. 3.69 3.19 20.0 1. 0. 4. 2.
+#&amp;gt; 2 21.5 4. 120. 97. 3.70 2.46 20.0 1. 0. 3. 1.
+#&amp;gt; 3 18.1 6. 225. 105. 2.76 3.46 20.2 1. 0. 3. 1.
+#&amp;gt; 4 21.4 6. 258. 110. 3.08 3.22 19.4 1. 0. 3. 1.
+#&amp;gt; 5 15.2 8. 276. 180. 3.07 3.78 18.0 0. 0. 3. 3.
+#&amp;gt; 6 17.3 8. 276. 180. 3.07 3.73 17.6 0. 0. 3. 3.&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="improved-download-speeds" class="section level2">
+&lt;h2>Improved download speeds&lt;/h2>
+&lt;p>The system for downloading data from BigQuery into R has been rewritten from the ground up to considerably improve performance:&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>By default, data is downloaded from BigQuery in pages of 10,000 rows.
+Previously, bigrquery downloaded then parsed each page. Now, bigrquery
+downloads all pages, then parses all pages. This means that you’ll now see
+two progress bars: one for downloading JSON from BigQuery and one for parsing
+that JSON into a data frame.&lt;/p>&lt;/li>
+&lt;li>&lt;p>Because all pages are downloaded in a single pass, we can now download in
+parallel, using up to 6 simultaneous connections by default. This generally
+doesn’t result in a six-fold speed up, but should at least double download
+speed.&lt;/p>&lt;/li>
+&lt;li>&lt;p>The parsing code has been rewritten in C++. This eliminates several expensive
+intermediate computations, and means that bigrquery no longer requires
+&lt;a href="http://readr.tidyverse.org/">readr&lt;/a>.&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;p>All up, I can now download the first million rows of &lt;code>publicdata.samples.natality&lt;/code> in about a minute, about 8x faster than the previous version. This data frame takes up 170 MB of space in BigQuery and 140 MB of memory in R, so a minute to download doesn’t seem unreasonable. The bottleneck for loading BigQuery data is now parsing BigQuery’s JSON format, which is difficult to optimise further because I’m already using the fastest C++ JSON parser, &lt;a href="http://rapidjson.org">RapidJson&lt;/a>. If this is still too slow (because you download a lot of data), see &lt;code>?bq_table_download&lt;/code> for an alternative approach.&lt;/p>
+&lt;/div>
+&lt;div id="low-level-api" class="section level2">
+&lt;h2>Low-level API&lt;/h2>
+&lt;p>The low-level API has been completely overhauled to make it easier to use. The primary motivation was to make bigrquery development more enjoyable for me, but it should also be helpful to you when you need to go outside of the features provided by the higher-level DBI and dplyr interfaces.&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>&lt;strong>Consistent naming scheme&lt;/strong>:
+All API functions now have the form &lt;code>bq_object_verb()&lt;/code>, e.g.
+&lt;code>bq_table_create()&lt;/code>, or &lt;code>bq_dataset_delete()&lt;/code>.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;strong>S3 classes&lt;/strong>:
+&lt;code>bq_table()&lt;/code>, &lt;code>bq_dataset()&lt;/code>, &lt;code>bq_job()&lt;/code>, &lt;code>bq_field()&lt;/code> and &lt;code>bq_fields()&lt;/code>
+constructors create S3 objects corresponding to important BigQuery objects. T
+hese are paired with &lt;code>as_&lt;/code> coercion functions and used throughout the new API.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;strong>Easier local testing&lt;/strong>:
+New &lt;code>bq_test_project()&lt;/code> and &lt;code>bq_test_dataset()&lt;/code> make it easier to run
+bigrquery tests locally. To run the tests yourself, you need to create a
+BigQuery project, and then follow the instructions in &lt;code>?bq_test_project&lt;/code>.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;strong>More efficient data transfer&lt;/strong>:
+The new API makes extensive use of the &lt;code>fields&lt;/code> query parameter, ensuring
+that functions only download data that they actually use.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;strong>Tighter GCS connections&lt;/strong>:
+New &lt;code>bq_table_load()&lt;/code> loads data from a Google Cloud Storage URI, pairing
+with &lt;code>bq_table_save()&lt;/code> which saves data to a GCS URI.&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;p>The old API has been soft-deprecated - it will continue to work, but no further development will occur (including bug fixes). It will be formally deprecated in the next version, and then removed in the version after that.&lt;/p>
+&lt;/div>
+&lt;div id="acknowledgements" class="section level2">
+&lt;h2>Acknowledgements&lt;/h2>
+&lt;p>A big thanks goes out to all 41 users who contributed issues, pull requests, and comments since the last release: &lt;a href="https://github.com/alex-danilin">@alex-danilin&lt;/a>, &lt;a href="https://github.com/aschwartzSGI">@aschwartzSGI&lt;/a>, &lt;a href="https://github.com/aumdavis">@aumdavis&lt;/a>, &lt;a href="https://github.com/barnettjacob">@barnettjacob&lt;/a>, &lt;a href="https://github.com/batpigandme">@batpigandme&lt;/a>, &lt;a href="https://github.com/blakeyc">@blakeyc&lt;/a>, &lt;a href="https://github.com/bulam">@bulam&lt;/a>, &lt;a href="https://github.com/byapparov">@byapparov&lt;/a>, &lt;a href="https://github.com/c3212218">@c3212218&lt;/a>, &lt;a href="https://github.com/craigcitro">@craigcitro&lt;/a>, &lt;a href="https://github.com/czeildi">@czeildi&lt;/a>, &lt;a href="https://github.com/dan-booth">@dan-booth&lt;/a>, &lt;a href="https://github.com/edgararuiz">@edgararuiz&lt;/a>, &lt;a href="https://github.com/EricGoldsmith">@EricGoldsmith&lt;/a>, &lt;a href="https://github.com/everron">@everron&lt;/a>, &lt;a href="https://github.com/haavardw">@haavardw&lt;/a>, &lt;a href="https://github.com/hadley">@hadley&lt;/a>, &lt;a href="https://github.com/hidekoji">@hidekoji&lt;/a>, &lt;a href="https://github.com/inkrement">@inkrement&lt;/a>, &lt;a href="https://github.com/j450h1">@j450h1&lt;/a>, &lt;a href="https://github.com/jarodmeng">@jarodmeng&lt;/a>, &lt;a href="https://github.com/jennybc">@jennybc&lt;/a>, &lt;a href="https://github.com/JHowix">@JHowix&lt;/a>, &lt;a href="https://github.com/krlmlr">@krlmlr&lt;/a>, &lt;a href="https://github.com/ldanai">@ldanai&lt;/a>, &lt;a href="https://github.com/leggitta">@leggitta&lt;/a>, &lt;a href="https://github.com/michaelquinn32">@michaelquinn32&lt;/a>, &lt;a href="https://github.com/mpancia">@mpancia&lt;/a>, &lt;a href="https://github.com/ned2">@ned2&lt;/a>, &lt;a href="https://github.com/pcejrowski">@pcejrowski&lt;/a>, &lt;a href="https://github.com/Praxiteles">@Praxiteles&lt;/a>, &lt;a href="https://github.com/ras44">@ras44&lt;/a>, &lt;a href="https://github.com/realAkhmed">@realAkhmed&lt;/a>, &lt;a href="https://github.com/robincrlee">@robincrlee&lt;/a>, &lt;a href="https://github.com/selesnow">@selesnow&lt;/a>, &lt;a href="https://github.com/TerryZhangHL">@TerryZhangHL&lt;/a>, &lt;a href="https://github.com/VictArt">@VictArt&lt;/a>, &lt;a href="https://github.com/vivshume">@vivshume&lt;/a>, &lt;a href="https://github.com/zippeurfou">@zippeurfou&lt;/a>, &lt;a href="https://github.com/zkostitsyn">@zkostitsyn&lt;/a>, and &lt;a href="https://github.com/Zsedo">@Zsedo&lt;/a>&lt;/p>
+&lt;/div></description></item><item><title>dbplyr 1.2.0</title><link>https://www.tidyverse.org/blog/2018/01/dbplyr-1-2/</link><pubDate>Mon, 08 Jan 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/01/dbplyr-1-2/</guid><description>
+&lt;p>We are very excited to announce that &lt;a href="http://dbplyr.tidyverse.org/">dbplyr 1.2.0&lt;/a> is now available on CRAN! &lt;strong>dbplyr&lt;/strong> is the database backend for dplyr. It interacts with databases directly by translating dplyr code into SQL queries. dbplyr is part of an expanding ecosystem of packages meant to help analysts access and analyze data in databases. To learn more, visit our website dedicated to &lt;em>all things R and databases&lt;/em>: &lt;a href="http://db.rstudio.com/" class="uri">http://db.rstudio.com/&lt;/a>&lt;/p>
+&lt;p>Install the latest version of dbplyr with:&lt;/p>
+&lt;pre class="r">&lt;code>install.packages(&amp;quot;dbplyr&amp;quot;)&lt;/code>&lt;/pre>
+&lt;div id="whats-new" class="section level2">
+&lt;h2>What’s new?&lt;/h2>
+&lt;p>Here are some highlights of new features and fixes found in this release. To see the full details please refer to the &lt;a href="https://github.com/tidyverse/dbplyr/blob/master/NEWS.md#dbplyr-120">release notes&lt;/a>:&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>New custom translation for &lt;strong>Microsoft Access&lt;/strong> and &lt;a href="http://db.rstudio.com/databases/teradata/">Teradata&lt;/a>&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;a href="http://db.rstudio.com/databases/redshift/">Amazon Redshift&lt;/a> connections now point to the PostgreSQL translation.&lt;/p>&lt;/li>
+&lt;li>Adds support for &lt;strong>two new database R packages&lt;/strong>. These new packages are fully &lt;a href="http://db.rstudio.com/dbi/">DBI&lt;/a>-compliant and tested with &lt;a href="https://cran.r-project.org/web/packages/DBItest/index.html">DBItest&lt;/a>. We recommend to use these instead of older packages:
+&lt;ol style="list-style-type: decimal">
+&lt;li>&lt;a href="https://cran.r-project.org/web/packages/RMariaDB/index.html">RMariaDB&lt;/a>, use in favor of RMySQL&lt;/li>
+&lt;li>&lt;a href="https://cran.r-project.org/web/packages/RPostgres/index.html">RPostgres&lt;/a>, use in favor of RPostgreSQL&lt;/li>
+&lt;/ol>&lt;/li>
+&lt;li>&lt;a href="https://cran.r-project.org/web/packages/ROracle/index.html">ROracle&lt;/a> connections now point to the &lt;a href="http://db.rstudio.com/databases/oracle/">Oracle&lt;/a> translation.&lt;/li>
+&lt;li>&lt;p>Cache query results using &lt;code>copy_to&lt;/code>. This feature is very useful because after cached, the results of a long running query can be iteratively analyzed without having to wait for the same base query to run over and over.&lt;/p>&lt;/li>
+&lt;li>&lt;p>stringr functions: &lt;code>str_length()&lt;/code>, &lt;code>str_to_upper()&lt;/code>, &lt;code>str_to_lower()&lt;/code>, &lt;code>str_replace_all()&lt;/code>, &lt;code>str_detect()&lt;/code>, and &lt;code>str_trim()&lt;/code> are now supported.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;code>in_schema()&lt;/code> should now work in more places, particularly in &lt;code>copy_to()&lt;/code>&lt;/p>&lt;/li>
+&lt;li>&lt;p>For those who need to extract the resulting SQL query from dplyr code, there is now a new function called &lt;code>remote_query()&lt;/code>. Unlike &lt;code>show_query()&lt;/code>, &lt;code>remote_query()&lt;/code> returns a character object, and unlike &lt;code>sql_render()&lt;/code>, the new function automatically detects the type of database attached to the given dplyr code and translates accordingly. There are four additional functions that provide a standard API to get metadata about a remote &lt;code>tbl&lt;/code>, these are: &lt;code>remote_name()&lt;/code>, &lt;code>remote_con()&lt;/code>, &lt;code>remote_src()&lt;/code>, and &lt;code>remote_query_plan()&lt;/code>.&lt;/p>&lt;/li>
+&lt;li>&lt;p>Adds support for temporary tables in Microsoft SQL Server. Additionally, the issue of certain operators working only in &lt;code>mutate()&lt;/code> or only in &lt;code>filter()&lt;/code> has been resolved.&lt;/p>&lt;/li>
+&lt;li>&lt;p>Two new functions for developers: &lt;code>sql_aggregate()&lt;/code> and &lt;code>win_aggregate()&lt;/code>. They are for generating SQL and windowed SQL functions for aggregates.&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;/div>
+&lt;div id="caching-results" class="section level2">
+&lt;h2>Caching results&lt;/h2>
+&lt;p>The &lt;code>copy_to()&lt;/code> function is now able to &lt;strong>cache the results of a set of dplyr database transformations&lt;/strong>. An additional advantage is that &lt;code>copy_to()&lt;/code> uses the database to run and cache the data, so there is no data being transmitted back to R. For this feature to work, the user needs sufficient rights to create temporary tables in the database.&lt;/p>
+&lt;pre class="r">&lt;code>con &amp;lt;- DBI::dbConnect(RSQLite::SQLite(), &amp;quot;:memory:&amp;quot;)
+mtcars_db &amp;lt;- copy_to(con, rownames_to_column(mtcars), &amp;quot;mtcars&amp;quot;)
+only_auto &amp;lt;- mtcars_db %&amp;gt;%
+filter(am == 1) %&amp;gt;%
+select(mpg, cyl, am)
+auto &amp;lt;- copy_to(con, only_auto, &amp;quot;auto&amp;quot;) # New in dbplyr 1.2.0
+head(auto)
+#&amp;gt; # Source: lazy query [?? x 3]
+#&amp;gt; # Database: sqlite 3.19.3 [:memory:]
+#&amp;gt; mpg cyl am
+#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+#&amp;gt; 1 21.0 6.00 1.00
+#&amp;gt; 2 21.0 6.00 1.00
+#&amp;gt; 3 22.8 4.00 1.00
+#&amp;gt; 4 32.4 4.00 1.00
+#&amp;gt; 5 30.4 4.00 1.00
+#&amp;gt; 6 33.9 4.00 1.00&lt;/code>&lt;/pre>
+&lt;p>If the set of dplyr transformations need to be cached to a &lt;strong>different database&lt;/strong>, &lt;code>copy_to()&lt;/code> is smart enough to download the data into memory in R, and then uploads the data to the target database.&lt;/p>
+&lt;pre class="r">&lt;code>second_con &amp;lt;- DBI::dbConnect(RSQLite::SQLite(), &amp;quot;:memory:&amp;quot;)
+second_auto &amp;lt;- copy_to(second_con, only_auto, &amp;quot;auto&amp;quot;) # New in dbplyr 1.2.0
+head(second_auto)
+#&amp;gt; # Source: lazy query [?? x 3]
+#&amp;gt; # Database: sqlite 3.19.3 [:memory:]
+#&amp;gt; mpg cyl am
+#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+#&amp;gt; 1 21.0 6.00 1.00
+#&amp;gt; 2 21.0 6.00 1.00
+#&amp;gt; 3 22.8 4.00 1.00
+#&amp;gt; 4 32.4 4.00 1.00
+#&amp;gt; 5 30.4 4.00 1.00
+#&amp;gt; 6 33.9 4.00 1.00&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="stringr-functions" class="section level2">
+&lt;h2>stringr functions&lt;/h2>
+&lt;p>Six stringr functions are now supported. Regular expression support varies from database to database, but most simple regular expressions should be ok. The functions are:&lt;/p>
+&lt;ol style="list-style-type: decimal">
+&lt;li>&lt;code>str_length()&lt;/code>&lt;/li>
+&lt;li>&lt;code>str_to_upper()&lt;/code>&lt;/li>
+&lt;li>&lt;code>str_to_lower()&lt;/code>&lt;/li>
+&lt;li>&lt;code>str_replace_all()&lt;/code>&lt;/li>
+&lt;li>&lt;code>str_detect()&lt;/code>&lt;/li>
+&lt;li>&lt;code>str_trim()&lt;/code>&lt;/li>
+&lt;/ol>
+&lt;pre class="r">&lt;code>tbl(con, &amp;quot;mtcars&amp;quot;) %&amp;gt;%
+head() %&amp;gt;%
+select(rowname) %&amp;gt;%
+mutate(
+s1 = str_length(rowname), # New in dbplyr 1.2.0
+s2 = str_to_upper(rowname), # New in dbplyr 1.2.0
+s3 = str_to_lower(rowname), # New in dbplyr 1.2.0
+s4 = str_replace_all(rowname, &amp;quot;M&amp;quot;, &amp;quot;X&amp;quot;), # New in dbplyr 1.2.0
+s5 = str_detect(rowname, &amp;quot;M&amp;quot;), # New in dbplyr 1.2.0
+s6 = str_trim(rowname) # New in dbplyr 1.2.0
+)
+#&amp;gt; # Source: lazy query [?? x 7]
+#&amp;gt; # Database: sqlite 3.19.3 [:memory:]
+#&amp;gt; rowname s1 s2 s3 s4 s5 s6
+#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt;
+#&amp;gt; 1 Mazda RX4 9 MAZDA RX4 mazda r~ Xazda ~ 0 Mazda ~
+#&amp;gt; 2 Mazda RX4 Wag 13 MAZDA RX4 WAG mazda r~ Xazda ~ 0 Mazda ~
+#&amp;gt; 3 Datsun 710 10 DATSUN 710 datsun ~ Datsun~ 0 Datsun~
+#&amp;gt; 4 Hornet 4 Drive 14 HORNET 4 DRIVE hornet ~ Hornet~ 0 Hornet~
+#&amp;gt; 5 Hornet Sportabout 17 HORNET SPORTABOUT hornet ~ Hornet~ 0 Hornet~
+#&amp;gt; 6 Valiant 7 VALIANT valiant Valiant 0 Valiant&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="contributors" class="section level2">
+&lt;h2>Contributors&lt;/h2>
+&lt;p>A big thanks goes to those who made this release possible by contributing code or documentation: &lt;a href="https://github.com/DavisVaughan">@DavisVaughan&lt;/a>, &lt;a href="https://github.com/baileych">@baileych&lt;/a>, &lt;a href="https://github.com/Hong-Revo">@Hong-Revo&lt;/a>, &lt;a href="https://github.com/cwarden">@cwarden&lt;/a>, &lt;a href="https://github.com/zozlak">@zozlak&lt;/a>, &lt;a href="https://github.com/denismaciel">@denismaciel&lt;/a>, &lt;a href="https://github.com/jonassundman">@jonassundman&lt;/a>, &lt;a href="https://github.com/wibeasley">@wibeasley&lt;/a>, &lt;a href="https://github.com/mungojam">@mungojam&lt;/a>, &lt;a href="https://github.com/hoxo-m">@hoxo-m&lt;/a>, &lt;a href="https://github.com/dpprdan">@dpprdan&lt;/a>,&lt;a href="https://github.com/jimhester">@jimhester&lt;/a>, &lt;a href="https://github.com/krlmlr">@krlmlr&lt;/a>, and &lt;a href="https://github.com/javierluraschi">@javierluraschi&lt;/a>. Also, a thank you to those who helped up improve this package by suggesting features and reporting issues: &lt;a href="https://github.com/drf5n">@drf5n&lt;/a>, &lt;a href="https://github.com/larspijnappel">@larspijnappel&lt;/a>, &lt;a href="https://github.com/lbakerIsazi">@lbakerIsazi&lt;/a>, &lt;a href="https://github.com/mtmorgan">@mtmorgan&lt;/a>, &lt;a href="https://github.com/refik">@refik&lt;/a>, &lt;a href="https://github.com/sicarul">@sicarul&lt;/a>, and &lt;a href="https://github.com/vitallish">@vitallish&lt;/a>&lt;/p>
+&lt;/div></description></item></channel></rss>

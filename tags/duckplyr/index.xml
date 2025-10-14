@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>duckplyr | Tidyverse</title><link>https://www.tidyverse.org/tags/duckplyr/</link><atom:link href="https://www.tidyverse.org/tags/duckplyr/index.xml" rel="self" type="application/rss+xml"/><description>duckplyr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 19 Jun 2025 00:00:00 +0000</lastBuildDate><item><title>duckplyr fully joins the tidyverse!</title><link>https://www.tidyverse.org/blog/2025/06/duckplyr-1-1-0/</link><pubDate>Thu, 19 Jun 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/06/duckplyr-1-1-0/</guid><description>&lt;p>We&amp;rsquo;re well chuffed to announce the release of
+&lt;a href="https://duckplyr.tidyverse.org" target="_blank" rel="noopener">duckplyr&lt;/a> 1.1.0. This is a dplyr backend powered by
+&lt;a href="https://duckdb.org/" target="_blank" rel="noopener">DuckDB&lt;/a>, a fast in-memory analytical database system&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>. duckplyr uses the power of DuckDB for impressive performance where it can, and seemlessly falls back to R where it can&amp;rsquo;t. You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"duckplyr"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This article shows how duckplyr can be used instead of dplyr, explain how you can help improve the package, and share a selection of further resources.&lt;/p>
+&lt;h2 id="a-drop-in-replacement-for-dplyr">A drop-in replacement for dplyr
+&lt;a href="#a-drop-in-replacement-for-dplyr">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Imagine you have to wrangle a huge dataset, like this one from the
+&lt;a href="https://duckdb.org/2024/04/02/duckplyr.html#benchmark-tpc-h-q1" target="_blank" rel="noopener">TPC-H benchmark&lt;/a>, a famous database benchmarking dataset.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>lineitem_tbl&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>duckdb&lt;/span>&lt;span class='nf'>:::&lt;/span>&lt;span class='nf'>sql&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"INSTALL tpch; LOAD tpch; CALL dbgen(sf=1); FROM lineitem;"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>lineitem_tbl&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>tibble&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://tibble.tidyverse.org/reference/as_tibble.html'>as_tibble&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>lineitem_tbl&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>dplyr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://pillar.r-lib.org/reference/glimpse.html'>glimpse&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>lineitem_tbl&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Rows: 6,001,215&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Columns: 16&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_orderkey &lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 1&lt;span style='color: #555555;'>, &lt;/span>1&lt;span style='color: #555555;'>, &lt;/span>1&lt;span style='color: #555555;'>, &lt;/span>1&lt;span style='color: #555555;'>, &lt;/span>1&lt;span style='color: #555555;'>, &lt;/span>1&lt;span style='color: #555555;'>, &lt;/span>2&lt;span style='color: #555555;'>, &lt;/span>3&lt;span style='color: #555555;'>, &lt;/span>3&lt;span style='color: #555555;'>, &lt;/span>3&lt;span style='color: #555555;'>, &lt;/span>3&lt;span style='color: #555555;'>, &lt;/span>3&lt;span style='color: #555555;'>, &lt;/span>3&lt;span style='color: #555555;'>, &lt;/span>4&lt;span style='color: #555555;'>, &lt;/span>5&lt;span style='color: #555555;'>, &lt;/span>5&lt;span style='color: #555555;'>, &lt;/span>5&lt;span style='color: #555555;'>, &lt;/span>6&lt;span style='color: #555555;'>, &lt;/span>…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_partkey &lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 155190&lt;span style='color: #555555;'>, &lt;/span>67310&lt;span style='color: #555555;'>, &lt;/span>63700&lt;span style='color: #555555;'>, &lt;/span>2132&lt;span style='color: #555555;'>, &lt;/span>24027&lt;span style='color: #555555;'>, &lt;/span>15635&lt;span style='color: #555555;'>, &lt;/span>106170&lt;span style='color: #555555;'>, &lt;/span>4297…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_suppkey &lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 7706&lt;span style='color: #555555;'>, &lt;/span>7311&lt;span style='color: #555555;'>, &lt;/span>3701&lt;span style='color: #555555;'>, &lt;/span>4633&lt;span style='color: #555555;'>, &lt;/span>1534&lt;span style='color: #555555;'>, &lt;/span>638&lt;span style='color: #555555;'>, &lt;/span>1191&lt;span style='color: #555555;'>, &lt;/span>1798&lt;span style='color: #555555;'>, &lt;/span>6540&lt;span style='color: #555555;'>, &lt;/span>3…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_linenumber &lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 1&lt;span style='color: #555555;'>, &lt;/span>2&lt;span style='color: #555555;'>, &lt;/span>3&lt;span style='color: #555555;'>, &lt;/span>4&lt;span style='color: #555555;'>, &lt;/span>5&lt;span style='color: #555555;'>, &lt;/span>6&lt;span style='color: #555555;'>, &lt;/span>1&lt;span style='color: #555555;'>, &lt;/span>1&lt;span style='color: #555555;'>, &lt;/span>2&lt;span style='color: #555555;'>, &lt;/span>3&lt;span style='color: #555555;'>, &lt;/span>4&lt;span style='color: #555555;'>, &lt;/span>5&lt;span style='color: #555555;'>, &lt;/span>6&lt;span style='color: #555555;'>, &lt;/span>1&lt;span style='color: #555555;'>, &lt;/span>1&lt;span style='color: #555555;'>, &lt;/span>2&lt;span style='color: #555555;'>, &lt;/span>3&lt;span style='color: #555555;'>, &lt;/span>1&lt;span style='color: #555555;'>, &lt;/span>…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_quantity &lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 17&lt;span style='color: #555555;'>, &lt;/span>36&lt;span style='color: #555555;'>, &lt;/span>8&lt;span style='color: #555555;'>, &lt;/span>28&lt;span style='color: #555555;'>, &lt;/span>24&lt;span style='color: #555555;'>, &lt;/span>32&lt;span style='color: #555555;'>, &lt;/span>38&lt;span style='color: #555555;'>, &lt;/span>45&lt;span style='color: #555555;'>, &lt;/span>49&lt;span style='color: #555555;'>, &lt;/span>27&lt;span style='color: #555555;'>, &lt;/span>2&lt;span style='color: #555555;'>, &lt;/span>28&lt;span style='color: #555555;'>, &lt;/span>26&lt;span style='color: #555555;'>, &lt;/span>30&lt;span style='color: #555555;'>, &lt;/span>…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_extendedprice&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 21168.23&lt;span style='color: #555555;'>, &lt;/span>45983.16&lt;span style='color: #555555;'>, &lt;/span>13309.60&lt;span style='color: #555555;'>, &lt;/span>28955.64&lt;span style='color: #555555;'>, &lt;/span>22824.48&lt;span style='color: #555555;'>, &lt;/span>4962…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_discount &lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 0.04&lt;span style='color: #555555;'>, &lt;/span>0.09&lt;span style='color: #555555;'>, &lt;/span>0.10&lt;span style='color: #555555;'>, &lt;/span>0.09&lt;span style='color: #555555;'>, &lt;/span>0.10&lt;span style='color: #555555;'>, &lt;/span>0.07&lt;span style='color: #555555;'>, &lt;/span>0.00&lt;span style='color: #555555;'>, &lt;/span>0.06&lt;span style='color: #555555;'>, &lt;/span>0.10&lt;span style='color: #555555;'>, &lt;/span>…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_tax &lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 0.02&lt;span style='color: #555555;'>, &lt;/span>0.06&lt;span style='color: #555555;'>, &lt;/span>0.02&lt;span style='color: #555555;'>, &lt;/span>0.06&lt;span style='color: #555555;'>, &lt;/span>0.04&lt;span style='color: #555555;'>, &lt;/span>0.02&lt;span style='color: #555555;'>, &lt;/span>0.05&lt;span style='color: #555555;'>, &lt;/span>0.00&lt;span style='color: #555555;'>, &lt;/span>0.00&lt;span style='color: #555555;'>, &lt;/span>…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_returnflag &lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> "N"&lt;span style='color: #555555;'>, &lt;/span>"N"&lt;span style='color: #555555;'>, &lt;/span>"N"&lt;span style='color: #555555;'>, &lt;/span>"N"&lt;span style='color: #555555;'>, &lt;/span>"N"&lt;span style='color: #555555;'>, &lt;/span>"N"&lt;span style='color: #555555;'>, &lt;/span>"N"&lt;span style='color: #555555;'>, &lt;/span>"R"&lt;span style='color: #555555;'>, &lt;/span>"R"&lt;span style='color: #555555;'>, &lt;/span>"A"&lt;span style='color: #555555;'>, &lt;/span>"A"&lt;span style='color: #555555;'>,&lt;/span>…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_linestatus &lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> "O"&lt;span style='color: #555555;'>, &lt;/span>"O"&lt;span style='color: #555555;'>, &lt;/span>"O"&lt;span style='color: #555555;'>, &lt;/span>"O"&lt;span style='color: #555555;'>, &lt;/span>"O"&lt;span style='color: #555555;'>, &lt;/span>"O"&lt;span style='color: #555555;'>, &lt;/span>"O"&lt;span style='color: #555555;'>, &lt;/span>"F"&lt;span style='color: #555555;'>, &lt;/span>"F"&lt;span style='color: #555555;'>, &lt;/span>"F"&lt;span style='color: #555555;'>, &lt;/span>"F"&lt;span style='color: #555555;'>,&lt;/span>…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_shipdate &lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;date&amp;gt;&lt;/span> 1996-03-13&lt;span style='color: #555555;'>, &lt;/span>1996-04-12&lt;span style='color: #555555;'>, &lt;/span>1996-01-29&lt;span style='color: #555555;'>, &lt;/span>1996-04-21&lt;span style='color: #555555;'>, &lt;/span>1996-…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_commitdate &lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;date&amp;gt;&lt;/span> 1996-02-12&lt;span style='color: #555555;'>, &lt;/span>1996-02-28&lt;span style='color: #555555;'>, &lt;/span>1996-03-05&lt;span style='color: #555555;'>, &lt;/span>1996-03-30&lt;span style='color: #555555;'>, &lt;/span>1996-…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_receiptdate &lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;date&amp;gt;&lt;/span> 1996-03-22&lt;span style='color: #555555;'>, &lt;/span>1996-04-20&lt;span style='color: #555555;'>, &lt;/span>1996-01-31&lt;span style='color: #555555;'>, &lt;/span>1996-05-16&lt;span style='color: #555555;'>, &lt;/span>1996-…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_shipinstruct &lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> "DELIVER IN PERSON"&lt;span style='color: #555555;'>, &lt;/span>"TAKE BACK RETURN"&lt;span style='color: #555555;'>, &lt;/span>"TAKE BACK RE…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_shipmode &lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> "TRUCK"&lt;span style='color: #555555;'>, &lt;/span>"MAIL"&lt;span style='color: #555555;'>, &lt;/span>"REG AIR"&lt;span style='color: #555555;'>, &lt;/span>"AIR"&lt;span style='color: #555555;'>, &lt;/span>"FOB"&lt;span style='color: #555555;'>, &lt;/span>"MAIL"&lt;span style='color: #555555;'>, &lt;/span>"RAI…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ &lt;span style='font-weight: bold;'>l_comment &lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> "to beans x-ray carefull"&lt;span style='color: #555555;'>, &lt;/span>" according to the final fo…&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>To work with this in duckplyr instead of dplyr, all you need to do is load duckplyr:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://duckplyr.tidyverse.org'>duckplyr&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Loading required package: dplyr&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; The &lt;span style='color: #0000BB;'>duckplyr&lt;/span> package is configured to fall back to &lt;span style='color: #0000BB;'>dplyr&lt;/span> when it encounters an incompatibility.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Fallback events can be collected and uploaded for analysis to guide future development. By&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; default, data will be collected but no data will be uploaded.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> Automatic fallback uploading is not controlled and therefore disabled, see&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; `?duckplyr::fallback()`.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> Number of reports ready for upload: &lt;span style='font-weight: bold;'>4&lt;/span>.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; → Review with `duckplyr::fallback_review()`, upload with `duckplyr::fallback_upload()`.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> &lt;span style='color: #555555;'>Configure automatic uploading with `duckplyr::fallback_config()`.&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> Overwriting &lt;span style='color: #0000BB;'>dplyr&lt;/span> methods with &lt;span style='color: #0000BB;'>duckplyr&lt;/span> methods.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> Turn off with `duckplyr::methods_restore()`.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Now we can express the well-known (at least in the database community!) &amp;ldquo;TPC-H benchmark query 1&amp;rdquo; in dplyr syntax and execute it in DuckDB via duckplyr.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>tpch_dplyr&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>lineitem&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>lineitem&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/filter.html'>filter&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>l_shipdate&lt;/span> &lt;span class='o'>&amp;lt;=&lt;/span> &lt;span class='o'>!&lt;/span>&lt;span class='o'>!&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/as.Date.html'>as.Date&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"1998-09-02"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> sum_qty &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sum.html'>sum&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>l_quantity&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> sum_base_price &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sum.html'>sum&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>l_extendedprice&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> sum_disc_price &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sum.html'>sum&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>l_extendedprice&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span> &lt;span class='o'>-&lt;/span> &lt;span class='nv'>l_discount&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> sum_charge &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sum.html'>sum&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>l_extendedprice&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span> &lt;span class='o'>-&lt;/span> &lt;span class='nv'>l_discount&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nv'>l_tax&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> avg_qty &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/mean.html'>mean&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>l_quantity&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> avg_price &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/mean.html'>mean&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>l_extendedprice&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> avg_disc &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/mean.html'>mean&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>l_discount&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> count_order &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/context.html'>n&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> .by &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>l_returnflag&lt;/span>, &lt;span class='nv'>l_linestatus&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/arrange.html'>arrange&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>l_returnflag&lt;/span>, &lt;span class='nv'>l_linestatus&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>tpch_dplyr&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>lineitem_tbl&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 4 × 10&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>l_returnflag&lt;/span> &lt;span style='font-weight: bold;'>l_linestatus&lt;/span> &lt;span style='font-weight: bold;'>sum_qty&lt;/span> &lt;span style='font-weight: bold;'>sum_base_price&lt;/span> &lt;span style='font-weight: bold;'>sum_disc_price&lt;/span> &lt;span style='font-weight: bold;'>sum_charge&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> A F 37&lt;span style='text-decoration: underline;'>734&lt;/span>107 &lt;span style='text-decoration: underline;'>56&lt;/span>586&lt;span style='text-decoration: underline;'>554&lt;/span>401. &lt;span style='text-decoration: underline;'>53&lt;/span>758&lt;span style='text-decoration: underline;'>257&lt;/span>135. &lt;span style='text-decoration: underline;'>55&lt;/span>909&lt;span style='text-decoration: underline;'>065&lt;/span>223.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> N F &lt;span style='text-decoration: underline;'>991&lt;/span>417 &lt;span style='text-decoration: underline;'>1&lt;/span>487&lt;span style='text-decoration: underline;'>504&lt;/span>710. &lt;span style='text-decoration: underline;'>1&lt;/span>413&lt;span style='text-decoration: underline;'>082&lt;/span>168. &lt;span style='text-decoration: underline;'>1&lt;/span>469&lt;span style='text-decoration: underline;'>649&lt;/span>223.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> N O 74&lt;span style='text-decoration: underline;'>476&lt;/span>040 &lt;span style='text-decoration: underline;'>111&lt;/span>701&lt;span style='text-decoration: underline;'>729&lt;/span>698. &lt;span style='text-decoration: underline;'>106&lt;/span>118&lt;span style='text-decoration: underline;'>230&lt;/span>308. &lt;span style='text-decoration: underline;'>110&lt;/span>367&lt;span style='text-decoration: underline;'>043&lt;/span>872.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> R F 37&lt;span style='text-decoration: underline;'>719&lt;/span>753 &lt;span style='text-decoration: underline;'>56&lt;/span>568&lt;span style='text-decoration: underline;'>041&lt;/span>381. &lt;span style='text-decoration: underline;'>53&lt;/span>741&lt;span style='text-decoration: underline;'>292&lt;/span>685. &lt;span style='text-decoration: underline;'>55&lt;/span>889&lt;span style='text-decoration: underline;'>619&lt;/span>120.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 4 more variables: &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>avg_qty&lt;/span>&lt;span style='color: #555555;'> &amp;lt;dbl&amp;gt;, &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>avg_price&lt;/span>&lt;span style='color: #555555;'> &amp;lt;dbl&amp;gt;, &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>avg_disc&lt;/span>&lt;span style='color: #555555;'> &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>count_order&lt;/span>&lt;span style='color: #555555;'> &amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Like other dplyr backends such as dtplyr and dbplyr, duckplyr gives you higher performance without learning a different syntax. Unlike other dplyr backends, duckplyr does not require you to change existing code or learn specific idiosyncrasies. Not only is the syntax the same, the semantics are too! If an operation cannot be carried out with DuckDB, it is automatically outsourced to dplyr. Over time, we expect fewer and fewer fallbacks to dplyr to be needed.&lt;/p>
+&lt;h2 id="how-to-use-duckplyr">How to use duckplyr
+&lt;a href="#how-to-use-duckplyr">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>There are two ways to use duckplyr:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>As above, you can
+&lt;a href="https://duckplyr.tidyverse.org" target="_blank" rel="noopener">&lt;code>library(duckplyr)&lt;/code>&lt;/a>, and replace all existing dplyr methods. This is safe because duckplyr is guaranteed to give the exactly same the results as dplyr, unlike other backends.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Create individual &amp;ldquo;duck frames&amp;rdquo; using &lt;em>conversion functions&lt;/em> like &lt;code>duckdplyr::duckdb_tibble()&lt;/code> or &lt;code>duckdplyr::as_duckdb_tibble()&lt;/code>, or &lt;em>ingestion functions&lt;/em> like &lt;code>duckdplyr::read_csv_duckdb()&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Here&amp;rsquo;s an example of the second form:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>out&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>lineitem_tbl&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>duckplyr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>as_duckdb_tibble&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>tpch_dplyr&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>out&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A duckplyr data frame: 10 variables&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>l_returnflag&lt;/span> &lt;span style='font-weight: bold;'>l_linestatus&lt;/span> &lt;span style='font-weight: bold;'>sum_qty&lt;/span> &lt;span style='font-weight: bold;'>sum_base_price&lt;/span> &lt;span style='font-weight: bold;'>sum_disc_price&lt;/span> &lt;span style='font-weight: bold;'>sum_charge&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> A F 37&lt;span style='text-decoration: underline;'>734&lt;/span>107 &lt;span style='text-decoration: underline;'>56&lt;/span>586&lt;span style='text-decoration: underline;'>554&lt;/span>401. &lt;span style='text-decoration: underline;'>53&lt;/span>758&lt;span style='text-decoration: underline;'>257&lt;/span>135. &lt;span style='text-decoration: underline;'>55&lt;/span>909&lt;span style='text-decoration: underline;'>065&lt;/span>223.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> N F &lt;span style='text-decoration: underline;'>991&lt;/span>417 &lt;span style='text-decoration: underline;'>1&lt;/span>487&lt;span style='text-decoration: underline;'>504&lt;/span>710. &lt;span style='text-decoration: underline;'>1&lt;/span>413&lt;span style='text-decoration: underline;'>082&lt;/span>168. &lt;span style='text-decoration: underline;'>1&lt;/span>469&lt;span style='text-decoration: underline;'>649&lt;/span>223.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> N O 74&lt;span style='text-decoration: underline;'>476&lt;/span>040 &lt;span style='text-decoration: underline;'>111&lt;/span>701&lt;span style='text-decoration: underline;'>729&lt;/span>698. &lt;span style='text-decoration: underline;'>106&lt;/span>118&lt;span style='text-decoration: underline;'>230&lt;/span>308. &lt;span style='text-decoration: underline;'>110&lt;/span>367&lt;span style='text-decoration: underline;'>043&lt;/span>872.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> R F 37&lt;span style='text-decoration: underline;'>719&lt;/span>753 &lt;span style='text-decoration: underline;'>56&lt;/span>568&lt;span style='text-decoration: underline;'>041&lt;/span>381. &lt;span style='text-decoration: underline;'>53&lt;/span>741&lt;span style='text-decoration: underline;'>292&lt;/span>685. &lt;span style='text-decoration: underline;'>55&lt;/span>889&lt;span style='text-decoration: underline;'>619&lt;/span>120.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 4 more variables: &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>avg_qty&lt;/span>&lt;span style='color: #555555;'> &amp;lt;dbl&amp;gt;, &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>avg_price&lt;/span>&lt;span style='color: #555555;'> &amp;lt;dbl&amp;gt;, &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>avg_disc&lt;/span>&lt;span style='color: #555555;'> &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>count_order&lt;/span>&lt;span style='color: #555555;'> &amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Note that the resulting object is indistinguishable from a regular tibble, except for the additional class.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/typeof.html'>typeof&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>out&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "list"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/class.html'>class&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>out&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "duckplyr_df" "tbl_df" "tbl" "data.frame"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nv'>out&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>count_order&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 1478493 38854 2920374 1478870&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Operations not yet supported by duckplyr are automatically outsourced to dplyr. For instance, filtering on grouped data is not supported, but it still works thanks to the fallback mechanism. By default, the fallback is silent, but you can make it visible by setting an environment variable. This is useful if you want to better understanding what&amp;rsquo;s making your code slow.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Sys.setenv.html'>Sys.setenv&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>DUCKPLYR_FALLBACK_INFO &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>lineitem_tbl&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>duckplyr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>as_duckdb_tibble&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/filter.html'>filter&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>l_quantity&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Extremes.html'>max&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>l_quantity&lt;/span>&lt;span class='o'>)&lt;/span>, .by &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>l_returnflag&lt;/span>, &lt;span class='nv'>l_linestatus&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Cannot process duckplyr query with DuckDB, falling back to dplyr.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #0000BB;'>ℹ&lt;/span> `filter(.by = ...)` not implemented, try `mutate(.by = ...)` followed by a simple `filter()`.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A duckplyr data frame: 16 variables&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>l_orderkey&lt;/span> &lt;span style='font-weight: bold;'>l_partkey&lt;/span> &lt;span style='font-weight: bold;'>l_suppkey&lt;/span> &lt;span style='font-weight: bold;'>l_linenumber&lt;/span> &lt;span style='font-weight: bold;'>l_quantity&lt;/span> &lt;span style='font-weight: bold;'>l_extendedprice&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> 5 &lt;span style='text-decoration: underline;'>37&lt;/span>531 35 3 50 &lt;span style='text-decoration: underline;'>73&lt;/span>426.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> 131 &lt;span style='text-decoration: underline;'>44&lt;/span>255 &lt;span style='text-decoration: underline;'>9&lt;/span>264 2 50 &lt;span style='text-decoration: underline;'>59&lt;/span>962.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> 199 &lt;span style='text-decoration: underline;'>132&lt;/span>072 &lt;span style='text-decoration: underline;'>9&lt;/span>612 1 50 &lt;span style='text-decoration: underline;'>55&lt;/span>204.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> 231 &lt;span style='text-decoration: underline;'>198&lt;/span>124 644 3 50 &lt;span style='text-decoration: underline;'>61&lt;/span>106 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> 260 &lt;span style='text-decoration: underline;'>155&lt;/span>887 &lt;span style='text-decoration: underline;'>5&lt;/span>888 1 50 &lt;span style='text-decoration: underline;'>97&lt;/span>144 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> 263 &lt;span style='text-decoration: underline;'>142&lt;/span>891 434 3 50 &lt;span style='text-decoration: underline;'>96&lt;/span>694.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> 323 &lt;span style='text-decoration: underline;'>163&lt;/span>628 &lt;span style='text-decoration: underline;'>1&lt;/span>177 1 50 &lt;span style='text-decoration: underline;'>84&lt;/span>581 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> 354 &lt;span style='text-decoration: underline;'>58&lt;/span>125 &lt;span style='text-decoration: underline;'>8&lt;/span>126 3 50 &lt;span style='text-decoration: underline;'>54&lt;/span>156 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> 484 &lt;span style='text-decoration: underline;'>183&lt;/span>351 &lt;span style='text-decoration: underline;'>5&lt;/span>870 3 50 &lt;span style='text-decoration: underline;'>71&lt;/span>718.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> 485 &lt;span style='text-decoration: underline;'>149&lt;/span>523 &lt;span style='text-decoration: underline;'>9&lt;/span>524 1 50 &lt;span style='text-decoration: underline;'>78&lt;/span>626 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 10 more variables: &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>l_discount&lt;/span>&lt;span style='color: #555555;'> &amp;lt;dbl&amp;gt;, &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>l_tax&lt;/span>&lt;span style='color: #555555;'> &amp;lt;dbl&amp;gt;, &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>l_returnflag&lt;/span>&lt;span style='color: #555555;'> &amp;lt;chr&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>l_linestatus&lt;/span>&lt;span style='color: #555555;'> &amp;lt;chr&amp;gt;, &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>l_shipdate&lt;/span>&lt;span style='color: #555555;'> &amp;lt;date&amp;gt;, &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>l_commitdate&lt;/span>&lt;span style='color: #555555;'> &amp;lt;date&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>l_receiptdate&lt;/span>&lt;span style='color: #555555;'> &amp;lt;date&amp;gt;, &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>l_shipinstruct&lt;/span>&lt;span style='color: #555555;'> &amp;lt;chr&amp;gt;, &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>l_shipmode&lt;/span>&lt;span style='color: #555555;'> &amp;lt;chr&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>l_comment&lt;/span>&lt;span style='color: #555555;'> &amp;lt;chr&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>You can also directly use DuckDB functions with the &lt;code>dd$&lt;/code> qualifier. Functions with this prefix will not be translated at all and passed through directly to DuckDB. For example, the following code uses DuckDB&amp;rsquo;s internal implementation of
+&lt;a href="https://duckdb.org/docs/stable/sql/functions/text.html#editdist3s1-s2" target="_blank" rel="noopener">Levenstein distance&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>a &lt;span class='o'>=&lt;/span> &lt;span class='s'>"dbplyr"&lt;/span>, b &lt;span class='o'>=&lt;/span> &lt;span class='s'>"duckplyr"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>c &lt;span class='o'>=&lt;/span> &lt;span class='nv'>dd&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nf'>levenshtein&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>a&lt;/span>, &lt;span class='nv'>b&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 1 × 3&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>a&lt;/span> &lt;span style='font-weight: bold;'>b&lt;/span> &lt;span style='font-weight: bold;'>c&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> dbplyr duckplyr 3&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>See
+&lt;a href="https://duckplyr.tidyverse.org/articles/duckdb.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;duckdb&amp;quot;)&lt;/code>&lt;/a> for more information on these features.&lt;/p>
+&lt;p>If you&amp;rsquo;re working with dbplyr too, you can use
+&lt;a href="https://duckplyr.tidyverse.org/reference/as_tbl.html" target="_blank" rel="noopener">&lt;code>as_tbl()&lt;/code>&lt;/a> you to convert a duckplyr tibble to a dbplyr lazy table. This allows you to seamlessly interact with existing code that might use inline SQL or other dbplyr functionality. With
+&lt;a href="https://duckplyr.tidyverse.org/reference/duckdb_tibble.html" target="_blank" rel="noopener">&lt;code>as_duckdb_tibble()&lt;/code>&lt;/a>, you can convert a dbplyr lazy table to a duckplyr tibble. Both operations work without intermediate materialization.&lt;/p>
+&lt;h2 id="benchmark">Benchmark
+&lt;a href="#benchmark">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>duckplyr is often much faster than dplyr. The comparison below is done in a fresh R session where dplyr is attached but duckplyr is not.&lt;/p>
+&lt;p>We use &lt;code>tpch_dplyr()&lt;/code> as defined above to run the query with dplyr. The function that runs it with duckplyr only wraps the input data in a duck frame and forwards it to the dplyr function. The
+&lt;a href="https://dplyr.tidyverse.org/reference/compute.html" target="_blank" rel="noopener">&lt;code>collect()&lt;/code>&lt;/a> at the end is required only for this benchmark to ensure fairness.&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>tpch_duckplyr&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>lineitem&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>lineitem&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>duckplyr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://duckplyr.tidyverse.org/reference/duckdb_tibble.html'>as_duckdb_tibble&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>tpch_dplyr&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/compute.html'>collect&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>And now we compare the two:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>bench&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://bench.r-lib.org/reference/mark.html'>mark&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>tpch_dplyr&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>lineitem_tbl&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>tpch_duckplyr&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>lineitem_tbl&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> check &lt;span class='o'>=&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/all.equal.html'>all.equal&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>.x&lt;/span>, &lt;span class='nv'>.y&lt;/span>, tolerance &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e-10&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Warning: Some expressions had a GC in every iteration; so filtering is disabled.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 2 × 6&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>expression&lt;/span> &lt;span style='font-weight: bold;'>min&lt;/span> &lt;span style='font-weight: bold;'>median&lt;/span> &lt;span style='font-weight: bold;'>`itr/sec`&lt;/span> &lt;span style='font-weight: bold;'>mem_alloc&lt;/span> &lt;span style='font-weight: bold;'>`gc/sec`&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;bch:expr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;bch:tm&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;bch:tm&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;bch:byt&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> tpch_dplyr(lineitem_tbl) 611.6ms 611.6ms 1.64 1.25GB 1.64&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> tpch_duckplyr(lineitem_tbl) 71.4ms 72.3ms 13.8 314.38KB 0&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>In this example, duckplyr is a lot faster than dplyr. It also appears to use much less memory, but this is misleading: DuckDB manages the memory, not R, so the memory usage is not visible to
+&lt;a href="https://bench.r-lib.org/reference/mark.html" target="_blank" rel="noopener">&lt;code>bench::mark()&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="out-of-memory-data">Out-of-memory data
+&lt;a href="#out-of-memory-data">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>As well as improved speed with in-memory datasets, duckplyr makes it easy to work with datasets that are too big to fit in memory. In this case, you want:&lt;/p>
+&lt;ol>
+&lt;li>To work with data stored in modern formats designed for large data (e.g. Parquet).&lt;/li>
+&lt;li>To be able to store large intermediate results on disk, keeping them out of memory.&lt;/li>
+&lt;li>Fast computation!&lt;/li>
+&lt;/ol>
+&lt;p>duckdplyr provides each of these features:&lt;/p>
+&lt;ol>
+&lt;li>You can read data from disk with functions like
+&lt;a href="https://duckplyr.tidyverse.org/reference/read_parquet_duckdb.html" target="_blank" rel="noopener">&lt;code>read_parquet_duckdb()&lt;/code>&lt;/a>.&lt;/li>
+&lt;li>You can save intermediate results to disk with
+&lt;a href="https://duckplyr.tidyverse.org/reference/compute_parquet.html" target="_blank" rel="noopener">&lt;code>compute_parquet()&lt;/code>&lt;/a> and
+&lt;a href="https://duckplyr.tidyverse.org/reference/compute_csv.html" target="_blank" rel="noopener">&lt;code>compute_csv()&lt;/code>&lt;/a>.&lt;/li>
+&lt;li>duckdplyr takes advantage of DuckDB&amp;rsquo;s query planner which considers your entire pipeline holistically to figure out the most efficient way to get the data you need.&lt;/li>
+&lt;/ol>
+&lt;p>See
+&lt;a href="https://duckplyr.tidyverse.org/articles/large.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;large&amp;quot;)&lt;/code>&lt;/a> for a walkthrough and more details.&lt;/p>
+&lt;h2 id="help-us-improve-duckplyr">Help us improve duckplyr!
+&lt;a href="#help-us-improve-duckplyr">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Our goals for future development of duckplyr include:&lt;/p>
+&lt;ul>
+&lt;li>Enabling users to provide
+&lt;a href="https://github.com/tidyverse/duckplyr/issues/158" target="_blank" rel="noopener">custom translations&lt;/a> of dplyr functionality;&lt;/li>
+&lt;li>Making it easier to contribute code to duckplyr;&lt;/li>
+&lt;li>Supporting more dplyr and tidyr functionality natively in DuckDB.&lt;/li>
+&lt;/ul>
+&lt;p>You can help!&lt;/p>
+&lt;ul>
+&lt;li>Please report any issues, especially regarding unknown incompabilities. See
+&lt;a href="https://duckplyr.tidyverse.org/articles/limits.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;limits&amp;quot;)&lt;/code>&lt;/a>.&lt;/li>
+&lt;li>Contribute to the codebase after reading duckplyr&amp;rsquo;s
+&lt;a href="https://duckplyr.tidyverse.org/CONTRIBUTING.html" target="_blank" rel="noopener">contributing guide&lt;/a>.&lt;/li>
+&lt;li>Turn on telemetry to help us hear about the most frequent fallbacks so we can prioritize working on the corresponding missing dplyr translation. See
+&lt;a href="https://duckplyr.tidyverse.org/articles/telemetry.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;telemetry&amp;quot;)&lt;/code>&lt;/a> and
+&lt;a href="https://duckplyr.tidyverse.org/reference/fallback.html" target="_blank" rel="noopener">&lt;code>duckplyr::fallback_sitrep()&lt;/code>&lt;/a>.&lt;/li>
+&lt;/ul>
+&lt;h2 id="additional-resources">Additional resources
+&lt;a href="#additional-resources">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Eager to learn more about duckplyr &amp;ndash; beside by trying it out yourself? The duckplyr website features several
+&lt;a href="https://duckplyr.tidyverse.org/articles/" target="_blank" rel="noopener">articles&lt;/a>. Furthermore, the blog post
+&lt;a href="https://duckdb.org/2024/04/02/duckplyr.html" target="_blank" rel="noopener">&amp;ldquo;duckplyr: dplyr Powered by DuckDB&amp;rdquo;&lt;/a> by Hannes Mühleisen provides some context on duckplyr including its inner workings, as also seen in a
+&lt;a href="https://blog.r-hub.io/2025/02/13/lazy-meanings/#duckplyr-lazy-evaluation-and-prudence" target="_blank" rel="noopener">section&lt;/a> of the R-hub blog post
+&lt;a href="https://blog.r-hub.io/2025/02/13/lazy-meanings/" target="_blank" rel="noopener">&amp;ldquo;Lazy introduction to laziness in R&amp;rdquo;&lt;/a> by Maëlle Salmon, Athanasia Mo Mowinckel and Hannah Frick.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all folks who filed issues, created PRs and generally helped to improve duckplyr and its workhorse
+&lt;a href="https://r.duckdb.org/" target="_blank" rel="noopener">duckdb&lt;/a>!&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/adamschwing" target="_blank" rel="noopener">@adamschwing&lt;/a>,
+&lt;a href="https://github.com/alejandrohagan" target="_blank" rel="noopener">@alejandrohagan&lt;/a>,
+&lt;a href="https://github.com/andreranza" target="_blank" rel="noopener">@andreranza&lt;/a>,
+&lt;a href="https://github.com/apalacio9502" target="_blank" rel="noopener">@apalacio9502&lt;/a>,
+&lt;a href="https://github.com/apsteinmetz" target="_blank" rel="noopener">@apsteinmetz&lt;/a>,
+&lt;a href="https://github.com/barracuda156" target="_blank" rel="noopener">@barracuda156&lt;/a>,
+&lt;a href="https://github.com/beniaminogreen" target="_blank" rel="noopener">@beniaminogreen&lt;/a>,
+&lt;a href="https://github.com/bob-rietveld" target="_blank" rel="noopener">@bob-rietveld&lt;/a>,
+&lt;a href="https://github.com/brichards920" target="_blank" rel="noopener">@brichards920&lt;/a>,
+&lt;a href="https://github.com/cboettig" target="_blank" rel="noopener">@cboettig&lt;/a>,
+&lt;a href="https://github.com/davidjayjackson" target="_blank" rel="noopener">@davidjayjackson&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/Ed2uiz" target="_blank" rel="noopener">@Ed2uiz&lt;/a>,
+&lt;a href="https://github.com/eitsupi" target="_blank" rel="noopener">@eitsupi&lt;/a>,
+&lt;a href="https://github.com/era127" target="_blank" rel="noopener">@era127&lt;/a>,
+&lt;a href="https://github.com/etiennebacher" target="_blank" rel="noopener">@etiennebacher&lt;/a>,
+&lt;a href="https://github.com/eutwt" target="_blank" rel="noopener">@eutwt&lt;/a>,
+&lt;a href="https://github.com/fmichonneau" target="_blank" rel="noopener">@fmichonneau&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hannes" target="_blank" rel="noopener">@hannes&lt;/a>,
+&lt;a href="https://github.com/hawkfish" target="_blank" rel="noopener">@hawkfish&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/JanSulavik" target="_blank" rel="noopener">@JanSulavik&lt;/a>,
+&lt;a href="https://github.com/JavOrraca" target="_blank" rel="noopener">@JavOrraca&lt;/a>,
+&lt;a href="https://github.com/jeroen" target="_blank" rel="noopener">@jeroen&lt;/a>,
+&lt;a href="https://github.com/jhk0530" target="_blank" rel="noopener">@jhk0530&lt;/a>,
+&lt;a href="https://github.com/joakimlinde" target="_blank" rel="noopener">@joakimlinde&lt;/a>,
+&lt;a href="https://github.com/JosiahParry" target="_blank" rel="noopener">@JosiahParry&lt;/a>,
+&lt;a href="https://github.com/kevbaer" target="_blank" rel="noopener">@kevbaer&lt;/a>,
+&lt;a href="https://github.com/larry77" target="_blank" rel="noopener">@larry77&lt;/a>,
+&lt;a href="https://github.com/lnkuiper" target="_blank" rel="noopener">@lnkuiper&lt;/a>,
+&lt;a href="https://github.com/lorenzwalthert" target="_blank" rel="noopener">@lorenzwalthert&lt;/a>,
+&lt;a href="https://github.com/lschneiderbauer" target="_blank" rel="noopener">@lschneiderbauer&lt;/a>,
+&lt;a href="https://github.com/luisDVA" target="_blank" rel="noopener">@luisDVA&lt;/a>,
+&lt;a href="https://github.com/math-mcshane" target="_blank" rel="noopener">@math-mcshane&lt;/a>,
+&lt;a href="https://github.com/meersel" target="_blank" rel="noopener">@meersel&lt;/a>,
+&lt;a href="https://github.com/multimeric" target="_blank" rel="noopener">@multimeric&lt;/a>,
+&lt;a href="https://github.com/mytarmail" target="_blank" rel="noopener">@mytarmail&lt;/a>,
+&lt;a href="https://github.com/nicki-dese" target="_blank" rel="noopener">@nicki-dese&lt;/a>,
+&lt;a href="https://github.com/PMassicotte" target="_blank" rel="noopener">@PMassicotte&lt;/a>,
+&lt;a href="https://github.com/prasundutta87" target="_blank" rel="noopener">@prasundutta87&lt;/a>,
+&lt;a href="https://github.com/rafapereirabr" target="_blank" rel="noopener">@rafapereirabr&lt;/a>,
+&lt;a href="https://github.com/Robinlovelace" target="_blank" rel="noopener">@Robinlovelace&lt;/a>,
+&lt;a href="https://github.com/romainfrancois" target="_blank" rel="noopener">@romainfrancois&lt;/a>,
+&lt;a href="https://github.com/sparrow925" target="_blank" rel="noopener">@sparrow925&lt;/a>,
+&lt;a href="https://github.com/stefanlinner" target="_blank" rel="noopener">@stefanlinner&lt;/a>,
+&lt;a href="https://github.com/szarnyasg" target="_blank" rel="noopener">@szarnyasg&lt;/a>,
+&lt;a href="https://github.com/thomasp85" target="_blank" rel="noopener">@thomasp85&lt;/a>,
+&lt;a href="https://github.com/TimTaylor" target="_blank" rel="noopener">@TimTaylor&lt;/a>,
+&lt;a href="https://github.com/Tmonster" target="_blank" rel="noopener">@Tmonster&lt;/a>,
+&lt;a href="https://github.com/toppyy" target="_blank" rel="noopener">@toppyy&lt;/a>,
+&lt;a href="https://github.com/wibeasley" target="_blank" rel="noopener">@wibeasley&lt;/a>,
+&lt;a href="https://github.com/yjunechoe" target="_blank" rel="noopener">@yjunechoe&lt;/a>,
+&lt;a href="https://github.com/ywhcuhk" target="_blank" rel="noopener">@ywhcuhk&lt;/a>,
+&lt;a href="https://github.com/zhjx19" target="_blank" rel="noopener">@zhjx19&lt;/a>,
+&lt;a href="https://github.com/ablack3" target="_blank" rel="noopener">@ablack3&lt;/a>,
+&lt;a href="https://github.com/actuarial-lonewolf" target="_blank" rel="noopener">@actuarial-lonewolf&lt;/a>,
+&lt;a href="https://github.com/ajdamico" target="_blank" rel="noopener">@ajdamico&lt;/a>,
+&lt;a href="https://github.com/amirmazmi" target="_blank" rel="noopener">@amirmazmi&lt;/a>,
+&lt;a href="https://github.com/anderson461123" target="_blank" rel="noopener">@anderson461123&lt;/a>,
+&lt;a href="https://github.com/andrewGhazi" target="_blank" rel="noopener">@andrewGhazi&lt;/a>,
+&lt;a href="https://github.com/Antonov548" target="_blank" rel="noopener">@Antonov548&lt;/a>,
+&lt;a href="https://github.com/appiehappie999" target="_blank" rel="noopener">@appiehappie999&lt;/a>,
+&lt;a href="https://github.com/ArthurAndrews" target="_blank" rel="noopener">@ArthurAndrews&lt;/a>,
+&lt;a href="https://github.com/arthurgailes" target="_blank" rel="noopener">@arthurgailes&lt;/a>,
+&lt;a href="https://github.com/babaknaimi" target="_blank" rel="noopener">@babaknaimi&lt;/a>,
+&lt;a href="https://github.com/bcaradima" target="_blank" rel="noopener">@bcaradima&lt;/a>,
+&lt;a href="https://github.com/bdforbes" target="_blank" rel="noopener">@bdforbes&lt;/a>,
+&lt;a href="https://github.com/bergest" target="_blank" rel="noopener">@bergest&lt;/a>,
+&lt;a href="https://github.com/bill-ash" target="_blank" rel="noopener">@bill-ash&lt;/a>,
+&lt;a href="https://github.com/BorgeJorge" target="_blank" rel="noopener">@BorgeJorge&lt;/a>,
+&lt;a href="https://github.com/brianmsm" target="_blank" rel="noopener">@brianmsm&lt;/a>,
+&lt;a href="https://github.com/chainsawriot" target="_blank" rel="noopener">@chainsawriot&lt;/a>,
+&lt;a href="https://github.com/ckarnes" target="_blank" rel="noopener">@ckarnes&lt;/a>,
+&lt;a href="https://github.com/clementlefevre" target="_blank" rel="noopener">@clementlefevre&lt;/a>,
+&lt;a href="https://github.com/cregouby" target="_blank" rel="noopener">@cregouby&lt;/a>,
+&lt;a href="https://github.com/cy-james-lee" target="_blank" rel="noopener">@cy-james-lee&lt;/a>,
+&lt;a href="https://github.com/daranzolin" target="_blank" rel="noopener">@daranzolin&lt;/a>,
+&lt;a href="https://github.com/david-cortes" target="_blank" rel="noopener">@david-cortes&lt;/a>,
+&lt;a href="https://github.com/DavZim" target="_blank" rel="noopener">@DavZim&lt;/a>,
+&lt;a href="https://github.com/denis-or" target="_blank" rel="noopener">@denis-or&lt;/a>,
+&lt;a href="https://github.com/developertest1234" target="_blank" rel="noopener">@developertest1234&lt;/a>,
+&lt;a href="https://github.com/dicorynia" target="_blank" rel="noopener">@dicorynia&lt;/a>,
+&lt;a href="https://github.com/dsolito" target="_blank" rel="noopener">@dsolito&lt;/a>,
+&lt;a href="https://github.com/e-kotov" target="_blank" rel="noopener">@e-kotov&lt;/a>,
+&lt;a href="https://github.com/EAVWing" target="_blank" rel="noopener">@EAVWing&lt;/a>,
+&lt;a href="https://github.com/eddelbuettel" target="_blank" rel="noopener">@eddelbuettel&lt;/a>,
+&lt;a href="https://github.com/edward-burn" target="_blank" rel="noopener">@edward-burn&lt;/a>,
+&lt;a href="https://github.com/elefeint" target="_blank" rel="noopener">@elefeint&lt;/a>,
+&lt;a href="https://github.com/eli-daniels" target="_blank" rel="noopener">@eli-daniels&lt;/a>,
+&lt;a href="https://github.com/elysabethpc" target="_blank" rel="noopener">@elysabethpc&lt;/a>,
+&lt;a href="https://github.com/erikvona" target="_blank" rel="noopener">@erikvona&lt;/a>,
+&lt;a href="https://github.com/florisvdh" target="_blank" rel="noopener">@florisvdh&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">@gaborcsardi&lt;/a>,
+&lt;a href="https://github.com/ggrothendieck" target="_blank" rel="noopener">@ggrothendieck&lt;/a>,
+&lt;a href="https://github.com/hdmm3" target="_blank" rel="noopener">@hdmm3&lt;/a>,
+&lt;a href="https://github.com/hope-data-science" target="_blank" rel="noopener">@hope-data-science&lt;/a>,
+&lt;a href="https://github.com/IoannaNika" target="_blank" rel="noopener">@IoannaNika&lt;/a>,
+&lt;a href="https://github.com/jabrown-aepenergy" target="_blank" rel="noopener">@jabrown-aepenergy&lt;/a>,
+&lt;a href="https://github.com/JamesLMacAulay" target="_blank" rel="noopener">@JamesLMacAulay&lt;/a>,
+&lt;a href="https://github.com/jangorecki" target="_blank" rel="noopener">@jangorecki&lt;/a>,
+&lt;a href="https://github.com/javierlenzi" target="_blank" rel="noopener">@javierlenzi&lt;/a>,
+&lt;a href="https://github.com/Joe-Heffer-Shef" target="_blank" rel="noopener">@Joe-Heffer-Shef&lt;/a>,
+&lt;a href="https://github.com/kalibera" target="_blank" rel="noopener">@kalibera&lt;/a>,
+&lt;a href="https://github.com/lboller-pwbm" target="_blank" rel="noopener">@lboller-pwbm&lt;/a>,
+&lt;a href="https://github.com/lgaborini" target="_blank" rel="noopener">@lgaborini&lt;/a>,
+&lt;a href="https://github.com/m-muecke" target="_blank" rel="noopener">@m-muecke&lt;/a>,
+&lt;a href="https://github.com/meztez" target="_blank" rel="noopener">@meztez&lt;/a>,
+&lt;a href="https://github.com/mgirlich" target="_blank" rel="noopener">@mgirlich&lt;/a>,
+&lt;a href="https://github.com/mtmorgan" target="_blank" rel="noopener">@mtmorgan&lt;/a>,
+&lt;a href="https://github.com/nassuphis" target="_blank" rel="noopener">@nassuphis&lt;/a>,
+&lt;a href="https://github.com/nbc" target="_blank" rel="noopener">@nbc&lt;/a>,
+&lt;a href="https://github.com/olivroy" target="_blank" rel="noopener">@olivroy&lt;/a>,
+&lt;a href="https://github.com/pdet" target="_blank" rel="noopener">@pdet&lt;/a>,
+&lt;a href="https://github.com/phdjsep" target="_blank" rel="noopener">@phdjsep&lt;/a>,
+&lt;a href="https://github.com/pierre-lamarche" target="_blank" rel="noopener">@pierre-lamarche&lt;/a>,
+&lt;a href="https://github.com/r2evans" target="_blank" rel="noopener">@r2evans&lt;/a>,
+&lt;a href="https://github.com/ran-codes" target="_blank" rel="noopener">@ran-codes&lt;/a>,
+&lt;a href="https://github.com/rplsmn" target="_blank" rel="noopener">@rplsmn&lt;/a>,
+&lt;a href="https://github.com/Saarialho" target="_blank" rel="noopener">@Saarialho&lt;/a>,
+&lt;a href="https://github.com/SimonCoulombe" target="_blank" rel="noopener">@SimonCoulombe&lt;/a>,
+&lt;a href="https://github.com/tau31" target="_blank" rel="noopener">@tau31&lt;/a>,
+&lt;a href="https://github.com/thohan88" target="_blank" rel="noopener">@thohan88&lt;/a>,
+&lt;a href="https://github.com/ThomasSoeiro" target="_blank" rel="noopener">@ThomasSoeiro&lt;/a>,
+&lt;a href="https://github.com/timothygmitchell" target="_blank" rel="noopener">@timothygmitchell&lt;/a>,
+&lt;a href="https://github.com/vincentarelbundock" target="_blank" rel="noopener">@vincentarelbundock&lt;/a>,
+&lt;a href="https://github.com/VincentGuyader" target="_blank" rel="noopener">@VincentGuyader&lt;/a>,
+&lt;a href="https://github.com/wlangera" target="_blank" rel="noopener">@wlangera&lt;/a>,
+&lt;a href="https://github.com/xbasics" target="_blank" rel="noopener">@xbasics&lt;/a>,
+&lt;a href="https://github.com/xiaodaigh" target="_blank" rel="noopener">@xiaodaigh&lt;/a>,
+&lt;a href="https://github.com/xtimbeau" target="_blank" rel="noopener">@xtimbeau&lt;/a>,
+&lt;a href="https://github.com/yng-me" target="_blank" rel="noopener">@yng-me&lt;/a>,
+&lt;a href="https://github.com/Yousuf28" target="_blank" rel="noopener">@Yousuf28&lt;/a>,
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>, and
+&lt;a href="https://github.com/zcatav" target="_blank" rel="noopener">@zcatav&lt;/a>&lt;/p>
+&lt;p>Special thanks to Joe Thorley (
+&lt;a href="https://github.com/joethorley" target="_blank" rel="noopener">@joethorley&lt;/a>) for help with choosing the right words.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>If you haven&amp;rsquo;t heard of it yet, watch
+&lt;a href="https://www.youtube.com/watch?v=GELhdezYmP0&amp;amp;feature=youtu.be" target="_blank" rel="noopener">Hannes Mühleisen&amp;rsquo;s keynote at posit::conf(2024)&lt;/a>. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>If omitted, the results would be unchanged but the measurements would be wrong. The computation would then be triggered by the check. See
+&lt;a href="https://duckplyr.tidyverse.org/articles/prudence.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;prudence&amp;quot;)&lt;/code>&lt;/a> for details. &lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item></channel></rss>

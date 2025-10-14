@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>generics | Tidyverse</title><link>https://www.tidyverse.org/tags/generics/</link><atom:link href="https://www.tidyverse.org/tags/generics/index.xml" rel="self" type="application/rss+xml"/><description>generics</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 14 Nov 2018 00:00:00 +0000</lastBuildDate><item><title>generics 0.0.1</title><link>https://www.tidyverse.org/blog/2018/11/generics-0.0.1/</link><pubDate>Wed, 14 Nov 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/11/generics-0.0.1/</guid><description>&lt;p>The
+&lt;a href="https://github.com/r-lib/generics" target="_blank" rel="noopener">&lt;code>generics&lt;/code>&lt;/a> package is now on CRAN. &lt;code>generics&lt;/code> is a lightweight package that is designed to help developers reduce dependencies for their packages.&lt;/p>
+&lt;p>The idea is to have many generic S3 functions live in a single package that has almost no dependencies. Normally, if you wanted to create a &lt;code>broom::tidy()&lt;/code> method, you would import &lt;code>broom&lt;/code> as a dependency, import the &lt;code>tidy()&lt;/code> generic, then export it so that package users can have access to that specific method. One issue with this is that your package now carries along the dependencies of the package that defines the generic (in this case, &lt;code>broom&lt;/code>).&lt;/p>
+&lt;p>Consider &lt;code>fit()&lt;/code>. There are at least 15 packages that export an object called &lt;code>fit&lt;/code> (either a function or method), and at least 12 have specific S3 &lt;code>fit()&lt;/code> methods. When more than one is loaded, there is a potential for conflicts to arise:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">NMF&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">text2vec&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Attaching package: &amp;#39;text2vec&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; The following object is masked from &amp;#39;package:NMF&amp;#39;:&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; fit&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>generics&lt;/code> provides a way to avoid such conflicts. To do so, a package would include &lt;code>generics&lt;/code> as an import dependency, import the generic function of interest, then re-export using the &lt;code>roxygen2&lt;/code> commands:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">#&amp;#39; @importFrom generics fit&lt;/span>
+&lt;span class="c1">#&amp;#39; @export&lt;/span>
+&lt;span class="n">generics&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">fit&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>One interesting aspect of the package is that the &lt;code>generics&lt;/code> function documentation is dynamic. Suppose that &lt;code>generics&lt;/code> is loaded in a clean R session. If you look at the help file &lt;code>?generics::tidy&lt;/code>, the documentation page has:&lt;/p>
+&lt;pre>&lt;code>Methods:
+No methods found in currently loaded packages.
+&lt;/code>&lt;/pre>&lt;p>However, once another package is loaded with an exported &lt;code>tidy()&lt;/code> method, &lt;code>?generics::tidy&lt;/code> shows a list of all exported methods and includes a link to the help page specific to each one. For example, after loading the &lt;code>embed&lt;/code> package:&lt;/p>
+&lt;pre>&lt;code>Methods:
+See the following help topics for more details about individual
+methods:
+‘embed’
+• ‘step_embed’: ‘step_embed’
+• ‘step_lencode_bayes’: ‘step_lencode_bayes’
+• ‘step_lencode_glm’: ‘step_lencode_glm’
+• ‘step_lencode_mixed’: ‘step_lencode_mixed’
+‘recipes’
+• ‘check_cols’: ‘check_cols’
+• ‘check_missing’: ‘check_missing’
+• ‘check_range’: ‘check_range’
+&lt;/code>&lt;/pre>&lt;p>The current list of S3 generics that are included in the package are: &lt;code>as.factor&lt;/code>, &lt;code>as.ordered&lt;/code>, &lt;code>augment&lt;/code>, &lt;code>calculate&lt;/code>, &lt;code>compile&lt;/code>, &lt;code>components&lt;/code>, &lt;code>equation&lt;/code>, &lt;code>estfun&lt;/code>, &lt;code>evaluate&lt;/code>, &lt;code>explain&lt;/code>, &lt;code>fit&lt;/code>, &lt;code>fit_xy&lt;/code>, &lt;code>generate&lt;/code>, &lt;code>glance&lt;/code>, &lt;code>hypothesize&lt;/code>, &lt;code>interpolate&lt;/code>, &lt;code>intersect&lt;/code>, &lt;code>is.element&lt;/code>, &lt;code>learn&lt;/code>, &lt;code>prune&lt;/code>, &lt;code>refit&lt;/code>, &lt;code>setdiff&lt;/code>, &lt;code>setequal&lt;/code>, &lt;code>specify&lt;/code>, &lt;code>tidy&lt;/code>, &lt;code>train&lt;/code>, &lt;code>union&lt;/code>, &lt;code>var_imp&lt;/code>, &lt;code>varying_args&lt;/code>, and &lt;code>visualize&lt;/code>.&lt;/p>
+&lt;p>Thanks to those who contributed to the discussion prior to releasing the package: Achim Zeileis, Alex Hayes, Andrew Bray, Andy Liaw, Chester Ismay, Davis Vaughan, Hadley Wickham, Mitchell O&amp;rsquo;Hara-Wild, Przemyslaw Biecek, Rob Hyndman, Thomas Lin Pedersen, and Torsten Hothorn.&lt;/p></description></item></channel></rss>

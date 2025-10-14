@@ -1,0 +1,192 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>dplyr 0.8.2</title><meta property="og:title" content="dplyr 0.8.2"><meta property="og:description" content="dplyr 0.8.2 is now on CRAN."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2019/06/dplyr-0-8-2/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="dplyr 0.8.2 - Tidyverse"><meta property="description" content="dplyr 0.8.2 is now on CRAN."><meta property="og:description" content="dplyr 0.8.2 is now on CRAN."><meta property="og:image" content="https://www.tidyverse.org/blog/2019/06/dplyr-0-8-2/dplyr-0-8-2-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2019/06/dplyr-0-8-2/dplyr-0-8-2-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>dplyr 0.8.2</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2019/06/dplyr-0-8-2/dplyr-0-8-2-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/xFTNsGW1isI>Joanna Kosinska</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2019/06/29</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/dplyr/>dplyr</a>,
+<a href=/tags/tidyverse/>tidyverse</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Romain François</p><div class=article-content><h2 id=introduction>Introduction
+<a href=#introduction><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>We&rsquo;re delighted to announce the release of dplyr 0.8.2 on CRAN 🍉 !</p><p>This is a minor maintenance release in the <code>0.8.*</code> series, addressing a collection of
+issues since the
+<a href=https://www.tidyverse.org/articles/2019/05/dplyr-0-8-1/ target=_blank rel=noopener>0.8.1</a> and
+<a href=https://www.tidyverse.org/articles/2019/02/dplyr-0-8-0/ target=_blank rel=noopener>0.8.0</a> versions.</p><h2 id=top_n-and-top_frac>top_n() and top_frac()
+<a href=#top_n-and-top_frac><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><a href=https://dplyr.tidyverse.org/reference/top_n.html target=_blank rel=noopener>top_n()</a> has been around for a long time in
+<a href=https://dplyr.tidyverse.org/index.html target=_blank rel=noopener>dplyr</a>, as a convenient wrapper around
+<a href="https://dplyr.tidyverse.org/articles/dplyr.html?q=filter" target=_blank rel=noopener>filter()</a>
+and
+<a href=https://dplyr.tidyverse.org/reference/ranking.html target=_blank rel=noopener>min_rank()</a>,
+to select top (or bottom) entries in each group of a tibble.</p><p>In this release,
+<a href=https://dplyr.tidyverse.org/reference/top_n.html target=_blank rel=noopener>top_n()</a> is no longer
+limited to a constant number of entries per group, its <code>n</code> argument is now quoted
+to be evaluated later in the context of the group.</p><p>Here are the top half countries, i.e. <code>n() / 2</code>, in terms of life expectancy in 2007.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>dplyr</span><span class=p>)</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Attaching package: &#39;dplyr&#39;</span>
+<span class=c1>#&gt; The following objects are masked from &#39;package:stats&#39;:</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt;     filter, lag</span>
+<span class=c1>#&gt; The following objects are masked from &#39;package:base&#39;:</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt;     intersect, setdiff, setequal, union</span>
+<span class=n>gapminder</span><span class=o>::</span><span class=n>gapminder</span> <span class=o>%&gt;%</span> 
+  <span class=nf>filter</span><span class=p>(</span><span class=n>year</span> <span class=o>==</span> <span class=m>2007</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>continent</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>top_n</span><span class=p>(</span><span class=nf>n</span><span class=p>()</span> <span class=o>/</span> <span class=m>2</span><span class=p>,</span> <span class=n>lifeExp</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 70 x 6</span>
+<span class=c1>#&gt; # Groups:   continent [5]</span>
+<span class=c1>#&gt;    country   continent  year lifeExp        pop gdpPercap</span>
+<span class=c1>#&gt;    &lt;fct&gt;     &lt;fct&gt;     &lt;int&gt;   &lt;dbl&gt;      &lt;int&gt;     &lt;dbl&gt;</span>
+<span class=c1>#&gt;  1 Algeria   Africa     2007    72.3   33333216     6223.</span>
+<span class=c1>#&gt;  2 Argentina Americas   2007    75.3   40301927    12779.</span>
+<span class=c1>#&gt;  3 Australia Oceania    2007    81.2   20434176    34435.</span>
+<span class=c1>#&gt;  4 Austria   Europe     2007    79.8    8199783    36126.</span>
+<span class=c1>#&gt;  5 Bahrain   Asia       2007    75.6     708573    29796.</span>
+<span class=c1>#&gt;  6 Belgium   Europe     2007    79.4   10392226    33693.</span>
+<span class=c1>#&gt;  7 Benin     Africa     2007    56.7    8078314     1441.</span>
+<span class=c1>#&gt;  8 Canada    Americas   2007    80.7   33390141    36319.</span>
+<span class=c1>#&gt;  9 Chile     Americas   2007    78.6   16284741    13172.</span>
+<span class=c1>#&gt; 10 China     Asia       2007    73.0 1318683096     4959.</span>
+<span class=c1>#&gt; # … with 60 more rows</span>
+</code></pre></div><p><a href=https://dplyr.tidyverse.org/reference/top_n.html target=_blank rel=noopener>top_frac()</a> is new convenience shortcut for
+the top n percent, i.e.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>gapminder</span><span class=o>::</span><span class=n>gapminder</span> <span class=o>%&gt;%</span> 
+  <span class=nf>filter</span><span class=p>(</span><span class=n>year</span> <span class=o>==</span> <span class=m>2007</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>continent</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>top_frac</span><span class=p>(</span><span class=m>0.5</span><span class=p>,</span> <span class=n>lifeExp</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 70 x 6</span>
+<span class=c1>#&gt; # Groups:   continent [5]</span>
+<span class=c1>#&gt;    country   continent  year lifeExp        pop gdpPercap</span>
+<span class=c1>#&gt;    &lt;fct&gt;     &lt;fct&gt;     &lt;int&gt;   &lt;dbl&gt;      &lt;int&gt;     &lt;dbl&gt;</span>
+<span class=c1>#&gt;  1 Algeria   Africa     2007    72.3   33333216     6223.</span>
+<span class=c1>#&gt;  2 Argentina Americas   2007    75.3   40301927    12779.</span>
+<span class=c1>#&gt;  3 Australia Oceania    2007    81.2   20434176    34435.</span>
+<span class=c1>#&gt;  4 Austria   Europe     2007    79.8    8199783    36126.</span>
+<span class=c1>#&gt;  5 Bahrain   Asia       2007    75.6     708573    29796.</span>
+<span class=c1>#&gt;  6 Belgium   Europe     2007    79.4   10392226    33693.</span>
+<span class=c1>#&gt;  7 Benin     Africa     2007    56.7    8078314     1441.</span>
+<span class=c1>#&gt;  8 Canada    Americas   2007    80.7   33390141    36319.</span>
+<span class=c1>#&gt;  9 Chile     Americas   2007    78.6   16284741    13172.</span>
+<span class=c1>#&gt; 10 China     Asia       2007    73.0 1318683096     4959.</span>
+<span class=c1>#&gt; # … with 60 more rows</span>
+</code></pre></div><h2 id=tbl_vars-and-group_cols>tbl_vars() and group_cols()
+<a href=#tbl_vars-and-group_cols><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><a href=https://dplyr.tidyverse.org/reference/tbl_vars.html target=_blank rel=noopener>tbl_vars()</a> now returns a <code>dplyr_sel_vars</code>
+object that keeps track of the grouping variables. This information powers
+<a href=https://dplyr.tidyverse.org/reference/group_cols.html target=_blank rel=noopener>group_cols()</a>, which can now be used
+in every function that uses tidy selection of columns.</p><p>Functions in the tidyverse and beyond may start to use the
+<a href=https://dplyr.tidyverse.org/reference/tbl_vars.html target=_blank rel=noopener>tbl_vars()</a>/
+<a href=https://dplyr.tidyverse.org/reference/group_cols.html target=_blank rel=noopener>group_cols()</a> duo,
+starting from
+<a href=https://tidyr.tidyverse.org target=_blank rel=noopener>tidyr</a> and this
+<a href=https://github.com/tidyverse/tidyr/pull/668 target=_blank rel=noopener>pull request</a></p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c1># pak::pkg_install(&#34;tidyverse/tidyr#668&#34;)</span>
+
+<span class=n>iris</span> <span class=o>%&gt;%</span>
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>Species</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=n>tidyr</span><span class=o>::</span><span class=nf>gather</span><span class=p>(</span><span class=s>&#34;flower_att&#34;</span><span class=p>,</span> <span class=s>&#34;measurement&#34;</span><span class=p>,</span> <span class=o>-</span><span class=nf>group_cols</span><span class=p>())</span>
+<span class=c1>#&gt; # A tibble: 600 x 3</span>
+<span class=c1>#&gt; # Groups:   Species [3]</span>
+<span class=c1>#&gt;    Species flower_att   measurement</span>
+<span class=c1>#&gt;    &lt;fct&gt;   &lt;chr&gt;              &lt;dbl&gt;</span>
+<span class=c1>#&gt;  1 setosa  Sepal.Length         5.1</span>
+<span class=c1>#&gt;  2 setosa  Sepal.Length         4.9</span>
+<span class=c1>#&gt;  3 setosa  Sepal.Length         4.7</span>
+<span class=c1>#&gt;  4 setosa  Sepal.Length         4.6</span>
+<span class=c1>#&gt;  5 setosa  Sepal.Length         5  </span>
+<span class=c1>#&gt;  6 setosa  Sepal.Length         5.4</span>
+<span class=c1>#&gt;  7 setosa  Sepal.Length         4.6</span>
+<span class=c1>#&gt;  8 setosa  Sepal.Length         5  </span>
+<span class=c1>#&gt;  9 setosa  Sepal.Length         4.4</span>
+<span class=c1>#&gt; 10 setosa  Sepal.Length         4.9</span>
+<span class=c1>#&gt; # … with 590 more rows</span>
+</code></pre></div><h2 id=group_split-group_map-group_modify>group_split(), group_map(), group_modify()
+<a href=#group_split-group_map-group_modify><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><a href=https://dplyr.tidyverse.org/reference/group_split.html target=_blank rel=noopener>group_split()</a> always keeps
+a <code>ptype</code> attribute to track the prototype of the splits.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>mtcars</span> <span class=o>%&gt;%</span>
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>cyl</span><span class=p>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>filter</span><span class=p>(</span><span class=n>hp</span> <span class=o>&lt;</span> <span class=m>0</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_split</span><span class=p>()</span>
+<span class=c1>#&gt; list()</span>
+<span class=c1>#&gt; attr(,&#34;ptype&#34;)</span>
+<span class=c1>#&gt; # A tibble: 0 x 11</span>
+<span class=c1>#&gt; # … with 11 variables: mpg &lt;dbl&gt;, cyl &lt;dbl&gt;, disp &lt;dbl&gt;, hp &lt;dbl&gt;,</span>
+<span class=c1>#&gt; #   drat &lt;dbl&gt;, wt &lt;dbl&gt;, qsec &lt;dbl&gt;, vs &lt;dbl&gt;, am &lt;dbl&gt;, gear &lt;dbl&gt;,</span>
+<span class=c1>#&gt; #   carb &lt;dbl&gt;</span>
+</code></pre></div><p><a href=https://dplyr.tidyverse.org/reference/group_map.html target=_blank rel=noopener>group_map()</a> and
+<a href=https://dplyr.tidyverse.org/reference/group_map.html target=_blank rel=noopener>group_modify()</a>
+benefit from this in the edge case where there are no groups.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>mtcars</span> <span class=o>%&gt;%</span>
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>cyl</span><span class=p>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>filter</span><span class=p>(</span><span class=n>hp</span> <span class=o>&lt;</span> <span class=m>0</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_map</span><span class=p>(</span><span class=o>~</span><span class=n>.x</span><span class=p>)</span>
+<span class=c1>#&gt; list()</span>
+<span class=c1>#&gt; attr(,&#34;ptype&#34;)</span>
+<span class=c1>#&gt; # A tibble: 0 x 10</span>
+<span class=c1>#&gt; # … with 10 variables: mpg &lt;dbl&gt;, disp &lt;dbl&gt;, hp &lt;dbl&gt;, drat &lt;dbl&gt;,</span>
+<span class=c1>#&gt; #   wt &lt;dbl&gt;, qsec &lt;dbl&gt;, vs &lt;dbl&gt;, am &lt;dbl&gt;, gear &lt;dbl&gt;, carb &lt;dbl&gt;</span>
+
+<span class=n>mtcars</span> <span class=o>%&gt;%</span>
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>cyl</span><span class=p>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>filter</span><span class=p>(</span><span class=n>hp</span> <span class=o>&lt;</span> <span class=m>0</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_modify</span><span class=p>(</span><span class=o>~</span><span class=n>.x</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 0 x 11</span>
+<span class=c1>#&gt; # Groups:   cyl [0]</span>
+<span class=c1>#&gt; # … with 11 variables: cyl &lt;dbl&gt;, mpg &lt;dbl&gt;, disp &lt;dbl&gt;, hp &lt;dbl&gt;,</span>
+<span class=c1>#&gt; #   drat &lt;dbl&gt;, wt &lt;dbl&gt;, qsec &lt;dbl&gt;, vs &lt;dbl&gt;, am &lt;dbl&gt;, gear &lt;dbl&gt;,</span>
+<span class=c1>#&gt; #   carb &lt;dbl&gt;</span>
+</code></pre></div><h2 id=thanks>Thanks
+<a href=#thanks><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Thanks to all contributors for this release.</p><p><a href=https://github.com/abirasathiy target=_blank rel=noopener>@abirasathiy</a>,
+<a href=https://github.com/ajkroeg target=_blank rel=noopener>@ajkroeg</a>,
+<a href=https://github.com/alejandroschuler target=_blank rel=noopener>@alejandroschuler</a>,
+<a href=https://github.com/anuj2054 target=_blank rel=noopener>@anuj2054</a>,
+<a href=https://github.com/arider2 target=_blank rel=noopener>@arider2</a>,
+<a href=https://github.com/arielfuentes target=_blank rel=noopener>@arielfuentes</a>,
+<a href=https://github.com/artidata target=_blank rel=noopener>@artidata</a>,
+<a href=https://github.com/BenPVD target=_blank rel=noopener>@BenPVD</a>,
+<a href=https://github.com/bkmontgom target=_blank rel=noopener>@bkmontgom</a>,
+<a href=https://github.com/brodieG target=_blank rel=noopener>@brodieG</a>,
+<a href=https://github.com/cderv target=_blank rel=noopener>@cderv</a>,
+<a href=https://github.com/clanker target=_blank rel=noopener>@clanker</a>,
+<a href=https://github.com/clemenshug target=_blank rel=noopener>@clemenshug</a>,
+<a href=https://github.com/CSheehan1 target=_blank rel=noopener>@CSheehan1</a>,
+<a href=https://github.com/danielecook target=_blank rel=noopener>@danielecook</a>,
+<a href=https://github.com/dannyparsons target=_blank rel=noopener>@dannyparsons</a>,
+<a href=https://github.com/daskandalis target=_blank rel=noopener>@daskandalis</a>,
+<a href=https://github.com/davidbaniadam target=_blank rel=noopener>@davidbaniadam</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/deliciouslytyped target=_blank rel=noopener>@deliciouslytyped</a>,
+<a href=https://github.com/earowang target=_blank rel=noopener>@earowang</a>,
+<a href=https://github.com/fkatharina target=_blank rel=noopener>@fkatharina</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/Hardervidertsie target=_blank rel=noopener>@Hardervidertsie</a>,
+<a href=https://github.com/iago-pssjd target=_blank rel=noopener>@iago-pssjd</a>,
+<a href=https://github.com/IndrajeetPatil target=_blank rel=noopener>@IndrajeetPatil</a>,
+<a href=https://github.com/jackdolgin target=_blank rel=noopener>@jackdolgin</a>,
+<a href=https://github.com/jangorecki target=_blank rel=noopener>@jangorecki</a>,
+<a href=https://github.com/jimhester target=_blank rel=noopener>@jimhester</a>,
+<a href=https://github.com/jjesusfilho target=_blank rel=noopener>@jjesusfilho</a>,
+<a href=https://github.com/jonjhitchcock target=_blank rel=noopener>@jonjhitchcock</a>,
+<a href=https://github.com/jxu target=_blank rel=noopener>@jxu</a>,
+<a href=https://github.com/krlmlr target=_blank rel=noopener>@krlmlr</a>,
+<a href=https://github.com/laresbernardo target=_blank rel=noopener>@laresbernardo</a>,
+<a href=https://github.com/lionel- target=_blank rel=noopener>@lionel-</a>,
+<a href=https://github.com/LukeGoodsell target=_blank rel=noopener>@LukeGoodsell</a>,
+<a href=https://github.com/madmark81 target=_blank rel=noopener>@madmark81</a>,
+<a href=https://github.com/MarkusBerroth target=_blank rel=noopener>@MarkusBerroth</a>,
+<a href=https://github.com/matheus-donato target=_blank rel=noopener>@matheus-donato</a>,
+<a href=https://github.com/mattfidler target=_blank rel=noopener>@mattfidler</a>,
+<a href=https://github.com/MatthieuStigler target=_blank rel=noopener>@MatthieuStigler</a>,
+<a href=https://github.com/md0u80c9 target=_blank rel=noopener>@md0u80c9</a>,
+<a href=https://github.com/michaelhogersosis target=_blank rel=noopener>@michaelhogersosis</a>,
+<a href=https://github.com/MikeJohnPage target=_blank rel=noopener>@MikeJohnPage</a>,
+<a href=https://github.com/MJL9588 target=_blank rel=noopener>@MJL9588</a>,
+<a href=https://github.com/moodymudskipper target=_blank rel=noopener>@moodymudskipper</a>,
+<a href=https://github.com/mwillumz target=_blank rel=noopener>@mwillumz</a>,
+<a href=https://github.com/Nelson-Gon target=_blank rel=noopener>@Nelson-Gon</a>,
+<a href=https://github.com/qdread target=_blank rel=noopener>@qdread</a>,
+<a href=https://github.com/randomgambit target=_blank rel=noopener>@randomgambit</a>,
+<a href=https://github.com/rcorty target=_blank rel=noopener>@rcorty</a>,
+<a href=https://github.com/romainfrancois target=_blank rel=noopener>@romainfrancois</a>,
+<a href=https://github.com/romatik target=_blank rel=noopener>@romatik</a>,
+<a href=https://github.com/spressi target=_blank rel=noopener>@spressi</a>,
+<a href=https://github.com/sstoeckl target=_blank rel=noopener>@sstoeckl</a>,
+<a href=https://github.com/stephLH target=_blank rel=noopener>@stephLH</a>,
+<a href=https://github.com/urskalbitzer target=_blank rel=noopener>@urskalbitzer</a>,
+<a href=https://github.com/vpanfilov target=_blank rel=noopener>@vpanfilov</a>, and
+<a href=https://github.com/ZahraEconomist target=_blank rel=noopener>@ZahraEconomist</a>.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#introduction>Introduction</a></li><li><a href=#top_n-and-top_frac>top_n() and top_frac()</a></li><li><a href=#tbl_vars-and-group_cols>tbl_vars() and group_cols()</a></li><li><a href=#group_split-group_map-group_modify>group_split(), group_map(), group_modify()</a></li><li><a href=#thanks>Thanks</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

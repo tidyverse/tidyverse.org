@@ -1,0 +1,264 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>Coming soon: tibble 2.0.0</title><meta property="og:title" content="Coming soon: tibble 2.0.0"><meta property="og:description" content="The upcoming tibble 2.0.0 release has internal changes relevant to package developers who depend on tibble."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2018/11/tibble-2.0.0-pre-announce/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="Coming soon: tibble 2.0.0 - Tidyverse"><meta property="description" content="The upcoming tibble 2.0.0 release has internal changes relevant to package developers who depend on tibble."><meta property="og:description" content="The upcoming tibble 2.0.0 release has internal changes relevant to package developers who depend on tibble."><meta property="og:image" content="https://www.tidyverse.org/blog/2018/11/tibble-2.0.0-pre-announce/tibble-2.0.0-pre-announce-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2018/11/tibble-2.0.0-pre-announce/tibble-2.0.0-pre-announce-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>Coming soon: tibble 2.0.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2018/11/tibble-2.0.0-pre-announce/tibble-2.0.0-pre-announce-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/yYawh30qf28>Gabriel Porras</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2018/11/28</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/tidyverse/>tidyverse</a>,
+<a href=/tags/tibble/>tibble</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Kirill Müller, Jenny Bryan</p><div class=article-content><p>Version 2.0.0 of the
+<a href=https://tibble.tidyverse.org target=_blank rel=noopener>tibble package</a> is almost ready for release. Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the development version with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>devtools</span><span class=o>::</span><span class=nf>install_github</span><span class=p>(</span><span class=s>&#34;tidyverse/tibble&#34;</span><span class=p>)</span>
+</code></pre></div><p>We&rsquo;re making a pre-release announcement, because some changes require the attention of maintainers of packages that import or otherwise depend on tibble.
+This post describes how to adapt to the next version of tibble and is also an invitation for maintainers to provide feedback before v2.0.0 is finalized and submitted to CRAN.
+The easiest way to get in touch is to file an issue at <a href=https://github.com/tidyverse/tibble/issues>https://github.com/tidyverse/tibble/issues</a> (or to comment on an existing one).
+This blog post is aimed at package developers and those who maintain &ldquo;production&rdquo; scripts or apps. A high-level overview of new user-facing features will come in a separate blog post.</p><h2 id=reverse-dependency-checks>Reverse dependency checks
+<a href=#reverse-dependency-checks><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>We ran <code>R CMD check</code> for over 3000 CRAN and Bioconductor packages that depend directly or indirectly on the tibble package and compared results obtained with the CRAN versus development version of tibble.
+We will notify the maintainers of all affected packages (regardless of the check results of their package) and aim for a CRAN release before Christmas, so the dust has settled in time for
+<a href=https://www.rstudio.com/conference/ target=_blank rel=noopener>rstudio::conf</a>.</p><p>We made pull requests to implement the necessary changes in several of the most heavily downloaded packages. Based on this experience, this post highlights the problems downstream maintainers are most likely to see and how to solve them. Most fixes should be quite simple.</p><p>For the full list of changes, features, and bug fixes, please see the
+<a href=https://github.com/tidyverse/tibble/tree/master/NEWS.md target=_blank rel=noopener>release notes</a>.</p><h2 id=tibble-construction-and-validation>Tibble construction and validation
+<a href=#tibble-construction-and-validation><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>End users should use the
+<a href=https://tibble.tidyverse.org/dev/reference/tibble.html target=_blank rel=noopener><code>tibble()</code></a> function to construct tibbles.
+It checks the input for consistency and makes sure that the returned tibble is valid.</p><p>Package developers, however, can also consider the low-level
+<a href=https://tibble.tidyverse.org/dev/reference/new_tibble.html target=_blank rel=noopener><code>new_tibble()</code></a> constructor. Use
+<a href=https://tibble.tidyverse.org/dev/reference/new_tibble.html target=_blank rel=noopener><code>new_tibble()</code></a> to quickly construct a tibble from a list if you are very sure that the input is well-formed (i.e., a list of vectors of equal length).
+This function also supports the construction of subclasses of tibble through the <code>class</code> argument.</p><p>In the development version of tibble, the
+<a href=https://tibble.tidyverse.org/dev/reference/new_tibble.html target=_blank rel=noopener><code>new_tibble()</code></a> constructor is a more faithful implementation of the
+<a href=https://adv-r.hadley.nz/s3.html#s3-classes target=_blank rel=noopener>design advice for S3 classes given in Advanced R</a>.
+Specifically:</p><ul><li><a href=https://tibble.tidyverse.org/dev/reference/new_tibble.html target=_blank rel=noopener><code>new_tibble()</code></a> is very fast and does very little checking itself.</li><li>The new
+<a href=https://tibble.tidyverse.org/dev/reference/new_tibble.html target=_blank rel=noopener><code>validate_tibble()</code></a> function is responsible for validating the structure of a tibble.</li></ul><p>This means that the <code>nrow</code> argument to
+<a href=https://tibble.tidyverse.org/dev/reference/new_tibble.html target=_blank rel=noopener><code>new_tibble()</code></a> is now mandatory.
+We are aware that this might be the single most disruptive change, but we think that any guesswork here would be detrimental to stability (especially in corner cases) and that this particular problem is very easy to fix.
+The <code>nrow</code> argument already existed in tibble v1.4.2, so code that uses it requires no change and should continue to work.
+If you need to add <code>nrow</code> arguments to
+<a href=https://tibble.tidyverse.org/dev/reference/new_tibble.html target=_blank rel=noopener><code>new_tibble()</code></a> calls, you can do so independently of the tibble v2.0.0 release.
+Please be aware that <code>nrow</code> must be passed as a named argument, because it comes after the ellipsis <code>...</code> in the signature. Here are common patterns for setting the <code>nrow</code> argument:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>tibble</span><span class=p>)</span>
+
+<span class=n>x</span> <span class=o>&lt;-</span> <span class=nf>data.frame</span><span class=p>(</span><span class=n>a</span> <span class=o>=</span> <span class=m>1</span><span class=p>)</span>
+
+<span class=c1># Code that lacks `nrow` fails</span>
+<span class=nf>new_tibble</span><span class=p>(</span><span class=n>x</span><span class=p>)</span>
+<span class=c1>#&gt; Error: Must pass a scalar integer as `nrow` argument to `new_tibble()`.</span>
+
+<span class=c1># Fix by specifying `nrow`</span>
+<span class=nf>new_tibble</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>nrow</span> <span class=o>=</span> <span class=nf>nrow</span><span class=p>(</span><span class=n>x</span><span class=p>))</span> <span class=c1># if x is a data frame</span>
+<span class=c1>#&gt; # A tibble: 1 x 1</span>
+<span class=c1>#&gt;       a</span>
+<span class=c1>#&gt;   &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     1</span>
+
+<span class=n>nrow_x</span> <span class=o>&lt;-</span> <span class=nf>NROW</span><span class=p>(</span><span class=n>x[[1]]</span><span class=p>)</span> <span class=c1># if x has at least one column</span>
+<span class=c1># nrow_x &lt;- ... # if the number of rows is given elsewhere</span>
+<span class=nf>new_tibble</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>nrow</span> <span class=o>=</span> <span class=n>nrow_x</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 1 x 1</span>
+<span class=c1>#&gt;       a</span>
+<span class=c1>#&gt;   &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     1</span>
+</code></pre></div><h2 id=coercion-and-name-repair>Coercion and name repair
+<a href=#coercion-and-name-repair><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The tibble mentality has always been that the user is responsible for managing column names, i.e. names are not automatically munged. This remains true, but the development version of tibble is stricter about names and offers more support for name repair.</p><p>In the development version of tibble, by default, column names must exist and be unique. Some packages use
+<a href=https://tibble.tidyverse.org/dev/reference/as_tibble.html target=_blank rel=noopener><code>as_tibble()</code></a> internally to coerce a dysfunctionally-named object to a tibble and <em>then</em> apply proper column names. Here&rsquo;s a typical error and solution:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>tibble</span><span class=p>)</span>
+
+<span class=p>(</span><span class=n>m</span> <span class=o>&lt;-</span> <span class=nf>cov</span><span class=p>(</span><span class=nf>unname</span><span class=p>(</span><span class=n>iris[</span><span class=m>-5</span><span class=n>]</span><span class=p>)))</span>
+<span class=c1>#&gt;            [,1]       [,2]       [,3]       [,4]</span>
+<span class=c1>#&gt; [1,]  0.6856935 -0.0424340  1.2743154  0.5162707</span>
+<span class=c1>#&gt; [2,] -0.0424340  0.1899794 -0.3296564 -0.1216394</span>
+<span class=c1>#&gt; [3,]  1.2743154 -0.3296564  3.1162779  1.2956094</span>
+<span class=c1>#&gt; [4,]  0.5162707 -0.1216394  1.2956094  0.5810063</span>
+
+<span class=c1># problematic approach:</span>
+<span class=c1># 1. make tibble</span>
+<span class=c1># 2. apply nice names</span>
+<span class=n>x</span> <span class=o>&lt;-</span> <span class=nf>as_tibble</span><span class=p>(</span><span class=n>m</span><span class=p>)</span>
+<span class=c1>#&gt; Error: Columns 1, 2, 3, 4 must be named.</span>
+<span class=c1>#&gt; Use .name_repair to specify repair.</span>
+<span class=nf>colnames</span><span class=p>(</span><span class=n>x</span><span class=p>)</span> <span class=o>&lt;-</span> <span class=kc>letters</span><span class=n>[1</span><span class=o>:</span><span class=m>4</span><span class=n>]</span>
+<span class=c1>#&gt; Error in names(x) &lt;- value: &#39;names&#39; attribute [4] must be the same length as the vector [1]</span>
+
+<span class=c1># better approach that works with tibble v1.4.2 AND dev tibble:</span>
+<span class=c1># 1. apply nice names</span>
+<span class=c1># 2. make tibble</span>
+<span class=nf>colnames</span><span class=p>(</span><span class=n>m</span><span class=p>)</span> <span class=o>&lt;-</span> <span class=kc>letters</span><span class=n>[1</span><span class=o>:</span><span class=m>4</span><span class=n>]</span>
+<span class=nf>as_tibble</span><span class=p>(</span><span class=n>m</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 4 x 4</span>
+<span class=c1>#&gt;         a       b      c      d</span>
+<span class=c1>#&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1  0.686  -0.0424  1.27   0.516</span>
+<span class=c1>#&gt; 2 -0.0424  0.190  -0.330 -0.122</span>
+<span class=c1>#&gt; 3  1.27   -0.330   3.12   1.30 </span>
+<span class=c1>#&gt; 4  0.516  -0.122   1.30   0.581</span>
+</code></pre></div><p>If possible, we recommend applying your &ldquo;good&rdquo; column names prior to calling
+<a href=https://tibble.tidyverse.org/dev/reference/as_tibble.html target=_blank rel=noopener><code>as_tibble()</code></a>. This creates code that works with tibble v1.4.2 and the development version, which is very appealing. For good examples, see these pull requests to
+<a href=https://github.com/ropensci/drake/pull/586 target=_blank rel=noopener>drake</a>,
+<a href=https://github.com/facebook/prophet/pull/739 target=_blank rel=noopener>prophet</a>, and
+<a href=https://github.com/tidymodels/broom/pull/536 target=_blank rel=noopener>broom</a>.</p><p>It is also possible to use the new <code>.name_repair</code> argument in
+<a href=https://tibble.tidyverse.org/dev/reference/tibble.html target=_blank rel=noopener><code>tibble()</code></a> and
+<a href=https://tibble.tidyverse.org/dev/reference/as_tibble.html target=_blank rel=noopener><code>as_tibble()</code></a> (more below) to explicitly declare your intention around column names. This code would require <code>packageVersion("tibble") >= "2.0.0"</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c1># Alternative: use new `.name_repair` argument to permit dysfunctional names</span>
+<span class=n>m</span> <span class=o>&lt;-</span> <span class=nf>cov</span><span class=p>(</span><span class=nf>unname</span><span class=p>(</span><span class=n>iris[</span><span class=m>-5</span><span class=n>]</span><span class=p>))</span>
+<span class=nf>as_tibble</span><span class=p>(</span><span class=n>m</span><span class=p>,</span> <span class=n>.name_repair</span> <span class=o>=</span> <span class=s>&#34;minimal&#34;</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 4 x 4</span>
+<span class=c1>#&gt;        ``      ``     ``     ``</span>
+<span class=c1>#&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1  0.686  -0.0424  1.27   0.516</span>
+<span class=c1>#&gt; 2 -0.0424  0.190  -0.330 -0.122</span>
+<span class=c1>#&gt; 3  1.27   -0.330   3.12   1.30 </span>
+<span class=c1>#&gt; 4  0.516  -0.122   1.30   0.581</span>
+
+<span class=c1># Alternative: use new `.name_repair` argument to fix dysfunctional names</span>
+<span class=n>m</span> <span class=o>&lt;-</span> <span class=nf>cov</span><span class=p>(</span><span class=nf>unname</span><span class=p>(</span><span class=n>iris[</span><span class=m>-5</span><span class=n>]</span><span class=p>))</span>
+<span class=nf>as_tibble</span><span class=p>(</span><span class=n>m</span><span class=p>,</span> <span class=n>.name_repair</span> <span class=o>=</span> <span class=s>&#34;unique&#34;</span><span class=p>)</span>
+<span class=c1>#&gt; New names:</span>
+<span class=c1>#&gt; * `` -&gt; `..1`</span>
+<span class=c1>#&gt; * `` -&gt; `..2`</span>
+<span class=c1>#&gt; * `` -&gt; `..3`</span>
+<span class=c1>#&gt; * `` -&gt; `..4`</span>
+<span class=c1>#&gt; # A tibble: 4 x 4</span>
+<span class=c1>#&gt;       ..1     ..2    ..3    ..4</span>
+<span class=c1>#&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1  0.686  -0.0424  1.27   0.516</span>
+<span class=c1>#&gt; 2 -0.0424  0.190  -0.330 -0.122</span>
+<span class=c1>#&gt; 3  1.27   -0.330   3.12   1.30 </span>
+<span class=c1>#&gt; 4  0.516  -0.122   1.30   0.581</span>
+</code></pre></div><p>What is the motivation for this increased attention to column names? The tibble package is offering stronger encouragement for names where each column can be identified by name and, preferably, without having to resort to backticks. Column names that don&rsquo;t meet these requirements are still allowed, but the user needs to permit them explicitly.</p><p>After all, there are scenarios where problematic names should be tolerated. For example, after importing data, the user might need to inspect the data in order to determine which columns to keep. Or perhaps the column names contain data that is about to be converted to a proper variable with
+<a href=https://tidyr.tidyverse.org/reference/gather.html target=_blank rel=noopener><code>gather()</code></a>.</p><p>The
+<a href=https://tibble.tidyverse.org/dev/reference/tibble.html target=_blank rel=noopener><code>tibble()</code></a> constructor and the
+<a href=https://tibble.tidyverse.org/dev/reference/as_tibble.html target=_blank rel=noopener><code>as_tibble()</code></a> generic now support a new <code>.name_repair</code> argument that covers most use cases:</p><ul><li><code>"minimal"</code>: No name repair or checks, beyond basic existence.</li><li><code>"unique"</code>: Make sure names are unique and not empty.</li><li><code>"check_unique"</code>: (default value), no name repair, but check they are <code>unique</code>.</li><li><code>"universal"</code>: Make the names <code>unique</code> and syntactic.</li><li>a function: apply custom name repair (e.g., <code>.name_repair = make.names</code> or <code>.name_repair = ~make.names(., unique = TRUE)</code> for names in the style of base R).</li></ul><p>See
+<a href=https://tibble.tidyverse.org/dev/reference/name-repair.html target=_blank rel=noopener><code>?`name-repair`</code></a> for more details.</p><p>Packages that are in the business of making tibbles may even want to expose the <code>.name_repair</code> argument and pass it through to
+<a href=https://tibble.tidyverse.org/dev/reference/tibble.html target=_blank rel=noopener><code>tibble()</code></a> or
+<a href=https://tibble.tidyverse.org/dev/reference/as_tibble.html target=_blank rel=noopener><code>as_tibble()</code></a>.
+For example, this is the approach planned for
+<a href=https://readxl.tidyverse.org target=_blank rel=noopener>readxl</a>, which reads rectangular data out of Excel workbooks.</p>Deprecation of <code>validate</code> in<h2 id=deprecation-of-validate-in-as_tibblehttpstibbletidyverseorgdevreferenceas_tibblehtml><a href=https://tibble.tidyverse.org/dev/reference/as_tibble.html target=_blank rel=noopener><code>as_tibble()</code></a>
+<a href=#deprecation-of-validate-in-as_tibblehttpstibbletidyverseorgdevreferenceas_tibblehtml><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>In tibble v1.4.2,
+<a href=https://tibble.tidyverse.org/dev/reference/as_tibble.html target=_blank rel=noopener><code>as_tibble()</code></a> has a <code>validate</code> argument, but its default behaviour value was inconsistent across different methods and there was no equivalent argument for
+<a href=https://tibble.tidyverse.org/dev/reference/tibble.html target=_blank rel=noopener><code>tibble()</code></a>. The <code>validate</code> argument is now soft-deprecated and its use will trigger a message, once per session. The <code>validate</code> argument will eventually be removed, but for now it can be used jointly with the new <code>.name_repair</code> argument (without even triggering a message). This is possible, because fortunately the <code>.name_repair</code> argument to
+<a href=https://tibble.tidyverse.org/dev/reference/as_tibble.html target=_blank rel=noopener><code>as_tibble()</code></a> is ignored in tibble v1.4.2.</p><p>Here&rsquo;s what <code>validate</code> does in the development version of tibble for tibbles, data frames, and matrices, along with suggested alternatives.</p><h3 id=tibbles-and-data-frames>Tibbles and data frames
+<a href=#tibbles-and-data-frames><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>The default was <code>validate = FALSE</code> for tibbles and <code>validate = TRUE</code> for data frames.
+Code that worked before for tibbles can now throw unexpected errors if the resulting tibble has problematic names.
+To avoid warnings with tibble v2.0.0, use the default instead of <code>validate = TRUE</code>, and <code>.name_repair = "minimal"</code> in addition to <code>validate = FALSE</code>.
+If your code targets tibble >= v2.0.0 exclusively, you can remove the <code>validate</code> argument.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>new_tibble</span><span class=p>(</span><span class=nf>list</span><span class=p>(</span><span class=n>a</span> <span class=o>=</span> <span class=m>5</span><span class=p>,</span> <span class=n>a</span> <span class=o>=</span> <span class=m>6</span><span class=p>),</span> <span class=n>nrow</span> <span class=o>=</span> <span class=m>1</span><span class=p>)</span>
+
+<span class=c1># errors, as it should, because names are duplicated ... but also messages</span>
+<span class=nf>as_tibble</span><span class=p>(</span><span class=n>df</span><span class=p>,</span> <span class=n>validate</span> <span class=o>=</span> <span class=kc>TRUE</span><span class=p>)</span>
+<span class=c1>#&gt; The `validate` argument to `as_tibble()` is deprecated. Please use `.name_repair` to control column names.</span>
+<span class=c1>#&gt; Error: Column name `a` must not be duplicated.</span>
+<span class=c1>#&gt; Use .name_repair to specify repair.</span>
+
+<span class=c1># errors due to default .name_repair = &#34;check_unique&#34;</span>
+<span class=c1># (but no error in tibble v1.4.2)</span>
+<span class=nf>as_tibble</span><span class=p>(</span><span class=n>df</span><span class=p>)</span>
+<span class=c1>#&gt; Error: Column name `a` must not be duplicated.</span>
+<span class=c1>#&gt; Use .name_repair to specify repair.</span>
+
+<span class=c1># ensures that the validate = TRUE default is used for tibble &lt; 2.0.0</span>
+<span class=nf>as_tibble</span><span class=p>(</span><span class=nf>as.data.frame</span><span class=p>(</span><span class=n>df</span><span class=p>))</span>
+<span class=c1>#&gt; Error: Column name `a` must not be duplicated.</span>
+<span class=c1>#&gt; Use .name_repair to specify repair.</span>
+
+
+<span class=c1># no error ... but still messages</span>
+<span class=nf>as_tibble</span><span class=p>(</span><span class=n>df</span><span class=p>,</span> <span class=n>validate</span> <span class=o>=</span> <span class=kc>FALSE</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 1 x 2</span>
+<span class=c1>#&gt;       a     a</span>
+<span class=c1>#&gt;   &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     5     6</span>
+
+<span class=c1># no error, quietly</span>
+<span class=nf>as_tibble</span><span class=p>(</span><span class=n>df</span><span class=p>,</span> <span class=n>.name_repair</span> <span class=o>=</span> <span class=s>&#34;minimal&#34;</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 1 x 2</span>
+<span class=c1>#&gt;       a     a</span>
+<span class=c1>#&gt;   &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     5     6</span>
+
+<span class=c1># no error, quietly, compatible with tibble &lt; 2.0.0</span>
+<span class=nf>as_tibble</span><span class=p>(</span><span class=n>df</span><span class=p>,</span> <span class=n>validate</span> <span class=o>=</span> <span class=kc>FALSE</span><span class=p>,</span> <span class=n>.name_repair</span> <span class=o>=</span> <span class=s>&#34;minimal&#34;</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 1 x 2</span>
+<span class=c1>#&gt;       a     a</span>
+<span class=c1>#&gt;   &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     5     6</span>
+</code></pre></div><h3 id=matrices-and-other-objects>Matrices and other objects
+<a href=#matrices-and-other-objects><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>The <code>validate</code> argument now triggers a message, it was silently ignored in v1.4.2.
+For compatibility with v2.0.0, remove the <code>validate</code> argument, or add a consistent <code>.name_repair</code> argument.
+If you need anything other than <code>"minimal"</code> or <code>"check_unique"</code> and need to keep the <code>validate</code> argument, rename the columns beforehand.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>m</span> <span class=o>&lt;-</span> <span class=nf>cov</span><span class=p>(</span><span class=n>iris[</span><span class=m>-5</span><span class=n>]</span><span class=p>)</span>
+<span class=c1># Assign colnames() if necessary</span>
+<span class=nf>as_tibble</span><span class=p>(</span><span class=n>m</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 4 x 4</span>
+<span class=c1>#&gt;   Sepal.Length Sepal.Width Petal.Length Petal.Width</span>
+<span class=c1>#&gt;          &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1       0.686      -0.0424        1.27        0.516</span>
+<span class=c1>#&gt; 2      -0.0424      0.190        -0.330      -0.122</span>
+<span class=c1>#&gt; 3       1.27       -0.330         3.12        1.30 </span>
+<span class=c1>#&gt; 4       0.516      -0.122         1.30        0.581</span>
+<span class=nf>as_tibble</span><span class=p>(</span><span class=n>m</span><span class=p>,</span> <span class=n>validate</span> <span class=o>=</span> <span class=kc>TRUE</span><span class=p>,</span> <span class=n>.name_repair</span> <span class=o>=</span> <span class=s>&#34;check_unique&#34;</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 4 x 4</span>
+<span class=c1>#&gt;   Sepal.Length Sepal.Width Petal.Length Petal.Width</span>
+<span class=c1>#&gt;          &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1       0.686      -0.0424        1.27        0.516</span>
+<span class=c1>#&gt; 2      -0.0424      0.190        -0.330      -0.122</span>
+<span class=c1>#&gt; 3       1.27       -0.330         3.12        1.30 </span>
+<span class=c1>#&gt; 4       0.516      -0.122         1.30        0.581</span>
+</code></pre></div><h2 id=deprecation-of-tidy_names-and-set_tidy_names>Deprecation of <code>tidy_names()</code> and <code>set_tidy_names()</code>
+<a href=#deprecation-of-tidy_names-and-set_tidy_names><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The existing <code>tidy_names()</code> and <code>set_tidy_names()</code> functions are soft-deprecated, but remain available, unchanged. In the future, they could go away or take on a new meaning, i.e. implement a different algorithm for name repair. New code should use <code>.name_repair</code> instead.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>new_tibble</span><span class=p>(</span><span class=nf>list</span><span class=p>(</span><span class=n>a</span> <span class=o>=</span> <span class=m>5</span><span class=p>,</span> <span class=n>a</span> <span class=o>=</span> <span class=m>6</span><span class=p>),</span> <span class=n>nrow</span> <span class=o>=</span> <span class=m>1</span><span class=p>)</span>
+
+<span class=c1># these functions are soft-deprecated</span>
+<span class=nf>tidy_names</span><span class=p>(</span><span class=nf>names</span><span class=p>(</span><span class=n>df</span><span class=p>))</span>
+<span class=c1>#&gt; New names:</span>
+<span class=c1>#&gt; a -&gt; a..1</span>
+<span class=c1>#&gt; a -&gt; a..2</span>
+<span class=c1>#&gt; [1] &#34;a..1&#34; &#34;a..2&#34;</span>
+<span class=nf>set_tidy_names</span><span class=p>(</span><span class=n>df</span><span class=p>)</span>
+<span class=c1>#&gt; New names:</span>
+<span class=c1>#&gt; a -&gt; a..1</span>
+<span class=c1>#&gt; a -&gt; a..2</span>
+<span class=c1>#&gt; # A tibble: 1 x 2</span>
+<span class=c1>#&gt;    a..1  a..2</span>
+<span class=c1>#&gt;   &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     5     6</span>
+
+<span class=c1># achieve same via `.name_repair`</span>
+<span class=nf>as_tibble</span><span class=p>(</span><span class=n>df</span><span class=p>,</span> <span class=n>.name_repair</span> <span class=o>=</span> <span class=s>&#34;universal&#34;</span><span class=p>)</span>
+<span class=c1>#&gt; New names:</span>
+<span class=c1>#&gt; * a -&gt; a..1</span>
+<span class=c1>#&gt; * a -&gt; a..2</span>
+<span class=c1>#&gt; # A tibble: 1 x 2</span>
+<span class=c1>#&gt;    a..1  a..2</span>
+<span class=c1>#&gt;   &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     5     6</span>
+</code></pre></div><p>tibble&rsquo;s name repair strategies are currently only exposed in
+<a href=https://tibble.tidyverse.org/dev/reference/tibble.html target=_blank rel=noopener><code>tibble()</code></a> and
+<a href=https://tibble.tidyverse.org/dev/reference/as_tibble.html target=_blank rel=noopener><code>as_tibble()</code></a>, not (yet?) as utility functions that operate on a vector of names.</p><h2 id=other-changes>Other changes
+<a href=#other-changes><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Intentionally assigning invalid names to a tibble via <code>names&lt;-()</code> is generally a bad idea and this now warns (once per session).</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>tibble</span><span class=p>(</span><span class=n>a</span> <span class=o>=</span> <span class=m>1</span><span class=p>)</span>
+
+<span class=nf>names</span><span class=p>(</span><span class=n>df</span><span class=p>)</span> <span class=o>&lt;-</span> <span class=kc>NA</span>
+<span class=c1>#&gt; Warning: Column 1 must be named.</span>
+<span class=c1>#&gt; Warning: Must use a character vector as names.</span>
+</code></pre></div><p>Coercing a vector to a tibble is no longer supported and emits a warning once per session.
+It&rsquo;s not clear if the result should be a tibble with one row or one column. We plan to revisit this in a future version, with an unambiguous interface.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>x</span> <span class=o>&lt;-</span> <span class=m>1</span><span class=o>:</span><span class=m>3</span>
+<span class=c1># Old:</span>
+<span class=nf>as_tibble</span><span class=p>(</span><span class=n>x</span><span class=p>)</span>
+<span class=c1>#&gt; Warning: Calling `as_tibble()` on a vector is discouraged, because the</span>
+<span class=c1>#&gt; behavior is likely to change in the future. Use `enframe(name = NULL)`</span>
+<span class=c1>#&gt; instead.</span>
+<span class=c1>#&gt; # A tibble: 3 x 1</span>
+<span class=c1>#&gt;   value</span>
+<span class=c1>#&gt;   &lt;int&gt;</span>
+<span class=c1>#&gt; 1     1</span>
+<span class=c1>#&gt; 2     2</span>
+<span class=c1>#&gt; 3     3</span>
+
+<span class=c1># New (&gt;= 2.0.0):</span>
+<span class=nf>enframe</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>name</span> <span class=o>=</span> <span class=kc>NULL</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 3 x 1</span>
+<span class=c1>#&gt;   value</span>
+<span class=c1>#&gt;   &lt;int&gt;</span>
+<span class=c1>#&gt; 1     1</span>
+<span class=c1>#&gt; 2     2</span>
+<span class=c1>#&gt; 3     3</span>
+
+<span class=c1># New (legacy):</span>
+<span class=nf>tibble</span><span class=p>(</span><span class=n>value</span> <span class=o>=</span> <span class=n>x</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 3 x 1</span>
+<span class=c1>#&gt;   value</span>
+<span class=c1>#&gt;   &lt;int&gt;</span>
+<span class=c1>#&gt; 1     1</span>
+<span class=c1>#&gt; 2     2</span>
+<span class=c1>#&gt; 3     3</span>
+</code></pre></div></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#reverse-dependency-checks>Reverse dependency checks</a></li><li><a href=#tibble-construction-and-validation>Tibble construction and validation</a></li><li><a href=#coercion-and-name-repair>Coercion and name repair</a></li><li><a href=#deprecation-of-validate-in-as_tibblehttpstibbletidyverseorgdevreferenceas_tibblehtml>Deprecation of <code>validate</code> in <a href=https://tibble.tidyverse.org/dev/reference/as_tibble.html><code>as_tibble()</code></a></a></li><li><a href=#deprecation-of-tidy_names-and-set_tidy_names>Deprecation of <code>tidy_names()</code> and <code>set_tidy_names()</code></a></li><li><a href=#other-changes>Other changes</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>dtplyr | Tidyverse</title><link>https://www.tidyverse.org/tags/dtplyr/</link><atom:link href="https://www.tidyverse.org/tags/dtplyr/index.xml" rel="self" type="application/rss+xml"/><description>dtplyr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 24 Feb 2023 00:00:00 +0000</lastBuildDate><item><title>dtplyr 1.3.0</title><link>https://www.tidyverse.org/blog/2023/02/dtplyr-1-3-0/</link><pubDate>Fri, 24 Feb 2023 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2023/02/dtplyr-1-3-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re thrilled to announce the release of
+&lt;a href="https://dtplyr.tidyverse.org" target="_blank" rel="noopener">dtplyr&lt;/a> 1.3.0. dtplyr gives you the speed of
+&lt;a href="http://r-datatable.com/" target="_blank" rel="noopener">data.table&lt;/a> with the syntax of dplyr; you write dplyr (and tidyr) code and dtplyr translates it to the data.table equivalent.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"dtplyr"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This blog post will give you an overview of the changes in this version: dtplyr no longer adds translations directly to data.tables, it includes some dplyr 1.1.0 updates, and we have made some performance improvements. As always, you can see a full list of changes in the
+&lt;a href="https://github.com/tidyverse/dtplyr/releases/tag/v1.3.0" target="_blank" rel="noopener">release notes&lt;/a>&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://dtplyr.tidyverse.org'>dtplyr&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://dplyr.tidyverse.org'>dplyr&lt;/a>&lt;/span>, warn.conflicts &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="breaking-changes">Breaking changes
+&lt;a href="#breaking-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>In previous versions, dtplyr registered translations that kicked in whenever you used a data.table. This
+&lt;a href="https://github.com/tidyverse/dtplyr/issues/312" target="_blank" rel="noopener">caused problems&lt;/a> because merely loading dtplyr could cause otherwise ok code to fail because dplyr and tidyr functions would now return &lt;code>lazy_dt&lt;/code> objects instead of &lt;code>data.table&lt;/code> objects. To avoid this problem, we have removed those S3 methods so you must now explicitly opt-in to dtplyr translations by using
+&lt;a href="https://dtplyr.tidyverse.org/reference/lazy_dt.html" target="_blank" rel="noopener">&lt;code>lazy_dt()&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="dplyr-110">dplyr 1.1.0
+&lt;a href="#dplyr-110">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This release brings support for dplyr 1.1.0&amp;rsquo;s
+&lt;a href="https://www.tidyverse.org/blog/2023/02/dplyr-1-1-0-per-operation-grouping/" target="_blank" rel="noopener">per-operation grouping&lt;/a> and
+&lt;a href="https://dplyr.tidyverse.org/reference/pick.html" target="_blank" rel="noopener">&lt;code>pick()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>dt&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://dtplyr.tidyverse.org/reference/lazy_dt.html'>lazy_dt&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/data.frame.html'>data.frame&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>10&lt;/span>, id &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>2&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>dt&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarise&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>mean &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/mean.html'>mean&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span>, .by &lt;span class='o'>=&lt;/span> &lt;span class='nv'>id&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; `_DT1`[, .(mean = mean(x)), keyby = .(id)]&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>dt&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://dtplyr.tidyverse.org/reference/lazy_dt.html'>lazy_dt&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/data.frame.html'>data.frame&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>10&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/Uniform.html'>runif&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>dt&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>row_sum &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/colSums.html'>rowSums&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/pick.html'>pick&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; copy(`_DT2`)[, `:=`(row_sum = rowSums(data.table(x = x)))]&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Per-operation grouping was one of the dplyr 1.1.0 features inspired by data.table, so it&amp;rsquo;s neat to see it come full circle in this dtplyr release. Future releases will add support for other dplyr 1.1.0 features like the new
+&lt;a href="https://www.tidyverse.org/blog/2023/01/dplyr-1-1-0-joins/#join_by" target="_blank" rel="noopener">&lt;code>join_by()&lt;/code>&lt;/a> syntax and
+&lt;a href="https://www.tidyverse.org/blog/2023/02/dplyr-1-1-0-pick-reframe-arrange/#reframe" target="_blank" rel="noopener">&lt;code>reframe()&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="improved-translations">Improved translations
+&lt;a href="#improved-translations">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>dtplyr gains new translations for
+&lt;a href="https://dplyr.tidyverse.org/reference/count.html" target="_blank" rel="noopener">&lt;code>add_count()&lt;/code>&lt;/a> and &lt;code>unite()&lt;/code>, and the ranking functions,
+&lt;a href="https://dplyr.tidyverse.org/reference/row_number.html" target="_blank" rel="noopener">&lt;code>min_rank()&lt;/code>&lt;/a>,
+&lt;a href="https://dplyr.tidyverse.org/reference/row_number.html" target="_blank" rel="noopener">&lt;code>dense_rank()&lt;/code>&lt;/a>,
+&lt;a href="https://dplyr.tidyverse.org/reference/percent_rank.html" target="_blank" rel="noopener">&lt;code>percent_rank()&lt;/code>&lt;/a>, &amp;amp;
+&lt;a href="https://dplyr.tidyverse.org/reference/percent_rank.html" target="_blank" rel="noopener">&lt;code>cume_dist()&lt;/code>&lt;/a> are now mapped to their &lt;code>data.table&lt;/code> equivalents:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>dt&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/count.html'>add_count&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; copy(`_DT2`)[, `:=`(n = .N)]&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>dt&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>tidyr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://tidyr.tidyverse.org/reference/unite.html'>unite&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"z"&lt;/span>, &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>, &lt;span class='nv'>y&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; copy(`_DT2`)[, `:=`(z = paste(x, y, sep = "_"))][, `:=`(c("x", &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "y"), NULL)]&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>dt&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>r &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/row_number.html'>min_rank&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; copy(`_DT2`)[, `:=`(r = frank(x, ties.method = "min", na.last = "keep"))]&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>dt&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>r &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/row_number.html'>dense_rank&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/explain.html'>show_query&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; copy(`_DT2`)[, `:=`(r = frank(x, ties.method = "dense", na.last = "keep"))]&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This release also includes three translation improvements that yield better performance. When data has previously been copied
+&lt;a href="https://dplyr.tidyverse.org/reference/arrange.html" target="_blank" rel="noopener">&lt;code>arrange()&lt;/code>&lt;/a> will use &lt;code>setorder()&lt;/code> instead of
+&lt;a href="https://rdrr.io/r/base/order.html" target="_blank" rel="noopener">&lt;code>order()&lt;/code>&lt;/a> and
+&lt;a href="https://dplyr.tidyverse.org/reference/select.html" target="_blank" rel="noopener">&lt;code>select()&lt;/code>&lt;/a> will drop unwanted columns by reference (i.e. with &lt;code>var := NULL&lt;/code>). And
+&lt;a href="https://dplyr.tidyverse.org/reference/slice.html" target="_blank" rel="noopener">&lt;code>slice()&lt;/code>&lt;/a> now uses an intermediate variable to reduce computation time of row selection.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A massive thanks to
+&lt;a href="https://github.com/markfairbanks" target="_blank" rel="noopener">Mark Fairbanks&lt;/a> who did most of the work for this release, ably aided by the other dtplyr maintainers
+&lt;a href="https://github.com/eutwt" target="_blank" rel="noopener">@eutwt&lt;/a> and
+&lt;a href="https://github.com/mgirlich" target="_blank" rel="noopener">Maximilian Girlich&lt;/a>. And thanks to everyone else who helped make this release possible, whether it was with code, documentation, or insightful comments:
+&lt;a href="https://github.com/abalter" target="_blank" rel="noopener">@abalter&lt;/a>,
+&lt;a href="https://github.com/akaviaLab" target="_blank" rel="noopener">@akaviaLab&lt;/a>,
+&lt;a href="https://github.com/camnesia" target="_blank" rel="noopener">@camnesia&lt;/a>,
+&lt;a href="https://github.com/caparks2" target="_blank" rel="noopener">@caparks2&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/eipi10" target="_blank" rel="noopener">@eipi10&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/jmbarbone" target="_blank" rel="noopener">@jmbarbone&lt;/a>,
+&lt;a href="https://github.com/johnF-moore" target="_blank" rel="noopener">@johnF-moore&lt;/a>,
+&lt;a href="https://github.com/lschneiderbauer" target="_blank" rel="noopener">@lschneiderbauer&lt;/a>, and
+&lt;a href="https://github.com/NicChr" target="_blank" rel="noopener">@NicChr&lt;/a>.&lt;/p></description></item><item><title>dtplyr 1.0.0</title><link>https://www.tidyverse.org/blog/2019/11/dtplyr-1-0-0/</link><pubDate>Tue, 12 Nov 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/11/dtplyr-1-0-0/</guid><description>&lt;p>I&amp;rsquo;m very excited to announce that
+&lt;a href="https://dtplyr.tidyverse.org" target="_blank" rel="noopener">dtplyr&lt;/a> 1.0.0 is now on CRAN. dtplyr provides a
+&lt;a href="http://r-datatable.com/" target="_blank" rel="noopener">data.table&lt;/a> backend for dplyr, allowing you to write dplyr code that is automatically translated to the equivalent data.table code.&lt;/p>
+&lt;p>dtplyr 1.0.0 gives you the speed of data.table with the syntax of dplyr, unlocking the value of data.table to every user of dplyr. Of course, if you know data.table, you can still write it directly, just as we expect SQL experts to continue to write SQL rather than having
+&lt;a href="http://dbplyr.tidyverse.org/" target="_blank" rel="noopener">dbplyr&lt;/a> generate it for them. Understanding these foundational tools is particularly important if you want to eke out every last drop of performance.&lt;/p>
+&lt;p>This version of dtplyr is a complete rewrite which allows it to generate significantly more performant translations. dtplyr now works like
+&lt;a href="https://dbplyr.tidyverse.org" target="_blank" rel="noopener">dbplyr&lt;/a>, where computation only happens when requested by &lt;code>as.data.table()&lt;/code>, &lt;code>as.data.frame()&lt;/code> or &lt;code>as_tibble()&lt;/code> (this idea can also be seen in the
+&lt;a href="https://github.com/asardaes/table.express" target="_blank" rel="noopener">table.express&lt;/a> and
+&lt;a href="https://github.com/WinVector/rqdatatable/" target="_blank" rel="noopener">rqdatatable&lt;/a> packages). Unfortunately, this rewrite breaks pretty much all existing uses of dtplyr. But frankly, the prior version of dtplyr was not very good and few people used it, so a major overhaul should break little code in the wild.&lt;/p>
+&lt;p>In this article, I&amp;rsquo;ll introduce you to the basic usage of dtplyr, talk about some of the performance implications, and show off some of the translations that I&amp;rsquo;m most proud of.&lt;/p>
+&lt;h2 id="usage">Usage
+&lt;a href="#usage">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>To use dtplyr, you must at least load dtplyr and dplyr. You might also want to load
+&lt;a href="http://r-datatable.com/" target="_blank" rel="noopener">data.table&lt;/a> so you can access the other goodies that it provides:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data.table&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dtplyr&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dplyr&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">warn.conflicts&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">FALSE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then use &lt;code>lazy_dt()&lt;/code> to create a &amp;ldquo;lazy&amp;rdquo; data table that tracks the operations performed on it:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">mtcars2&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">lazy_dt&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can use dplyr verbs with this object as if it was a data frame. But there&amp;rsquo;s a big difference behind the scenes: instead of immediately performing the operation, dtplyr just records what you&amp;rsquo;re doing so when needed it can generate a single, efficient, data.table statement. You can preview the transformation (including the generated data.table code) by printing the result:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">mtcars2&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">wt&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">l100k&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">235.21&lt;/span> &lt;span class="o">/&lt;/span> &lt;span class="n">mpg&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="c1"># liters / 100 km&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">cyl&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">summarise&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">l100k&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">mean&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">l100k&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; Source: local data table [?? x 2]&lt;/span>
+&lt;span class="c1">#&amp;gt; Call: `_DT1`[wt &amp;lt; 5][, `:=`(l100k = 235.21/mpg)][, .(l100k = mean(l100k)), &lt;/span>
+&lt;span class="c1">#&amp;gt; keyby = .(cyl)]&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; cyl l100k&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 4 9.05&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 6 12.0 &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 8 14.9 &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; # Use as.data.table()/as.data.frame()/as_tibble() to access results&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Generally, however, you should reserve this preview for exploration and debugging, and instead use &lt;code>as.data.table()&lt;/code>, &lt;code>as.data.frame()&lt;/code>, or &lt;code>as_tibble()&lt;/code> to indicate that you&amp;rsquo;re done writing the transformation and want to access the results:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">mtcars2&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">wt&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">l100k&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">235.21&lt;/span> &lt;span class="o">/&lt;/span> &lt;span class="n">mpg&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="c1"># liters / 100 km&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">cyl&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">summarise&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">l100k&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">mean&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">l100k&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 3 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; cyl l100k&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 4 9.05&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 6 12.0 &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 8 14.9&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="performance">Performance
+&lt;a href="#performance">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>How fast is dtplyr? data.table is generally faster than dplyr, but dtplyr has to do some work to perform the translation, so it&amp;rsquo;s reasonable to ask if it&amp;rsquo;s worth it. Do the benefits of using data.table outweigh the cost of the automated translation? My experimentation suggests that it is: the cost of translation is low, and independent of the size of the data. In this section, I&amp;rsquo;ll explore the performance trade-off through three lenses: translation cost, copies, and interface mismatch.&lt;/p>
+&lt;h3 id="translation-cost">Translation cost
+&lt;a href="#translation-cost">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Each dplyr verb must do some work to convert dplyr syntax to data.table syntax. We can use the
+&lt;a href="http://bench.r-lib.org/" target="_blank" rel="noopener">bench&lt;/a> package to time the cost of the four-step pipeline that I used above:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">bench&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">mark&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">translate&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mtcars2&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">wt&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">l100k&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">235.21&lt;/span> &lt;span class="o">/&lt;/span> &lt;span class="n">mpg&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="c1"># liters / 100 km&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">cyl&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">summarise&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">l100k&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">mean&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">l100k&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; expression min median `itr/sec` mem_alloc `gc/sec`&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;bch:expr&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;bch:byt&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 translate 787µs 969µs 1028. 280B 26.4&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Because this pipeline does not use &lt;code>as.data.table()&lt;/code> or &lt;code>print()&lt;/code> it only generates the data.table code, it doesn&amp;rsquo;t run it, so we&amp;rsquo;re timing the translation cost. The translation cost scales with the complexity of the pipeline, not the size of the data, so these timings will apply regardless of the size of the underlying data.&lt;/p>
+&lt;p>My intial experiments suggest that the translation cost is typically a few milliseconds. Since the computational cost increases with the size of the data, the translation cost becomes a smaller proportion of the total as the data size grows, suggesting the dtplyr does not impose a significant overhead on top of data.table.&lt;/p>
+&lt;p>Take the following example, which uses the large nycflights13 dataset. This isn&amp;rsquo;t really big enough for data.table to really shine, but it&amp;rsquo;s about as big as you can get in an R package. Here I&amp;rsquo;m going to compute the average arrival delay by destination. It takes raw dplyr about 40ms to do the work. Again, the dtplyr translation is fast, around 1ms, and then computation using data.table only takes about 20ms, almost twice as fast as dplyr.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">nycflights13&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">flights_dt&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">lazy_dt&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">flights&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">delay_by_dest&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">df&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">!&lt;/span>&lt;span class="nf">is.na&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">arr_delay&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dest&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">summarise&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">n&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">n&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="n">delay&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">mean&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">arr_delay&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="n">bench&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">mark&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">flights&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">delay_by_dest&lt;/span>&lt;span class="p">(),&lt;/span>
+&lt;span class="n">flights_dt&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">delay_by_dest&lt;/span>&lt;span class="p">(),&lt;/span>
+&lt;span class="n">flights_dt&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">delay_by_dest&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(),&lt;/span>
+&lt;span class="n">check&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">FALSE&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 3 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; expression min median `itr/sec`&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;bch:expr&amp;gt; &amp;lt;bch:t&amp;gt; &amp;lt;bch:t&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 flights %&amp;gt;% delay_by_dest() 35.7ms 36ms 27.8&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 flights_dt %&amp;gt;% delay_by_dest() 671.9µs 824.6µs 1230. &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 flights_dt %&amp;gt;% delay_by_dest() %&amp;gt;% as_tibble() 18.7ms 20.2ms 48.0&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 2 more variables: mem_alloc &amp;lt;bch:byt&amp;gt;, `gc/sec` &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="copies">Copies
+&lt;a href="#copies">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>There is one place where dtplyr does have to add overhead: when translations would generate data.table code that modifies the input in place, like &lt;code>mutate()&lt;/code>. dtplyr matches dplyr semantics (which never modifies in place), so most expressions involving &lt;code>mutate()&lt;/code> must make a copy:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">mtcars2&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">x&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; copy(`_DT1`)[, `:=`(x = x * 2)]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>However, dtplyr never generates more than one copy (no matter how many mutates you use), and it also recognises many situations where data.table creates an implicit copy:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">mtcars2&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">x&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">z&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; copy(`_DT1`)[, `:=`(y = x * 2)][, `:=`(z = y * 2)]&lt;/span>
+&lt;span class="n">mtcars2&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">x&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; `_DT1`[x == 1][, `:=`(x = x * 2)]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>However, if you have very datasets, creating a deep copy can be expensive. dtplyr allows you to opt out by setting &lt;code>immutable = FALSE&lt;/code>. This ensures that dtplyr never makes a copy:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">mtcars3&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">lazy_dt&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">as.data.table&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">immutable&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">FALSE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">mtcars3&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x2&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">x&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; `_DT3`[, `:=`(x2 = x * 2)]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="interface-mismatch">Interface mismatch
+&lt;a href="#interface-mismatch">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The hardest overhead to measure is the cost of interface mismatch, i.e. where data.table has features that dplyr doesn&amp;rsquo;t. For example, there&amp;rsquo;s no way to express cross- or rolling-joins with dplyr, so there&amp;rsquo;s no way to generate efficient data.table code for these cases. It&amp;rsquo;s hard to estimate this cost, but it&amp;rsquo;s something that we think about when considering what features to add to dplyr next.&lt;/p>
+&lt;h2 id="translation">Translation
+&lt;a href="#translation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If you&amp;rsquo;re familiar with data.table, you might be interested to learn more about how the translation works. Here I&amp;rsquo;ll show a few things I think are particularly interesting, using &lt;code>show_query()&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">df&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">data.frame&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">b&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">c&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">d&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">dt&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">lazy_dt&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Most uses of the basic dplyr verbs generate calls to &lt;code>[.data.table&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">dt&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">c&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="n">d&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; `_DT4`[, .(a, b)]&lt;/span>
+&lt;span class="n">dt&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">summarise&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">mean&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; `_DT4`[, .(x = mean(x))]&lt;/span>
+&lt;span class="n">dt&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">a&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; copy(`_DT4`)[, `:=`(x = a + b)]&lt;/span>
+&lt;span class="n">dt&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; `_DT4`[a == 1]&lt;/span>
+&lt;span class="n">dt&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">arrange&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">desc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">b&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; `_DT4`[order(a, desc(b))]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>As do simple left and right joins:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">dt2&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">lazy_dt&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">data.frame&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">z&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="n">dt&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">left_join&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dt2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">by&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;a&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; `_DT5`[`_DT4`, on = .(a), allow.cartesian = TRUE]&lt;/span>
+&lt;span class="n">dt&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">right_join&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dt2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">by&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;a&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; `_DT4`[`_DT5`, on = .(a), allow.cartesian = TRUE]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Where possible, dtplyr will collapse multiple calls to &lt;code>[&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">dt&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">a&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; `_DT4`[a == 1, .(b, c, d)]&lt;/span>
+&lt;span class="n">dt&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">left_join&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dt2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">by&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;a&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">z&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; `_DT5`[`_DT4`, .(a, b, z), on = .(a), allow.cartesian = TRUE]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>But note that the order is important, as a &lt;code>select()&lt;/code> followed by a &lt;code>filter()&lt;/code> has to generate two statements:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">dt&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; `_DT4`[, .(a = b)][a == 1]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>When you mix basic dplyr verbs with &lt;code>group_by()&lt;/code>, dtplyr adds the &lt;code>keyby&lt;/code> argument:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">dt&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">summarise&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">b&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">mean&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">b&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; `_DT4`[, .(b = mean(b)), keyby = .(a)]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>And when filtering, this automatically uses &lt;code>.SD&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">dt&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">b&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="nf">mean&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">b&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">show_query&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; `_DT4`[, .SD[b &amp;lt; mean(b)], keyby = .(a)]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can learn more in
+&lt;a href="https://dtplyr.tidyverse.org/articles/translation.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;translation&amp;quot;)&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>There are a couple of limitations that I hope to address in the next version of dtplyr. Currently, you can&amp;rsquo;t translate
+&lt;a href="https://github.com/tidyverse/dtplyr/issues/109" target="_blank" rel="noopener">the &lt;code>_if&lt;/code> variants&lt;/a>, and there is weak support for the
+&lt;a href="https://github.com/tidyverse/dtplyr/issues/108" target="_blank" rel="noopener">&lt;code>group_&lt;/code> functions&lt;/a>. If you discover other functions that don&amp;rsquo;t work as you expect,
+&lt;a href="https://github.com/tidyverse/dtplyr/issues/new/choose" target="_blank" rel="noopener">please file an issue!&lt;/a>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Big thanks to the data.table community, particularly
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">Michael Chirico&lt;/a>, for their help educating me on the best way to translate dplyr code into performant, idiomatic, data.table code.&lt;/p>
+&lt;p>I&amp;rsquo;d also like to thank everyone to helped make this release happen through their contributions on GitHub:
+&lt;a href="https://github.com/AlanFeder" target="_blank" rel="noopener">@AlanFeder&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/benjaminleroy" target="_blank" rel="noopener">@benjaminleroy&lt;/a>,
+&lt;a href="https://github.com/clayphan" target="_blank" rel="noopener">@clayphan&lt;/a>,
+&lt;a href="https://github.com/ColinFay" target="_blank" rel="noopener">@ColinFay&lt;/a>,
+&lt;a href="https://github.com/daranzolin" target="_blank" rel="noopener">@daranzolin&lt;/a>,
+&lt;a href="https://github.com/edgararuiz" target="_blank" rel="noopener">@edgararuiz&lt;/a>,
+&lt;a href="https://github.com/franknarf1" target="_blank" rel="noopener">@franknarf1&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hlynurhallgrims" target="_blank" rel="noopener">@hlynurhallgrims&lt;/a>,
+&lt;a href="https://github.com/hope-data-science" target="_blank" rel="noopener">@hope-data-science&lt;/a>,
+&lt;a href="https://github.com/ianmcook" target="_blank" rel="noopener">@ianmcook&lt;/a>,
+&lt;a href="https://github.com/jl5000" target="_blank" rel="noopener">@jl5000&lt;/a>,
+&lt;a href="https://github.com/jonthegeek" target="_blank" rel="noopener">@jonthegeek&lt;/a>,
+&lt;a href="https://github.com/JoshuaSturm" target="_blank" rel="noopener">@JoshuaSturm&lt;/a>,
+&lt;a href="https://github.com/lenay12" target="_blank" rel="noopener">@lenay12&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/nlbjan1" target="_blank" rel="noopener">@nlbjan1&lt;/a>,
+&lt;a href="https://github.com/quantitative-technologies" target="_blank" rel="noopener">@quantitative-technologies&lt;/a>,
+&lt;a href="https://github.com/richpauloo" target="_blank" rel="noopener">@richpauloo&lt;/a>,
+&lt;a href="https://github.com/S-UP" target="_blank" rel="noopener">@S-UP&lt;/a>,
+&lt;a href="https://github.com/tmastny" target="_blank" rel="noopener">@tmastny&lt;/a>,
+&lt;a href="https://github.com/TobiRoby" target="_blank" rel="noopener">@TobiRoby&lt;/a>,
+&lt;a href="https://github.com/tomazweiss" target="_blank" rel="noopener">@tomazweiss&lt;/a>,
+&lt;a href="https://github.com/torema-ed" target="_blank" rel="noopener">@torema-ed&lt;/a>,
+&lt;a href="https://github.com/Vidaringa" target="_blank" rel="noopener">@Vidaringa&lt;/a>,
+&lt;a href="https://github.com/vlahm" target="_blank" rel="noopener">@vlahm&lt;/a>,
+&lt;a href="https://github.com/vspinu" target="_blank" rel="noopener">@vspinu&lt;/a>,
+&lt;a href="https://github.com/xiaodaigh" target="_blank" rel="noopener">@xiaodaigh&lt;/a>, and
+&lt;a href="https://github.com/yiqinfu" target="_blank" rel="noopener">@yiqinfu&lt;/a>.&lt;/p></description></item></channel></rss>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>brulee | Tidyverse</title><link>https://www.tidyverse.org/tags/brulee/</link><atom:link href="https://www.tidyverse.org/tags/brulee/index.xml" rel="self" type="application/rss+xml"/><description>brulee</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 26 Sep 2022 00:00:00 +0000</lastBuildDate><item><title>brulee 0.2.0</title><link>https://www.tidyverse.org/blog/2022/09/brulee-0-2-0/</link><pubDate>Mon, 26 Sep 2022 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2022/09/brulee-0-2-0/</guid><description>&lt;p>We&amp;rsquo;re thrilled to announce the release of
+&lt;a href="https://tidymodels.github.io/brulee/" target="_blank" rel="noopener">brulee&lt;/a> 0.2.0. brulee contains several basic modeling functions that use the torch package infrastructure, such as: neural networks, linear regression, logistic regression, and multinomial regression.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;brulee&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This blog post will describe the changes to the package. You can see a full list of changes in the
+&lt;a href="https://tidymodels.github.io/brulee/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;p>There were two main additions to brulee.&lt;/p>
+&lt;p>First, since brulee is focused on fitting models to &lt;em>tabular data&lt;/em>, we have moved away from optimizing via stochastic gradient descent (SGD) as the default. For &lt;code>brulee_mlp()&lt;/code>, we switched the default optimizer from SGD to more traditional quasi-newton methods, specifically to Broyden–Fletcher–Goldfarb–Shanno algorithm (BFGS) method. You can still use SGD via the &lt;code>optimizer&lt;/code> option.&lt;/p>
+&lt;p>Second, we&amp;rsquo;ve added
+&lt;a href="https://www.google.com/search?rls=en&amp;amp;q=%22learning&amp;#43;rate&amp;#43;schedule%22" target="_blank" rel="noopener">learning rate schedulers&lt;/a> to &lt;code>brulee_mlp()&lt;/code>. The learning rate is one of the most important parameters to tune. There is an existing option to have a constant learning rate (via the &lt;code>learn_rate&lt;/code> argument). However, there is some intuition that the rate should probably decrease once the optimizer is closer to the best solution (to avoid overshooting the target). A scheduler is a function that adjusts the rate over time. Apart from a constant learning rate (the default), the options are cyclic, exponential decay, time-based decay, and step functions:&lt;/p>
+&lt;p>&lt;img src="rates.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" style="display: block; margin: auto;" />&lt;/p>
+&lt;p>The corresponding
+&lt;a href="https://tidymodels.github.io/brulee/reference/schedule_decay_time.html" target="_blank" rel="noopener">set of functions&lt;/a> share the prefix &lt;code>schedule_*()&lt;/code>.&lt;/p>
+&lt;p>To use these with &lt;code>brulee_mlp()&lt;/code>, there is a &lt;code>rate_schedule&lt;/code> argument with possible values: &lt;code>&amp;quot;none&amp;quot;&lt;/code> (the default), &lt;code>&amp;quot;decay_time&amp;quot;&lt;/code>, &lt;code>&amp;quot;decay_expo&amp;quot;&lt;/code>, &lt;code>&amp;quot;cyclic&amp;quot;&lt;/code> and &lt;code>&amp;quot;step&amp;quot;&lt;/code>. Each function has arguments and these can be passed directly to &lt;code>brulee_mlp()&lt;/code>. The &lt;code>rate_schedule&lt;/code> argument can also be tuned as any other engine-specific parameter.&lt;/p>
+&lt;h2 id="an-example">An example
+&lt;a href="#an-example">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Let&amp;rsquo;s look at an example using the Ames housing data. We&amp;rsquo;ll use tidymodels to split the data and also preprocess the data a bit.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidymodels&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">brulee&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># ------------------------------------------------------------------------------&lt;/span>
+&lt;span class="nf">tidymodels_prefer&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="nf">theme_set&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">theme_bw&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="c1"># ------------------------------------------------------------------------------&lt;/span>
+&lt;span class="nf">data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ames&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">package&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;modeldata&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">ames&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">Sale_Price&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">log10&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ames&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">Sale_Price&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># ------------------------------------------------------------------------------&lt;/span>
+&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">5685&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">split&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">initial_split&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ames&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">ames_train&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">training&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">split&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">ames_test&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">testing&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">split&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># ------------------------------------------------------------------------------&lt;/span>
+&lt;span class="c1"># Let&amp;#39;s make a recipe to preprocess the data&lt;/span>
+&lt;span class="n">ames_rec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Sale_Price&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">Bldg_Type&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">Neighborhood&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">Year_Built&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">Gr_Liv_Area&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="n">Full_Bath&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">Year_Sold&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">Lot_Area&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">Central_Air&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">Longitude&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">Latitude&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ames_train&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="c1"># Transform some highly skewed predictors&lt;/span>
+&lt;span class="nf">step_BoxCox&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Lot_Area&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Gr_Liv_Area&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="c1"># Lump some rarely occurring categories into &amp;#34;other&amp;#34;&lt;/span>
+&lt;span class="nf">step_other&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Neighborhood&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">threshold&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.05&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="c1"># Encode categorical predictors as binary.&lt;/span>
+&lt;span class="nf">step_dummy&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">all_nominal_predictors&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="n">one_hot&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="c1"># Add an interaction effect:&lt;/span>
+&lt;span class="nf">step_interact&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">~&lt;/span> &lt;span class="nf">starts_with&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Central_Air&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="n">Year_Built&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_zv&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">all_predictors&lt;/span>&lt;span class="p">())&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_normalize&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">all_numeric_predictors&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now we can fit the model by passing the data, the recipe, and other options to &lt;code>brulee_mlp()&lt;/code>. We&amp;rsquo;ll use a cyclic scheduler with a half-cycle size of 5 epochs:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">827&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">fit&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">brulee_mlp&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ames_rec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ames_train&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">hidden_units&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">20&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">epochs&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">151&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">penalty&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.05&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">rate_schedule&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;cyclic&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">step_size&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Show the validation loss and alter the x-axis tick marks to correspond to cycles. &lt;/span>
+&lt;span class="n">cycles&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">seq&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">151&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">by&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">10&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">autoplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">fit&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="nf">scale_x_continuous&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">breaks&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">cycles&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">minor_breaks&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">NULL&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figure/val-loss-1.svg" title="plot of chunk val-loss" alt="plot of chunk val-loss" width="90%" />&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/sametsoekel" target="_blank" rel="noopener">@sametsoekel&lt;/a>, and
+&lt;a href="https://github.com/dfalbel" target="_blank" rel="noopener">@dfalbel&lt;/a> for their help since the previous release.&lt;/p></description></item></channel></rss>

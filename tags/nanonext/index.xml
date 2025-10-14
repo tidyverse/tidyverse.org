@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>nanonext | Tidyverse</title><link>https://www.tidyverse.org/tags/nanonext/</link><atom:link href="https://www.tidyverse.org/tags/nanonext/index.xml" rel="self" type="application/rss+xml"/><description>nanonext</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 02 Sep 2025 00:00:00 +0000</lastBuildDate><item><title>nanonext 1.7.0</title><link>https://www.tidyverse.org/blog/2025/09/nanonext-1-7-0/</link><pubDate>Tue, 02 Sep 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/09/nanonext-1-7-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;h1 id="introducing-nanonext-breaking-down-language-barriers-in-data-science">Introducing nanonext: breaking down language barriers in data science
+&lt;a href="#introducing-nanonext-breaking-down-language-barriers-in-data-science">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h1>&lt;p>We&amp;rsquo;re excited to welcome
+&lt;a href="https://nanonext.r-lib.org" target="_blank" rel="noopener">nanonext&lt;/a> to the r-lib family! nanonext is R&amp;rsquo;s binding to NNG (Nanomsg Next Generation), a high-performance C messaging library that implements scalability protocols for distributed systems. Because NNG has bindings and ports across multiple languages&amp;mdash;including Python, Go, Rust, C++, and many others&amp;mdash;nanonext enables seamless interoperability between R and other modern programming languages.&lt;/p>
+&lt;p>The latest version 1.7.0 brings enhanced reliability with improved HTTP client functionality, better handling of custom serialization methods, and more robust event-driven promises.&lt;/p>
+&lt;p>Get started by installing the package from CRAN now:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;nanonext&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="the-challenge-multi-language-data-science">The challenge: multi-language data science
+&lt;a href="#the-challenge-multi-language-data-science">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If you&amp;rsquo;ve worked in data science, you&amp;rsquo;ve likely encountered this scenario: your workflow spans multiple programming languages. Perhaps you have Python models, R analysis scripts, Go services, or C++ performance libraries that all need to work together.&lt;/p>
+&lt;p>Traditionally, making these components communicate means:&lt;/p>
+&lt;ul>
+&lt;li>Writing data to files and reading them back&lt;/li>
+&lt;li>Building REST APIs and making HTTP calls&lt;/li>
+&lt;li>Handling different serialization formats like JSON or protocol buffers&lt;/li>
+&lt;li>Dealing with the latency and complexity that comes with each approach&lt;/li>
+&lt;/ul>
+&lt;h2 id="the-solution-nngs-scalability-protocols">The solution: NNG&amp;rsquo;s scalability protocols
+&lt;a href="#the-solution-nngs-scalability-protocols">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>nanonext changes this by bringing NNG&amp;rsquo;s scalability protocols to R. NNG is a high-performance C library that implements standardized communication patterns like request/reply, publish/subscribe, and pipeline architectures. Any process using NNG can communicate directly with any other NNG process using the same protocol&amp;mdash;regardless of the programming language.&lt;/p>
+&lt;p>This means that for simple atomic vector types, your R data doesn&amp;rsquo;t even need to be serialized and converted to a common format, enabling direct, real-time communication between processes. For more complex data types, as long as serialization and unserialization methods exist in both languages, then nanonext can be used to send and receive arbitrary binary data.&lt;/p>
+&lt;h2 id="what-can-you-do-with-nanonext">What can you do with nanonext?
+&lt;a href="#what-can-you-do-with-nanonext">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>nanonext opens up several powerful possibilities for R users:&lt;/p>
+&lt;p>&lt;strong>🔗 Cross-language integration&lt;/strong>: Connect R directly with Python machine learning models, Go microservices, Rust compute engines, or C libraries without intermediate files or complex APIs.&lt;/p>
+&lt;p>&lt;strong>⚡ Real-time data pipelines&lt;/strong>: Build data systems where different components process data as it flows, perfect for live dashboards or high-frequency analytics.&lt;/p>
+&lt;p>&lt;strong>📡 Modern web integration&lt;/strong>: Create WebSocket clients, make asynchronous HTTP requests, or build real-time APIs that integrate with web services.&lt;/p>
+&lt;p>&lt;strong>🚀 Asynchronous programming&lt;/strong>: Write non-blocking R code that can handle multiple operations simultaneously, improving performance for concurrent tasks.&lt;/p>
+&lt;h2 id="python--r-interoperability-example">Python ↔ R interoperability example
+&lt;a href="#python--r-interoperability-example">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Here&amp;rsquo;s a concrete example of R and Python working together through NNG&amp;rsquo;s protocols. Both processes use their respective NNG bindings to establish a direct communication channel using NNG&amp;rsquo;s &amp;lsquo;pair&amp;rsquo; protocol&amp;mdash;a simple one-to-one bidirectional communication pattern.&lt;/p>
+&lt;p>&lt;strong>Python side&lt;/strong> (using pynng):&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="kn">import&lt;/span> &lt;span class="nn">numpy&lt;/span> &lt;span class="kn">as&lt;/span> &lt;span class="nn">np&lt;/span>
+&lt;span class="kn">import&lt;/span> &lt;span class="nn">pynng&lt;/span>
+&lt;span class="c1"># Create socket to communicate with R&lt;/span>
+&lt;span class="n">socket&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">pynng&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">Pair0&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">listen&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;ipc:///tmp/nanonext.socket&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Wait for data from R&lt;/span>
+&lt;span class="n">raw&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">socket&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">recv&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="n">array&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">np&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">frombuffer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">raw&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="k">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">array&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># [1.1 2.2 3.3 4.4 5.5]&lt;/span>
+&lt;span class="c1"># Process data (could be ML model prediction, transformation, etc.)&lt;/span>
+&lt;span class="n">processed&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">array&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="c1"># Simple example: multiply by 2&lt;/span>
+&lt;span class="c1"># Send back to R as bytes&lt;/span>
+&lt;span class="n">socket&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">send&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">processed&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">tobytes&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="n">socket&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">close&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;strong>R side&lt;/strong> (using nanonext):&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">nanonext&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Connect to Python process&lt;/span>
+&lt;span class="n">sock&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">socket&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;pair&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">dial&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;ipc:///tmp/nanonext.socket&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Send numeric data directly to Python (no serialization needed!)&lt;/span>
+&lt;span class="n">sock&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span> &lt;span class="nf">send&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1.1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">2.2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">3.3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">4.4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">5.5&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">mode&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;raw&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Receive processed results back from Python&lt;/span>
+&lt;span class="n">processed_data&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">sock&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span> &lt;span class="nf">recv&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mode&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;double&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">processed_data&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># [1] 2.2 4.4 6.6 8.8 11.0&lt;/span>
+&lt;span class="c1"># Continue with R-specific analysis&lt;/span>
+&lt;span class="nf">summary&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">processed_data&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">plot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">processed_data&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">close&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sock&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;strong>What just happened?&lt;/strong> Your R session sent numerical data directly to Python&amp;rsquo;s memory space, Python processed it (possibly performing inference on a complex ML model), and sent results back&amp;mdash;all happening in memory without touching the disk. This is orders of magnitude faster than traditional file-based approaches.&lt;/p>
+&lt;h2 id="why-this-matters">Why this matters
+&lt;a href="#why-this-matters">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>&lt;strong>Speed&lt;/strong>: Direct memory communication is dramatically faster than file I/O or HTTP requests. Your R session doesn&amp;rsquo;t wait for disk writes or network round-trips.&lt;/p>
+&lt;p>&lt;strong>Simplicity&lt;/strong>: No need to design REST APIs, manage file formats, or handle serialization. Send R vectors directly and receive results back.&lt;/p>
+&lt;p>&lt;strong>Flexibility&lt;/strong>: nanonext supports different communication patterns (one-to-one, one-to-many, publish/subscribe) and transport methods (IPC, TCP, WebSocket).&lt;/p>
+&lt;p>&lt;strong>Reliability&lt;/strong>: Built on NNG, a mature library that powers mission-critical systems in technology, finance and many other industries.&lt;/p>
+&lt;p>&lt;strong>Asynchronous&lt;/strong>: Your R session stays responsive. Send a request for a long-running computation and continue working while it processes in the background.&lt;/p>
+&lt;h2 id="the-future-is-multi-language">The future is multi-language
+&lt;a href="#the-future-is-multi-language">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>nanonext facilitates a shift toward more flexible, performance-oriented data science workflows. Instead of being locked into a single language or accepting the overhead of traditional integration methods, you can now build systems where each component uses the best tool for the job.&lt;/p>
+&lt;p>We&amp;rsquo;re excited to see how the R community uses these capabilities.&lt;/p>
+&lt;p>Ready to try it? Visit the
+&lt;a href="https://nanonext.r-lib.org" target="_blank" rel="noopener">package website&lt;/a> for comprehensive documentation, or explore the code at the
+&lt;a href="https://github.com/r-lib/nanonext" target="_blank" rel="noopener">GitHub repository&lt;/a>.&lt;/p></description></item></channel></rss>

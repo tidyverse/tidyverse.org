@@ -1,0 +1,190 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>dbplyr 1.4.0</title><meta property="og:title" content="dbplyr 1.4.0"><meta property="og:description" content="We&rsquo;re stoked to announce the release of dbplyr 1.4.0, the database backend for dplyr that translates R code into SQL. dbplyr allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr turns it into SQL for you.
+You can install the released version from CRAN:
+install.packages(&#34;dbplyr&#34;) While there are many small improvements and bug fixes (see the full full details in the changelog), the biggest improvements in this release are related to SQL generation."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2019/04/dbplyr-1-4-0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="dbplyr 1.4.0 - Tidyverse"><meta property="description" content><meta property="og:description" content><meta property="og:image" content="https://www.tidyverse.org/blog/2019/04/dbplyr-1-4-0/dbplyr-1-4-0-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2019/04/dbplyr-1-4-0/dbplyr-1-4-0-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>dbplyr 1.4.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2019/04/dbplyr-1-4-0/dbplyr-1-4-0-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/JuFcQxgCXwA>Samuel Zeller</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2019/04/30</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/dplyr/>dplyr</a>,
+<a href=/tags/dbplyr/>dbplyr</a>,
+<a href=/tags/databases/>databases</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Hadley Wickham</p><div class=article-content><p>We&rsquo;re stoked to announce the release of
+<a href=https://dbplyr.tidyverse.org target=_blank rel=noopener>dbplyr 1.4.0</a>, the database backend for dplyr that translates R code into SQL. dbplyr allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr turns it into SQL for you.</p><p>You can install the released version from CRAN:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>install.packages</span><span class=p>(</span><span class=s>&#34;dbplyr&#34;</span><span class=p>)</span>
+</code></pre></div><p>While there are many small improvements and bug fixes (see the full full details in the
+<a href=https://dbplyr.tidyverse.org/news/index.html target=_blank rel=noopener>changelog</a>), the biggest improvements in this release are related to SQL generation. In this blog post, I&rsquo;ll show you how find out what dplyr is doing behind the scenes, discuss some major simplifications to the SQL that dbplyr generates, and then show off a few of the new function translations.</p><p>To get started, I&rsquo;ll load dplyr and dbplyr:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>dplyr</span><span class=p>)</span>
+<span class=nf>library</span><span class=p>(</span><span class=n>dbplyr</span><span class=p>)</span>
+</code></pre></div><h2 id=sql-simulation>SQL simulation
+<a href=#sql-simulation><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>This version of dbplyr substantially improves the tools that allow you to see what SQL dbplyr generates without needing to connect to a live database. You won&rsquo;t generally need these tools for real data, but they&rsquo;re very useful for blog posts (like this one!), for generating reprexes (as discussed in the new
+<a href=https://dbplyr.tidyverse.org/articles/reprex.html target=_blank rel=noopener><code>vignette("reprex")</code></a>), and for dbplyr&rsquo;s internal tests.</p><p>The basic idea is that you can create a &ldquo;lazy&rdquo; frame:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df1</span> <span class=o>&lt;-</span> <span class=nf>lazy_frame</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>3</span><span class=p>,</span> <span class=n>y</span> <span class=o>=</span> <span class=m>3</span><span class=o>:</span><span class=m>1</span><span class=p>)</span>
+</code></pre></div><p>I call this tibble lazy because dplyr operations don&rsquo;t do any work; instead they just record the action so it can later be turned in to a SQL query. You can see this query by printing the lazy tibble:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df1</span>
+<span class=c1>#&gt; &lt;SQL&gt;</span>
+<span class=c1>#&gt; SELECT *</span>
+<span class=c1>#&gt; FROM `df`</span>
+</code></pre></div><p>This is most useful when you add on a few steps:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df1</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>x</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>summarise</span><span class=p>(</span><span class=n>z</span> <span class=o>=</span> <span class=nf>mean</span><span class=p>(</span><span class=n>y</span><span class=p>))</span>
+<span class=c1>#&gt; &lt;SQL&gt;</span>
+<span class=c1>#&gt; Warning: Missing values are always removed in SQL.</span>
+<span class=c1>#&gt; Use `mean(x, na.rm = TRUE)` to silence this warning</span>
+<span class=c1>#&gt; This warning is displayed only once per session.</span>
+<span class=c1>#&gt; SELECT `x`, AVG(`y`) AS `z`</span>
+<span class=c1>#&gt; FROM `df`</span>
+<span class=c1>#&gt; GROUP BY `x`</span>
+</code></pre></div><p>(This example also highlights another small improvement to dbplyr: it&rsquo;ll only warn you about missing values being automatically removed in the database once per session.)</p><p>Importantly, <code>lazy_frame()</code> has a <code>con</code> argument that allows you to specify which database should be used for the translation. This makes it easier to see the differences in SQL generation between databases:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df1</span> <span class=o>%&gt;%</span> 
+  <span class=nf>mutate</span><span class=p>(</span><span class=n>z</span> <span class=o>=</span> <span class=nf>paste</span><span class=p>(</span><span class=s>&#34;item:&#34;</span><span class=p>,</span> <span class=n>x</span><span class=p>))</span> <span class=o>%&gt;%</span> 
+  <span class=nf>head</span><span class=p>(</span><span class=m>5</span><span class=p>)</span>
+<span class=c1>#&gt; &lt;SQL&gt;</span>
+<span class=c1>#&gt; SELECT `x`, `y`, CONCAT_WS(&#39; &#39;, &#39;item:&#39;, `x`) AS `z`</span>
+<span class=c1>#&gt; FROM `df`</span>
+<span class=c1>#&gt; LIMIT 5</span>
+
+<span class=n>df2</span> <span class=o>&lt;-</span> <span class=nf>lazy_frame</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>y</span> <span class=o>=</span> <span class=m>2</span><span class=p>,</span> <span class=n>con</span> <span class=o>=</span> <span class=nf>simulate_mssql</span><span class=p>())</span>
+<span class=n>df2</span> <span class=o>%&gt;%</span> 
+  <span class=nf>mutate</span><span class=p>(</span><span class=n>z</span> <span class=o>=</span> <span class=nf>paste</span><span class=p>(</span><span class=s>&#34;item:&#34;</span><span class=p>,</span> <span class=n>x</span><span class=p>))</span> <span class=o>%&gt;%</span> 
+  <span class=nf>head</span><span class=p>(</span><span class=m>5</span><span class=p>)</span>
+<span class=c1>#&gt; &lt;SQL&gt;</span>
+<span class=c1>#&gt; SELECT TOP(5) `x`, `y`, &#39;item:&#39; + &#39; &#39; + `x` AS `z`</span>
+<span class=c1>#&gt; FROM `df`</span>
+</code></pre></div><p>When you don&rsquo;t specify a connection, dplyr uses its standard translation, which tries to follow the ANSI SQL standard as closely as possible.</p><h2 id=simpler-sql>Simpler SQL
+<a href=#simpler-sql><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Two improvements have considerably reduced the number of subqueries that dbplyr needs:</p><ul><li><p>Joins, semi joins, and set operations no longer add additional unneeded
+subqueries, and now generate the minimum set:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df1</span> <span class=o>&lt;-</span> <span class=nf>lazy_frame</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>y</span> <span class=o>=</span> <span class=m>2</span><span class=p>,</span> <span class=n>a</span> <span class=o>=</span> <span class=m>2</span><span class=p>)</span>
+<span class=n>df2</span> <span class=o>&lt;-</span> <span class=nf>lazy_frame</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>y</span> <span class=o>=</span> <span class=m>2</span><span class=p>,</span> <span class=n>b</span> <span class=o>=</span> <span class=m>2</span><span class=p>)</span>
+    
+<span class=nf>union</span><span class=p>(</span><span class=n>df1</span><span class=p>,</span> <span class=n>df2</span><span class=p>)</span>
+<span class=c1>#&gt; &lt;SQL&gt;</span>
+<span class=c1>#&gt; (SELECT `x`, `y`, `a`, NULL AS `b`</span>
+<span class=c1>#&gt; FROM `df`)</span>
+<span class=c1>#&gt; UNION</span>
+<span class=c1>#&gt; (SELECT `x`, `y`, NULL AS `a`, `b`</span>
+<span class=c1>#&gt; FROM `df`)</span>
+    
+<span class=nf>left_join</span><span class=p>(</span><span class=n>df1</span><span class=p>,</span> <span class=n>df2</span><span class=p>,</span> <span class=n>by</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=s>&#34;x&#34;</span><span class=p>,</span> <span class=s>&#34;y&#34;</span><span class=p>))</span>
+<span class=c1>#&gt; &lt;SQL&gt;</span>
+<span class=c1>#&gt; SELECT `LHS`.`x` AS `x`, `LHS`.`y` AS `y`, `LHS`.`a` AS `a`, `RHS`.`b` AS `b`</span>
+<span class=c1>#&gt; FROM `df` AS `LHS`</span>
+<span class=c1>#&gt; LEFT JOIN `df` AS `RHS`</span>
+<span class=c1>#&gt; ON (`LHS`.`x` = `RHS`.`x` AND `LHS`.`y` = `RHS`.`y`)</span>
+    
+<span class=nf>semi_join</span><span class=p>(</span><span class=n>df1</span><span class=p>,</span> <span class=n>df2</span><span class=p>,</span> <span class=n>by</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=s>&#34;x&#34;</span><span class=p>,</span> <span class=s>&#34;y&#34;</span><span class=p>))</span>
+<span class=c1>#&gt; &lt;SQL&gt;</span>
+<span class=c1>#&gt; SELECT * FROM `df` AS `LHS`</span>
+<span class=c1>#&gt; WHERE EXISTS (</span>
+<span class=c1>#&gt;   SELECT 1 FROM `df` AS `RHS`</span>
+<span class=c1>#&gt;   WHERE (`LHS`.`x` = `RHS`.`x` AND `LHS`.`y` = `RHS`.`y`)</span>
+<span class=c1>#&gt; )</span>
+</code></pre></div></li><li><p>Many sequences of <code>mutate()</code>, <code>select()</code>, <code>rename()</code>, and <code>transmute()</code>
+steps are collapsed into a single query:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>lazy_frame</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>y</span> <span class=o>=</span> <span class=m>2</span><span class=p>)</span>
+<span class=n>df</span> <span class=o>%&gt;%</span> 
+  <span class=nf>select</span><span class=p>(</span><span class=m>2</span><span class=o>:</span><span class=m>1</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>select</span><span class=p>(</span><span class=m>2</span><span class=o>:</span><span class=m>1</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>select</span><span class=p>(</span><span class=m>2</span><span class=o>:</span><span class=m>1</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>select</span><span class=p>(</span><span class=m>2</span><span class=o>:</span><span class=m>1</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>mutate</span><span class=p>(</span><span class=n>z</span> <span class=o>=</span> <span class=n>x</span> <span class=o>+</span> <span class=n>y</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>select</span><span class=p>(</span><span class=m>3</span><span class=o>:</span><span class=m>1</span><span class=p>)</span>
+<span class=c1>#&gt; &lt;SQL&gt;</span>
+<span class=c1>#&gt; SELECT `x` + `y` AS `z`, `y`, `x`</span>
+<span class=c1>#&gt; FROM `df`</span>
+</code></pre></div></li></ul><p>Note that dbplyr will still generate multiple subqueries from a single mutate statement when needed. This resolves one of my biggest frustrations with SQL:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>%&gt;%</span> 
+  <span class=nf>mutate</span><span class=p>(</span>
+    <span class=n>a</span> <span class=o>=</span> <span class=n>x</span> <span class=o>+</span> <span class=m>1</span><span class=p>,</span> 
+    <span class=n>b1</span> <span class=o>=</span> <span class=n>a</span> <span class=o>*</span> <span class=m>3</span><span class=p>,</span> 
+    <span class=n>b2</span> <span class=o>=</span> <span class=n>a</span> <span class=n>^</span> <span class=m>2</span><span class=p>,</span>
+    <span class=n>c</span> <span class=o>=</span> <span class=n>b1</span> <span class=o>/</span> <span class=n>b2</span>
+  <span class=p>)</span>
+<span class=c1>#&gt; &lt;SQL&gt;</span>
+<span class=c1>#&gt; SELECT `x`, `y`, `a`, `b1`, `b2`, `b1` / `b2` AS `c`</span>
+<span class=c1>#&gt; FROM (SELECT `x`, `y`, `a`, `a` * 3.0 AS `b1`, POWER(`a`, 2.0) AS `b2`</span>
+<span class=c1>#&gt; FROM (SELECT `x`, `y`, `x` + 1.0 AS `a`</span>
+<span class=c1>#&gt; FROM `df`) `dbplyr_001`) `dbplyr_002`</span>
+</code></pre></div><p>I touch on this advantage of dbplyr over SQL in a new vignette,
+<a href=https://dbplyr.tidyverse.org/dev/articles/sql.html target=_blank rel=noopener><code>vignette("sql")</code></a>, which also gives some advice about how to write literal SQL, when dbplyr&rsquo;s built-in translations don&rsquo;t work.</p><h2 id=sql-translation>SQL translation
+<a href=#sql-translation><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>As well as improving the translation of high-level dplyr functions, we&rsquo;ve also considerably added to the set of low-level vector functions that dbplyr can translate. Firstly,
+<a href=https://dev.mysql.com/doc/refman/8.0/en/window-functions.html target=_blank rel=noopener>MySQL</a> (>= 8.0),
+<a href=https://mariadb.com/kb/en/library/window-functions/ target=_blank rel=noopener>MariaDB</a> (>= 10.2) and
+<a href=https://www.sqlite.org/windowfunctions.html target=_blank rel=noopener>SQLite</a> (>3.25) gain support for
+<a href=https://dbplyr.tidyverse.org/dev/articles/translation-function.html#window-functions target=_blank rel=noopener>window functions</a>. These allow you to use summary functions (like <code>mean()</code> or <code>sum()</code>) inside of <code>mutate()</code>, as well as unlocking useful function like <code>min_rank()</code>, <code>first()</code>, and <code>lead()</code>/<code>lag()</code>.</p><p>Thanks to
+<a href=http://github.com/colearendt target=_blank rel=noopener>Cole Arendt</a>, dbplyr now supports translations for a selection of useful functions from stringr (<code>str_c()</code>, <code>str_sub()</code>, <code>str_length()</code>, <code>str_to_upper()</code>, <code>str_to_lower()</code>, and <code>str_to_title()</code>), and lubridate ( <code>today()</code>, <code>now()</code>, <code>year()</code>, <code>month()</code> (numeric value only), <code>day()</code>, <code>hour()</code>, <code>minute()</code>, <code>second()</code>):</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>lazy_frame</span><span class=p>(</span><span class=n>name</span> <span class=o>=</span> <span class=nf>character</span><span class=p>(),</span> <span class=n>birthday</span> <span class=o>=</span> <span class=nf>character</span><span class=p>())</span>
+
+<span class=n>df</span> <span class=o>%&gt;%</span> 
+  <span class=nf>transmute</span><span class=p>(</span>
+    <span class=n>name</span> <span class=o>=</span> <span class=nf>str_to_lower</span><span class=p>(</span><span class=n>name</span><span class=p>),</span> 
+    <span class=n>month</span> <span class=o>=</span> <span class=nf>month</span><span class=p>(</span><span class=n>birthday</span><span class=p>),</span>
+    <span class=n>mday</span> <span class=o>=</span> <span class=nf>mday</span><span class=p>(</span><span class=n>birthday</span><span class=p>)</span>
+  <span class=p>)</span>
+<span class=c1>#&gt; &lt;SQL&gt;</span>
+<span class=c1>#&gt; SELECT LOWER(`name`) AS `name`, EXTRACT(month FROM `birthday`) AS `month`, EXTRACT(day FROM `birthday`) AS `mday`</span>
+<span class=c1>#&gt; FROM `df`</span>
+</code></pre></div><p>Thanks to
+<a href=http://github.com/davidchall target=_blank rel=noopener>David C Hall</a> we have translations for bitwise operations (<code>bitwNot()</code>, <code>bitwAnd()</code>, <code>bitwOr()</code>, <code>bitwXor()</code>, <code>bitwShiftL()</code>, and <code>bitwShiftR()</code>):</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>lazy_frame</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=nf>integer</span><span class=p>(),</span> <span class=n>y</span> <span class=o>=</span> <span class=nf>integer</span><span class=p>())</span>
+<span class=n>df</span> <span class=o>%&gt;%</span> 
+  <span class=nf>transmute</span><span class=p>(</span><span class=n>and</span> <span class=o>=</span> <span class=nf>bitwAnd</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>),</span> <span class=n>or</span> <span class=o>=</span> <span class=nf>bitwOr</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>))</span>
+<span class=c1>#&gt; &lt;SQL&gt;</span>
+<span class=c1>#&gt; SELECT `x` &amp; `y` AS `and`, `x` | `y` AS `or`</span>
+<span class=c1>#&gt; FROM `df`</span>
+</code></pre></div><p>Thanks to
+<a href=http://github.com/edavidaja target=_blank rel=noopener>E. David Aja</a>&lsquo;s research on tidyverse developer day we have improved translations for <code>median()</code> and <code>quantile()</code> for all ANSI compliant databases (SQL Server, Postgres, MariaDB), along with custom translations for Hive and Teradata.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>lazy_frame</span><span class=p>(</span><span class=n>g</span> <span class=o>=</span> <span class=nf>character</span><span class=p>(),</span> <span class=n>x</span> <span class=o>=</span> <span class=nf>numeric</span><span class=p>())</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>g</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>summarise</span><span class=p>(</span><span class=n>y</span> <span class=o>=</span> <span class=nf>median</span><span class=p>(</span><span class=n>x</span><span class=p>))</span>
+<span class=c1>#&gt; &lt;SQL&gt;</span>
+<span class=c1>#&gt; SELECT `g`, PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY `x`) AS `y`</span>
+<span class=c1>#&gt; FROM `df`</span>
+<span class=c1>#&gt; GROUP BY `g`</span>
+</code></pre></div><p>Finally, I have improved translation of <code>[</code>, so that you can use expressions like <code>sum(a[b == 0])</code> as you would in R:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>tbl_lazy</span><span class=p>(</span><span class=n>mtcars</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>cyl</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>summarise</span><span class=p>(</span><span class=n>mpg_vs</span> <span class=o>=</span> <span class=nf>sum</span><span class=p>(</span><span class=n>mpg[vs</span> <span class=o>==</span> <span class=m>1</span><span class=n>]</span><span class=p>,</span> <span class=n>na.rm</span> <span class=o>=</span> <span class=kc>TRUE</span><span class=p>))</span>
+<span class=c1>#&gt; &lt;SQL&gt;</span>
+<span class=c1>#&gt; SELECT `cyl`, SUM(CASE WHEN (`vs` = 1.0) THEN (`mpg`) END) AS `mpg_vs`</span>
+<span class=c1>#&gt; FROM `df`</span>
+<span class=c1>#&gt; GROUP BY `cyl`</span>
+</code></pre></div><p>You can also now use use <code>x$y</code> to access nested fields:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>lazy_frame</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=nf>list</span><span class=p>())</span> <span class=o>%&gt;%</span> 
+  <span class=nf>mutate</span><span class=p>(</span><span class=n>z</span> <span class=o>=</span> <span class=n>x</span><span class=o>$</span><span class=n>y</span><span class=o>$</span><span class=n>z</span><span class=p>)</span>
+<span class=c1>#&gt; &lt;SQL&gt;</span>
+<span class=c1>#&gt; SELECT `x`, `x`.`y`.`z` AS `z`</span>
+<span class=c1>#&gt; FROM `df`</span>
+</code></pre></div><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>As always, a big thank goes to the entire community who helped make this release of dbplyr a reality - I really appreciated all your bug reports, helpful comments, SQL suggestions, and pull requests!</p><p><a href=https://github.com/alex-gable target=_blank rel=noopener>@alex-gable</a>,
+<a href=https://github.com/blairj09 target=_blank rel=noopener>@blairj09</a>,
+<a href=https://github.com/carvalhomb target=_blank rel=noopener>@carvalhomb</a>,
+<a href=https://github.com/cderv target=_blank rel=noopener>@cderv</a>,
+<a href=https://github.com/colearendt target=_blank rel=noopener>@colearendt</a>,
+<a href=https://github.com/DanielStay target=_blank rel=noopener>@DanielStay</a>,
+<a href=https://github.com/davidchall target=_blank rel=noopener>@davidchall</a>,
+<a href=https://github.com/dlindelof target=_blank rel=noopener>@dlindelof</a>,
+<a href=https://github.com/edgararuiz target=_blank rel=noopener>@edgararuiz</a>,
+<a href=https://github.com/FrancoisGuillem target=_blank rel=noopener>@FrancoisGuillem</a>,
+<a href=https://github.com/FranGoitia target=_blank rel=noopener>@FranGoitia</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/imanuelcostigan target=_blank rel=noopener>@imanuelcostigan</a>,
+<a href=https://github.com/JakeRuss target=_blank rel=noopener>@JakeRuss</a>,
+<a href=https://github.com/javierluraschi target=_blank rel=noopener>@javierluraschi</a>,
+<a href=https://github.com/jcfisher target=_blank rel=noopener>@jcfisher</a>,
+<a href=https://github.com/jkylearmstrong target=_blank rel=noopener>@jkylearmstrong</a>,
+<a href=https://github.com/JohnMount target=_blank rel=noopener>@JohnMount</a>,
+<a href=https://github.com/jrisi256 target=_blank rel=noopener>@jrisi256</a>,
+<a href=https://github.com/jsekamane target=_blank rel=noopener>@jsekamane</a>,
+<a href=https://github.com/klmedeiros target=_blank rel=noopener>@klmedeiros</a>,
+<a href=https://github.com/leungi target=_blank rel=noopener>@leungi</a>,
+<a href=https://github.com/Liubuntu target=_blank rel=noopener>@Liubuntu</a>,
+<a href=https://github.com/lpatruno target=_blank rel=noopener>@lpatruno</a>,
+<a href=https://github.com/lymanmark target=_blank rel=noopener>@lymanmark</a>,
+<a href=https://github.com/mkearney target=_blank rel=noopener>@mkearney</a>,
+<a href=https://github.com/mkirzon target=_blank rel=noopener>@mkirzon</a>,
+<a href=https://github.com/mpettis target=_blank rel=noopener>@mpettis</a>,
+<a href=https://github.com/mtoto target=_blank rel=noopener>@mtoto</a>,
+<a href=https://github.com/N1h1l1sT target=_blank rel=noopener>@N1h1l1sT</a>,
+<a href=https://github.com/nwstephens target=_blank rel=noopener>@nwstephens</a>,
+<a href=https://github.com/QuLogic target=_blank rel=noopener>@QuLogic</a>,
+<a href=https://github.com/r2evans target=_blank rel=noopener>@r2evans</a>,
+<a href=https://github.com/rlh1994 target=_blank rel=noopener>@rlh1994</a>,
+<a href=https://github.com/shgoke target=_blank rel=noopener>@shgoke</a>,
+<a href=https://github.com/tomauer target=_blank rel=noopener>@tomauer</a>, and
+<a href=https://github.com/verajosemanuel target=_blank rel=noopener>@verajosemanuel</a></p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#sql-simulation>SQL simulation</a></li><li><a href=#simpler-sql>Simpler SQL</a></li><li><a href=#sql-translation>SQL translation</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

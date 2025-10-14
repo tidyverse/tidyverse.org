@@ -1,0 +1,526 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>purrr 1.0.0</title><meta property="og:title" content="purrr 1.0.0"><meta property="og:description" content="purrr 1.0.0 brings a basket of updates. We deprecated a number of seldom used functions to hone in on the core purpose of purrr and  implemented a swath of new features including progress bars, improved  error reporting, and much much more!"><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2022/12/purrr-1-0-0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="purrr 1.0.0 - Tidyverse"><meta property="description" content="purrr 1.0.0 brings a basket of updates. We deprecated a number of seldom used functions to hone in on the core purpose of purrr and  implemented a swath of new features including progress bars, improved  error reporting, and much much more!"><meta property="og:description" content="purrr 1.0.0 brings a basket of updates. We deprecated a number of seldom used functions to hone in on the core purpose of purrr and  implemented a swath of new features including progress bars, improved  error reporting, and much much more!"><meta property="og:image" content="https://www.tidyverse.org/blog/2022/12/purrr-1-0-0/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2022/12/purrr-1-0-0/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>purrr 1.0.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2022/12/purrr-1-0-0/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/YCPkW_r_6uA>Jari Hytönen</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2022/12/20</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/purrr/>purrr</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Hadley Wickham</p><div class=article-content><p>We&rsquo;re happy to announce the release of
+<a href=http://purrr.tidyverse.org/ target=_blank rel=noopener>purrr</a> 1.0.0! purrr enhances R&rsquo;s functional programming toolkit by providing a complete and consistent set of tools for working with functions and vectors. In the words of ChatGPT:</p><blockquote><p>With purrr, you can easily &ldquo;kitten&rdquo; your functions together to perform complex operations, &ldquo;paws&rdquo; for a moment to debug and troubleshoot your code, while &ldquo;feline&rdquo; good about the elegant and readable code that you write. Whether you&rsquo;re a &ldquo;cat&rdquo;-egorical beginner or a seasoned functional programming &ldquo;purr&rdquo;-fessional, purrr has something to offer. So why not &ldquo;pounce&rdquo; on the opportunity to try it out and see how it can &ldquo;meow&rdquo;-velously improve your R coding experience?</p></blockquote><p>You can install it from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span><span class=o>(</span><span class=s>"purrr"</span><span class=o>)</span></span></code></pre></div><p>purrr is 7 years old and it&rsquo;s finally made it to 1.0.0! This is a big release, adding some long-needed functionality (like progress bars!) as well as really refining the core purpose of purrr. In this post, we&rsquo;ll start with an overview of the breaking changes, then briefly review some documentation changes. Then we&rsquo;ll get to the good stuff: improvements to the <code>map</code> family, new
+<a href=https://purrr.tidyverse.org/reference/keep_at.html target=_blank rel=noopener><code>keep_at()</code></a> and
+<a href=https://purrr.tidyverse.org/reference/keep_at.html target=_blank rel=noopener><code>discard_at()</code></a> functions, and improvements to flattening and simplification. You can see a full list of changes in the
+<a href=https://github.com/tidyverse/purrr/releases/tag/v1.0.0 target=_blank rel=noopener>release notes</a>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://purrr.tidyverse.org/>purrr</a></span><span class=o>)</span></span></code></pre></div><h2 id=breaking-changes>Breaking changes
+<a href=#breaking-changes><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>We&rsquo;ve used the 1.0.0 release as an opportunity to really refine the core purpose of purrr: facilitating functional programming in R. We&rsquo;ve been more aggressive with deprecations and breaking changes than usual, because a 1.0.0 release signals that purrr is now
+<a href=https://lifecycle.r-lib.org/articles/stages.html#stable target=_blank rel=noopener>stable</a>, making it our last opportunity for major changes.</p><p>These changes will break some existing code, but we&rsquo;ve done our best to make it affect as little code as possible. Out of the ~1400 CRAN packages that user purrr, only ~40 were negatively affected, and I
+<a href=https://github.com/tidyverse/purrr/issues/969 target=_blank rel=noopener>made pull requests</a> to fix them all. Making these fixes helped give me confidence that, though we&rsquo;re deprecating quite a few functions and changing a few special cases, it shouldn&rsquo;t affect too much code in the wild.</p><p>There are four important changes that you should be aware of:</p><ul><li><a href=https://purrr.tidyverse.org/reference/pluck.html target=_blank rel=noopener><code>pluck()</code></a> behaves differently when extracting 0-length vectors.</li><li>The
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map()</code></a> family uses the tidyverse rules for coercion and recycling.</li><li>All functions that modify lists handle <code>NULL</code> consistently.</li><li>We&rsquo;ve deprecated functions that aren&rsquo;t related to the core purpose of purrr.</li></ul><h3 id=pluck-and-zero-length-vectors><code>pluck()</code> and zero-length vectors
+<a href=#pluck-and-zero-length-vectors><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>Previously,
+<a href=https://purrr.tidyverse.org/reference/pluck.html target=_blank rel=noopener><code>pluck()</code></a> replaced 0-length vectors with the value of <code>default</code>. Now <code>default</code> is only used for <code>NULL</code>s and absent elements:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>x</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>y <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>a <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/character.html>character</a></span><span class=o>(</span><span class=o>)</span>, b <span class=o>=</span> <span class=kc>NULL</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=nv>x</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/pluck.html>pluck</a></span><span class=o>(</span><span class=s>"y"</span>, <span class=s>"a"</span>, .default <span class=o>=</span> <span class=kc>NA</span><span class=o>)</span></span>
+<span><span class=c>#&gt; character(0)</span></span>
+<span></span><span><span class=nv>x</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/pluck.html>pluck</a></span><span class=o>(</span><span class=s>"y"</span>, <span class=s>"b"</span>, .default <span class=o>=</span> <span class=kc>NA</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] NA</span></span>
+<span></span><span><span class=nv>x</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/pluck.html>pluck</a></span><span class=o>(</span><span class=s>"y"</span>, <span class=s>"c"</span>, .default <span class=o>=</span> <span class=kc>NA</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] NA</span></span>
+<span></span></code></pre></div><p>This also influences the map family because using an integer vector, character vector, or list instead of a function automatically calls
+<a href=https://purrr.tidyverse.org/reference/pluck.html target=_blank rel=noopener><code>pluck()</code></a>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>x</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>1</span><span class=o>)</span>, <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=o>)</span>, <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=kc>NULL</span><span class=o>)</span>, <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/character.html>character</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=nv>x</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map</a></span><span class=o>(</span><span class=m>1</span>, .default <span class=o>=</span> <span class=m>0</span><span class=o>)</span> <span class=o>|&gt;</span> <span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; List of 4</span></span>
+<span><span class=c>#&gt;  $ : num 1</span></span>
+<span><span class=c>#&gt;  $ : num 0</span></span>
+<span><span class=c>#&gt;  $ : num 0</span></span>
+<span><span class=c>#&gt;  $ : chr(0)</span></span>
+<span></span></code></pre></div><p>We made this change because it makes purrr more consistent with the rest of the tidyverse and it looks like it was a bug in the original implementation of the function.</p><h3 id=tidyverse-consistency>Tidyverse consistency
+<a href=#tidyverse-consistency><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>We&rsquo;ve tweaked the map family of functions to be more consistent with general tidyverse coercion and recycling rules, as implemented by the
+<a href=https://vctrs.r-lib.org target=_blank rel=noopener>vctrs</a> package.
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map_lgl()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map_int()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map_int()</code></a>, and
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map_dbl()</code></a> now follow the same
+<a href=https://vctrs.r-lib.org/articles/type-size.html#coercing-to-common-type target=_blank rel=noopener>coercion rules</a> as vctrs. In particular:</p><ul><li><p><code>map_chr(TRUE, identity)</code>, <code>map_chr(0L, identity)</code>, and <code>map_chr(1.5, identity)</code> have been deprecated because we believe that converting a logical/integer/double to a character vector is potentially dangerous and should require an explicit coercion.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=c># previously you could write</span></span>
+<span><span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_chr</a></span><span class=o>(</span><span class=m>1</span><span class=o>:</span><span class=m>4</span>, \<span class=o>(</span><span class=nv>x</span><span class=o>)</span> <span class=nv>x</span> <span class=o>+</span> <span class=m>1</span><span class=o>)</span></span>
+<span><span class=c>#&gt; Warning: Automatic coercion from double to character was deprecated in purrr 1.0.0.</span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> Please use an explicit call to `as.character()` within `map_chr()` instead.</span></span>
+<span></span><span><span class=c>#&gt; [1] "2.000000" "3.000000" "4.000000" "5.000000"</span></span>
+<span></span><span></span>
+<span><span class=c># now you need something like this:</span></span>
+<span><span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_chr</a></span><span class=o>(</span><span class=m>1</span><span class=o>:</span><span class=m>4</span>, \<span class=o>(</span><span class=nv>x</span><span class=o>)</span> <span class=nf><a href=https://rdrr.io/r/base/character.html>as.character</a></span><span class=o>(</span><span class=nv>x</span> <span class=o>+</span> <span class=m>1</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "2" "3" "4" "5"</span></span>
+<span></span></code></pre></div></li><li><p><a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map_int()</code></a> requires that the numeric results be close to integers, rather than silently truncating to integers. Compare these two examples:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_int</a></span><span class=o>(</span><span class=m>1</span><span class=o>:</span><span class=m>3</span>, \<span class=o>(</span><span class=nv>x</span><span class=o>)</span> <span class=nv>x</span> <span class=o>/</span> <span class=m>2</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `map_int()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> In index: 1.</span></span>
+<span><span class=c>#&gt; <span style=font-weight:700>Caused by error:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> Can't coerce from a double vector to an integer vector.</span></span>
+<span></span><span></span>
+<span><span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_int</a></span><span class=o>(</span><span class=m>1</span><span class=o>:</span><span class=m>3</span>, \<span class=o>(</span><span class=nv>x</span><span class=o>)</span> <span class=nv>x</span> <span class=o>*</span> <span class=m>2</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] 2 4 6</span></span>
+<span></span></code></pre></div></li></ul><p><a href=https://purrr.tidyverse.org/reference/map2.html target=_blank rel=noopener><code>map2()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/modify.html target=_blank rel=noopener><code>modify2()</code></a>, and
+<a href=https://purrr.tidyverse.org/reference/pmap.html target=_blank rel=noopener><code>pmap()</code></a> use tidyverse recycling rules, which mean that vectors of length 1 are recycled to any size but all other vectors must have the same length. This has two major changes:</p><ul><li><p>Previously, the presence of a zero-length input generated a zero-length output. Now it&rsquo;s recycled using the same rules:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://purrr.tidyverse.org/reference/map2.html>map2</a></span><span class=o>(</span><span class=m>1</span><span class=o>:</span><span class=m>2</span>, <span class=nf><a href=https://rdrr.io/r/base/character.html>character</a></span><span class=o>(</span><span class=o>)</span>, <span class=nv>paste</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `map2()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> Can't recycle `.x` (size 2) to match `.y` (size 0).</span></span>
+<span></span><span></span>
+<span><span class=c># Works because length-1 vector gets recycled to length-0</span></span>
+<span><span class=nf><a href=https://purrr.tidyverse.org/reference/map2.html>map2</a></span><span class=o>(</span><span class=m>1</span>, <span class=nf><a href=https://rdrr.io/r/base/character.html>character</a></span><span class=o>(</span><span class=o>)</span>, <span class=nv>paste</span><span class=o>)</span></span>
+<span><span class=c>#&gt; list()</span></span>
+<span></span></code></pre></div></li><li><p>And now must explicitly recycle vectors that aren&rsquo;t length 1:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://purrr.tidyverse.org/reference/map2.html>map2_int</a></span><span class=o>(</span><span class=m>1</span><span class=o>:</span><span class=m>4</span>, <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>10</span>, <span class=m>20</span><span class=o>)</span>, <span class=nv>`+`</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `map2_int()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> Can't recycle `.x` (size 4) to match `.y` (size 2).</span></span>
+<span></span><span></span>
+<span><span class=nf><a href=https://purrr.tidyverse.org/reference/map2.html>map2_int</a></span><span class=o>(</span><span class=m>1</span><span class=o>:</span><span class=m>4</span>, <span class=nf><a href=https://rdrr.io/r/base/rep.html>rep</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>10</span>, <span class=m>20</span><span class=o>)</span>, <span class=m>2</span><span class=o>)</span>, <span class=nv>`+`</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] 11 22 13 24</span></span>
+<span></span></code></pre></div></li></ul><h3 id=assigning-null>Assigning <code>NULL</code>
+<a href=#assigning-null><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>purrr has a number of functions that modify a list: <code>pluck&lt;-()</code>,
+<a href=https://purrr.tidyverse.org/reference/modify_in.html target=_blank rel=noopener><code>assign_in()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/modify.html target=_blank rel=noopener><code>modify()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/modify.html target=_blank rel=noopener><code>modify2()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/modify.html target=_blank rel=noopener><code>modify_if()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/modify.html target=_blank rel=noopener><code>modify_at()</code></a>, and
+<a href=https://purrr.tidyverse.org/reference/list_assign.html target=_blank rel=noopener><code>list_modify()</code></a>. Previously, these functions had inconsistent behaviour when you attempted to modify an element with <code>NULL</code>: some functions would delete that element, and some would set it to <code>NULL</code>. That inconsistency arose because base R handles <code>NULL</code> in different ways depending on whether or not use you <code>$</code>/<code>[[</code> or <code>[</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>x1</span> <span class=o>&lt;-</span> <span class=nv>x2</span> <span class=o>&lt;-</span> <span class=nv>x3</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>a <span class=o>=</span> <span class=m>1</span>, b <span class=o>=</span> <span class=m>2</span><span class=o>)</span></span>
+<span></span>
+<span><span class=nv>x1</span><span class=o>$</span><span class=nv>a</span> <span class=o>&lt;-</span> <span class=kc>NULL</span></span>
+<span><span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=nv>x1</span><span class=o>)</span></span>
+<span><span class=c>#&gt; List of 1</span></span>
+<span><span class=c>#&gt;  $ b: num 2</span></span>
+<span></span><span></span>
+<span><span class=nv>x2</span><span class=o>[</span><span class=s>"a"</span><span class=o>]</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=kc>NULL</span><span class=o>)</span></span>
+<span><span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=nv>x2</span><span class=o>)</span></span>
+<span><span class=c>#&gt; List of 2</span></span>
+<span><span class=c>#&gt;  $ a: NULL</span></span>
+<span><span class=c>#&gt;  $ b: num 2</span></span>
+<span></span></code></pre></div><p>Now functions that edit a list will create an element containing <code>NULL</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>x3</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://purrr.tidyverse.org/reference/list_assign.html>list_modify</a></span><span class=o>(</span>a <span class=o>=</span> <span class=kc>NULL</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; List of 2</span></span>
+<span><span class=c>#&gt;  $ a: NULL</span></span>
+<span><span class=c>#&gt;  $ b: num 2</span></span>
+<span></span><span></span>
+<span><span class=nv>x3</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://purrr.tidyverse.org/reference/modify.html>modify_at</a></span><span class=o>(</span><span class=s>"b"</span>, \<span class=o>(</span><span class=nv>x</span><span class=o>)</span> <span class=kc>NULL</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; List of 2</span></span>
+<span><span class=c>#&gt;  $ a: num 1</span></span>
+<span><span class=c>#&gt;  $ b: NULL</span></span>
+<span></span></code></pre></div><p>If you want to delete the element, you can use the special
+<a href=https://rlang.r-lib.org/reference/zap.html target=_blank rel=noopener><code>zap()</code></a> sentinel:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>x3</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://purrr.tidyverse.org/reference/list_assign.html>list_modify</a></span><span class=o>(</span>a <span class=o>=</span> <span class=nf><a href=https://rlang.r-lib.org/reference/zap.html>zap</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; List of 1</span></span>
+<span><span class=c>#&gt;  $ b: num 2</span></span>
+<span></span></code></pre></div><p><a href=https://rlang.r-lib.org/reference/zap.html target=_blank rel=noopener><code>zap()</code></a> does not work in <code>modify*()</code> because those functions are designed to always return the same top-level structure as the input.</p><h3 id=core-purpose-refinements>Core purpose refinements
+<a href=#core-purpose-refinements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>We have <strong>deprecated</strong> a number of functions to keep purrr focused on its core purpose: facilitating functional programming in R. Deprecation means that the functions will continue to work, but you&rsquo;ll be warned once every 8 hours if you use them. In several years time, we&rsquo;ll release an update which causes the warnings to occur on every time you use them, and a few years after that they&rsquo;ll be transformed to throwing errors.</p><ul><li><p><a href=https://purrr.tidyverse.org/reference/cross.html target=_blank rel=noopener><code>cross()</code></a> and all its variants have been deprecated because they&rsquo;re slow and buggy, and a better approach already exists in
+<a href=https://tidyr.tidyverse.org/reference/expand_grid.html target=_blank rel=noopener><code>tidyr::expand_grid()</code></a>.</p></li><li><p><a href=https://purrr.tidyverse.org/reference/update_list.html target=_blank rel=noopener><code>update_list()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/rerun.html target=_blank rel=noopener><code>rerun()</code></a>, and the use of tidyselect with
+<a href=https://purrr.tidyverse.org/reference/map_if.html target=_blank rel=noopener><code>map_at()</code></a> and friends have been deprecated because we no longer believe that non-standard evaluation is a good fit for purrr.</p></li><li><p>The <code>lift_*</code> family of functions has been superseded because they promote a style of function manipulation that is not commonly used in R.</p></li><li><p><a href=https://purrr.tidyverse.org/reference/prepend.html target=_blank rel=noopener><code>prepend()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/rdunif.html target=_blank rel=noopener><code>rdunif()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/rbernoulli.html target=_blank rel=noopener><code>rbernoulli()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/when.html target=_blank rel=noopener><code>when()</code></a>, and
+<a href=https://purrr.tidyverse.org/reference/along.html target=_blank rel=noopener><code>list_along()</code></a> have been deprecated because they&rsquo;re not directly related to functional programming.</p></li><li><p><code>splice()</code> has been deprecated because we no longer believe that automatic splicing makes for good UI and there are other ways to achieve the same result.</p></li></ul><p>Consult the documentation for the alternatives that we now recommend.</p><p>Deprecating these functions makes purrr easier to maintain because it reduces the surface area for bugs and issues, and it makes purrr easier to learn because there&rsquo;s a clearer common thread that ties together all functions.</p><h2 id=documentation>Documentation
+<a href=#documentation><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>As you&rsquo;ve seen in the code above, we are moving from magrittr&rsquo;s pipe (<code>%>%</code>) to the base pipe (<code>|></code>) and from formula syntax (<code>~ .x + 1</code>) to R&rsquo;s new anonymous function short hand (<code>\(x) x + 1</code>). We believe that it&rsquo;s better to use these new base tools because they work everywhere: the base pipe doesn&rsquo;t require that you load magrittr and the new function shorthand works everywhere, not just in purrr functions. Additionally, being able to specify the argument name for the anonymous function can often lead to clearer code.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=c># Previously we wrote</span></span>
+<span><span class=m>1</span><span class=o>:</span><span class=m>10</span> <span class=o><a href=https://magrittr.tidyverse.org/reference/pipe.html>%&gt;%</a></span></span>
+<span>  <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map</a></span><span class=o>(</span><span class=o>~</span> <span class=nf><a href=https://rdrr.io/r/stats/Normal.html>rnorm</a></span><span class=o>(</span><span class=m>10</span>, <span class=nv>.x</span><span class=o>)</span><span class=o>)</span> <span class=o><a href=https://magrittr.tidyverse.org/reference/pipe.html>%&gt;%</a></span></span>
+<span>  <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_dbl</a></span><span class=o>(</span><span class=nv>mean</span><span class=o>)</span></span>
+<span><span class=c>#&gt;  [1]  0.5586355  1.8213041  2.8764412  4.1521664  5.1160393  6.1271905</span></span>
+<span><span class=c>#&gt;  [7]  6.9109806  8.2808301  9.2373940 10.6269104</span></span>
+<span></span><span></span>
+<span><span class=c># Now we recommend</span></span>
+<span><span class=m>1</span><span class=o>:</span><span class=m>10</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map</a></span><span class=o>(</span>\<span class=o>(</span><span class=nv>mu</span><span class=o>)</span> <span class=nf><a href=https://rdrr.io/r/stats/Normal.html>rnorm</a></span><span class=o>(</span><span class=m>10</span>, <span class=nv>mu</span><span class=o>)</span><span class=o>)</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_dbl</a></span><span class=o>(</span><span class=nv>mean</span><span class=o>)</span> </span>
+<span><span class=c>#&gt;  [1]  0.4638639  2.0966712  3.4441928  3.7806185  5.3373228  6.1854820</span></span>
+<span><span class=c>#&gt;  [7]  6.5873300  8.3116138  9.4824697 10.4590034</span></span>
+<span></span></code></pre></div><p>We also recommend using an anonymous function instead of passing additional arguments to map. This avoids a certain class of moderately esoteric argument matching woes and, we believe, is generally easier to read.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>mu</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>10</span>, <span class=m>100</span><span class=o>)</span></span>
+<span></span>
+<span><span class=c># Previously we wrote</span></span>
+<span><span class=nv>mu</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_dbl</a></span><span class=o>(</span><span class=nv>rnorm</span>, n <span class=o>=</span> <span class=m>1</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1]  0.5706199 11.3604613 99.9291426</span></span>
+<span></span><span></span>
+<span><span class=c># Now we recommend</span></span>
+<span><span class=nv>mu</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_dbl</a></span><span class=o>(</span>\<span class=o>(</span><span class=nv>mu</span><span class=o>)</span> <span class=nf><a href=https://rdrr.io/r/stats/Normal.html>rnorm</a></span><span class=o>(</span><span class=m>1</span>, mean <span class=o>=</span> <span class=nv>mu</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1]   0.7278463   7.5533200 100.0654866</span></span>
+<span></span></code></pre></div><p>Due to the
+<a href=https://www.tidyverse.org/blog/2019/04/r-version-support/ target=_blank rel=noopener>tidyverse R dependency policy</a>, purrr works in R 3.5, 3.6, 4.0, 4.1, and 4.2, but the base pipe and anonymous function syntax are only available in R 4.0 and later. So the examples are automatically disabled on R 3.5 and 3.6 to allow purrr to continue to pass <code>R CMD check</code>.</p><h2 id=mapping>Mapping
+<a href=#mapping><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>With that out of the way, we can now talk about the exciting new features in purrr 1.0.0. We&rsquo;ll start with the map family of functions which have three big new features:</p><ul><li>Progress bars.</li><li>Better errors.</li><li>A new family member:
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map_vec()</code></a>.</li></ul><p>These are described in the following sections.</p><h3 id=progress-bars>Progress bars
+<a href=#progress-bars><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>The map family can now produce a progress bar. This is very useful for long running jobs:</p><div class=highlight><p><img src=figs//progress.svg width=700px style=display:block;margin:auto></p></div><p>(For interactive use, the progress bar uses some simple heuristics so that it doesn&rsquo;t show up for very simple jobs.)</p><p>In most cases, we expect that <code>.progress = TRUE</code> is enough, but if you&rsquo;re wrapping
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map()</code></a> in another function, you might want to set <code>.progress</code> to a string that identifies the progress bar:</p><div class=highlight><p><img src=figs//named-progress.svg width=700px style=display:block;margin:auto></p></div><h3 id=better-errors>Better errors
+<a href=#better-errors><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>If there&rsquo;s an error in the function you&rsquo;re mapping,
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map()</code></a> and friends now tell you which element caused the problem:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>x</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/sample.html>sample</a></span><span class=o>(</span><span class=m>1</span><span class=o>:</span><span class=m>500</span><span class=o>)</span></span>
+<span><span class=nv>x</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map</a></span><span class=o>(</span>\<span class=o>(</span><span class=nv>x</span><span class=o>)</span> <span class=kr>if</span> <span class=o>(</span><span class=nv>x</span> <span class=o>==</span> <span class=m>1</span><span class=o>)</span> <span class=kr><a href=https://rdrr.io/r/base/stop.html>stop</a></span><span class=o>(</span><span class=s>"Error!"</span><span class=o>)</span> <span class=kr>else</span> <span class=m>10</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `map()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> In index: 51.</span></span>
+<span><span class=c>#&gt; <span style=font-weight:700>Caused by error in `.f()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> Error!</span></span>
+<span></span></code></pre></div><p>We hope that this makes your debugging life just a little bit easier! (Don&rsquo;t forget about
+<a href=https://purrr.tidyverse.org/reference/safely.html target=_blank rel=noopener><code>safely()</code></a> and
+<a href=https://purrr.tidyverse.org/reference/possibly.html target=_blank rel=noopener><code>possibly()</code></a> if you expect failures and want to either ignore or capture them.)</p><p>We have also generally reviewed the error messages throughout purrr in order to make them more actionable. If you hit a confusing error message, please let us know!</p><h3 id=new-map_vec>New <code>map_vec()</code>
+<a href=#new-map_vec><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>We&rsquo;ve added
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map_vec()</code></a> (along with
+<a href=https://purrr.tidyverse.org/reference/map2.html target=_blank rel=noopener><code>map2_vec()</code></a>, and
+<a href=https://purrr.tidyverse.org/reference/pmap.html target=_blank rel=noopener><code>pmap_vec()</code></a>) to handle more types of vectors.
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map_vec()</code></a> extends
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map_lgl()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map_int()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map_dbl()</code></a>, and
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map_chr()</code></a> to arbitrary types of vectors, like dates, factors, and date-times:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=m>1</span><span class=o>:</span><span class=m>3</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_vec</a></span><span class=o>(</span>\<span class=o>(</span><span class=nv>i</span><span class=o>)</span> <span class=nf><a href=https://rdrr.io/r/base/factor.html>factor</a></span><span class=o>(</span><span class=nv>letters</span><span class=o>[</span><span class=nv>i</span><span class=o>]</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] a b c</span></span>
+<span><span class=c>#&gt; Levels: a b c</span></span>
+<span></span><span><span class=m>1</span><span class=o>:</span><span class=m>3</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_vec</a></span><span class=o>(</span>\<span class=o>(</span><span class=nv>i</span><span class=o>)</span> <span class=nf><a href=https://rdrr.io/r/base/factor.html>factor</a></span><span class=o>(</span><span class=nv>letters</span><span class=o>[</span><span class=nv>i</span><span class=o>]</span>, levels <span class=o>=</span> <span class=nv>letters</span><span class=o>[</span><span class=m>4</span><span class=o>:</span><span class=m>1</span><span class=o>]</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] a b c</span></span>
+<span><span class=c>#&gt; Levels: d c b a</span></span>
+<span></span><span></span>
+<span><span class=m>1</span><span class=o>:</span><span class=m>3</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_vec</a></span><span class=o>(</span>\<span class=o>(</span><span class=nv>i</span><span class=o>)</span> <span class=nf><a href=https://rdrr.io/r/base/as.Date.html>as.Date</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/ISOdatetime.html>ISOdate</a></span><span class=o>(</span><span class=nv>i</span> <span class=o>+</span> <span class=m>2022</span>, <span class=m>10</span>, <span class=m>5</span><span class=o>)</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "2023-10-05" "2024-10-05" "2025-10-05"</span></span>
+<span></span><span><span class=m>1</span><span class=o>:</span><span class=m>3</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_vec</a></span><span class=o>(</span>\<span class=o>(</span><span class=nv>i</span><span class=o>)</span> <span class=nf><a href=https://rdrr.io/r/base/ISOdatetime.html>ISOdate</a></span><span class=o>(</span><span class=nv>i</span> <span class=o>+</span> <span class=m>2022</span>, <span class=m>10</span>, <span class=m>5</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "2023-10-05 12:00:00 GMT" "2024-10-05 12:00:00 GMT"</span></span>
+<span><span class=c>#&gt; [3] "2025-10-05 12:00:00 GMT"</span></span>
+<span></span></code></pre></div><p><a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map_vec()</code></a> exists somewhat in the middle of base R&rsquo;s
+<a href=https://rdrr.io/r/base/lapply.html target=_blank rel=noopener><code>sapply()</code></a> and
+<a href=https://rdrr.io/r/base/lapply.html target=_blank rel=noopener><code>vapply()</code></a>. Unlike
+<a href=https://rdrr.io/r/base/lapply.html target=_blank rel=noopener><code>sapply()</code></a> it will always return a simpler vector, erroring if there&rsquo;s no common type:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=m>1</span><span class=o>)</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_vec</a></span><span class=o>(</span><span class=nv>identity</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `map_vec()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> Can't combine `&lt;list&gt;[[1]]` &lt;character&gt; and `&lt;list&gt;[[2]]` &lt;double&gt;.</span></span>
+<span></span></code></pre></div><p>If you want to require a certain type of output, supply <code>.ptype</code>, making
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map_vec()</code></a> behave more like
+<a href=https://rdrr.io/r/base/lapply.html target=_blank rel=noopener><code>vapply()</code></a>. <code>ptype</code> is short for prototype, and should be a vector that exemplifies the type of output you expect.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>x</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"b"</span><span class=o>)</span> </span>
+<span><span class=nv>x</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_vec</a></span><span class=o>(</span><span class=nv>identity</span>, .ptype <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/character.html>character</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "a" "b"</span></span>
+<span></span><span></span>
+<span><span class=c># will error if the result can't be automatically coerced</span></span>
+<span><span class=c># to the specified ptype</span></span>
+<span><span class=nv>x</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_vec</a></span><span class=o>(</span><span class=nv>identity</span>, .ptype <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/integer.html>integer</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `map_vec()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> Can't convert `&lt;list&gt;[[1]]` &lt;character&gt; to &lt;integer&gt;.</span></span>
+<span></span></code></pre></div><p>We don&rsquo;t expect you to know or memorise the
+<a href=https://vctrs.r-lib.org/reference/faq-compatibility-types.html target=_blank rel=noopener>rules that vctrs uses for coercion</a>; our hope is that they&rsquo;ll become second nature as we steadily ensure that every tidyverse function follows the same rules.</p><h2 id=keep_at-and-discard_at><code>keep_at()</code> and <code>discard_at()</code>
+<a href=#keep_at-and-discard_at><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>purrr has gained a new pair of functions,
+<a href=https://purrr.tidyverse.org/reference/keep_at.html target=_blank rel=noopener><code>keep_at()</code></a> and
+<a href=https://purrr.tidyverse.org/reference/keep_at.html target=_blank rel=noopener><code>discard_at()</code></a>, that work like
+<a href=https://purrr.tidyverse.org/reference/keep.html target=_blank rel=noopener><code>keep()</code></a> and
+<a href=https://purrr.tidyverse.org/reference/keep.html target=_blank rel=noopener><code>discard()</code></a> but operate on names rather than values:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>x</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>a <span class=o>=</span> <span class=m>1</span>, b <span class=o>=</span> <span class=m>2</span>, c <span class=o>=</span> <span class=m>3</span>, D <span class=o>=</span> <span class=m>4</span>, E <span class=o>=</span> <span class=m>5</span><span class=o>)</span></span>
+<span></span>
+<span><span class=nv>x</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://purrr.tidyverse.org/reference/keep_at.html>keep_at</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"b"</span>, <span class=s>"c"</span><span class=o>)</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; List of 3</span></span>
+<span><span class=c>#&gt;  $ a: num 1</span></span>
+<span><span class=c>#&gt;  $ b: num 2</span></span>
+<span><span class=c>#&gt;  $ c: num 3</span></span>
+<span></span><span></span>
+<span><span class=nv>x</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://purrr.tidyverse.org/reference/keep_at.html>discard_at</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"b"</span>, <span class=s>"c"</span><span class=o>)</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; List of 2</span></span>
+<span><span class=c>#&gt;  $ D: num 4</span></span>
+<span><span class=c>#&gt;  $ E: num 5</span></span>
+<span></span></code></pre></div><p>Alternatively, you can supply a function that is called with the names of the elements and should return a logical vector describing which elements to keep/discard:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>is_lower_case</span> <span class=o>&lt;-</span> <span class=kr>function</span><span class=o>(</span><span class=nv>x</span><span class=o>)</span> <span class=nv>x</span> <span class=o>==</span> <span class=nf><a href=https://rdrr.io/r/base/chartr.html>tolower</a></span><span class=o>(</span><span class=nv>x</span><span class=o>)</span></span>
+<span></span>
+<span><span class=nv>x</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/keep_at.html>keep_at</a></span><span class=o>(</span><span class=nv>is_lower_case</span><span class=o>)</span></span>
+<span><span class=c>#&gt; $a</span></span>
+<span><span class=c>#&gt; [1] 1</span></span>
+<span><span class=c>#&gt; </span></span>
+<span><span class=c>#&gt; $b</span></span>
+<span><span class=c>#&gt; [1] 2</span></span>
+<span><span class=c>#&gt; </span></span>
+<span><span class=c>#&gt; $c</span></span>
+<span><span class=c>#&gt; [1] 3</span></span>
+<span></span></code></pre></div><p>You can now also pass such a function to all other <code>_at()</code> functions:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>x</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://purrr.tidyverse.org/reference/modify.html>modify_at</a></span><span class=o>(</span><span class=nv>is_lower_case</span>, \<span class=o>(</span><span class=nv>x</span><span class=o>)</span> <span class=nv>x</span> <span class=o>*</span> <span class=m>100</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; List of 5</span></span>
+<span><span class=c>#&gt;  $ a: num 100</span></span>
+<span><span class=c>#&gt;  $ b: num 200</span></span>
+<span><span class=c>#&gt;  $ c: num 300</span></span>
+<span><span class=c>#&gt;  $ D: num 4</span></span>
+<span><span class=c>#&gt;  $ E: num 5</span></span>
+<span></span></code></pre></div><h2 id=flattening-and-simplification>Flattening and simplification
+<a href=#flattening-and-simplification><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Last, but not least, we&rsquo;ve reworked the family of functions that flatten and simplify lists. These caused us a lot of confusion internally because folks (and different packages) used the same words to mean different things. Now there are three main functions that share a common prefix that makes it clear that they all operate on lists:</p><ul><li><a href=https://purrr.tidyverse.org/reference/list_flatten.html target=_blank rel=noopener><code>list_flatten()</code></a> removes a single level of hierarchy from a list; the output is always a list.</li><li><a href=https://purrr.tidyverse.org/reference/list_simplify.html target=_blank rel=noopener><code>list_simplify()</code></a> reduces a list to a homogeneous vector; the output is always the same length as the input.</li><li><a href=https://purrr.tidyverse.org/reference/list_c.html target=_blank rel=noopener><code>list_c()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/list_c.html target=_blank rel=noopener><code>list_cbind()</code></a>, and
+<a href=https://purrr.tidyverse.org/reference/list_c.html target=_blank rel=noopener><code>list_rbind()</code></a> concatenate the elements of a list to produce a vector or data frame. There are no constraints on the output.</li></ul><p>These functions have lead us to <strong>supersede</strong> a number of functions. This means that they are not going away but we no longer recommend them, and they will receive only critical bug fixes.</p><ul><li><code>flatten()</code> has been superseded by
+<a href=https://purrr.tidyverse.org/reference/list_flatten.html target=_blank rel=noopener><code>list_flatten()</code></a>.</li><li><code>flatten_lgl()</code>, <code>flatten_int()</code>, <code>flatten_dbl()</code>, and <code>flatten_chr()</code> have been superseded by
+<a href=https://purrr.tidyverse.org/reference/list_c.html target=_blank rel=noopener><code>list_c()</code></a>.</li><li><a href=https://purrr.tidyverse.org/reference/flatten.html target=_blank rel=noopener><code>flatten_dfr()</code></a> and
+<a href=https://purrr.tidyverse.org/reference/flatten.html target=_blank rel=noopener><code>flatten_dfc()</code></a> have been superseded by
+<a href=https://purrr.tidyverse.org/reference/list_c.html target=_blank rel=noopener><code>list_rbind()</code></a> and
+<a href=https://purrr.tidyverse.org/reference/list_c.html target=_blank rel=noopener><code>list_cbind()</code></a> respectively.
+<a href=https://purrr.tidyverse.org/reference/flatten.html target=_blank rel=noopener><code>flatten_dfr()</code></a> had some particularly puzzling edge cases when the inputs would be flattened into columns.</li><li><a href=https://purrr.tidyverse.org/reference/map_dfr.html target=_blank rel=noopener><code>map_dfc()</code></a> and
+<a href=https://purrr.tidyverse.org/reference/map_dfr.html target=_blank rel=noopener><code>map_dfr()</code></a> (and their <code>map2</code> and <code>pmap</code> variants) have been superseded in favour of using the appropriate map function along with
+<a href=https://purrr.tidyverse.org/reference/list_c.html target=_blank rel=noopener><code>list_rbind()</code></a> or
+<a href=https://purrr.tidyverse.org/reference/list_c.html target=_blank rel=noopener><code>list_cbind()</code></a>.</li><li><a href=https://purrr.tidyverse.org/reference/as_vector.html target=_blank rel=noopener><code>simplify()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/as_vector.html target=_blank rel=noopener><code>simplify_all()</code></a>, and
+<a href=https://purrr.tidyverse.org/reference/as_vector.html target=_blank rel=noopener><code>as_vector()</code></a> have been superseded in favour of
+<a href=https://purrr.tidyverse.org/reference/list_simplify.html target=_blank rel=noopener><code>list_simplify()</code></a>.</li></ul><h3 id=flattening>Flattening
+<a href=#flattening><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p><a href=https://purrr.tidyverse.org/reference/list_flatten.html target=_blank rel=noopener><code>list_flatten()</code></a> removes one layer of hierarchy from a list. In other words, if any of the children of the list are themselves lists, the contents of those lists are inlined into the parent:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>x</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>1</span>, <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>2</span>, <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>3</span>, <span class=m>4</span><span class=o>)</span>, <span class=m>5</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=nv>x</span> <span class=o>|&gt;</span> <span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; List of 2</span></span>
+<span><span class=c>#&gt;  $ : num 1</span></span>
+<span><span class=c>#&gt;  $ :List of 3</span></span>
+<span><span class=c>#&gt;   ..$ : num 2</span></span>
+<span><span class=c>#&gt;   ..$ :List of 2</span></span>
+<span><span class=c>#&gt;   .. ..$ : num 3</span></span>
+<span><span class=c>#&gt;   .. ..$ : num 4</span></span>
+<span><span class=c>#&gt;   ..$ : num 5</span></span>
+<span></span><span><span class=nv>x</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/list_flatten.html>list_flatten</a></span><span class=o>(</span><span class=o>)</span> <span class=o>|&gt;</span> <span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; List of 4</span></span>
+<span><span class=c>#&gt;  $ : num 1</span></span>
+<span><span class=c>#&gt;  $ : num 2</span></span>
+<span><span class=c>#&gt;  $ :List of 2</span></span>
+<span><span class=c>#&gt;   ..$ : num 3</span></span>
+<span><span class=c>#&gt;   ..$ : num 4</span></span>
+<span><span class=c>#&gt;  $ : num 5</span></span>
+<span></span><span><span class=nv>x</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/list_flatten.html>list_flatten</a></span><span class=o>(</span><span class=o>)</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/list_flatten.html>list_flatten</a></span><span class=o>(</span><span class=o>)</span> <span class=o>|&gt;</span> <span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; List of 5</span></span>
+<span><span class=c>#&gt;  $ : num 1</span></span>
+<span><span class=c>#&gt;  $ : num 2</span></span>
+<span><span class=c>#&gt;  $ : num 3</span></span>
+<span><span class=c>#&gt;  $ : num 4</span></span>
+<span><span class=c>#&gt;  $ : num 5</span></span>
+<span></span></code></pre></div><p><a href=https://purrr.tidyverse.org/reference/list_flatten.html target=_blank rel=noopener><code>list_flatten()</code></a> always returns a list; once a list is as flat as it can get (i.e. none of its children contain lists), it leaves the input unchanged.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>x</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/list_flatten.html>list_flatten</a></span><span class=o>(</span><span class=o>)</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/list_flatten.html>list_flatten</a></span><span class=o>(</span><span class=o>)</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/list_flatten.html>list_flatten</a></span><span class=o>(</span><span class=o>)</span> <span class=o>|&gt;</span> <span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; List of 5</span></span>
+<span><span class=c>#&gt;  $ : num 1</span></span>
+<span><span class=c>#&gt;  $ : num 2</span></span>
+<span><span class=c>#&gt;  $ : num 3</span></span>
+<span><span class=c>#&gt;  $ : num 4</span></span>
+<span><span class=c>#&gt;  $ : num 5</span></span>
+<span></span></code></pre></div><h3 id=simplification>Simplification
+<a href=#simplification><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p><a href=https://purrr.tidyverse.org/reference/list_simplify.html target=_blank rel=noopener><code>list_simplify()</code></a> maintains the length of the input, but produces a simpler type:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>2</span>, <span class=m>3</span><span class=o>)</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/list_simplify.html>list_simplify</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] 1 2 3</span></span>
+<span></span><span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"b"</span>, <span class=s>"c"</span><span class=o>)</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/list_simplify.html>list_simplify</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "a" "b" "c"</span></span>
+<span></span></code></pre></div><p>Because the length must stay the same, it will only succeed if every element has length 1:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://purrr.tidyverse.org/reference/list_simplify.html>list_simplify</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>2</span>, <span class=m>3</span><span class=o>:</span><span class=m>4</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `list_simplify()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> `x[[3]]` must have size 1, not size 2.</span></span>
+<span></span><span><span class=nf><a href=https://purrr.tidyverse.org/reference/list_simplify.html>list_simplify</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>2</span>, <span class=nf><a href=https://rdrr.io/r/base/integer.html>integer</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `list_simplify()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> `x[[3]]` must have size 1, not size 0.</span></span>
+<span></span></code></pre></div><p>Because the result must be a simpler vector, all the components must be compatible:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://purrr.tidyverse.org/reference/list_simplify.html>list_simplify</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>2</span>, <span class=s>"a"</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `list_simplify()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> Can't combine `&lt;list&gt;[[1]]` &lt;double&gt; and `&lt;list&gt;[[3]]` &lt;character&gt;.</span></span>
+<span></span></code></pre></div><p>If you need to simplify if it&rsquo;s possible, but otherwise leave the input unchanged, use <code>strict = FALSE</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://purrr.tidyverse.org/reference/list_simplify.html>list_simplify</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>2</span>, <span class=s>"a"</span><span class=o>)</span>, strict <span class=o>=</span> <span class=kc>FALSE</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [[1]]</span></span>
+<span><span class=c>#&gt; [1] 1</span></span>
+<span><span class=c>#&gt; </span></span>
+<span><span class=c>#&gt; [[2]]</span></span>
+<span><span class=c>#&gt; [1] 2</span></span>
+<span><span class=c>#&gt; </span></span>
+<span><span class=c>#&gt; [[3]]</span></span>
+<span><span class=c>#&gt; [1] "a"</span></span>
+<span></span></code></pre></div><p>If you want to be specific about the type you want,
+<a href=https://purrr.tidyverse.org/reference/list_simplify.html target=_blank rel=noopener><code>list_simplify()</code></a> can take the same prototype argument as
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>map_vec()</code></a>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>2</span>, <span class=m>3</span><span class=o>)</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/list_simplify.html>list_simplify</a></span><span class=o>(</span>ptype <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/integer.html>integer</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] 1 2 3</span></span>
+<span></span><span></span>
+<span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>2</span>, <span class=m>3</span><span class=o>)</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/list_simplify.html>list_simplify</a></span><span class=o>(</span>ptype <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/factor.html>factor</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `list_simplify()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> Can't convert `&lt;list&gt;[[1]]` &lt;double&gt; to &lt;factor&lt;&gt;&gt;.</span></span>
+<span></span></code></pre></div><h3 id=concatenation>Concatenation
+<a href=#concatenation><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p><a href=https://purrr.tidyverse.org/reference/list_c.html target=_blank rel=noopener><code>list_c()</code></a>,
+<a href=https://purrr.tidyverse.org/reference/list_c.html target=_blank rel=noopener><code>list_cbind()</code></a>, and
+<a href=https://purrr.tidyverse.org/reference/list_c.html target=_blank rel=noopener><code>list_rbind()</code></a> concatenate all elements together in a similar way to using <code>do.call(c)</code> or <code>do.call(rbind)</code><sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup> . Unlike
+<a href=https://purrr.tidyverse.org/reference/list_simplify.html target=_blank rel=noopener><code>list_simplify()</code></a>, this allows the elements to be different lengths:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>2</span>, <span class=m>3</span><span class=o>)</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/list_c.html>list_c</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] 1 2 3</span></span>
+<span></span><span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>2</span>, <span class=m>3</span><span class=o>:</span><span class=m>4</span>, <span class=nf><a href=https://rdrr.io/r/base/integer.html>integer</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/list_c.html>list_c</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] 1 2 3 4</span></span>
+<span></span></code></pre></div><p>The downside of this flexibility is that these functions break the connection between the input and the output. This reveals that
+<a href=https://purrr.tidyverse.org/reference/map_dfr.html target=_blank rel=noopener><code>map_dfr()</code></a> and
+<a href=https://purrr.tidyverse.org/reference/map_dfr.html target=_blank rel=noopener><code>map_dfc()</code></a> don&rsquo;t really belong to the map family because they don&rsquo;t maintain a 1-to-1 mapping between input and output: there&rsquo;s reliable no way to associate a row in the output with an element in an input.</p><p>For this reason,
+<a href=https://purrr.tidyverse.org/reference/map_dfr.html target=_blank rel=noopener><code>map_dfr()</code></a> and
+<a href=https://purrr.tidyverse.org/reference/map_dfr.html target=_blank rel=noopener><code>map_dfc()</code></a> (and the <code>map2</code> and <code>pmap</code>) variants are superseded and we recommend switching to an explicit call to
+<a href=https://purrr.tidyverse.org/reference/list_c.html target=_blank rel=noopener><code>list_rbind()</code></a> or
+<a href=https://purrr.tidyverse.org/reference/list_c.html target=_blank rel=noopener><code>list_cbind()</code></a> instead:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>paths</span> <span class=o>|&gt;</span> <span class=nf><a href=https://purrr.tidyverse.org/reference/map_dfr.html>map_dfr</a></span><span class=o>(</span><span class=nv>read_csv</span>, .id <span class=o>=</span> <span class=s>"path"</span><span class=o>)</span></span>
+<span><span class=c># now</span></span>
+<span><span class=nv>paths</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map</a></span><span class=o>(</span><span class=nv>read_csv</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://purrr.tidyverse.org/reference/list_c.html>list_rbind</a></span><span class=o>(</span>names_to <span class=o>=</span> <span class=s>"path"</span><span class=o>)</span></span></code></pre></div><p>This new behaviour also affects to
+<a href=https://purrr.tidyverse.org/reference/accumulate.html target=_blank rel=noopener><code>accumulate()</code></a> and
+<a href=https://purrr.tidyverse.org/reference/accumulate.html target=_blank rel=noopener><code>accumulate2()</code></a>, which previously had an idiosyncratic approach to simplification.</p><h3 id=list_assign><code>list_assign()</code>
+<a href=#list_assign><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>There&rsquo;s one other new function that isn&rsquo;t directly related to flattening and friends, but shares the <code>list_</code> prefix:
+<a href=https://purrr.tidyverse.org/reference/list_assign.html target=_blank rel=noopener><code>list_assign()</code></a>.
+<a href=https://purrr.tidyverse.org/reference/list_assign.html target=_blank rel=noopener><code>list_assign()</code></a> is similar to
+<a href=https://purrr.tidyverse.org/reference/list_assign.html target=_blank rel=noopener><code>list_modify()</code></a> but it doesn&rsquo;t work recursively. This is a mildly confusing feature of
+<a href=https://purrr.tidyverse.org/reference/list_assign.html target=_blank rel=noopener><code>list_modify()</code></a> that it&rsquo;s easy to miss in the documentation.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>x <span class=o>=</span> <span class=m>1</span>, y <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>a <span class=o>=</span> <span class=m>1</span><span class=o>)</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://purrr.tidyverse.org/reference/list_assign.html>list_modify</a></span><span class=o>(</span>y <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>b <span class=o>=</span> <span class=m>1</span><span class=o>)</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; List of 2</span></span>
+<span><span class=c>#&gt;  $ x: num 1</span></span>
+<span><span class=c>#&gt;  $ y:List of 2</span></span>
+<span><span class=c>#&gt;   ..$ a: num 1</span></span>
+<span><span class=c>#&gt;   ..$ b: num 1</span></span>
+<span></span></code></pre></div><p><a href=https://purrr.tidyverse.org/reference/list_assign.html target=_blank rel=noopener><code>list_assign()</code></a> doesn&rsquo;t recurse into sublists making it a bit easier to reason about:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>x <span class=o>=</span> <span class=m>1</span>, y <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>a <span class=o>=</span> <span class=m>1</span><span class=o>)</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://purrr.tidyverse.org/reference/list_assign.html>list_assign</a></span><span class=o>(</span>y <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>b <span class=o>=</span> <span class=m>2</span><span class=o>)</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=o>)</span></span>
+<span><span class=c>#&gt; List of 2</span></span>
+<span><span class=c>#&gt;  $ x: num 1</span></span>
+<span><span class=c>#&gt;  $ y:List of 1</span></span>
+<span><span class=c>#&gt;   ..$ b: num 2</span></span>
+<span></span></code></pre></div><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>A massive thanks to all 162 contributors who have helped make purrr 1.0.0 happen!
+<a href=https://github.com/adamroyjones target=_blank rel=noopener>@adamroyjones</a>,
+<a href=https://github.com/afoltzm target=_blank rel=noopener>@afoltzm</a>,
+<a href=https://github.com/agilebean target=_blank rel=noopener>@agilebean</a>,
+<a href=https://github.com/ahjames11 target=_blank rel=noopener>@ahjames11</a>,
+<a href=https://github.com/AHoerner target=_blank rel=noopener>@AHoerner</a>,
+<a href=https://github.com/alberto-dellera target=_blank rel=noopener>@alberto-dellera</a>,
+<a href=https://github.com/alex-gable target=_blank rel=noopener>@alex-gable</a>,
+<a href=https://github.com/AliciaSchep target=_blank rel=noopener>@AliciaSchep</a>,
+<a href=https://github.com/ArtemSokolov target=_blank rel=noopener>@ArtemSokolov</a>,
+<a href=https://github.com/AshesITR target=_blank rel=noopener>@AshesITR</a>,
+<a href=https://github.com/asmlgkj target=_blank rel=noopener>@asmlgkj</a>,
+<a href=https://github.com/aubryvetepi target=_blank rel=noopener>@aubryvetepi</a>,
+<a href=https://github.com/balwierz target=_blank rel=noopener>@balwierz</a>,
+<a href=https://github.com/bastianilso target=_blank rel=noopener>@bastianilso</a>,
+<a href=https://github.com/batpigandme target=_blank rel=noopener>@batpigandme</a>,
+<a href=https://github.com/bebersb target=_blank rel=noopener>@bebersb</a>,
+<a href=https://github.com/behrman target=_blank rel=noopener>@behrman</a>,
+<a href=https://github.com/benjaminschwetz target=_blank rel=noopener>@benjaminschwetz</a>,
+<a href=https://github.com/billdenney target=_blank rel=noopener>@billdenney</a>,
+<a href=https://github.com/Breza target=_blank rel=noopener>@Breza</a>,
+<a href=https://github.com/brunj7 target=_blank rel=noopener>@brunj7</a>,
+<a href=https://github.com/BrunoGrandePhD target=_blank rel=noopener>@BrunoGrandePhD</a>,
+<a href=https://github.com/CGMossa target=_blank rel=noopener>@CGMossa</a>,
+<a href=https://github.com/cgoo4 target=_blank rel=noopener>@cgoo4</a>,
+<a href=https://github.com/chsafouane target=_blank rel=noopener>@chsafouane</a>,
+<a href=https://github.com/chumbleycode target=_blank rel=noopener>@chumbleycode</a>,
+<a href=https://github.com/ColinFay target=_blank rel=noopener>@ColinFay</a>,
+<a href=https://github.com/CorradoLanera target=_blank rel=noopener>@CorradoLanera</a>,
+<a href=https://github.com/CPRyan target=_blank rel=noopener>@CPRyan</a>,
+<a href=https://github.com/czeildi target=_blank rel=noopener>@czeildi</a>,
+<a href=https://github.com/dan-reznik target=_blank rel=noopener>@dan-reznik</a>,
+<a href=https://github.com/DanChaltiel target=_blank rel=noopener>@DanChaltiel</a>,
+<a href=https://github.com/datawookie target=_blank rel=noopener>@datawookie</a>,
+<a href=https://github.com/dave-lovell target=_blank rel=noopener>@dave-lovell</a>,
+<a href=https://github.com/davidsjoberg target=_blank rel=noopener>@davidsjoberg</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/deann88 target=_blank rel=noopener>@deann88</a>,
+<a href=https://github.com/dfalbel target=_blank rel=noopener>@dfalbel</a>,
+<a href=https://github.com/dhslone target=_blank rel=noopener>@dhslone</a>,
+<a href=https://github.com/dlependorf target=_blank rel=noopener>@dlependorf</a>,
+<a href=https://github.com/dllazarov target=_blank rel=noopener>@dllazarov</a>,
+<a href=https://github.com/dpprdan target=_blank rel=noopener>@dpprdan</a>,
+<a href=https://github.com/dracodoc target=_blank rel=noopener>@dracodoc</a>,
+<a href=https://github.com/echasnovski target=_blank rel=noopener>@echasnovski</a>,
+<a href=https://github.com/edo91 target=_blank rel=noopener>@edo91</a>,
+<a href=https://github.com/edoardo-oliveri-sdg target=_blank rel=noopener>@edoardo-oliveri-sdg</a>,
+<a href=https://github.com/erictleung target=_blank rel=noopener>@erictleung</a>,
+<a href=https://github.com/eyayaw target=_blank rel=noopener>@eyayaw</a>,
+<a href=https://github.com/felixhell2004 target=_blank rel=noopener>@felixhell2004</a>,
+<a href=https://github.com/florianm target=_blank rel=noopener>@florianm</a>,
+<a href=https://github.com/florisvdh target=_blank rel=noopener>@florisvdh</a>,
+<a href=https://github.com/flying-sheep target=_blank rel=noopener>@flying-sheep</a>,
+<a href=https://github.com/fpinter target=_blank rel=noopener>@fpinter</a>,
+<a href=https://github.com/frankzhang21 target=_blank rel=noopener>@frankzhang21</a>,
+<a href=https://github.com/gaborcsardi target=_blank rel=noopener>@gaborcsardi</a>,
+<a href=https://github.com/GarrettMooney target=_blank rel=noopener>@GarrettMooney</a>,
+<a href=https://github.com/gdurif target=_blank rel=noopener>@gdurif</a>,
+<a href=https://github.com/ge-li target=_blank rel=noopener>@ge-li</a>,
+<a href=https://github.com/ggrothendieck target=_blank rel=noopener>@ggrothendieck</a>,
+<a href=https://github.com/grayskripko target=_blank rel=noopener>@grayskripko</a>,
+<a href=https://github.com/gregleleu target=_blank rel=noopener>@gregleleu</a>,
+<a href=https://github.com/gregorp target=_blank rel=noopener>@gregorp</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/hendrikvanb target=_blank rel=noopener>@hendrikvanb</a>,
+<a href=https://github.com/holgerbrandl target=_blank rel=noopener>@holgerbrandl</a>,
+<a href=https://github.com/hriebl target=_blank rel=noopener>@hriebl</a>,
+<a href=https://github.com/hsloot target=_blank rel=noopener>@hsloot</a>,
+<a href=https://github.com/huftis target=_blank rel=noopener>@huftis</a>,
+<a href=https://github.com/iago-pssjd target=_blank rel=noopener>@iago-pssjd</a>,
+<a href=https://github.com/iamnicogomez target=_blank rel=noopener>@iamnicogomez</a>,
+<a href=https://github.com/IndrajeetPatil target=_blank rel=noopener>@IndrajeetPatil</a>,
+<a href=https://github.com/irudnyts target=_blank rel=noopener>@irudnyts</a>,
+<a href=https://github.com/izahn target=_blank rel=noopener>@izahn</a>,
+<a href=https://github.com/jameslairdsmith target=_blank rel=noopener>@jameslairdsmith</a>,
+<a href=https://github.com/jedwards24 target=_blank rel=noopener>@jedwards24</a>,
+<a href=https://github.com/jemus42 target=_blank rel=noopener>@jemus42</a>,
+<a href=https://github.com/jennybc target=_blank rel=noopener>@jennybc</a>,
+<a href=https://github.com/jhrcook target=_blank rel=noopener>@jhrcook</a>,
+<a href=https://github.com/jimhester target=_blank rel=noopener>@jimhester</a>,
+<a href=https://github.com/jimjam-slam target=_blank rel=noopener>@jimjam-slam</a>,
+<a href=https://github.com/jnolis target=_blank rel=noopener>@jnolis</a>,
+<a href=https://github.com/joelgombin target=_blank rel=noopener>@joelgombin</a>,
+<a href=https://github.com/jonathan-g target=_blank rel=noopener>@jonathan-g</a>,
+<a href=https://github.com/jpmarindiaz target=_blank rel=noopener>@jpmarindiaz</a>,
+<a href=https://github.com/jxu target=_blank rel=noopener>@jxu</a>,
+<a href=https://github.com/jzadra target=_blank rel=noopener>@jzadra</a>,
+<a href=https://github.com/karchjd target=_blank rel=noopener>@karchjd</a>,
+<a href=https://github.com/karjamatti target=_blank rel=noopener>@karjamatti</a>,
+<a href=https://github.com/kbzsl target=_blank rel=noopener>@kbzsl</a>,
+<a href=https://github.com/krlmlr target=_blank rel=noopener>@krlmlr</a>,
+<a href=https://github.com/lahvak target=_blank rel=noopener>@lahvak</a>,
+<a href=https://github.com/lambdamoses target=_blank rel=noopener>@lambdamoses</a>,
+<a href=https://github.com/lasuk target=_blank rel=noopener>@lasuk</a>,
+<a href=https://github.com/lionel- target=_blank rel=noopener>@lionel-</a>,
+<a href=https://github.com/lorenzwalthert target=_blank rel=noopener>@lorenzwalthert</a>,
+<a href=https://github.com/LukasWallrich target=_blank rel=noopener>@LukasWallrich</a>,
+<a href=https://github.com/LukaszDerylo target=_blank rel=noopener>@LukaszDerylo</a>,
+<a href=https://github.com/malcolmbarrett target=_blank rel=noopener>@malcolmbarrett</a>,
+<a href=https://github.com/MarceloRTonon target=_blank rel=noopener>@MarceloRTonon</a>,
+<a href=https://github.com/mattwarkentin target=_blank rel=noopener>@mattwarkentin</a>,
+<a href=https://github.com/maxheld83 target=_blank rel=noopener>@maxheld83</a>,
+<a href=https://github.com/Maximilian-Stefan-Ernst target=_blank rel=noopener>@Maximilian-Stefan-Ernst</a>,
+<a href=https://github.com/mccroweyclinton-EPA target=_blank rel=noopener>@mccroweyclinton-EPA</a>,
+<a href=https://github.com/medewitt target=_blank rel=noopener>@medewitt</a>,
+<a href=https://github.com/meowcat target=_blank rel=noopener>@meowcat</a>,
+<a href=https://github.com/mgirlich target=_blank rel=noopener>@mgirlich</a>,
+<a href=https://github.com/mine-cetinkaya-rundel target=_blank rel=noopener>@mine-cetinkaya-rundel</a>,
+<a href=https://github.com/mitchelloharawild target=_blank rel=noopener>@mitchelloharawild</a>,
+<a href=https://github.com/mkoohafkan target=_blank rel=noopener>@mkoohafkan</a>,
+<a href=https://github.com/mlane3 target=_blank rel=noopener>@mlane3</a>,
+<a href=https://github.com/mmuurr target=_blank rel=noopener>@mmuurr</a>,
+<a href=https://github.com/moodymudskipper target=_blank rel=noopener>@moodymudskipper</a>,
+<a href=https://github.com/mpettis target=_blank rel=noopener>@mpettis</a>,
+<a href=https://github.com/nealrichardson target=_blank rel=noopener>@nealrichardson</a>,
+<a href=https://github.com/Nelson-Gon target=_blank rel=noopener>@Nelson-Gon</a>,
+<a href=https://github.com/neuwirthe target=_blank rel=noopener>@neuwirthe</a>,
+<a href=https://github.com/njtierney target=_blank rel=noopener>@njtierney</a>,
+<a href=https://github.com/oduilln target=_blank rel=noopener>@oduilln</a>,
+<a href=https://github.com/papageorgiou target=_blank rel=noopener>@papageorgiou</a>,
+<a href=https://github.com/pat-s target=_blank rel=noopener>@pat-s</a>,
+<a href=https://github.com/paulponcet target=_blank rel=noopener>@paulponcet</a>,
+<a href=https://github.com/petyaracz target=_blank rel=noopener>@petyaracz</a>,
+<a href=https://github.com/phargarten2 target=_blank rel=noopener>@phargarten2</a>,
+<a href=https://github.com/philiporlando target=_blank rel=noopener>@philiporlando</a>,
+<a href=https://github.com/q-w-a target=_blank rel=noopener>@q-w-a</a>,
+<a href=https://github.com/QuLogic target=_blank rel=noopener>@QuLogic</a>,
+<a href=https://github.com/ramiromagno target=_blank rel=noopener>@ramiromagno</a>,
+<a href=https://github.com/rcorty target=_blank rel=noopener>@rcorty</a>,
+<a href=https://github.com/reisner target=_blank rel=noopener>@reisner</a>,
+<a href=https://github.com/Rekyt target=_blank rel=noopener>@Rekyt</a>,
+<a href=https://github.com/roboes target=_blank rel=noopener>@roboes</a>,
+<a href=https://github.com/romainfrancois target=_blank rel=noopener>@romainfrancois</a>,
+<a href=https://github.com/rorynolan target=_blank rel=noopener>@rorynolan</a>,
+<a href=https://github.com/salim-b target=_blank rel=noopener>@salim-b</a>,
+<a href=https://github.com/sar8421 target=_blank rel=noopener>@sar8421</a>,
+<a href=https://github.com/ScoobyQ target=_blank rel=noopener>@ScoobyQ</a>,
+<a href=https://github.com/sda030 target=_blank rel=noopener>@sda030</a>,
+<a href=https://github.com/sgschreiber target=_blank rel=noopener>@sgschreiber</a>,
+<a href=https://github.com/sheffe target=_blank rel=noopener>@sheffe</a>,
+<a href=https://github.com/Shians target=_blank rel=noopener>@Shians</a>,
+<a href=https://github.com/ShixiangWang target=_blank rel=noopener>@ShixiangWang</a>,
+<a href=https://github.com/shosaco target=_blank rel=noopener>@shosaco</a>,
+<a href=https://github.com/siavash-babaei target=_blank rel=noopener>@siavash-babaei</a>,
+<a href=https://github.com/stephenashton-dhsc target=_blank rel=noopener>@stephenashton-dhsc</a>,
+<a href=https://github.com/stschiff target=_blank rel=noopener>@stschiff</a>,
+<a href=https://github.com/surdina target=_blank rel=noopener>@surdina</a>,
+<a href=https://github.com/tdawry target=_blank rel=noopener>@tdawry</a>,
+<a href=https://github.com/thebioengineer target=_blank rel=noopener>@thebioengineer</a>,
+<a href=https://github.com/TimTaylor target=_blank rel=noopener>@TimTaylor</a>,
+<a href=https://github.com/TimTeaFan target=_blank rel=noopener>@TimTeaFan</a>,
+<a href=https://github.com/tomjemmett target=_blank rel=noopener>@tomjemmett</a>,
+<a href=https://github.com/torbjorn target=_blank rel=noopener>@torbjorn</a>,
+<a href=https://github.com/tvatter target=_blank rel=noopener>@tvatter</a>,
+<a href=https://github.com/TylerGrantSmith target=_blank rel=noopener>@TylerGrantSmith</a>,
+<a href=https://github.com/vorpalvorpal target=_blank rel=noopener>@vorpalvorpal</a>,
+<a href=https://github.com/vspinu target=_blank rel=noopener>@vspinu</a>,
+<a href=https://github.com/wch target=_blank rel=noopener>@wch</a>,
+<a href=https://github.com/werkstattcodes target=_blank rel=noopener>@werkstattcodes</a>,
+<a href=https://github.com/williamlai2 target=_blank rel=noopener>@williamlai2</a>,
+<a href=https://github.com/yogat3ch target=_blank rel=noopener>@yogat3ch</a>,
+<a href=https://github.com/yutannihilation target=_blank rel=noopener>@yutannihilation</a>, and
+<a href=https://github.com/zeehio target=_blank rel=noopener>@zeehio</a>.</p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>But if they used the tidyverse coercion rules. <a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#breaking-changes>Breaking changes</a></li><li><a href=#documentation>Documentation</a></li><li><a href=#mapping>Mapping</a></li><li><a href=#keep_at-and-discard_at><code>keep_at()</code> and <code>discard_at()</code></a></li><li><a href=#flattening-and-simplification>Flattening and simplification</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

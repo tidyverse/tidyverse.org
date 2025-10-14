@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>correlation | Tidyverse</title><link>https://www.tidyverse.org/tags/correlation/</link><atom:link href="https://www.tidyverse.org/tags/correlation/index.xml" rel="self" type="application/rss+xml"/><description>correlation</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 09 Dec 2020 00:00:00 +0000</lastBuildDate><item><title>corrr 0.4.3</title><link>https://www.tidyverse.org/blog/2020/12/corrr-0-4-3/</link><pubDate>Wed, 09 Dec 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/12/corrr-0-4-3/</guid><description>&lt;!--
+TODO:
+* [ ] Pick category and tags (see existing with `post_tags()`)
+* [ ] Find photo &amp; update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnail()`
+* [ ] Add intro sentence
+* [ ] `use_tidy_thanks()`
+-->
+&lt;p>We&amp;rsquo;re thrilled to announce the release of
+&lt;a href="https://corrr.tidymodels.org/" target="_blank" rel="noopener">corrr&lt;/a> 0.4.3. corrr is for exploring correlations in R. It focuses on creating and working with data frames of correlations (instead of matrices) that can be easily explored via corrr functions or by leveraging tools like those in the tidyverse.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;corrr&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This blog post will describe changes in the new version. You can see a full list of changes in the
+&lt;a href="https://corrr.tidymodels.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">corrr&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dplyr&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">warn.conflicts&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">FALSE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="changes">Changes
+&lt;a href="#changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This version of corrr has a few changes in the behavior of user-facing functions as well as the introduction of a new user-facing function.&lt;/p>
+&lt;p>There are also some internal changes that make package functions more robust. These changes don&amp;rsquo;t affect how you use the package but address some edge cases where previous versions were failing inappropriately.&lt;/p>
+&lt;p>New features of note are:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>The first column of a &lt;code>cor_df&lt;/code> object is now named &amp;ldquo;term&amp;rdquo;. Previously it was named &amp;ldquo;rowname&amp;rdquo;. The name &amp;ldquo;term&amp;rdquo; is consistent with the output of &lt;code>broom::tidy()&lt;/code>. &lt;strong>This is a breaking change&lt;/strong>: code written to make use of the column name &amp;ldquo;rowname&amp;rdquo; will have to be amended.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>An &lt;code>.order&lt;/code> argument has been added to &lt;code>rplot()&lt;/code> to allow users to choose the ordering of variables along the axes in the output plot. The default is that the output plots retain the variable ordering in the input &lt;code>cor_df&lt;/code> object. Setting &lt;code>.order&lt;/code> to &amp;ldquo;alphabet&amp;rdquo; orders the variables in alphabetical order in the plots.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>A new function, &lt;code>colpair_map()&lt;/code>, allows for column comparisons using the values returned by an arbitrary function. &lt;code>colpair_map()&lt;/code> is discussed in detail below.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="new-column-name-in-cor_df-objects">New column name in &lt;code>cor_df&lt;/code> objects
+&lt;a href="#new-column-name-in-cor_df-objects">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>We can create a &lt;code>cor_df&lt;/code> object containing the pairwise correlations between a few numerical columns of the &lt;code>palmerpenguins::penguins&lt;/code> data set to see that the first column is now named &amp;ldquo;term&amp;rdquo;:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">palmerpenguins&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">penguins_cor&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">penguins&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">bill_length_mm&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">bill_depth_mm&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">flipper_length_mm&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">correlate&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="n">penguins_cor&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 3 x 4
+## term bill_length_mm bill_depth_mm flipper_length_mm
+## &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 bill_length_mm NA -0.235 0.656
+## 2 bill_depth_mm -0.235 NA -0.584
+## 3 flipper_length_mm 0.656 -0.584 NA
+&lt;/code>&lt;/pre>
+&lt;h3 id="ordering-variables-in-rplot-output">Ordering variables in &lt;code>rplot()&lt;/code> output
+&lt;a href="#ordering-variables-in-rplot-output">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Previously, the default behavior of &lt;code>rplot()&lt;/code> was that the variables were displayed in alphabetical order in the output. This was an artifact of using &lt;code>ggplot2&lt;/code> and inheriting its behavior. The new default is to retain the ordering of variables in the input data:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">rplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">penguins_cor&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figure/unnamed-chunk-3-1.png" alt="plot of chunk unnamed-chunk-3">&lt;/p>
+&lt;p>If alphabetical ordering is desired, set &lt;code>.order&lt;/code> to &amp;ldquo;alphabet&amp;rdquo;:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">rplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">penguins_cor&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.order&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;alphabet&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figure/unnamed-chunk-4-1.png" alt="plot of chunk unnamed-chunk-4">&lt;/p>
+&lt;h2 id="colpair_map">&lt;code>colpair_map()&lt;/code>
+&lt;a href="#colpair_map">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Doing analysis with corrr has always been about correlations, usually starting with a call to &lt;code>correlate()&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">mini_mtcars&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">mtcars&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cyl&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">disp&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">correlate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mini_mtcars&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>##
+## Correlation method: 'pearson'
+## Missing treated using: 'pairwise.complete.obs'
+&lt;/code>&lt;/pre>&lt;pre>&lt;code>## # A tibble: 3 x 4
+## term mpg cyl disp
+## &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 mpg NA -0.852 -0.848
+## 2 cyl -0.852 NA 0.902
+## 3 disp -0.848 0.902 NA
+&lt;/code>&lt;/pre>&lt;p>The result is a data frame where each of the columns in the original data are compared on the basis of their correlation coefficients. But the correlation coefficient is just one possible statistic that can be used for comparing columns with one another. Correlations are also limited in their usefulness as they are only applicable to pairs of numeric columns.&lt;/p>
+&lt;p>This version of corrr introduces &lt;code>colpair_map()&lt;/code>, which allows you to apply your own choice of function across the columns of your data. Just like with &lt;code>correlate()&lt;/code>, &lt;code>colpair_map()&lt;/code> takes a data frame as its first argument, while the second argument is for the function you wish to apply.&lt;/p>
+&lt;p>Let&amp;rsquo;s demonstrate using the &lt;code>mini_mtcars&lt;/code> data frame we just created. Lets say we are interested in covariance values rather than correlations. These can be found by passing in &lt;code>cov()&lt;/code> from the stats package:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">cov_df&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">colpair_map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mini_mtcars&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">stats&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">cov&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">cov_df&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 3 x 4
+## term mpg cyl disp
+## &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 mpg NA -9.17 -633.
+## 2 cyl -9.17 NA 200.
+## 3 disp -633. 200. NA
+&lt;/code>&lt;/pre>&lt;p>The resulting data frame behaves just like one returned by &lt;code>correlate()&lt;/code>, except that it is populated with covariance values rather than correlations. This means we still have access to all corrr&amp;rsquo;s other tooling when working with it. We can still use &lt;code>shave()&lt;/code> for example to remove duplication, which will set the upper triangle of values to &lt;code>NA&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">cov_df&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">shave&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 3 x 4
+## term mpg cyl disp
+## &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 mpg NA NA NA
+## 2 cyl -9.17 NA NA
+## 3 disp -633. 200. NA
+&lt;/code>&lt;/pre>&lt;p>Similarly, we can still use &lt;code>stretch()&lt;/code> to get the resulting data frame into a longer format:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">cov_df&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">stretch&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 9 x 3
+## x y r
+## &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 mpg mpg NA
+## 2 mpg cyl -9.17
+## 3 mpg disp -633.
+## 4 cyl mpg -9.17
+## 5 cyl cyl NA
+## 6 cyl disp 200.
+## 7 disp mpg -633.
+## 8 disp cyl 200.
+## 9 disp disp NA
+&lt;/code>&lt;/pre>&lt;p>The first part of the name (&amp;ldquo;colpair_&amp;quot;) comes from the fact that we are comparing pairs of columns. The second part of the name (&amp;quot;_map&amp;rdquo;) is designed to evoke the same ideas as in purrr&amp;rsquo;s family of &lt;code>map_*&lt;/code> functions. These iterate over a set of elements and apply a function to each of them. In this case, &lt;code>colpair_map()&lt;/code> is iterating over each possible pair of columns and applying a function to each pairing.&lt;/p>
+&lt;p>As such, any function passed to &lt;code>colpair_map()&lt;/code> must accept a vector for both its first and second arguments. To illustrate, let&amp;rsquo;s say we wanted to run a series t-tests to see which of our variables are significantly related to one another. We can write a function to do so as follows:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">calc_ttest_p_value&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">vec_a&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">vec_b&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;span class="nf">t.test&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">vec_a&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">vec_b&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">p.value&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The function returns the t-test&amp;rsquo;s p-value. The two arguments to the function are the two vectors being compared. Let&amp;rsquo;s first run the function on each pair of columns individually.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">calc_ttest_p_value&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mini_mtcars[&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;mpg&amp;#34;&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">mini_mtcars[&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;cyl&amp;#34;&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [1] 9.507708e-15
+&lt;/code>&lt;/pre>&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">calc_ttest_p_value&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mini_mtcars[&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;mpg&amp;#34;&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">mini_mtcars[&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;disp&amp;#34;&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [1] 7.978234e-11
+&lt;/code>&lt;/pre>&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">calc_ttest_p_value&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mini_mtcars[&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;cyl&amp;#34;&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">mini_mtcars[&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;disp&amp;#34;&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [1] 1.774454e-11
+&lt;/code>&lt;/pre>&lt;p>As you can see, this is tedious and involves a lot of repeated code. But &lt;code>colpair_map()&lt;/code> lets us do this for all column pairings at once and the output makes the results easy to read.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">colpair_map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mini_mtcars&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">calc_ttest_p_value&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 3 x 4
+## term mpg cyl disp
+## &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 mpg NA 9.51e-15 7.98e-11
+## 2 cyl 9.51e-15 NA 1.77e-11
+## 3 disp 7.98e-11 1.77e-11 NA
+&lt;/code>&lt;/pre>&lt;p>Having the ability to use arbitrary functions like this opens up intriguing possibilities for analyzing data. One limitation of using only correlations is they will only work for continuous variables. With &lt;code>colpair_map()&lt;/code>, we have a way of comparing categorical columns with one another. Let&amp;rsquo;s try this with a few categorical columns from dplyr&amp;rsquo;s dataset of Star Wars characters.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">mini_star_wars&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">starwars&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hair_color&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">eye_color&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">skin_color&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">head&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mini_star_wars&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 6 x 3
+## hair_color eye_color skin_color
+## &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt;
+## 1 blond blue fair
+## 2 &amp;lt;NA&amp;gt; yellow gold
+## 3 &amp;lt;NA&amp;gt; red white, blue
+## 4 none yellow white
+## 5 brown brown light
+## 6 brown, grey blue light
+&lt;/code>&lt;/pre>&lt;p>There are a few different ways of finding the strength of the relationship
+between two categorical variables. One useful measure is called Cramer&amp;rsquo;s V,
+which takes on values between 0 and 1 depending on how closely associated the
+variables are. The rcompanion package provides an implementation of Cramer&amp;rsquo;s V
+which we can make use of.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">rcompanion&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">colpair_map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mini_star_wars&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cramerV&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 3 x 4
+## term hair_color eye_color skin_color
+## &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 hair_color NA 0.449 0.510
+## 2 eye_color 0.449 NA 0.691
+## 3 skin_color 0.510 0.691 NA
+&lt;/code>&lt;/pre>&lt;p>&lt;code>colpair_map()&lt;/code> will allow you pass additional arguments to the called function via the dots (&lt;code>...&lt;/code>). For example, the &lt;code>cramerV()&lt;/code> function will allow you to specify the number of decimal places to round the results using &lt;code>digits&lt;/code>. Let&amp;rsquo;s instead pass in this option via the dots:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">colpair_map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mini_star_wars&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cramerV&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">digits&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 3 x 4
+## term hair_color eye_color skin_color
+## &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 hair_color NA 0.4 0.5
+## 2 eye_color 0.4 NA 0.7
+## 3 skin_color 0.5 0.7 NA
+&lt;/code>&lt;/pre>&lt;p>We are excited to see the different ways &lt;code>colpair_map()&lt;/code> gets used by the R community. We are hopeful that it will open up new and exciting ways of conducting data analysis.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank everyone who contributed to the package or filed an issue since the last release:
+&lt;a href="https://github.com/Aariq" target="_blank" rel="noopener">@Aariq&lt;/a>,
+&lt;a href="https://github.com/antoine-sachet" target="_blank" rel="noopener">@antoine-sachet&lt;/a>,
+&lt;a href="https://github.com/bjornerstedt" target="_blank" rel="noopener">@bjornerstedt&lt;/a>,
+&lt;a href="https://github.com/jameslairdsmith" target="_blank" rel="noopener">@jameslairdsmith&lt;/a>,
+&lt;a href="https://github.com/jamesMo84" target="_blank" rel="noopener">@jamesMo84&lt;/a>,
+&lt;a href="https://github.com/juliangkr" target="_blank" rel="noopener">@juliangkr&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/mattwarkentin" target="_blank" rel="noopener">@mattwarkentin&lt;/a>,
+&lt;a href="https://github.com/mwilson19" target="_blank" rel="noopener">@mwilson19&lt;/a>,
+&lt;a href="https://github.com/norhther" target="_blank" rel="noopener">@norhther&lt;/a>,
+&lt;a href="https://github.com/thisisdaryn" target="_blank" rel="noopener">@thisisdaryn&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p></description></item></channel></rss>

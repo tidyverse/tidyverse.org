@@ -1,0 +1,1097 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>tibble | Tidyverse</title><link>https://www.tidyverse.org/tags/tibble/</link><atom:link href="https://www.tidyverse.org/tags/tibble/index.xml" rel="self" type="application/rss+xml"/><description>tibble</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 19 Mar 2019 00:00:00 +0000</lastBuildDate><item><title>tibble 2.1.1</title><link>https://www.tidyverse.org/blog/2019/03/tibble-2.1.1/</link><pubDate>Tue, 19 Mar 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/03/tibble-2.1.1/</guid><description>&lt;STYLE type='text/css' scoped>
+PRE.fansi SPAN {padding-top: .25em; padding-bottom: .25em};
+&lt;/STYLE>
+&lt;p>Version 2.1.1 of the &lt;em>tibble&lt;/em> package is on CRAN now. Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the latest version with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;tibble&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This release mostly focuses on the name repair introduced in &lt;em>tibble&lt;/em> 2.0.1.
+We have specific regrets about one aspect of name repair and we think the pros of fixing it outweigh the cons:
+when a column name is completely absent, the numbered suffix we add becomes the entire name.
+Originally, we chose &lt;code>..j&lt;/code> (two dots and a number).
+However, that produces names that require special handling, because names of the form &lt;code>..j&lt;/code> have a special meaning: they are reserved words, you can assign them a value but not query them.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="kc">..2&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="m">5&lt;/span>
+&lt;span class="kc">..2&lt;/span>
+&lt;span class="c1">#&amp;gt; Error in eval(expr, envir, enclos): ..2 used in an incorrect context, no ... to look in&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The ability to query a value by name is very important for data frames in general and especially for the tidy evaluation framework:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">df&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">`..1`&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;not ok&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.name_repair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;minimal&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">with&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">`..1`&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error in eval(substitute(expr), data, enclos = parent.frame()): ..1 used in an incorrect context, no ... to look in&lt;/span>
+&lt;span class="n">dplyr&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">`..1`&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error in .f(.x[[i]], ...): ..1 used in an incorrect context, no ... to look in&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Since name repair is often something that happens automatically, we think it&amp;rsquo;s best to suffix with &lt;code>...j&lt;/code> (three dots and a number) and leave people with names that are easier to work with.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">.name_repair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;unique&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; New names:&lt;/span>
+&lt;span class="c1">#&amp;gt; * `` -&amp;gt; ...1&lt;/span>
+&lt;span class="c1">#&amp;gt; * `` -&amp;gt; ...2&lt;/span>
+&lt;span class="c1">#&amp;gt; * `` -&amp;gt; ...3&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 1 x 3&lt;/span>
+#&amp;gt; .​.​.1 .​.​.2 .​.​.3
+#&amp;gt; &lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span>&lt;span> 1 2 3&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;p>Existing names of the form &lt;code>..j&lt;/code> (and also &lt;code>...&lt;/code>) are repaired too:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kc">...&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;a&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">..1&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;b&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.name_repair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;unique&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; New names:&lt;/span>
+&lt;span class="c1">#&amp;gt; * `...` -&amp;gt; ...1&lt;/span>
+&lt;span class="c1">#&amp;gt; * `..1` -&amp;gt; ...2&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 1 x 2&lt;/span>
+#&amp;gt; .​.​.1 .​.​.2
+#&amp;gt; &lt;span style='color: #555555;font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span>&lt;span> a b&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;p>By extension, this means that names of this form are rejected unless you specify a name repair strategy:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kc">..1&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;a&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error: Column 1 must not have names of the form ... or ..j.&lt;/span>
+&lt;span class="c1">#&amp;gt; Use .name_repair to specify repair.&lt;/span>
+&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kc">..1&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;a&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.name_repair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;minimal&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 1 x 1&lt;/span>
+#&amp;gt; ..1
+#&amp;gt; &lt;span style='color: #555555;font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span>&lt;span> a&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;p>For consistency, three dots are used for all disambiguating suffixes, not only for empty names.&lt;/p>
+&lt;p>This might affect you if you use &lt;em>readxl&lt;/em> or another package that uses the new name repair, and we&amp;rsquo;re sorry for the disruption.
+We&amp;rsquo;re confident that a bit of short-term pain now is better than the agony that would have come from the existent behavior.
+Also, name repair currently is in the &amp;ldquo;maturing&amp;rdquo; lifecycle,
+Read more about name repair in the
+&lt;a href="https://principles.tidyverse.org/names-attribute.html#the-names-attribute-of-an-object" target="_blank" rel="noopener">tidyverse design principles&lt;/a>.&lt;/p>
+&lt;p>&lt;img src="https://www.tidyverse.org/images/tibble-2.1.1/dots.jpg"/>&lt;/p></description></item><item><title>tibble 2.0.1</title><link>https://www.tidyverse.org/blog/2019/01/tibble-2.0.1/</link><pubDate>Tue, 15 Jan 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/01/tibble-2.0.1/</guid><description>&lt;STYLE type='text/css' scoped>
+PRE.fansi SPAN {padding-top: .25em; padding-bottom: .25em};
+&lt;/STYLE>
+&lt;p>I&amp;rsquo;m pleased to announce that version 2.0.1 of the &lt;em>tibble&lt;/em> package is on CRAN now, just in time for
+&lt;a href="https://www.rstudio.com/conference/" target="_blank" rel="noopener">rstudio::conf()&lt;/a>. Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the latest version with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;tibble&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This release required a bit of preparation, including a
+&lt;a href="https://www.tidyverse.org/articles/2018/11/tibble-2.0.0-pre-announce/" target="_blank" rel="noopener">pre-release blog post&lt;/a> that described the breaking changes, mostly in
+&lt;a href="https://tibble.tidyverse.org/reference/as_tibble.html" target="_blank" rel="noopener">&lt;code>as_tibble()&lt;/code>&lt;/a>,
+&lt;a href="https://tibble.tidyverse.org/reference/new_tibble.html" target="_blank" rel="noopener">&lt;code>new_tibble()&lt;/code>&lt;/a>,
+&lt;a href="https://tibble.tidyverse.org/reference/set_tidy_names.html" target="_blank" rel="noopener">&lt;code>set_tidy_names()&lt;/code>&lt;/a>,
+&lt;a href="https://tibble.tidyverse.org/reference/tidy_names.html" target="_blank" rel="noopener">&lt;code>tidy_names()&lt;/code>&lt;/a>, and &lt;code>names&amp;lt;-()&lt;/code>, and a patch release that fixed problems found after the initial 2.0.0 release.
+In this blog post, I focus on a few user- and programmer-related changes, and give an outlook over future development:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://tibble.tidyverse.org/reference/view.html" target="_blank" rel="noopener">&lt;code>view()&lt;/code>&lt;/a>, nameless
+&lt;a href="https://tibble.tidyverse.org/reference/enframe.html" target="_blank" rel="noopener">&lt;code>enframe()&lt;/code>&lt;/a>, 2D columns&lt;/li>
+&lt;li>Lifecycle, robustness, name repair, row names,
+&lt;a href="https://tibble.tidyverse.org/reference/glimpse.html" target="_blank" rel="noopener">&lt;code>glimpse()&lt;/code>&lt;/a> for subclasses&lt;/li>
+&lt;li>&lt;em>vctrs&lt;/em>, dependencies, decorations&lt;/li>
+&lt;/ul>
+&lt;p>For a complete overview please see the
+&lt;a href="https://github.com/tidyverse/tibble/releases/tag/v2.0.0" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;p>Use the
+&lt;a href="https://github.com/tidyverse/tibble/issues" target="_blank" rel="noopener">issue tracker&lt;/a> to submit bugs or suggest ideas, your contributions are always welcome.&lt;/p>
+&lt;h2 id="changes-that-affect-users">Changes that affect users
+&lt;a href="#changes-that-affect-users">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="view">view
+&lt;a href="#view">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The experimental
+&lt;a href="https://tibble.tidyverse.org/reference/view.html" target="_blank" rel="noopener">&lt;code>view()&lt;/code>&lt;/a> function forwards its input to &lt;code>utils::View()&lt;/code> (only in interactive mode) and always returns its input invisibly, which is useful for pipe-based workflows.
+Currently it is unclear if this functionality should live in &lt;em>tibble&lt;/em> or elsewhere.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># This is a no-op in non-interactive mode.&lt;/span>
+&lt;span class="c1"># In interactive mode, a viewer window/pane will open.&lt;/span>
+&lt;span class="n">iris&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">view&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="nameless-enframe">Nameless enframe
+&lt;a href="#nameless-enframe">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The
+&lt;a href="https://tibble.tidyverse.org/reference/enframe.html" target="_blank" rel="noopener">&lt;code>enframe()&lt;/code>&lt;/a> function always has been a good way to convert a (named) vector to a two-column data frame.
+In this version, conversion to a one-column data frame is also supported by setting the &lt;code>name&lt;/code> argument to &lt;code>NULL&lt;/code>.
+This is now the recommended way to turn a vector to a one-column tibble, due to changes to the default implementation of
+&lt;a href="https://tibble.tidyverse.org/reference/as_tibble.html" target="_blank" rel="noopener">&lt;code>as_tibble()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">enframe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kc">letters&lt;/span>&lt;span class="n">[1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 3 x 2&lt;/span>
+#&amp;gt; &lt;span style='font-weight: bold;'>name&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>value&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span>&lt;span> 1 a &lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span>&lt;span> 2 b &lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span>&lt;span> 3 c&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">enframe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kc">letters&lt;/span>&lt;span class="n">[1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">NULL&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 3 x 1&lt;/span>
+#&amp;gt; &lt;span style='font-weight: bold;'>value&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span>&lt;span> a &lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span>&lt;span> b &lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span>&lt;span> c&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;h3 id="2d-columns">2D columns
+&lt;a href="#2d-columns">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>&lt;code>tibble()&lt;/code> now supports columns that are matrices or data frames.
+These have always been supported in data frames and are used in some modelling functions.
+We are looking forward to supporting these and other exciting use cases, see also the
+&lt;a href="https://adv-r.hadley.nz/vectors-chap.html#matrix-and-data-frame-columns" target="_blank" rel="noopener">Matrix and data frame columns&lt;/a> chapter of adv-r.
+The number of rows in these objects must be consistent with the length of the other columns.
+Internally, this feature required using &lt;code>NROW()&lt;/code> instead of &lt;code>length()&lt;/code> in a few spots, which conveniently returns the length for vectors and the number of rows for 2D objects.
+The required support in &lt;em>pillar&lt;/em> has been added earlier last year.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">b&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">c&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">4&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">6&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">d&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">e&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">7&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">9&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">f&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">g&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">10&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">h&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">11&lt;/span>&lt;span class="p">)),&lt;/span>
+&lt;span class="n">i&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">diag&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 3 x 4&lt;/span>
+#&amp;gt; &lt;span style='font-weight: bold;'>a&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>b$c&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>d$e&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>$f$g&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>$$h&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>i[,1]&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>[,2]&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>[,3]&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span>&lt;span> 1 4 7 10 11 1 0 0&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span>&lt;span> 2 5 8 10 11 0 1 0&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span>&lt;span> 3 6 9 10 11 0 0 1&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;h2 id="changes-that-affect-package-developers">Changes that affect package developers
+&lt;a href="#changes-that-affect-package-developers">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="lifecycle">Lifecycle
+&lt;a href="#lifecycle">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>
+&lt;a href="https://www.tidyverse.org/lifecycle/" target="_blank" rel="noopener">&lt;img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle">&lt;/a>&lt;/p>
+&lt;p>All functions have been assigned a lifecycle.
+The &lt;em>tibble&lt;/em> package has now reached the &amp;ldquo;stable&amp;rdquo; lifecycle, functions in a different lifecycle stage are marked as such in their documentation.
+One example is the
+&lt;a href="https://tibble.tidyverse.org/reference/add_row.html" target="_blank" rel="noopener">&lt;code>add_row()&lt;/code>&lt;/a> function: it is unclear if it should ensure that all columns have length one by wrapping in a list if necessary, and a better implementation is perhaps possible once &lt;em>tibble&lt;/em> uses the &lt;em>vctrs&lt;/em> package, see below.
+Therefore this function is marked &amp;ldquo;questioning&amp;rdquo;.
+Learn more about lifecycle in the tidyverse at &lt;a href="https://www.tidyverse.org/lifecycle/">https://www.tidyverse.org/lifecycle/&lt;/a>.&lt;/p>
+&lt;h3 id="robustness">Robustness
+&lt;a href="#robustness">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The new &lt;code>.rows&lt;/code> argument to
+&lt;a href="https://tibble.tidyverse.org/reference/tibble.html" target="_blank" rel="noopener">&lt;code>tibble()&lt;/code>&lt;/a> and
+&lt;a href="https://tibble.tidyverse.org/reference/as_tibble.html" target="_blank" rel="noopener">&lt;code>as_tibble()&lt;/code>&lt;/a> allows specifying the expected number of rows explicitly, even if it&amp;rsquo;s evident from the data.
+This supports writing even more defensive code.
+The &lt;code>nrow&lt;/code> argument to the low-level
+&lt;a href="https://tibble.tidyverse.org/reference/new_tibble.html" target="_blank" rel="noopener">&lt;code>new_tibble()&lt;/code>&lt;/a> constructor is now mandatory, on the other hand most expensive checks have been moved to the new
+&lt;a href="https://tibble.tidyverse.org/reference/validate_tibble.html" target="_blank" rel="noopener">&lt;code>validate_tibble()&lt;/code>&lt;/a> function.
+This means that constructions of tibbles is now faster by default if you know that the inputs are correct, but you can always double-check if needed.
+See also the
+&lt;a href="https://adv-r.hadley.nz/s3.html#s3-classes" target="_blank" rel="noopener">S3 classes&lt;/a> chapter in adv-r for motivation.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">b&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.rows&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 3 x 2&lt;/span>
+#&amp;gt; &lt;span style='font-weight: bold;'>a&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>b&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span>&lt;span> 1 1&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span>&lt;span> 1 2&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span>&lt;span> 1 3&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">b&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.rows&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error: Tibble columns must have consistent lengths, only values of length one are recycled:&lt;/span>
+&lt;span class="c1">#&amp;gt; * Length 3: Requested with `.rows` argument&lt;/span>
+&lt;span class="c1">#&amp;gt; * Length 2: Column `b`&lt;/span>
+&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.rows&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 3 x 1&lt;/span>
+#&amp;gt; &lt;span style='font-weight: bold;'>a&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span>&lt;span> 1&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span>&lt;span> 1&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span>&lt;span> 1&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">iris[1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">]&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.rows&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 3 x 5&lt;/span>
+#&amp;gt; &lt;span style='font-weight: bold;'>Sepal.Length&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>Sepal.Width&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>Petal.Length&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>Petal.Width&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>Species&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span>&lt;span> &lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span>&lt;span> 5.1 3.5 1.4 0.2 setosa &lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span>&lt;span> 4.9 3 1.4 0.2 setosa &lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span>&lt;span> 4.7 3.2 1.3 0.2 setosa&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">new_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">nrow&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 3 x 1&lt;/span>
+#&amp;gt; &lt;span style='font-weight: bold;'>a&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span>&lt;span> 1&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span>&lt;span> 2&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span>&lt;span> 3&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">bad&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">new_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">2&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">nrow&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">validate_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">bad&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error: Tibble columns must have consistent lengths, only values of length one are recycled:&lt;/span>
+&lt;span class="c1">#&amp;gt; * Length 3: Requested with `nrow` argument&lt;/span>
+&lt;span class="c1">#&amp;gt; * Length 2: Column `a`&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="name-repair">Name repair
+&lt;a href="#name-repair">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Column name repair has more direct support, via the new &lt;code>.name_repair&lt;/code> argument to
+&lt;a href="https://tibble.tidyverse.org/reference/tibble.html" target="_blank" rel="noopener">&lt;code>tibble()&lt;/code>&lt;/a> and
+&lt;a href="https://tibble.tidyverse.org/reference/as_tibble.html" target="_blank" rel="noopener">&lt;code>as_tibble()&lt;/code>&lt;/a>.
+It takes the following values:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>&amp;quot;minimal&amp;quot;&lt;/code>: No name repair or checks, beyond basic existence.&lt;/li>
+&lt;li>&lt;code>&amp;quot;unique&amp;quot;&lt;/code>: Make sure names are unique and not empty.&lt;/li>
+&lt;li>&lt;code>&amp;quot;check_unique&amp;quot;&lt;/code>: (default value), no name repair, but check they are &lt;code>unique&lt;/code>.&lt;/li>
+&lt;li>&lt;code>&amp;quot;universal&amp;quot;&lt;/code>: Make the names &lt;code>unique&lt;/code> and syntactic.&lt;/li>
+&lt;li>a function: apply custom name repair (e.g., &lt;code>.name_repair = make.names&lt;/code> or &lt;code>.name_repair = ~make.names(., unique = TRUE)&lt;/code> for names in the style of base R).&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">## by default, duplicate names are not allowed&lt;/span>
+&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">`1a`&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">`1a`&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error: Column name `1a` must not be duplicated.&lt;/span>
+&lt;span class="c1">#&amp;gt; Use .name_repair to specify repair.&lt;/span>
+&lt;span class="c1">## you can authorize duplicate names&lt;/span>
+&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">`1a`&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">`1a`&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.name_repair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;minimal&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 1 x 2&lt;/span>
+#&amp;gt; &lt;span style='font-weight: bold;'>`1a`&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>`1a`&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span>&lt;span> 1 2&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">## or request that the names be made unique&lt;/span>
+&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">`1a`&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">`1a`&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.name_repair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;unique&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; New names:&lt;/span>
+&lt;span class="c1">#&amp;gt; * `1a` -&amp;gt; `1a..1`&lt;/span>
+&lt;span class="c1">#&amp;gt; * `1a` -&amp;gt; `1a..2`&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 1 x 2&lt;/span>
+#&amp;gt; &lt;span style='font-weight: bold;'>`1a..1`&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>`1a..2`&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span>&lt;span> 1 2&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">## or universal&lt;/span>
+&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">`1a`&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">`1a`&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.name_repair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;universal&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; New names:&lt;/span>
+&lt;span class="c1">#&amp;gt; * `1a` -&amp;gt; ..1a..1&lt;/span>
+&lt;span class="c1">#&amp;gt; * `1a` -&amp;gt; ..1a..2&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 1 x 2&lt;/span>
+#&amp;gt; &lt;span style='font-weight: bold;'>..1a..1&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>..1a..2&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span>&lt;span> 1 2&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;h3 id="row-names">Row names
+&lt;a href="#row-names">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Row name handling is stricter.
+Row names were never supported in
+&lt;a href="https://tibble.tidyverse.org/reference/tibble.html" target="_blank" rel="noopener">&lt;code>tibble()&lt;/code>&lt;/a> and
+&lt;a href="https://tibble.tidyverse.org/reference/new_tibble.html" target="_blank" rel="noopener">&lt;code>new_tibble()&lt;/code>&lt;/a>, and are now stripped by default in
+&lt;a href="https://tibble.tidyverse.org/reference/as_tibble.html" target="_blank" rel="noopener">&lt;code>as_tibble()&lt;/code>&lt;/a>.
+The &lt;code>rownames&lt;/code> argument to
+&lt;a href="https://tibble.tidyverse.org/reference/as_tibble.html" target="_blank" rel="noopener">&lt;code>as_tibble()&lt;/code>&lt;/a> supports:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>NULL&lt;/code>: remove row names (default),&lt;/li>
+&lt;li>&lt;code>NA&lt;/code>: keep row names,&lt;/li>
+&lt;li>A string: the name of the new column that will contain the existing row names, which are no longer present in the result.&lt;/li>
+&lt;/ul>
+&lt;p>The old default can be restored by calling &lt;code>pkgconfig::set_config(&amp;quot;tibble::rownames&amp;quot;, NA)&lt;/code>, this also works for packages that import &lt;em>tibble&lt;/em>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">rownames&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;1&amp;#34; &amp;#34;2&amp;#34; &amp;#34;3&amp;#34; &amp;#34;4&amp;#34; &amp;#34;5&amp;#34; &amp;#34;6&amp;#34; &amp;#34;7&amp;#34; &amp;#34;8&amp;#34; &amp;#34;9&amp;#34; &amp;#34;10&amp;#34; &amp;#34;11&amp;#34; &amp;#34;12&amp;#34; &amp;#34;13&amp;#34; &amp;#34;14&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; [15] &amp;#34;15&amp;#34; &amp;#34;16&amp;#34; &amp;#34;17&amp;#34; &amp;#34;18&amp;#34; &amp;#34;19&amp;#34; &amp;#34;20&amp;#34; &amp;#34;21&amp;#34; &amp;#34;22&amp;#34; &amp;#34;23&amp;#34; &amp;#34;24&amp;#34; &amp;#34;25&amp;#34; &amp;#34;26&amp;#34; &amp;#34;27&amp;#34; &amp;#34;28&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; [29] &amp;#34;29&amp;#34; &amp;#34;30&amp;#34; &amp;#34;31&amp;#34; &amp;#34;32&amp;#34;&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">rownames&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;make_model&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 32 x 12&lt;/span>
+#&amp;gt; &lt;span style='font-weight: bold;'>make_model&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>mpg&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>cyl&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>disp&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>hp&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>drat&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>wt&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>qsec&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>vs&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>am&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>gear&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span>&lt;span> Mazda RX4 21 6 160 110 3.9 2.62 16.5 0 1 4&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span>&lt;span> Mazda RX4… 21 6 160 110 3.9 2.88 17.0 0 1 4&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span>&lt;span> Datsun 710 22.8 4 108 93 3.85 2.32 18.6 1 1 4&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span>&lt;span> Hornet 4 … 21.4 6 258 110 3.08 3.22 19.4 1 0 3&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span>&lt;span> Hornet Sp… 18.7 8 360 175 3.15 3.44 17.0 0 0 3&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span>&lt;span> Valiant 18.1 6 225 105 2.76 3.46 20.2 1 0 3&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span>&lt;span> Duster 360 14.3 8 360 245 3.21 3.57 15.8 0 0 3&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span>&lt;span> Merc 240D 24.4 4 147. 62 3.69 3.19 20 1 0 4&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span>&lt;span> Merc 230 22.8 4 141. 95 3.92 3.15 22.9 1 0 4&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span>&lt;span> Merc 280 19.2 6 168. 123 3.92 3.44 18.3 1 0 4&lt;/span>
+#&amp;gt; &lt;span style='color: #555555;'># … with 22 more rows, and 1 more variable: &lt;/span>&lt;span style='color: #555555;font-weight: bold;'>carb&lt;/span>&lt;span style='color: #555555;'> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;h3 id="glimpse-for-subclasses">glimpse for subclasses
+&lt;a href="#glimpse-for-subclasses">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The
+&lt;a href="https://tibble.tidyverse.org/reference/glimpse.html" target="_blank" rel="noopener">&lt;code>glimpse()&lt;/code>&lt;/a> function shows information obtained from
+&lt;a href="https://tibble.tidyverse.org/reference/tbl_sum.html" target="_blank" rel="noopener">&lt;code>tbl_sum()&lt;/code>&lt;/a> in the header, e.g. grouping information for &lt;code>grouped_df&lt;/code> from &lt;em>dplyr&lt;/em>, or other information from packages that override the &lt;code>tbl_df&lt;/code> class.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">iris&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Species&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">glimpse&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; Observations: 150
+#&amp;gt; Variables: 5
+#&amp;gt; Groups: Species [3]
+#&amp;gt; $ &lt;span style='font-weight: bold;'>Sepal.Length&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> 5.1, 4.9, 4.7, 4.6, 5.0, 5.4, 4.6, 5.0, 4.4, 4.9, 5…&lt;/span>
+#&amp;gt; $ &lt;span style='font-weight: bold;'>Sepal.Width &lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> 3.5, 3.0, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1, 3…&lt;/span>
+#&amp;gt; $ &lt;span style='font-weight: bold;'>Petal.Length&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> 1.4, 1.4, 1.3, 1.5, 1.4, 1.7, 1.4, 1.5, 1.4, 1.5, 1…&lt;/span>
+#&amp;gt; $ &lt;span style='font-weight: bold;'>Petal.Width &lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;span> 0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1, 0…&lt;/span>
+#&amp;gt; $ &lt;span style='font-weight: bold;'>Species &lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span>&lt;span> setosa, setosa, setosa, setosa, setosa, setosa, set…&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;h2 id="outlook">Outlook
+&lt;a href="#outlook">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="vctrs">vctrs
+&lt;a href="#vctrs">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The plan is to
+&lt;a href="https://github.com/tidyverse/tibble/issues/521" target="_blank" rel="noopener">use &lt;em>vctrs&lt;/em>&lt;/a> in &lt;em>tibble&lt;/em> 2.1.0.
+This package is a solid foundation for handling coercion, concatenation and recycling in vectors of arbitrary type.
+The support provided by &lt;em>vctrs&lt;/em> will yield a better
+&lt;a href="https://tibble.tidyverse.org/reference/add_row.html" target="_blank" rel="noopener">&lt;code>add_row()&lt;/code>&lt;/a> implementation, in return name repair which is currently defined in &lt;em>tibble&lt;/em> should likely live in &lt;em>vctrs&lt;/em>.&lt;/p>
+&lt;h3 id="dependencies">Dependencies
+&lt;a href="#dependencies">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Currently, installing &lt;em>tibble&lt;/em> can bring in almost dozen other packages:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">tools&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">package_dependencies&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;tibble&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">recursive&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">which&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;Imports&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; $tibble&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;cli&amp;#34; &amp;#34;crayon&amp;#34; &amp;#34;fansi&amp;#34; &amp;#34;methods&amp;#34; &amp;#34;pillar&amp;#34; &lt;/span>
+&lt;span class="c1">#&amp;gt; [6] &amp;#34;pkgconfig&amp;#34; &amp;#34;rlang&amp;#34; &amp;#34;utils&amp;#34; &amp;#34;assertthat&amp;#34; &amp;#34;grDevices&amp;#34; &lt;/span>
+&lt;span class="c1">#&amp;gt; [11] &amp;#34;utf8&amp;#34; &amp;#34;tools&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Some of them, namely &lt;em>fansi&lt;/em> and &lt;em>utf8&lt;/em>, contain code that requires compilation and are only required for optional features.
+&lt;a href="https://github.com/tidyverse/tibble/issues/475" target="_blank" rel="noopener">The plan&lt;/a> is to make these packages, and &lt;em>crayon&lt;/em>, a suggested package to &lt;em>cli&lt;/em>, and provide fallback implementations there.
+When finished, taking a strong dependency on &lt;em>tibble&lt;/em> won&amp;rsquo;t add too many new dependencies (again): &lt;em>rlang&lt;/em>, &lt;em>vctrs&lt;/em> and &lt;em>cli&lt;/em> will be used by most of the tidyverse anyway, &lt;em>pillar&lt;/em> is the only truly new strong dependency.
+Packages that subclass &lt;code>tbl_df&lt;/code> should import &lt;em>tibble&lt;/em> to make sure that the subsetting operator &lt;code>[&lt;/code> always behaves the same.
+Constructing (subclasses of) tibbles should happen through
+&lt;a href="https://tibble.tidyverse.org/reference/new_tibble.html" target="_blank" rel="noopener">&lt;code>new_tibble()&lt;/code>&lt;/a> only.&lt;/p>
+&lt;h3 id="decorations">Decorations
+&lt;a href="#decorations">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Tibbles have a very opinionated way to print their data, not always in line with users&amp;rsquo; expectations, and sometimes clearly wrong (e.g. for numerical data where the absolute mean is much larger than the standard deviation).
+It seems difficult to devise a formatting that suits all needs, especially for numbers: how do we tell if a number represents money, or perhaps is a misspecified categorical variable or a UID?
+&lt;a href="https://github.com/tidyverse/tibble/pull/411" target="_blank" rel="noopener">Decorations&lt;/a> are an idea that might help here.
+A decoration is applied only when printing a vector, which behaves identically to a bare vector otherwise.
+Decorations can be &amp;ldquo;learned&amp;rdquo; from the data (using heuristics), or specified directly after import or when creating column,
+and stored in attribues like &lt;code>&amp;quot;class&amp;quot;&lt;/code>.
+It will be important to make sure that these attributes survive subsetting and perhaps some arithmetic transformations, easiest to achieve with the help of &lt;em>vctrs&lt;/em>.&lt;/p>
+&lt;h2 id="acknowledgments">Acknowledgments
+&lt;a href="#acknowledgments">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thanks to Brodie Gaslam (
+&lt;a href="https://github.com/brodieG" target="_blank" rel="noopener">@brodieG&lt;/a>) for his help with formatting this blog post and for spotting inaccurate wording.&lt;/p>
+&lt;p>We also received issues, pull requests, and comments from 108 people since tibble 1.4.2. Thanks to everyone:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/adam-gruer" target="_blank" rel="noopener">@adam-gruer&lt;/a>,
+&lt;a href="https://github.com/aegerton" target="_blank" rel="noopener">@aegerton&lt;/a>,
+&lt;a href="https://github.com/alaindanet" target="_blank" rel="noopener">@alaindanet&lt;/a>,
+&lt;a href="https://github.com/alexpghayes" target="_blank" rel="noopener">@alexpghayes&lt;/a>,
+&lt;a href="https://github.com/alexwhan" target="_blank" rel="noopener">@alexwhan&lt;/a>,
+&lt;a href="https://github.com/alistaire47" target="_blank" rel="noopener">@alistaire47&lt;/a>,
+&lt;a href="https://github.com/anhqle" target="_blank" rel="noopener">@anhqle&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/brendanf" target="_blank" rel="noopener">@brendanf&lt;/a>,
+&lt;a href="https://github.com/brodieG" target="_blank" rel="noopener">@brodieG&lt;/a>,
+&lt;a href="https://github.com/cfhammill" target="_blank" rel="noopener">@cfhammill&lt;/a>,
+&lt;a href="https://github.com/christophsax" target="_blank" rel="noopener">@christophsax&lt;/a>,
+&lt;a href="https://github.com/cimentadaj" target="_blank" rel="noopener">@cimentadaj&lt;/a>,
+&lt;a href="https://github.com/czeildi" target="_blank" rel="noopener">@czeildi&lt;/a>,
+&lt;a href="https://github.com/DasHammett" target="_blank" rel="noopener">@DasHammett&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/earowang" target="_blank" rel="noopener">@earowang&lt;/a>,
+&lt;a href="https://github.com/Eluvias" target="_blank" rel="noopener">@Eluvias&lt;/a>,
+&lt;a href="https://github.com/Enchufa2" target="_blank" rel="noopener">@Enchufa2&lt;/a>,
+&lt;a href="https://github.com/esford3" target="_blank" rel="noopener">@esford3&lt;/a>,
+&lt;a href="https://github.com/flying-sheep" target="_blank" rel="noopener">@flying-sheep&lt;/a>,
+&lt;a href="https://github.com/gavinsimpson" target="_blank" rel="noopener">@gavinsimpson&lt;/a>,
+&lt;a href="https://github.com/GeorgeHayduke" target="_blank" rel="noopener">@GeorgeHayduke&lt;/a>,
+&lt;a href="https://github.com/gregorp" target="_blank" rel="noopener">@gregorp&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/iron0012" target="_blank" rel="noopener">@iron0012&lt;/a>,
+&lt;a href="https://github.com/isteves" target="_blank" rel="noopener">@isteves&lt;/a>,
+&lt;a href="https://github.com/jeffreyhanson" target="_blank" rel="noopener">@jeffreyhanson&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/JLYJabc" target="_blank" rel="noopener">@JLYJabc&lt;/a>,
+&lt;a href="https://github.com/joranE" target="_blank" rel="noopener">@joranE&lt;/a>,
+&lt;a href="https://github.com/jtelleriar" target="_blank" rel="noopener">@jtelleriar&lt;/a>,
+&lt;a href="https://github.com/karldw" target="_blank" rel="noopener">@karldw&lt;/a>,
+&lt;a href="https://github.com/kendonB" target="_blank" rel="noopener">@kendonB&lt;/a>,
+&lt;a href="https://github.com/kevinushey" target="_blank" rel="noopener">@kevinushey&lt;/a>,
+&lt;a href="https://github.com/kovla" target="_blank" rel="noopener">@kovla&lt;/a>,
+&lt;a href="https://github.com/lbusett" target="_blank" rel="noopener">@lbusett&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/lorenzwalthert" target="_blank" rel="noopener">@lorenzwalthert&lt;/a>,
+&lt;a href="https://github.com/lwiklendt" target="_blank" rel="noopener">@lwiklendt&lt;/a>,
+&lt;a href="https://github.com/mattfidler" target="_blank" rel="noopener">@mattfidler&lt;/a>,
+&lt;a href="https://github.com/MatthieuStigler" target="_blank" rel="noopener">@MatthieuStigler&lt;/a>,
+&lt;a href="https://github.com/maxheld83" target="_blank" rel="noopener">@maxheld83&lt;/a>,
+&lt;a href="https://github.com/michaelweylandt" target="_blank" rel="noopener">@michaelweylandt&lt;/a>,
+&lt;a href="https://github.com/mingsu" target="_blank" rel="noopener">@mingsu&lt;/a>,
+&lt;a href="https://github.com/momeara" target="_blank" rel="noopener">@momeara&lt;/a>,
+&lt;a href="https://github.com/PalaceChan" target="_blank" rel="noopener">@PalaceChan&lt;/a>,
+&lt;a href="https://github.com/pat-s" target="_blank" rel="noopener">@pat-s&lt;/a>,
+&lt;a href="https://github.com/plantarum" target="_blank" rel="noopener">@plantarum&lt;/a>,
+&lt;a href="https://github.com/prosoitos" target="_blank" rel="noopener">@prosoitos&lt;/a>,
+&lt;a href="https://github.com/ptoche" target="_blank" rel="noopener">@ptoche&lt;/a>,
+&lt;a href="https://github.com/QuLogic" target="_blank" rel="noopener">@QuLogic&lt;/a>,
+&lt;a href="https://github.com/ralonso-igenomix" target="_blank" rel="noopener">@ralonso-igenomix&lt;/a>,
+&lt;a href="https://github.com/randomgambit" target="_blank" rel="noopener">@randomgambit&lt;/a>,
+&lt;a href="https://github.com/riccardopinosio" target="_blank" rel="noopener">@riccardopinosio&lt;/a>,
+&lt;a href="https://github.com/romainfrancois" target="_blank" rel="noopener">@romainfrancois&lt;/a>,
+&lt;a href="https://github.com/tomroh" target="_blank" rel="noopener">@tomroh&lt;/a>,
+&lt;a href="https://github.com/Woosah" target="_blank" rel="noopener">@Woosah&lt;/a>,
+&lt;a href="https://github.com/yonicd" target="_blank" rel="noopener">@yonicd&lt;/a>, and
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>.&lt;/p></description></item><item><title>Coming soon: tibble 2.0.0</title><link>https://www.tidyverse.org/blog/2018/11/tibble-2.0.0-pre-announce/</link><pubDate>Wed, 28 Nov 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/11/tibble-2.0.0-pre-announce/</guid><description>&lt;p>Version 2.0.0 of the
+&lt;a href="https://tibble.tidyverse.org" target="_blank" rel="noopener">tibble package&lt;/a> is almost ready for release. Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the development version with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">devtools&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">install_github&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;tidyverse/tibble&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>We&amp;rsquo;re making a pre-release announcement, because some changes require the attention of maintainers of packages that import or otherwise depend on tibble.
+This post describes how to adapt to the next version of tibble and is also an invitation for maintainers to provide feedback before v2.0.0 is finalized and submitted to CRAN.
+The easiest way to get in touch is to file an issue at &lt;a href="https://github.com/tidyverse/tibble/issues">https://github.com/tidyverse/tibble/issues&lt;/a> (or to comment on an existing one).
+This blog post is aimed at package developers and those who maintain &amp;ldquo;production&amp;rdquo; scripts or apps. A high-level overview of new user-facing features will come in a separate blog post.&lt;/p>
+&lt;h2 id="reverse-dependency-checks">Reverse dependency checks
+&lt;a href="#reverse-dependency-checks">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We ran &lt;code>R CMD check&lt;/code> for over 3000 CRAN and Bioconductor packages that depend directly or indirectly on the tibble package and compared results obtained with the CRAN versus development version of tibble.
+We will notify the maintainers of all affected packages (regardless of the check results of their package) and aim for a CRAN release before Christmas, so the dust has settled in time for
+&lt;a href="https://www.rstudio.com/conference/" target="_blank" rel="noopener">rstudio::conf&lt;/a>.&lt;/p>
+&lt;p>We made pull requests to implement the necessary changes in several of the most heavily downloaded packages. Based on this experience, this post highlights the problems downstream maintainers are most likely to see and how to solve them. Most fixes should be quite simple.&lt;/p>
+&lt;p>For the full list of changes, features, and bug fixes, please see the
+&lt;a href="https://github.com/tidyverse/tibble/tree/master/NEWS.md" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="tibble-construction-and-validation">Tibble construction and validation
+&lt;a href="#tibble-construction-and-validation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>End users should use the
+&lt;a href="https://tibble.tidyverse.org/dev/reference/tibble.html" target="_blank" rel="noopener">&lt;code>tibble()&lt;/code>&lt;/a> function to construct tibbles.
+It checks the input for consistency and makes sure that the returned tibble is valid.&lt;/p>
+&lt;p>Package developers, however, can also consider the low-level
+&lt;a href="https://tibble.tidyverse.org/dev/reference/new_tibble.html" target="_blank" rel="noopener">&lt;code>new_tibble()&lt;/code>&lt;/a> constructor. Use
+&lt;a href="https://tibble.tidyverse.org/dev/reference/new_tibble.html" target="_blank" rel="noopener">&lt;code>new_tibble()&lt;/code>&lt;/a> to quickly construct a tibble from a list if you are very sure that the input is well-formed (i.e., a list of vectors of equal length).
+This function also supports the construction of subclasses of tibble through the &lt;code>class&lt;/code> argument.&lt;/p>
+&lt;p>In the development version of tibble, the
+&lt;a href="https://tibble.tidyverse.org/dev/reference/new_tibble.html" target="_blank" rel="noopener">&lt;code>new_tibble()&lt;/code>&lt;/a> constructor is a more faithful implementation of the
+&lt;a href="https://adv-r.hadley.nz/s3.html#s3-classes" target="_blank" rel="noopener">design advice for S3 classes given in Advanced R&lt;/a>.
+Specifically:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://tibble.tidyverse.org/dev/reference/new_tibble.html" target="_blank" rel="noopener">&lt;code>new_tibble()&lt;/code>&lt;/a> is very fast and does very little checking itself.&lt;/li>
+&lt;li>The new
+&lt;a href="https://tibble.tidyverse.org/dev/reference/new_tibble.html" target="_blank" rel="noopener">&lt;code>validate_tibble()&lt;/code>&lt;/a> function is responsible for validating the structure of a tibble.&lt;/li>
+&lt;/ul>
+&lt;p>This means that the &lt;code>nrow&lt;/code> argument to
+&lt;a href="https://tibble.tidyverse.org/dev/reference/new_tibble.html" target="_blank" rel="noopener">&lt;code>new_tibble()&lt;/code>&lt;/a> is now mandatory.
+We are aware that this might be the single most disruptive change, but we think that any guesswork here would be detrimental to stability (especially in corner cases) and that this particular problem is very easy to fix.
+The &lt;code>nrow&lt;/code> argument already existed in tibble v1.4.2, so code that uses it requires no change and should continue to work.
+If you need to add &lt;code>nrow&lt;/code> arguments to
+&lt;a href="https://tibble.tidyverse.org/dev/reference/new_tibble.html" target="_blank" rel="noopener">&lt;code>new_tibble()&lt;/code>&lt;/a> calls, you can do so independently of the tibble v2.0.0 release.
+Please be aware that &lt;code>nrow&lt;/code> must be passed as a named argument, because it comes after the ellipsis &lt;code>...&lt;/code> in the signature. Here are common patterns for setting the &lt;code>nrow&lt;/code> argument:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tibble&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">data.frame&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Code that lacks `nrow` fails&lt;/span>
+&lt;span class="nf">new_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error: Must pass a scalar integer as `nrow` argument to `new_tibble()`.&lt;/span>
+&lt;span class="c1"># Fix by specifying `nrow`&lt;/span>
+&lt;span class="nf">new_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">nrow&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">nrow&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="c1"># if x is a data frame&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 1&lt;/span>
+&lt;span class="c1">#&amp;gt; a&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 1&lt;/span>
+&lt;span class="n">nrow_x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">NROW&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x[[1]]&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># if x has at least one column&lt;/span>
+&lt;span class="c1"># nrow_x &amp;lt;- ... # if the number of rows is given elsewhere&lt;/span>
+&lt;span class="nf">new_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">nrow&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">nrow_x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 1&lt;/span>
+&lt;span class="c1">#&amp;gt; a&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 1&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="coercion-and-name-repair">Coercion and name repair
+&lt;a href="#coercion-and-name-repair">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The tibble mentality has always been that the user is responsible for managing column names, i.e. names are not automatically munged. This remains true, but the development version of tibble is stricter about names and offers more support for name repair.&lt;/p>
+&lt;p>In the development version of tibble, by default, column names must exist and be unique. Some packages use
+&lt;a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html" target="_blank" rel="noopener">&lt;code>as_tibble()&lt;/code>&lt;/a> internally to coerce a dysfunctionally-named object to a tibble and &lt;em>then&lt;/em> apply proper column names. Here&amp;rsquo;s a typical error and solution:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tibble&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">(&lt;/span>&lt;span class="n">m&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">cov&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">unname&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">iris[&lt;/span>&lt;span class="m">-5&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">)))&lt;/span>
+&lt;span class="c1">#&amp;gt; [,1] [,2] [,3] [,4]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1,] 0.6856935 -0.0424340 1.2743154 0.5162707&lt;/span>
+&lt;span class="c1">#&amp;gt; [2,] -0.0424340 0.1899794 -0.3296564 -0.1216394&lt;/span>
+&lt;span class="c1">#&amp;gt; [3,] 1.2743154 -0.3296564 3.1162779 1.2956094&lt;/span>
+&lt;span class="c1">#&amp;gt; [4,] 0.5162707 -0.1216394 1.2956094 0.5810063&lt;/span>
+&lt;span class="c1"># problematic approach:&lt;/span>
+&lt;span class="c1"># 1. make tibble&lt;/span>
+&lt;span class="c1"># 2. apply nice names&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">m&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error: Columns 1, 2, 3, 4 must be named.&lt;/span>
+&lt;span class="c1">#&amp;gt; Use .name_repair to specify repair.&lt;/span>
+&lt;span class="nf">colnames&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="kc">letters&lt;/span>&lt;span class="n">[1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">4&lt;/span>&lt;span class="n">]&lt;/span>
+&lt;span class="c1">#&amp;gt; Error in names(x) &amp;lt;- value: &amp;#39;names&amp;#39; attribute [4] must be the same length as the vector [1]&lt;/span>
+&lt;span class="c1"># better approach that works with tibble v1.4.2 AND dev tibble:&lt;/span>
+&lt;span class="c1"># 1. apply nice names&lt;/span>
+&lt;span class="c1"># 2. make tibble&lt;/span>
+&lt;span class="nf">colnames&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">m&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="kc">letters&lt;/span>&lt;span class="n">[1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">4&lt;/span>&lt;span class="n">]&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">m&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 4 x 4&lt;/span>
+&lt;span class="c1">#&amp;gt; a b c d&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 0.686 -0.0424 1.27 0.516&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 -0.0424 0.190 -0.330 -0.122&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 1.27 -0.330 3.12 1.30 &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 0.516 -0.122 1.30 0.581&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>If possible, we recommend applying your &amp;ldquo;good&amp;rdquo; column names prior to calling
+&lt;a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html" target="_blank" rel="noopener">&lt;code>as_tibble()&lt;/code>&lt;/a>. This creates code that works with tibble v1.4.2 and the development version, which is very appealing. For good examples, see these pull requests to
+&lt;a href="https://github.com/ropensci/drake/pull/586" target="_blank" rel="noopener">drake&lt;/a>,
+&lt;a href="https://github.com/facebook/prophet/pull/739" target="_blank" rel="noopener">prophet&lt;/a>, and
+&lt;a href="https://github.com/tidymodels/broom/pull/536" target="_blank" rel="noopener">broom&lt;/a>.&lt;/p>
+&lt;p>It is also possible to use the new &lt;code>.name_repair&lt;/code> argument in
+&lt;a href="https://tibble.tidyverse.org/dev/reference/tibble.html" target="_blank" rel="noopener">&lt;code>tibble()&lt;/code>&lt;/a> and
+&lt;a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html" target="_blank" rel="noopener">&lt;code>as_tibble()&lt;/code>&lt;/a> (more below) to explicitly declare your intention around column names. This code would require &lt;code>packageVersion(&amp;quot;tibble&amp;quot;) &amp;gt;= &amp;quot;2.0.0&amp;quot;&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># Alternative: use new `.name_repair` argument to permit dysfunctional names&lt;/span>
+&lt;span class="n">m&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">cov&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">unname&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">iris[&lt;/span>&lt;span class="m">-5&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">m&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.name_repair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;minimal&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 4 x 4&lt;/span>
+&lt;span class="c1">#&amp;gt; `` `` `` ``&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 0.686 -0.0424 1.27 0.516&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 -0.0424 0.190 -0.330 -0.122&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 1.27 -0.330 3.12 1.30 &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 0.516 -0.122 1.30 0.581&lt;/span>
+&lt;span class="c1"># Alternative: use new `.name_repair` argument to fix dysfunctional names&lt;/span>
+&lt;span class="n">m&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">cov&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">unname&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">iris[&lt;/span>&lt;span class="m">-5&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">m&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.name_repair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;unique&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; New names:&lt;/span>
+&lt;span class="c1">#&amp;gt; * `` -&amp;gt; `..1`&lt;/span>
+&lt;span class="c1">#&amp;gt; * `` -&amp;gt; `..2`&lt;/span>
+&lt;span class="c1">#&amp;gt; * `` -&amp;gt; `..3`&lt;/span>
+&lt;span class="c1">#&amp;gt; * `` -&amp;gt; `..4`&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 4 x 4&lt;/span>
+&lt;span class="c1">#&amp;gt; ..1 ..2 ..3 ..4&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 0.686 -0.0424 1.27 0.516&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 -0.0424 0.190 -0.330 -0.122&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 1.27 -0.330 3.12 1.30 &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 0.516 -0.122 1.30 0.581&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>What is the motivation for this increased attention to column names? The tibble package is offering stronger encouragement for names where each column can be identified by name and, preferably, without having to resort to backticks. Column names that don&amp;rsquo;t meet these requirements are still allowed, but the user needs to permit them explicitly.&lt;/p>
+&lt;p>After all, there are scenarios where problematic names should be tolerated. For example, after importing data, the user might need to inspect the data in order to determine which columns to keep. Or perhaps the column names contain data that is about to be converted to a proper variable with
+&lt;a href="https://tidyr.tidyverse.org/reference/gather.html" target="_blank" rel="noopener">&lt;code>gather()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>The
+&lt;a href="https://tibble.tidyverse.org/dev/reference/tibble.html" target="_blank" rel="noopener">&lt;code>tibble()&lt;/code>&lt;/a> constructor and the
+&lt;a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html" target="_blank" rel="noopener">&lt;code>as_tibble()&lt;/code>&lt;/a> generic now support a new &lt;code>.name_repair&lt;/code> argument that covers most use cases:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>&amp;quot;minimal&amp;quot;&lt;/code>: No name repair or checks, beyond basic existence.&lt;/li>
+&lt;li>&lt;code>&amp;quot;unique&amp;quot;&lt;/code>: Make sure names are unique and not empty.&lt;/li>
+&lt;li>&lt;code>&amp;quot;check_unique&amp;quot;&lt;/code>: (default value), no name repair, but check they are &lt;code>unique&lt;/code>.&lt;/li>
+&lt;li>&lt;code>&amp;quot;universal&amp;quot;&lt;/code>: Make the names &lt;code>unique&lt;/code> and syntactic.&lt;/li>
+&lt;li>a function: apply custom name repair (e.g., &lt;code>.name_repair = make.names&lt;/code> or &lt;code>.name_repair = ~make.names(., unique = TRUE)&lt;/code> for names in the style of base R).&lt;/li>
+&lt;/ul>
+&lt;p>See
+&lt;a href="https://tibble.tidyverse.org/dev/reference/name-repair.html" target="_blank" rel="noopener">&lt;code>?`name-repair`&lt;/code>&lt;/a> for more details.&lt;/p>
+&lt;p>Packages that are in the business of making tibbles may even want to expose the &lt;code>.name_repair&lt;/code> argument and pass it through to
+&lt;a href="https://tibble.tidyverse.org/dev/reference/tibble.html" target="_blank" rel="noopener">&lt;code>tibble()&lt;/code>&lt;/a> or
+&lt;a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html" target="_blank" rel="noopener">&lt;code>as_tibble()&lt;/code>&lt;/a>.
+For example, this is the approach planned for
+&lt;a href="https://readxl.tidyverse.org" target="_blank" rel="noopener">readxl&lt;/a>, which reads rectangular data out of Excel workbooks.&lt;/p>
+Deprecation of &lt;code>validate&lt;/code> in
+&lt;h2 id="deprecation-of-validate-in-as_tibblehttpstibbletidyverseorgdevreferenceas_tibblehtml">
+&lt;a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html" target="_blank" rel="noopener">&lt;code>as_tibble()&lt;/code>&lt;/a>
+&lt;a href="#deprecation-of-validate-in-as_tibblehttpstibbletidyverseorgdevreferenceas_tibblehtml">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>In tibble v1.4.2,
+&lt;a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html" target="_blank" rel="noopener">&lt;code>as_tibble()&lt;/code>&lt;/a> has a &lt;code>validate&lt;/code> argument, but its default behaviour value was inconsistent across different methods and there was no equivalent argument for
+&lt;a href="https://tibble.tidyverse.org/dev/reference/tibble.html" target="_blank" rel="noopener">&lt;code>tibble()&lt;/code>&lt;/a>. The &lt;code>validate&lt;/code> argument is now soft-deprecated and its use will trigger a message, once per session. The &lt;code>validate&lt;/code> argument will eventually be removed, but for now it can be used jointly with the new &lt;code>.name_repair&lt;/code> argument (without even triggering a message). This is possible, because fortunately the &lt;code>.name_repair&lt;/code> argument to
+&lt;a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html" target="_blank" rel="noopener">&lt;code>as_tibble()&lt;/code>&lt;/a> is ignored in tibble v1.4.2.&lt;/p>
+&lt;p>Here&amp;rsquo;s what &lt;code>validate&lt;/code> does in the development version of tibble for tibbles, data frames, and matrices, along with suggested alternatives.&lt;/p>
+&lt;h3 id="tibbles-and-data-frames">Tibbles and data frames
+&lt;a href="#tibbles-and-data-frames">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The default was &lt;code>validate = FALSE&lt;/code> for tibbles and &lt;code>validate = TRUE&lt;/code> for data frames.
+Code that worked before for tibbles can now throw unexpected errors if the resulting tibble has problematic names.
+To avoid warnings with tibble v2.0.0, use the default instead of &lt;code>validate = TRUE&lt;/code>, and &lt;code>.name_repair = &amp;quot;minimal&amp;quot;&lt;/code> in addition to &lt;code>validate = FALSE&lt;/code>.
+If your code targets tibble &amp;gt;= v2.0.0 exclusively, you can remove the &lt;code>validate&lt;/code> argument.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">df&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">new_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">6&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">nrow&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># errors, as it should, because names are duplicated ... but also messages&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">validate&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; The `validate` argument to `as_tibble()` is deprecated. Please use `.name_repair` to control column names.&lt;/span>
+&lt;span class="c1">#&amp;gt; Error: Column name `a` must not be duplicated.&lt;/span>
+&lt;span class="c1">#&amp;gt; Use .name_repair to specify repair.&lt;/span>
+&lt;span class="c1"># errors due to default .name_repair = &amp;#34;check_unique&amp;#34;&lt;/span>
+&lt;span class="c1"># (but no error in tibble v1.4.2)&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error: Column name `a` must not be duplicated.&lt;/span>
+&lt;span class="c1">#&amp;gt; Use .name_repair to specify repair.&lt;/span>
+&lt;span class="c1"># ensures that the validate = TRUE default is used for tibble &amp;lt; 2.0.0&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">as.data.frame&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; Error: Column name `a` must not be duplicated.&lt;/span>
+&lt;span class="c1">#&amp;gt; Use .name_repair to specify repair.&lt;/span>
+&lt;span class="c1"># no error ... but still messages&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">validate&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">FALSE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; a a&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 5 6&lt;/span>
+&lt;span class="c1"># no error, quietly&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.name_repair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;minimal&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; a a&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 5 6&lt;/span>
+&lt;span class="c1"># no error, quietly, compatible with tibble &amp;lt; 2.0.0&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">validate&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">FALSE&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.name_repair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;minimal&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; a a&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 5 6&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="matrices-and-other-objects">Matrices and other objects
+&lt;a href="#matrices-and-other-objects">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The &lt;code>validate&lt;/code> argument now triggers a message, it was silently ignored in v1.4.2.
+For compatibility with v2.0.0, remove the &lt;code>validate&lt;/code> argument, or add a consistent &lt;code>.name_repair&lt;/code> argument.
+If you need anything other than &lt;code>&amp;quot;minimal&amp;quot;&lt;/code> or &lt;code>&amp;quot;check_unique&amp;quot;&lt;/code> and need to keep the &lt;code>validate&lt;/code> argument, rename the columns beforehand.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">m&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">cov&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">iris[&lt;/span>&lt;span class="m">-5&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Assign colnames() if necessary&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">m&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 4 x 4&lt;/span>
+&lt;span class="c1">#&amp;gt; Sepal.Length Sepal.Width Petal.Length Petal.Width&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 0.686 -0.0424 1.27 0.516&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 -0.0424 0.190 -0.330 -0.122&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 1.27 -0.330 3.12 1.30 &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 0.516 -0.122 1.30 0.581&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">m&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">validate&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.name_repair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;check_unique&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 4 x 4&lt;/span>
+&lt;span class="c1">#&amp;gt; Sepal.Length Sepal.Width Petal.Length Petal.Width&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 0.686 -0.0424 1.27 0.516&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 -0.0424 0.190 -0.330 -0.122&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 1.27 -0.330 3.12 1.30 &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 0.516 -0.122 1.30 0.581&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="deprecation-of-tidy_names-and-set_tidy_names">Deprecation of &lt;code>tidy_names()&lt;/code> and &lt;code>set_tidy_names()&lt;/code>
+&lt;a href="#deprecation-of-tidy_names-and-set_tidy_names">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The existing &lt;code>tidy_names()&lt;/code> and &lt;code>set_tidy_names()&lt;/code> functions are soft-deprecated, but remain available, unchanged. In the future, they could go away or take on a new meaning, i.e. implement a different algorithm for name repair. New code should use &lt;code>.name_repair&lt;/code> instead.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">df&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">new_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">6&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">nrow&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># these functions are soft-deprecated&lt;/span>
+&lt;span class="nf">tidy_names&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">names&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; New names:&lt;/span>
+&lt;span class="c1">#&amp;gt; a -&amp;gt; a..1&lt;/span>
+&lt;span class="c1">#&amp;gt; a -&amp;gt; a..2&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;a..1&amp;#34; &amp;#34;a..2&amp;#34;&lt;/span>
+&lt;span class="nf">set_tidy_names&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; New names:&lt;/span>
+&lt;span class="c1">#&amp;gt; a -&amp;gt; a..1&lt;/span>
+&lt;span class="c1">#&amp;gt; a -&amp;gt; a..2&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; a..1 a..2&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 5 6&lt;/span>
+&lt;span class="c1"># achieve same via `.name_repair`&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.name_repair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;universal&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; New names:&lt;/span>
+&lt;span class="c1">#&amp;gt; * a -&amp;gt; a..1&lt;/span>
+&lt;span class="c1">#&amp;gt; * a -&amp;gt; a..2&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; a..1 a..2&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 5 6&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>tibble&amp;rsquo;s name repair strategies are currently only exposed in
+&lt;a href="https://tibble.tidyverse.org/dev/reference/tibble.html" target="_blank" rel="noopener">&lt;code>tibble()&lt;/code>&lt;/a> and
+&lt;a href="https://tibble.tidyverse.org/dev/reference/as_tibble.html" target="_blank" rel="noopener">&lt;code>as_tibble()&lt;/code>&lt;/a>, not (yet?) as utility functions that operate on a vector of names.&lt;/p>
+&lt;h2 id="other-changes">Other changes
+&lt;a href="#other-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Intentionally assigning invalid names to a tibble via &lt;code>names&amp;lt;-()&lt;/code> is generally a bad idea and this now warns (once per session).&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">df&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">names&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="kc">NA&lt;/span>
+&lt;span class="c1">#&amp;gt; Warning: Column 1 must be named.&lt;/span>
+&lt;span class="c1">#&amp;gt; Warning: Must use a character vector as names.&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Coercing a vector to a tibble is no longer supported and emits a warning once per session.
+It&amp;rsquo;s not clear if the result should be a tibble with one row or one column. We plan to revisit this in a future version, with an unambiguous interface.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span>
+&lt;span class="c1"># Old:&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Warning: Calling `as_tibble()` on a vector is discouraged, because the&lt;/span>
+&lt;span class="c1">#&amp;gt; behavior is likely to change in the future. Use `enframe(name = NULL)`&lt;/span>
+&lt;span class="c1">#&amp;gt; instead.&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 3 x 1&lt;/span>
+&lt;span class="c1">#&amp;gt; value&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;int&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 1&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 2&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 3&lt;/span>
+&lt;span class="c1"># New (&amp;gt;= 2.0.0):&lt;/span>
+&lt;span class="nf">enframe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">NULL&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 3 x 1&lt;/span>
+&lt;span class="c1">#&amp;gt; value&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;int&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 1&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 2&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 3&lt;/span>
+&lt;span class="c1"># New (legacy):&lt;/span>
+&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">value&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 3 x 1&lt;/span>
+&lt;span class="c1">#&amp;gt; value&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;int&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 1&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 2&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 3&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>pillar 1.2.2</title><link>https://www.tidyverse.org/blog/2018/04/pillar-1-2-2/</link><pubDate>Mon, 30 Apr 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/04/pillar-1-2-2/</guid><description>
+&lt;p>Announcing version 1.2.2 of the &lt;em>pillar&lt;/em> package which prints &lt;a href="http://tibble.tidyverse.org/">tibbles&lt;/a> to the terminal. This is yet another small release that addresses user feedback. Numbers are printed more consicely and accurately. We show how to enable the original data frame printing for tibbles, and an outlook on upcoming formatting improvement for list columns.&lt;/p>
+&lt;p>Please see the &lt;a href="https://github.com/r-lib/pillar/releases/v1.2.2">release notes&lt;/a> for the full list of changes. Examples in this blog post are shown using the &lt;em>tibble&lt;/em> package, which uses &lt;em>pillar&lt;/em> under the hood.&lt;/p>
+&lt;div id="improved-output" class="section level2">
+&lt;h2>Improved output&lt;/h2>
+&lt;p>The decimal dot that was always printed since &lt;em>pillar&lt;/em> 1.2.1 seems to have contributed to more confusion, not less. It’s gone now, whole numbers don’t have the dot anymore. Unless.&lt;/p>
+&lt;p>Unless it’s a whole number a tiny number has been added to or subtracted from. In other words, &lt;code>1&lt;/code> is shown as &lt;code>1&lt;/code>, but &lt;code>1 + 1e-6&lt;/code> is shown as &lt;code>1.00&lt;/code>, and &lt;code>123 + 1e-6&lt;/code> is shown as &lt;code>123.&lt;/code>. This is a hint that there’s more than can be shown with the requested number of significant digits (which is 3 by default and can be changed by setting the &lt;code>pillar.sigfig&lt;/code> option).&lt;/p>
+&lt;p>Likewise, decimal numbers that don’t use the requested number of significant digits are shortened. The number &lt;code>0.1&lt;/code> is no longer shown as &lt;code>0.100&lt;/code>. Because most finite decimal representations don’t have an accurate representation in the underlying floating-point format, &lt;em>pillar&lt;/em> uses a heuristic: if the number multiplied by a power of 10 is a whole number within a small tolerance of about &lt;code>1e-8&lt;/code> (on most systems), it can be shortened. This is the same tolerance that the &lt;code>all.equal()&lt;/code> function uses for comparing numeric values.&lt;/p>
+&lt;pre class="r">&lt;code>tibble(numbers = c(1, 0.1, 0.01, c(1, 12, 123, 1234, 0.1, 0.01) + 1e-6))&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 9 x 1&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> numbers
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> 0.1
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 0.01
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">4&lt;/span> 1.00
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">5&lt;/span> 12.0
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">6&lt;/span> 123.
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">7&lt;/span> &lt;span style="text-decoration:underline">1&lt;/span>234.
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">8&lt;/span> 0.100
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">9&lt;/span> 0.010&lt;span style="text-decoration:underline">0&lt;/span>
+&lt;/pre>
+&lt;/div>
+&lt;div id="dont-like-the-printing" class="section level2">
+&lt;h2>Don’t like the printing?&lt;/h2>
+&lt;p>Just like with the absence of row names or the default &lt;code>drop = FALSE&lt;/code>, tibbles are opinionated in how they print. We’re working on providing a sensible default that suits most use cases, but some users have expressed the desire to revert to the good old data frame output.&lt;/p>
+&lt;p>This is possible already by overriding the &lt;code>print.tbl_df&lt;/code> method, which is called when a tibble is printed (either explicitly via &lt;code>print()&lt;/code> or implicitly from the console). On the downside, this also loses the second header row with the data types and the restriction in the number of rows and columns shown.&lt;/p>
+&lt;pre class="r">&lt;code>tibble(a = 1:3)&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 3 x 1&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> a
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;int&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> 2
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 3
+&lt;/pre>
+&lt;pre class="r">&lt;code>print.tbl_df &amp;lt;- function(x, ...) {
+print.data.frame(x, ...)
+invisible(x)
+}
+tibble(a = 1:3)&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> a
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> 1 1
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> 2 2
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> 3 3
+&lt;/pre>
+&lt;/div>
+&lt;div id="outlook-formatting-list-columns" class="section level2">
+&lt;h2>Outlook: formatting list columns&lt;/h2>
+&lt;p>List columns (and the special case of nested data frames) are a very powerful idiom. In R, a list is just a special case of a vector that can hold arbitrary complex objects; it can be added to a data frame if it has the same lengths as the other columns:&lt;/p>
+&lt;pre class="r">&lt;code>tibble(a = 1:3, b = list(4, 5:6, letters[7:9]))&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 3 x 2&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> a b
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;int&amp;gt;&lt;/span>&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;list&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1 &lt;span style="color:#8a8a8a">&amp;lt;dbl [1]&amp;gt;&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> 2 &lt;span style="color:#8a8a8a">&amp;lt;int [2]&amp;gt;&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 3 &lt;span style="color:#8a8a8a">&amp;lt;chr [3]&amp;gt;&lt;/span>
+&lt;/pre>
+&lt;p>Often, all objects in a list column have the same data type. A different formatting for such homogeneous lists would help focus on the relevant parts (e.g. the dimensions of the objects in that list) and save space too. This feature isn’t ready for prime time yet, but the screenshot below shows how this could look like. Feel free to comment on the &lt;a href="https://github.com/r-lib/pillar/pull/109">relevant pull request&lt;/a> on GitHub.&lt;/p>
+&lt;div class="figure">
+&lt;img src="https://www.tidyverse.org/images/pillar-1-2-2/colored-list-col.png" />
+&lt;/div>
+&lt;/div>
+&lt;div id="acknowledgments" class="section level2">
+&lt;h2>Acknowledgments&lt;/h2>
+&lt;p>We’d like to use the opportunity to thank all recent contributors to &lt;em>pillar&lt;/em> and &lt;em>tibble&lt;/em>. Thanks to everyone, your contributions help improve the tidyverse:&lt;/p>
+&lt;p>&lt;a href="https://github.com/adsaxon">@adsaxon&lt;/a>, &lt;a href="https://github.com/aegerton">@aegerton&lt;/a>, &lt;a href="https://github.com/alaindanet">@alaindanet&lt;/a>, &lt;a href="https://github.com/alexwhan">@alexwhan&lt;/a>, &lt;a href="https://github.com/alistaire47">@alistaire47&lt;/a>, &lt;a href="https://github.com/anhqle">@anhqle&lt;/a>, &lt;a href="https://github.com/batpigandme">@batpigandme&lt;/a>, &lt;a href="https://github.com/bgreenwell">@bgreenwell&lt;/a>, &lt;a href="https://github.com/blueprint-ade">@blueprint-ade&lt;/a>, &lt;a href="https://github.com/brodieG">@brodieG&lt;/a>, &lt;a href="https://github.com/BruceZhaoR">@BruceZhaoR&lt;/a>, &lt;a href="https://github.com/cboettig">@cboettig&lt;/a>, &lt;a href="https://github.com/chasemc">@chasemc&lt;/a>, &lt;a href="https://github.com/cimentadaj">@cimentadaj&lt;/a>, &lt;a href="https://github.com/czeildi">@czeildi&lt;/a>, &lt;a href="https://github.com/DavisVaughan">@DavisVaughan&lt;/a>, &lt;a href="https://github.com/digital-dharma">@digital-dharma&lt;/a>, &lt;a href="https://github.com/dpeterson71">@dpeterson71&lt;/a>, &lt;a href="https://github.com/drewgendreau">@drewgendreau&lt;/a>, &lt;a href="https://github.com/echasnovski">@echasnovski&lt;/a>, &lt;a href="https://github.com/EdwardJRoss">@EdwardJRoss&lt;/a>, &lt;a href="https://github.com/edzer">@edzer&lt;/a>, &lt;a href="https://github.com/Eluvias">@Eluvias&lt;/a>, &lt;a href="https://github.com/flying-sheep">@flying-sheep&lt;/a>, &lt;a href="https://github.com/gregorp">@gregorp&lt;/a>, &lt;a href="https://github.com/holstius">@holstius&lt;/a>, &lt;a href="https://github.com/hplieninger">@hplieninger&lt;/a>, &lt;a href="https://github.com/ijlyttle">@ijlyttle&lt;/a>, &lt;a href="https://github.com/iron0012">@iron0012&lt;/a>, &lt;a href="https://github.com/javierluraschi">@javierluraschi&lt;/a>, &lt;a href="https://github.com/jcpetkovich">@jcpetkovich&lt;/a>, &lt;a href="https://github.com/jennybc">@jennybc&lt;/a>, &lt;a href="https://github.com/JLYJabc">@JLYJabc&lt;/a>, &lt;a href="https://github.com/jonathan-g">@jonathan-g&lt;/a>, &lt;a href="https://github.com/jtelleriar">@jtelleriar&lt;/a>, &lt;a href="https://github.com/kendonB">@kendonB&lt;/a>, &lt;a href="https://github.com/kevinushey">@kevinushey&lt;/a>, &lt;a href="https://github.com/kevinykuo">@kevinykuo&lt;/a>, &lt;a href="https://github.com/khughitt">@khughitt&lt;/a>, &lt;a href="https://github.com/kovla">@kovla&lt;/a>, &lt;a href="https://github.com/lbusett">@lbusett&lt;/a>, &lt;a href="https://github.com/lionel-">@lionel-&lt;/a>, &lt;a href="https://github.com/lorenzwalthert">@lorenzwalthert&lt;/a>, &lt;a href="https://github.com/lpmarco">@lpmarco&lt;/a>, &lt;a href="https://github.com/lwiklendt">@lwiklendt&lt;/a>, &lt;a href="https://github.com/martinjhnhadley">@martinjhnhadley&lt;/a>, &lt;a href="https://github.com/martj42">@martj42&lt;/a>, &lt;a href="https://github.com/mattfidler">@mattfidler&lt;/a>, &lt;a href="https://github.com/mmuurr">@mmuurr&lt;/a>, &lt;a href="https://github.com/momeara">@momeara&lt;/a>, &lt;a href="https://github.com/mubeenarasack">@mubeenarasack&lt;/a>, &lt;a href="https://github.com/mundl">@mundl&lt;/a>, &lt;a href="https://github.com/nathancday">@nathancday&lt;/a>, &lt;a href="https://github.com/p0bs">@p0bs&lt;/a>, &lt;a href="https://github.com/PalaceChan">@PalaceChan&lt;/a>, &lt;a href="https://github.com/patperry">@patperry&lt;/a>, &lt;a href="https://github.com/plantarum">@plantarum&lt;/a>, &lt;a href="https://github.com/PMassicotte">@PMassicotte&lt;/a>, &lt;a href="https://github.com/randomgambit">@randomgambit&lt;/a>, &lt;a href="https://github.com/rkahne">@rkahne&lt;/a>, &lt;a href="https://github.com/slonik-az">@slonik-az&lt;/a>, &lt;a href="https://github.com/strengejacke">@strengejacke&lt;/a>, &lt;a href="https://github.com/sumtxt">@sumtxt&lt;/a>, &lt;a href="https://github.com/t-kalinowski">@t-kalinowski&lt;/a>, &lt;a href="https://github.com/Tazinho">@Tazinho&lt;/a>, &lt;a href="https://github.com/tjmahr">@tjmahr&lt;/a>, &lt;a href="https://github.com/tmelconian">@tmelconian&lt;/a>, &lt;a href="https://github.com/tomroh">@tomroh&lt;/a>, &lt;a href="https://github.com/trinker">@trinker&lt;/a>, &lt;a href="https://github.com/vnijs">@vnijs&lt;/a>, &lt;a href="https://github.com/vspinu">@vspinu&lt;/a>, &lt;a href="https://github.com/WB-Student">@WB-Student&lt;/a>, &lt;a href="https://github.com/wch">@wch&lt;/a>, &lt;a href="https://github.com/wibeasley">@wibeasley&lt;/a>, &lt;a href="https://github.com/wpetry">@wpetry&lt;/a>, &lt;a href="https://github.com/yutannihilation">@yutannihilation&lt;/a>, and &lt;a href="https://github.com/Zedseayou">@Zedseayou&lt;/a>.&lt;/p>
+&lt;/div></description></item><item><title>pillar 1.2.1</title><link>https://www.tidyverse.org/blog/2018/03/pillar-1-2-1/</link><pubDate>Fri, 02 Mar 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/03/pillar-1-2-1/</guid><description>
+&lt;p>We’re excited to present version 1.2.1 of the &lt;em>pillar&lt;/em> package, the package that is responsible for printing &lt;a href="http://tibble.tidyverse.org/">tibbles&lt;/a> to the terminal. This small release addresses feedback concerning the output of tibbles. In particular, groups of three digits are now highlighted to give a better idea about the order of magnitude of decimal numbers. In addition, a few minor bugs were fixed, such as the output for S3 classes extending &lt;code>numeric&lt;/code> (like durations from &lt;em>lubridate&lt;/em>) and the output very small numbers.&lt;/p>
+&lt;p>Please see the &lt;a href="https://github.com/r-lib/pillar/releases/v1.2.1">release notes&lt;/a> for the full list of improvements and bug fixes. Because the changes in this package mostly affect the output for tibbles, examples in this blog post are shown using the &lt;em>tibble&lt;/em> package.&lt;/p>
+&lt;div id="improved-output" class="section level2">
+&lt;h2>Improved output&lt;/h2>
+&lt;p>In response to use feedback, the following changes were made to the output:&lt;/p>
+&lt;ul>
+&lt;li>Previous versions of &lt;em>pillar&lt;/em> showed all but the three “significant” digits in a subtle color. This highlights the wrong digits in some common use cases and is now turned off by default.&lt;br />
+&lt;/li>
+&lt;li>The negation sign is printed next to the number again. Aligning all negation signs turned out to be confusing in some cases.&lt;/li>
+&lt;li>Groups of three digits are now underlined, starting with the fourth before/after the decimal point. This gives a better idea of the order of magnitude of the numbers.&lt;/li>
+&lt;/ul>
+&lt;pre class="r">&lt;code>x &amp;lt;- -123456789 * (10 ^ c(-2, -5, -6, NA, -8, -10)) * c(-1, 1)
+x&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> [1] 1.234568e+06 -1.234568e+03 1.234568e+02 NA 1.234568e+00
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> [6] -1.234568e-02
+&lt;/pre>
+&lt;pre class="r">&lt;code>tibble(x)&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 6 x 1&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> x
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1&lt;span style="text-decoration:underline">2&lt;/span>&lt;span style="text-decoration:underline">3&lt;/span>&lt;span style="text-decoration:underline">4&lt;/span>568.
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> -&lt;span style="color:#cc0000">&lt;span style="text-decoration:underline">1&lt;/span>23&lt;/span>&lt;span style="color:#cc0000">5&lt;/span>&lt;span style="color:#cc0000">.&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 123.
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">4&lt;/span> &lt;span style="color:#cc0000">NA&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">5&lt;/span> 1.23
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">6&lt;/span> -&lt;span style="color:#cc0000">0&lt;/span>&lt;span style="color:#cc0000">.&lt;/span>&lt;span style="color:#cc0000">0&lt;/span>&lt;span style="color:#cc0000">12&lt;span style="text-decoration:underline">3&lt;/span>&lt;/span>
+&lt;/pre>
+&lt;ul>
+&lt;li>Scientific notation uses regular digits again for exponents, to improve legibility and because in some common fonts the superscript digits aren’t aligned correctly.&lt;/li>
+&lt;/ul>
+&lt;pre class="r">&lt;code>print(tibble(x), width = 15)&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt; &lt;span style="color:#8a8a8a"># A tibble: 6
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span>&lt;/span> # x 1
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> x
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1.23&lt;span style="color:#8a8a8a">e&lt;/span>+6
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> -&lt;span style="color:#cc0000">1&lt;/span>&lt;span style="color:#cc0000">.&lt;/span>&lt;span style="color:#cc0000">23&lt;/span>&lt;span style="color:#8a8a8a">e&lt;/span>+3
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 1.23&lt;span style="color:#8a8a8a">e&lt;/span>+2
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">4&lt;/span> &lt;span style="color:#cc0000">NA&lt;/span> &lt;span style="color:#8a8a8a"> &lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">5&lt;/span> 1.23&lt;span style="color:#8a8a8a">e&lt;/span>+0
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">6&lt;/span> -&lt;span style="color:#cc0000">1&lt;/span>&lt;span style="color:#cc0000">.&lt;/span>&lt;span style="color:#cc0000">23&lt;/span>&lt;span style="color:#8a8a8a">e&lt;/span>&lt;span style="color:#cc0000">-2&lt;/span>
+&lt;/span>&lt;/pre>
+&lt;p>To avoid confusion, the decimal dot is now always printed for numbers of type &lt;code>numeric&lt;/code>, but trailing zeros are no longer shown if all displayed numbers are whole numbers. Compare the following outputs:&lt;/p>
+&lt;pre class="r">&lt;code>whole &amp;lt;- c(1, 3, 5)
+tibble(whole)&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 3 x 1&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> whole
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1.
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> 3.
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 5.
+&lt;/pre>
+&lt;pre class="r">&lt;code>tibble(wholeish = whole + 0.00000001)&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 3 x 1&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> wholeish
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1.00
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> 3.00
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 5.00
+&lt;/pre>
+&lt;/div>
+&lt;div id="bug-fixes" class="section level2">
+&lt;h2>Bug fixes&lt;/h2>
+&lt;p>Are you a &lt;em>lubridate&lt;/em> user? Durations and other objects are displayed again:&lt;/p>
+&lt;pre class="r">&lt;code>tibble(duration = lubridate::as.duration(1:3))&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 3 x 1&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> duration
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;S4: Duration&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1s
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> 2s
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 3s
+&lt;/pre>
+&lt;p>(This also works for other data types that extend &lt;code>numeric&lt;/code> but don’t implement a &lt;code>pillar_shaft()&lt;/code> method. See the &lt;a href="http://tibble.tidyverse.org/articles/extending.html">“Extending tibble” vignette&lt;/a> for details on providing better support for printing your data type in a tibble.)&lt;/p>
+&lt;p>Very small numbers are now printed correctly.&lt;/p>
+&lt;pre class="r">&lt;code>tiny &amp;lt;- c(1e-310, 1e-320, 1e-330)
+tiny&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> [1] 1.000000e-310 9.999889e-321 0.000000e+00
+&lt;/pre>
+&lt;pre class="r">&lt;code>tibble(tiny)&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 3 x 1&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> tiny
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1.00&lt;span style="color:#8a8a8a">e&lt;/span>&lt;span style="color:#cc0000">-310&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> 10.00&lt;span style="color:#8a8a8a">e&lt;/span>&lt;span style="color:#cc0000">-321&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 0. &lt;span style="color:#8a8a8a"> &lt;/span>
+&lt;/pre>
+&lt;/div>
+&lt;div id="tibble-or-pillar" class="section level2">
+&lt;h2>Tibble or pillar?&lt;/h2>
+&lt;p>Now that &lt;em>pillar&lt;/em> is responsible for generating the output for tibbles, what is the best place to discuss problems or suggest ideas?&lt;/p>
+&lt;p>As usual, if you’re not sure if a particular behavior is intended, &lt;a href="https://stackoverflow.com/">StackOverflow&lt;/a> is a good place to ask, use the &lt;code>[r]&lt;/code> and &lt;code>[tibble]&lt;/code> tags and perhaps the &lt;code>[tidyverse]&lt;/code> tag. Include a reproducible example, perhaps using the &lt;a href="http://reprex.tidyverse.org/">&lt;em>reprex&lt;/em>&lt;/a> package with a &lt;code>reprex::reprex(venue = &amp;quot;so&amp;quot;)&lt;/code> call.&lt;/p>
+&lt;p>To submit bugs or suggest ideas for the output of tibbles, use the &lt;a href="https://github.com/tidyverse/tibble/issues">&lt;em>tibble&lt;/em> issue tracker&lt;/a>, your contributions are always welcome. Add a reprex with &lt;code>reprex::reprex()&lt;/code>. Unfortunately, the &lt;em>reprex&lt;/em> package doesn’t support rendering color and font effects yet, please include a screenshot if these details matter for your example.&lt;/p>
+&lt;p>If you are developing a package that uses &lt;em>pillar&lt;/em>, or if you are sure that you have found a problem in this package, you can also use the &lt;a href="https://github.com/r-lib/pillar/issues">&lt;em>pillar&lt;/em> issue tracker&lt;/a>. Please restrict your reprex to the &lt;em>pillar&lt;/em> package in these situations.&lt;/p>
+&lt;/div>
+&lt;div id="acknowledgments" class="section level2">
+&lt;h2>Acknowledgments&lt;/h2>
+&lt;p>We’d like to use the opportunity to thank all contributors to &lt;em>pillar&lt;/em> since its inception. Thanks to everyone, your feedback is very valuable to us: &lt;a href="https://github.com/adsaxon">@adsaxon&lt;/a>, &lt;a href="https://github.com/benmarwick">@benmarwick&lt;/a>, &lt;a href="https://github.com/brodieG">@brodieG&lt;/a>, &lt;a href="https://github.com/cboettig">@cboettig&lt;/a>, &lt;a href="https://github.com/DavisVaughan">@DavisVaughan&lt;/a>, &lt;a href="https://github.com/dpeterson71">@dpeterson71&lt;/a>, &lt;a href="https://github.com/echasnovski">@echasnovski&lt;/a>, &lt;a href="https://github.com/edzer">@edzer&lt;/a>, &lt;a href="https://github.com/ijlyttle">@ijlyttle&lt;/a>, &lt;a href="https://github.com/jennybc">@jennybc&lt;/a>, &lt;a href="https://github.com/leondutoit">@leondutoit&lt;/a>, &lt;a href="https://github.com/lionel-">@lionel-&lt;/a>, &lt;a href="https://github.com/martinjhnhadley">@martinjhnhadley&lt;/a>, &lt;a href="https://github.com/PMassicotte">@PMassicotte&lt;/a>, &lt;a href="https://github.com/randomgambit">@randomgambit&lt;/a>, &lt;a href="https://github.com/rkahne">@rkahne&lt;/a>, &lt;a href="https://github.com/strengejacke">@strengejacke&lt;/a>, &lt;a href="https://github.com/tmelconian">@tmelconian&lt;/a>, and &lt;a href="https://github.com/wibeasley">@wibeasley&lt;/a>.&lt;/p>
+&lt;/div></description></item><item><title>tibble 1.4.2</title><link>https://www.tidyverse.org/blog/2018/01/tibble-1-4-2/</link><pubDate>Wed, 24 Jan 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/01/tibble-1-4-2/</guid><description>
+&lt;p>We’re excited to announce version 1.4.2 of the &lt;em>tibble&lt;/em> package, a minor update focusing mostly on display and performance. This is a small release designed to address the biggest issues introduced in &lt;a href="tibble-1-4-1">version 1.4.1&lt;/a>. We’ve introduced a number of option to give you greater control over the appearance, and tweaked the default to work better for more people. (The option names start with &lt;code>pillar&lt;/code>, because that’s the package that is actually responsible for printing; the new options are available with &lt;em>pillar&lt;/em> 1.1.0 which will be installed automatically when you install or upgrade &lt;em>tibble&lt;/em>.) In addition, tibbles are now displayed faster, even very wide ones. The subsetting performance has also improved.&lt;/p>
+&lt;p>There are some other small improvements and bug fixes: please see the &lt;a href="https://github.com/tidyverse/tibble/releases/tag/v1.4.2">release notes&lt;/a> for a complete list. Use the &lt;a href="https://github.com/tidyverse/tibble/issues">issue tracker&lt;/a> to submit bugs or suggest ideas, your contributions are always welcome.&lt;/p>
+&lt;div id="new-options" class="section level2">
+&lt;h2>New options&lt;/h2>
+&lt;p>This article shows the effect of each new option based on the following simple tibble.&lt;/p>
+&lt;div class="figure">
+&lt;img src="https://www.tidyverse.org/images/tibble-1-4-2/default.png" />
+&lt;/div>
+&lt;p>The following options were added:&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>&lt;code>pillar.bold&lt;/code>: Use bold font, e.g. for column headers? This currently defaults to &lt;code>FALSE&lt;/code>, because many terminal fonts have poor support for bold fonts. If the bold-faced column names in tibble 1.4.1 worked for you, add &lt;code>options(pillar.bold = TRUE)&lt;/code> to your &lt;code>.Rprofile&lt;/code>.&lt;/p>
+&lt;div class="figure">
+&lt;img src="https://www.tidyverse.org/images/tibble-1-4-2/bold.png" />
+&lt;/div>&lt;/li>
+&lt;li>&lt;p>&lt;code>pillar.subtle&lt;/code>: Use subtle style, e.g. for insignificant digits? Default: &lt;code>TRUE&lt;/code>, see below for the effects of &lt;code>options(pillar.subtle = FALSE)&lt;/code>.&lt;/p>
+&lt;div class="figure">
+&lt;img src="https://www.tidyverse.org/images/tibble-1-4-2/subtle.png" />
+&lt;/div>&lt;/li>
+&lt;li>&lt;p>&lt;code>pillar.neg&lt;/code>: Highlight negative numbers? Default: &lt;code>TRUE&lt;/code>, the output for &lt;code>options(pillar.neg = FALSE)&lt;/code> is shown below.&lt;/p>
+&lt;div class="figure">
+&lt;img src="https://www.tidyverse.org/images/tibble-1-4-2/neg.png" />
+&lt;/div>&lt;/li>
+&lt;li>&lt;p>&lt;code>pillar.sigfig&lt;/code>: The number of significant digits that will be printed and highlighted, default: 3. (Set the &lt;code>pillar.subtle&lt;/code> option to &lt;code>FALSE&lt;/code> to turn off highlighting of significant digits.) See below for an example with &lt;code>options(pillar.sigfig = 5)&lt;/code>:&lt;/p>
+&lt;div class="figure">
+&lt;img src="https://www.tidyverse.org/images/tibble-1-4-2/sigfig-5.png" />
+&lt;/div>&lt;/li>
+&lt;li>&lt;p>&lt;code>pillar.min_title_chars&lt;/code>: The minimum number of characters for the column title, default: &lt;code>15&lt;/code>. Column titles may be truncated up to that width to save horizontal space. Set to &lt;code>Inf&lt;/code> to turn off truncation of column titles. In our example, a column hidden previously is shown when reducing &lt;code>pillar.min_title_chars&lt;/code> to 10:&lt;/p>
+&lt;div class="figure">
+&lt;img src="https://www.tidyverse.org/images/tibble-1-4-2/min-title-chars-10.png" />
+&lt;/div>&lt;/li>
+&lt;/ul>
+&lt;/div>
+&lt;div id="acknowledgments" class="section level2">
+&lt;h2>Acknowledgments&lt;/h2>
+&lt;p>Thanks to &lt;a href="https://github.com/anhqle">Anh Le&lt;/a> for adding support for trailing commas in &lt;code>tribble()&lt;/code>, to &lt;a href="https://github.com/mundl">Tobias Gauster&lt;/a> for fixing a confusing error message, and to all other contributors. We received issues, pull requests, and comments from 33 people since tibble 1.4.1. Thanks to everyone, your feedback is very valuable to us: &lt;a href="https://github.com/anhqle">@anhqle&lt;/a>, &lt;a href="https://github.com/batpigandme">@batpigandme&lt;/a>, &lt;a href="https://github.com/bgreenwell">@bgreenwell&lt;/a>, &lt;a href="https://github.com/blueprint-ade">@blueprint-ade&lt;/a>, &lt;a href="https://github.com/BruceZhaoR">@BruceZhaoR&lt;/a>, &lt;a href="https://github.com/chasemc">@chasemc&lt;/a>, &lt;a href="https://github.com/digital-dharma">@digital-dharma&lt;/a>, &lt;a href="https://github.com/drewgendreau">@drewgendreau&lt;/a>, &lt;a href="https://github.com/EdwardJRoss">@EdwardJRoss&lt;/a>, &lt;a href="https://github.com/hplieninger">@hplieninger&lt;/a>, &lt;a href="https://github.com/javierluraschi">@javierluraschi&lt;/a>, &lt;a href="https://github.com/jcpetkovich">@jcpetkovich&lt;/a>, &lt;a href="https://github.com/kevinushey">@kevinushey&lt;/a>, &lt;a href="https://github.com/kevinykuo">@kevinykuo&lt;/a>, &lt;a href="https://github.com/khughitt">@khughitt&lt;/a>, &lt;a href="https://github.com/kovla">@kovla&lt;/a>, &lt;a href="https://github.com/lorenzwalthert">@lorenzwalthert&lt;/a>, &lt;a href="https://github.com/lpmarco">@lpmarco&lt;/a>, &lt;a href="https://github.com/mmuurr">@mmuurr&lt;/a>, &lt;a href="https://github.com/mundl">@mundl&lt;/a>, &lt;a href="https://github.com/NathanCDay">@NathanCDay&lt;/a>, &lt;a href="https://github.com/p0bs">@p0bs&lt;/a>, &lt;a href="https://github.com/patperry">@patperry&lt;/a>, &lt;a href="https://github.com/slonik-az">@slonik-az&lt;/a>, &lt;a href="https://github.com/Tazinho">@Tazinho&lt;/a>, &lt;a href="https://github.com/tjmahr">@tjmahr&lt;/a>, &lt;a href="https://github.com/trinker">@trinker&lt;/a>, &lt;a href="https://github.com/vnijs">@vnijs&lt;/a>, &lt;a href="https://github.com/vspinu">@vspinu&lt;/a>, &lt;a href="https://github.com/WB-Student">@WB-Student&lt;/a>, &lt;a href="https://github.com/wch">@wch&lt;/a>, &lt;a href="https://github.com/yutannihilation">@yutannihilation&lt;/a>, and &lt;a href="https://github.com/Zedseayou">@Zedseayou&lt;/a>.&lt;/p>
+&lt;/div></description></item><item><title>tibble 1.4.1</title><link>https://www.tidyverse.org/blog/2018/01/tibble-1-4-1/</link><pubDate>Wed, 03 Jan 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/01/tibble-1-4-1/</guid><description>
+&lt;p>We’re excited to announce version 1.4.1 of the &lt;em>tibble&lt;/em> package. Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the latest version with:&lt;/p>
+&lt;pre class="r">&lt;code>install.packages(&amp;quot;tibble&amp;quot;)&lt;/code>&lt;/pre>
+&lt;p>This release contains the following major changes:&lt;/p>
+&lt;ul>
+&lt;li>Colored terminal output&lt;/li>
+&lt;li>Compatibility fixes for code that expects data frames&lt;/li>
+&lt;li>Improved &lt;code>add_column()&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>There are many other small improvements and bug fixes: please see the &lt;a href="https://github.com/tidyverse/tibble/releases/tag/v1.4.1">release notes&lt;/a> for a complete list.&lt;/p>
+&lt;p>Thanks to &lt;a href="https://github.com/LaDilettante">Anh Le&lt;/a> for the &lt;code>add_cases()&lt;/code> alias, to &lt;a href="https://github.com/DavisVaughan">Davis Vaughan&lt;/a> for improving &lt;code>add_column()&lt;/code>, to &lt;a href="https://github.com/patperry">Patrick O. Perry&lt;/a> for converting C++ code to C, and to all the other contributors. Use the &lt;a href="https://github.com/tidyverse/tibble/issues">issue tracker&lt;/a> to submit bugs or suggest ideas, your contributions are always welcome.&lt;/p>
+&lt;div id="colored-terminal-output" class="section level2">
+&lt;h2>Colored terminal output&lt;/h2>
+&lt;p>The most important change of this release is the use of color and other markup for the output in the terminal:&lt;/p>
+&lt;div class="figure">
+&lt;img src="https://www.tidyverse.org/images/tibble-1-4-1/screenshot.png" />
+&lt;/div>
+&lt;ul>
+&lt;li>&lt;p>Numeric columns have two displays. If there is room, the full number is displayed, making it easy to compare order of magnitude. Digits after the first three are dimmed to emphasise the important components. Negative numbers are shown in red. The display switches to scientific format if there is not enough room.&lt;/p>&lt;/li>
+&lt;li>&lt;p>Missing values get a yellow background. This makes it easier to distinguish the string &lt;code>&amp;quot;NA&amp;quot;&lt;/code> from a missing value.&lt;/p>&lt;/li>
+&lt;li>&lt;p>Long character values and factors are abbreviated in order to fit more columns on screen.&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;p>The highlighting is implemented by the new &lt;em>pillar&lt;/em> package, which also offers extension points for packages such as &lt;em>hms&lt;/em> that provide custom data types. See the &lt;a href="https://cran.r-project.org/web/packages/tibble/vignettes/extending.html">Extending tibble&lt;/a> vignette for details. We’re still figuring out how to use colour most effectively, so expect this to change in minor ways in the in future. If you have feedback, please let us know by &lt;a href="https://github.com/r-lib/pillar/issues">filing an issue&lt;/a> in the &lt;em>pillar&lt;/em> package.&lt;/p>
+&lt;/div>
+&lt;div id="compatibility-fixes" class="section level2">
+&lt;h2>Compatibility fixes&lt;/h2>
+&lt;p>Subsetting with logical or character indexes is now supported, just like with regular data frames:&lt;/p>
+&lt;pre class="r">&lt;code>tbl &amp;lt;- tibble(a = 1:3, b = letters[1:3])
+tbl
+#&amp;gt; # A tibble: 3 x 2
+#&amp;gt; a b
+#&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt;
+#&amp;gt; 1 1 a
+#&amp;gt; 2 2 b
+#&amp;gt; 3 3 c
+tbl[c(TRUE, FALSE, TRUE), ]
+#&amp;gt; # A tibble: 2 x 2
+#&amp;gt; a b
+#&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt;
+#&amp;gt; 1 1 a
+#&amp;gt; 2 3 c
+tbl[c(&amp;quot;2&amp;quot;, &amp;quot;odd-row-name&amp;quot;), ]
+#&amp;gt; # A tibble: 2 x 2
+#&amp;gt; a b
+#&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt;
+#&amp;gt; 1 2 b
+#&amp;gt; 2 NA &amp;lt;NA&amp;gt;&lt;/code>&lt;/pre>
+&lt;p>Passing &lt;code>drop = TRUE&lt;/code> is now supported and gives the same result as for regular data frames:&lt;/p>
+&lt;pre class="r">&lt;code>tbl[1, 2, drop = TRUE]
+#&amp;gt; [1] &amp;quot;a&amp;quot;
+tbl[1, drop = TRUE]
+#&amp;gt; Warning: drop ignored
+#&amp;gt; # A tibble: 3 x 1
+#&amp;gt; a
+#&amp;gt; &amp;lt;int&amp;gt;
+#&amp;gt; 1 1
+#&amp;gt; 2 2
+#&amp;gt; 3 3&lt;/code>&lt;/pre>
+&lt;p>Both changes make it easier to use tibbles with code that is designed to work with data frames.&lt;/p>
+&lt;/div>
+&lt;div id="improved-addition-of-columns" class="section level2">
+&lt;h2>Improved addition of columns&lt;/h2>
+&lt;p>The &lt;code>add_column()&lt;/code> functions now keeps all attributes of the original tibble, this is important for packages that extend tibbles such as &lt;a href="https://r-spatial.github.io/sf/">sf&lt;/a> or &lt;a href="https://business-science.github.io/tibbletime/">tibbletime&lt;/a>.&lt;/p>
+&lt;pre class="r">&lt;code>library(tibbletime)
+#&amp;gt;
+#&amp;gt; Attaching package: &amp;#39;tibbletime&amp;#39;
+#&amp;gt; The following object is masked from &amp;#39;package:stats&amp;#39;:
+#&amp;gt;
+#&amp;gt; filter
+tbl_with_date &amp;lt;-
+tibble(a = 1:3, date = Sys.Date() + a) %&amp;gt;%
+tbl_time(date)
+add_column(tbl_with_date, b = letters[1:3])
+#&amp;gt; # A time tibble: 3 x 3
+#&amp;gt; # Index: date
+#&amp;gt; a date b
+#&amp;gt; * &amp;lt;int&amp;gt; &amp;lt;date&amp;gt; &amp;lt;chr&amp;gt;
+#&amp;gt; 1 1 2018-01-04 a
+#&amp;gt; 2 2 2018-01-05 b
+#&amp;gt; 3 3 2018-01-06 c&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="trailing-comma" class="section level2">
+&lt;h2>Trailing comma&lt;/h2>
+&lt;p>You can now add a trailing comma in function calls with an &lt;code>...&lt;/code> argument:&lt;/p>
+&lt;pre class="r">&lt;code>tibble(
+a = 1:3,
+b = letters[1:3],
+)
+#&amp;gt; # A tibble: 3 x 2
+#&amp;gt; a b
+#&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt;
+#&amp;gt; 1 1 a
+#&amp;gt; 2 2 b
+#&amp;gt; 3 3 c
+add_column(
+tbl,
+c = LETTERS[1:3],
+)
+#&amp;gt; # A tibble: 3 x 3
+#&amp;gt; a b c
+#&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt;
+#&amp;gt; 1 1 a A
+#&amp;gt; 2 2 b B
+#&amp;gt; 3 3 c C&lt;/code>&lt;/pre>
+&lt;p>This simplifies extending or adapting the code later, because you don’t need to remember to add or remove the trailing comma of the last function argument. (This functionality is available for all packages that support tidy evaluation, &lt;em>rlang&lt;/em> &amp;gt;= 0.1.6 is required.)&lt;/p>
+&lt;/div>
+&lt;div id="acknowledgments" class="section level2">
+&lt;h2>Acknowledgments&lt;/h2>
+&lt;p>We received issues, pull requests, and comments from 109 people since tibble 1.2.0. Thanks to everyone: &lt;a href="https://github.com/aalexandersson">@aalexandersson&lt;/a>, &lt;a href="https://github.com/adnbps">@adnbps&lt;/a>, &lt;a href="https://github.com/AkhilNairAmey">@AkhilNairAmey&lt;/a>, &lt;a href="https://github.com/alexhallam">@alexhallam&lt;/a>, &lt;a href="https://github.com/alibat">@alibat&lt;/a>, &lt;a href="https://github.com/amjiuzi">@amjiuzi&lt;/a>, &lt;a href="https://github.com/AndreMikulec">@AndreMikulec&lt;/a>, &lt;a href="https://github.com/andrewjpfeiffer">@andrewjpfeiffer&lt;/a>, &lt;a href="https://github.com/ashiklom">@ashiklom&lt;/a>, &lt;a href="https://github.com/atribe">@atribe&lt;/a>, &lt;a href="https://github.com/bapfeld">@bapfeld&lt;/a>, &lt;a href="https://github.com/barnettjacob">@barnettjacob&lt;/a>, &lt;a href="https://github.com/behrman">@behrman&lt;/a>, &lt;a href="https://github.com/BillDunlap">@BillDunlap&lt;/a>, &lt;a href="https://github.com/BruceZhaoR">@BruceZhaoR&lt;/a>, &lt;a href="https://github.com/cassiusoat">@cassiusoat&lt;/a>, &lt;a href="https://github.com/cboettig">@cboettig&lt;/a>, &lt;a href="https://github.com/cderv">@cderv&lt;/a>, &lt;a href="https://github.com/ckluss">@ckluss&lt;/a>, &lt;a href="https://github.com/ClaytonJY">@ClaytonJY&lt;/a>, &lt;a href="https://github.com/colearendt">@colearendt&lt;/a>, &lt;a href="https://github.com/csgillespie">@csgillespie&lt;/a>, &lt;a href="https://github.com/dalejbarr">@dalejbarr&lt;/a>, &lt;a href="https://github.com/dan87134">@dan87134&lt;/a>, &lt;a href="https://github.com/DavisVaughan">@DavisVaughan&lt;/a>, &lt;a href="https://github.com/ddiez">@ddiez&lt;/a>, &lt;a href="https://github.com/dhicks">@dhicks&lt;/a>, &lt;a href="https://github.com/dlpd">@dlpd&lt;/a>, &lt;a href="https://github.com/drewgendreau">@drewgendreau&lt;/a>, &lt;a href="https://github.com/drolejoel">@drolejoel&lt;/a>, &lt;a href="https://github.com/echasnovski">@echasnovski&lt;/a>, &lt;a href="https://github.com/edzer">@edzer&lt;/a>, &lt;a href="https://github.com/ElsLommelen">@ElsLommelen&lt;/a>, &lt;a href="https://github.com/etiennebr">@etiennebr&lt;/a>, &lt;a href="https://github.com/FabianRoger">@FabianRoger&lt;/a>, &lt;a href="https://github.com/garrettgman">@garrettgman&lt;/a>, &lt;a href="https://github.com/gavinsimpson">@gavinsimpson&lt;/a>, &lt;a href="https://github.com/geotheory">@geotheory&lt;/a>, &lt;a href="https://github.com/ginolhac">@ginolhac&lt;/a>, &lt;a href="https://github.com/hadley">@hadley&lt;/a>, &lt;a href="https://github.com/happyshows">@happyshows&lt;/a>, &lt;a href="https://github.com/heavywatal">@heavywatal&lt;/a>, &lt;a href="https://github.com/helix123">@helix123&lt;/a>, &lt;a href="https://github.com/holstius">@holstius&lt;/a>, &lt;a href="https://github.com/huftis">@huftis&lt;/a>, &lt;a href="https://github.com/ianmcook">@ianmcook&lt;/a>, &lt;a href="https://github.com/imanuelcostigan">@imanuelcostigan&lt;/a>, &lt;a href="https://github.com/janschulz">@janschulz&lt;/a>, &lt;a href="https://github.com/javierluraschi">@javierluraschi&lt;/a>, &lt;a href="https://github.com/jennybc">@jennybc&lt;/a>, &lt;a href="https://github.com/jimhester">@jimhester&lt;/a>, &lt;a href="https://github.com/joelgombin">@joelgombin&lt;/a>, &lt;a href="https://github.com/jonathan-g">@jonathan-g&lt;/a>, &lt;a href="https://github.com/kendonB">@kendonB&lt;/a>, &lt;a href="https://github.com/kevinushey">@kevinushey&lt;/a>, &lt;a href="https://github.com/khughitt">@khughitt&lt;/a>, &lt;a href="https://github.com/kismsu">@kismsu&lt;/a>, &lt;a href="https://github.com/krlmlr">@krlmlr&lt;/a>, &lt;a href="https://github.com/kwstat">@kwstat&lt;/a>, &lt;a href="https://github.com/LaDilettante">@LaDilettante&lt;/a>, &lt;a href="https://github.com/lcolladotor">@lcolladotor&lt;/a>, &lt;a href="https://github.com/lionel-">@lionel-&lt;/a>, &lt;a href="https://github.com/lpmarco">@lpmarco&lt;/a>, &lt;a href="https://github.com/m-sostero">@m-sostero&lt;/a>, &lt;a href="https://github.com/MarcusWalz">@MarcusWalz&lt;/a>, &lt;a href="https://github.com/matteodefelice">@matteodefelice&lt;/a>, &lt;a href="https://github.com/mattfidler">@mattfidler&lt;/a>, &lt;a href="https://github.com/mgirlich">@mgirlich&lt;/a>, &lt;a href="https://github.com/michaellevy">@michaellevy&lt;/a>, &lt;a href="https://github.com/MikeBadescu">@MikeBadescu&lt;/a>, &lt;a href="https://github.com/mkearney">@mkearney&lt;/a>, &lt;a href="https://github.com/mmuurr">@mmuurr&lt;/a>, &lt;a href="https://github.com/Monduiz">@Monduiz&lt;/a>, &lt;a href="https://github.com/mubeenarasack">@mubeenarasack&lt;/a>, &lt;a href="https://github.com/mundl">@mundl&lt;/a>, &lt;a href="https://github.com/nbenn">@nbenn&lt;/a>, &lt;a href="https://github.com/ncarchedi">@ncarchedi&lt;/a>, &lt;a href="https://github.com/NikNakk">@NikNakk&lt;/a>, &lt;a href="https://github.com/noamross">@noamross&lt;/a>, &lt;a href="https://github.com/ntguardian">@ntguardian&lt;/a>, &lt;a href="https://github.com/p0bs">@p0bs&lt;/a>, &lt;a href="https://github.com/patperry">@patperry&lt;/a>, &lt;a href="https://github.com/pgensler">@pgensler&lt;/a>, &lt;a href="https://github.com/phalexo">@phalexo&lt;/a>, &lt;a href="https://github.com/pssguy">@pssguy&lt;/a>, &lt;a href="https://github.com/r2evans">@r2evans&lt;/a>, &lt;a href="https://github.com/rentrop">@rentrop&lt;/a>, &lt;a href="https://github.com/richierocks">@richierocks&lt;/a>, &lt;a href="https://github.com/Rongpeng">@Rongpeng&lt;/a>, &lt;a href="https://github.com/s-fleck">@s-fleck&lt;/a>, &lt;a href="https://github.com/sainathadapa">@sainathadapa&lt;/a>, &lt;a href="https://github.com/sebschub">@sebschub&lt;/a>, &lt;a href="https://github.com/sibojan">@sibojan&lt;/a>, &lt;a href="https://github.com/slonik-az">@slonik-az&lt;/a>, &lt;a href="https://github.com/sskim47">@sskim47&lt;/a>, &lt;a href="https://github.com/t-kalinowski">@t-kalinowski&lt;/a>, &lt;a href="https://github.com/thercast">@thercast&lt;/a>, &lt;a href="https://github.com/thornend">@thornend&lt;/a>, &lt;a href="https://github.com/tjmahr">@tjmahr&lt;/a>, &lt;a href="https://github.com/trinker">@trinker&lt;/a>, &lt;a href="https://github.com/vnijs">@vnijs&lt;/a>, &lt;a href="https://github.com/vspinu">@vspinu&lt;/a>, &lt;a href="https://github.com/vvrably">@vvrably&lt;/a>, &lt;a href="https://github.com/wibom">@wibom&lt;/a>, &lt;a href="https://github.com/wpetry">@wpetry&lt;/a>, &lt;a href="https://github.com/yeedle">@yeedle&lt;/a>, &lt;a href="https://github.com/yihui">@yihui&lt;/a>, &lt;a href="https://github.com/yutannihilation">@yutannihilation&lt;/a>, and &lt;a href="https://github.com/Zedseayou">@Zedseayou&lt;/a>.&lt;/p>
+&lt;/div></description></item></channel></rss>

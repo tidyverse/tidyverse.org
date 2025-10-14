@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>discrim | Tidyverse</title><link>https://www.tidyverse.org/tags/discrim/</link><atom:link href="https://www.tidyverse.org/tags/discrim/index.xml" rel="self" type="application/rss+xml"/><description>discrim</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 27 Jul 2021 00:00:00 +0000</lastBuildDate><item><title>New tidymodels releases for July 2021</title><link>https://www.tidyverse.org/blog/2021/07/tidymodels-july-2021/</link><pubDate>Tue, 27 Jul 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/07/tidymodels-july-2021/</guid><description>&lt;!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo &amp; update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+&lt;p>The
+&lt;a href="https://www.tidymodels.org/" target="_blank" rel="noopener">tidymodels&lt;/a> framework is a collection of R packages for modeling and machine learning using tidyverse principles. Earlier this year, we
+&lt;a href="https://www.tidyverse.org/blog/2021/03/tidymodels-2021-q1/" target="_blank" rel="noopener">started regular updates&lt;/a> here on the tidyverse blog summarizing recent developments in the tidymodels ecosystem. You can check out the
+&lt;a href="https://www.tidyverse.org/tags/tidymodels/" target="_blank" rel="noopener">&lt;code>tidymodels&lt;/code> tag&lt;/a> to find all tidymodels blog posts here, including those that focus on a single package or more major releases. The purpose of these roundup posts is to keep you informed about any releases you may have missed and useful new functionality as we maintain these packages.&lt;/p>
+&lt;p>Recently, we had a series of CRAN releases:
+&lt;a href="https://hardhat.tidymodels.org/news/index.html#hardhat-0-1-6-2021-07-14" target="_blank" rel="noopener">hardhat&lt;/a>,
+&lt;a href="https://workflows.tidymodels.org/news/#workflows-0-2-3-2021-07-15" target="_blank" rel="noopener">workflows&lt;/a>,
+&lt;a href="https://parsnip.tidymodels.org/news/#parsnip-0-1-7-2021-07-21" target="_blank" rel="noopener">parsnip&lt;/a>,
+&lt;a href="https://tune.tidymodels.org/news/#tune-0-1-6-2021-07-21" target="_blank" rel="noopener">tune&lt;/a>,
+&lt;a href="https://finetune.tidymodels.org/news/#finetune-0-1-0-unreleased" target="_blank" rel="noopener">finetune&lt;/a>,
+&lt;a href="https://workflowsets.tidymodels.org/news/#workflowsets-0-1-0-unreleased" target="_blank" rel="noopener">workflowsets&lt;/a>, and
+&lt;a href="https://discrim.tidymodels.org/news/#discrim-0-1-3-unreleased" target="_blank" rel="noopener">discrim&lt;/a>. These were coordinated because of some cross-package improvements. This blog post summarizes the changes.&lt;/p>
+&lt;h2 id="object-extraction">Object extraction
+&lt;a href="#object-extraction">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The tidymodels team decided that we needed a consistent set of APIs for extracting things from objects. For example, a parsnip model contains the underlying model fit based on the engine. A &lt;code>linear_reg()&lt;/code> model with the &lt;code>&amp;quot;lm&amp;quot;&lt;/code> engine contains an &lt;code>lm&lt;/code> object. There were some existing functions to do this (mostly named &lt;code>pull_*()&lt;/code>) but they were fairly inconsistent and were not generics.&lt;/p>
+&lt;p>We added the following functions: &lt;code>extract_fit_engine()&lt;/code>, &lt;code>extract_fit_parsnip()&lt;/code>, &lt;code>extract_mold()&lt;/code>, &lt;code>extract_numeric()&lt;/code>, &lt;code>extract_preprocessor()&lt;/code>, &lt;code>extract_recipe()&lt;/code>, &lt;code>extract_spec_parsnip()&lt;/code>, &lt;code>extract_workflow()&lt;/code>, and &lt;code>extract_workflow_set_result()&lt;/code>.&lt;/p>
+&lt;p>The nice thing about this change is that a function such as &lt;code>extract_recipe()&lt;/code> can be used with objects created by the tune, workflows, or workflowsets packages.&lt;/p>
+&lt;p>The existing &lt;code>pull_*()&lt;/code> methods have been soft-deprecated and will stick around for a while.&lt;/p>
+&lt;h2 id="better-model-documentation">Better model documentation
+&lt;a href="#better-model-documentation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>One issue that we&amp;rsquo;ve seen in the parsnip documentation is that there is just &lt;em>so much&lt;/em> on each model page. It can be intimidating and difficult to find that one piece of information that you were looking for.&lt;/p>
+&lt;p>We&amp;rsquo;ve reorganized the model pages so that there are now sub-packages for each engine. For example, when you use &lt;code>?linear_reg&lt;/code>, the help page has a &lt;em>dynamic&lt;/em> list of engines from parsnip or any parsnip-adjacent package that has been loaded. Here is what the
+&lt;a href="https://parsnip.tidymodels.org/reference/linear_reg.html" target="_blank" rel="noopener">pkgdown site&lt;/a> looks like:&lt;/p>
+&lt;p>&lt;img src="linear_reg.png" title="plot of chunk parsnip" alt="plot of chunk parsnip" width="90%" style="display: block; margin: auto;" />&lt;/p>
+&lt;p>There is a similar dynamic list in the &lt;code>See Also&lt;/code> section.&lt;/p>
+&lt;p>Each engine page provides basic information about tuning parameters, modes, preprocessing requirements, and anything else that we thing is relevant. For example, for the C5.0 engine for &lt;code>boost_tree()&lt;/code>:&lt;/p>
+&lt;p>&lt;img src="C5.0.png" title="plot of chunk C50" alt="plot of chunk C50" width="90%" style="display: block; margin: auto;" />&lt;/p>
+&lt;p>Finally, the existing parsnip documentation didn&amp;rsquo;t show the actual fitting and/or prediction in action. A
+&lt;a href="https://parsnip.tidymodels.org/articles/articles/Examples.html" target="_blank" rel="noopener">new pkgdown article&lt;/a> has worked examples demonstrating the use of parsnip models on real data. Here is a screen shot for MARS regression via the earth package:&lt;/p>
+&lt;p>&lt;img src="earth.png" title="plot of chunk earth" alt="plot of chunk earth" width="90%" style="display: block; margin: auto;" />&lt;/p>
+&lt;p>We think that these changes will greatly improve the whole parsnip experience, especially for new users.&lt;/p>
+&lt;h2 id="simpler-parsnip-and-workflows-interfaces">Simpler parsnip and workflows interfaces
+&lt;a href="#simpler-parsnip-and-workflows-interfaces">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Our good friend and colleague
+&lt;a href="https://twitter.com/drob" target="_blank" rel="noopener">David Robinson&lt;/a> had
+&lt;a href="http://varianceexplained.org/r/sliced-ml/#where-tidymodels-can-improve" target="_blank" rel="noopener">some great ideas&lt;/a> for specific improvements for our APIs. After some discussion, both of his suggestions were implemented.&lt;/p>
+&lt;p>First, we enabled a default engine for parsnip models (you may have noticed this in the screen shots above). This produces simpler code for some model functions and, if a model has a single mode, fitting is as concise as&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># use lm() for regression&lt;/span>
+&lt;span class="nf">linear_reg&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">fit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Another nice feature is more succinct piping for workflows. A preprocessor, such as a formula or recipe, can be piped into &lt;code>workflow()&lt;/code> now. Also, there is an optional second argument in that function for the model specification.&lt;/p>
+&lt;p>Instead of&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">car_rec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_ns&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">disp&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">deg_free&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">car_wflow&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">workflow&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">add_recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">car_rec&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">add_model&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">linear_reg&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>you can now use&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">car_wflow&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_ns&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">disp&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">deg_free&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">workflow&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">linear_reg&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>If you might be on the fence about using tidymodels,
+&lt;a href="http://varianceexplained.org/r/sliced-ml/" target="_blank" rel="noopener">David&amp;rsquo;s blog post&lt;/a> does an excellent job encapsulating the benefits of our approach, so give it a read.&lt;/p>
+&lt;h2 id="other-changes">Other changes
+&lt;a href="#other-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>parsnip now has a generalized additive model function
+&lt;a href="https://parsnip.tidymodels.org/reference/gen_additive_mod.html" target="_blank" rel="noopener">&lt;code>gen_additive_mod()&lt;/code>&lt;/a>! There is currently one engine (&lt;code>mgcv&lt;/code>).&lt;/p>
+&lt;p>The tune package has better control over random numbers since, in some cases, the
+&lt;a href="https://github.com/tidymodels/tune/issues/389" target="_blank" rel="noopener">RNGkind was changed&lt;/a> after tuning a model.&lt;/p>
+&lt;p>The discrim package has the new parsnip-like documentation and new model engines. Also, the shrunken discriminant analysis method of Ahdesmaki and Strimmer (2010) was added as an engine to &lt;code>discrim_linear()&lt;/code>. The newly resurrected sparsediscrim package allowed use to include new engines for
+&lt;a href="https://discrim.tidymodels.org/reference/details_discrim_linear_sparsediscrim.html" target="_blank" rel="noopener">&lt;code>discrim_linear()&lt;/code>&lt;/a> and
+&lt;a href="https://discrim.tidymodels.org/reference/details_discrim_quad_sparsediscrim.html" target="_blank" rel="noopener">&lt;code>discrim_quad()&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank everyone who has contributed to these packages since their last release:&lt;/p>
+&lt;p>&lt;strong>hardhat&lt;/strong>:
+&lt;a href="https://github.com/cregouby" target="_blank" rel="noopener">@cregouby&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/DiabbZegpi" target="_blank" rel="noopener">@DiabbZegpi&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/jwijffels" target="_blank" rel="noopener">@jwijffels&lt;/a>,
+&lt;a href="https://github.com/LasWin" target="_blank" rel="noopener">@LasWin&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p>
+&lt;p>&lt;strong>workflows&lt;/strong>:
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dgrtwo" target="_blank" rel="noopener">@dgrtwo&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/LiamBlake" target="_blank" rel="noopener">@LiamBlake&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p>
+&lt;p>&lt;strong>parsnip&lt;/strong>:
+&lt;a href="https://github.com/cgoo4" target="_blank" rel="noopener">@cgoo4&lt;/a>,
+&lt;a href="https://github.com/dgrtwo" target="_blank" rel="noopener">@dgrtwo&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/graysonwhite" target="_blank" rel="noopener">@graysonwhite&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/mdancho84" target="_blank" rel="noopener">@mdancho84&lt;/a>,
+&lt;a href="https://github.com/RaymondBalise" target="_blank" rel="noopener">@RaymondBalise&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>, and
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>.&lt;/p>
+&lt;p>&lt;strong>tune&lt;/strong>:
+&lt;a href="https://github.com/amazongodman" target="_blank" rel="noopener">@amazongodman&lt;/a>,
+&lt;a href="https://github.com/brshallo" target="_blank" rel="noopener">@brshallo&lt;/a>,
+&lt;a href="https://github.com/dpanyard" target="_blank" rel="noopener">@dpanyard&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/klin333" target="_blank" rel="noopener">@klin333&lt;/a>,
+&lt;a href="https://github.com/mbac" target="_blank" rel="noopener">@mbac&lt;/a>,
+&lt;a href="https://github.com/PathosEthosLogos" target="_blank" rel="noopener">@PathosEthosLogos&lt;/a>,
+&lt;a href="https://github.com/tjcason" target="_blank" rel="noopener">@tjcason&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>, and
+&lt;a href="https://github.com/yogat3ch" target="_blank" rel="noopener">@yogat3ch&lt;/a>.&lt;/p>
+&lt;p>&lt;strong>finetune&lt;/strong>:
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/hnagaty" target="_blank" rel="noopener">@hnagaty&lt;/a>,
+&lt;a href="https://github.com/lukasal" target="_blank" rel="noopener">@lukasal&lt;/a>,
+&lt;a href="https://github.com/Mayalaroz" target="_blank" rel="noopener">@Mayalaroz&lt;/a>,
+&lt;a href="https://github.com/mrkaye97" target="_blank" rel="noopener">@mrkaye97&lt;/a>,
+&lt;a href="https://github.com/shinyquant" target="_blank" rel="noopener">@shinyquant&lt;/a>,
+&lt;a href="https://github.com/skeydan" target="_blank" rel="noopener">@skeydan&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p>
+&lt;p>&lt;strong>workflowsets&lt;/strong>:
+&lt;a href="https://github.com/amazongodman" target="_blank" rel="noopener">@amazongodman&lt;/a>,
+&lt;a href="https://github.com/jonthegeek" target="_blank" rel="noopener">@jonthegeek&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/oskasf" target="_blank" rel="noopener">@oskasf&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>, and
+&lt;a href="https://github.com/yogat3ch" target="_blank" rel="noopener">@yogat3ch&lt;/a>.&lt;/p>
+&lt;p>&lt;strong>discrim&lt;/strong>:
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p></description></item><item><title>discrim 0.0.1</title><link>https://www.tidyverse.org/blog/2019/10/discrim-0-0-1/</link><pubDate>Thu, 17 Oct 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/10/discrim-0-0-1/</guid><description>&lt;p>The new package
+&lt;a href="https://tidymodels.github.io/discrim/" target="_blank" rel="noopener">&lt;code>discrim&lt;/code>&lt;/a> contains &lt;code>parsnip&lt;/code> bindings for additional classification models, including:&lt;/p>
+&lt;ul>
+&lt;li>Linear discriminant analysis (LDA, simple and L2 regularized)&lt;/li>
+&lt;li>Regularized discriminant analysis (RDA, via
+&lt;a href="https://scholar.google.com/scholar?hl=en&amp;amp;as_sdt=0%2C7&amp;amp;q=%22Regularized&amp;#43;Discriminant&amp;#43;Analysis%22&amp;amp;btnG=" target="_blank" rel="noopener">Friedman (1989)&lt;/a>)&lt;/li>
+&lt;li>
+&lt;a href="https://scholar.google.com/scholar?hl=en&amp;amp;as_sdt=0%2C7&amp;amp;q=%22Flexible&amp;#43;discriminant&amp;#43;analysis%22&amp;amp;btnG=" target="_blank" rel="noopener">Flexible discriminant analysis&lt;/a> (FDA) using
+&lt;a href="https://scholar.google.com/scholar?hl=en&amp;amp;as_sdt=0%2C7&amp;amp;q=%22multivariate&amp;#43;adaptive&amp;#43;regression&amp;#43;splines%22&amp;amp;btnG=" target="_blank" rel="noopener">MARS features&lt;/a>&lt;/li>
+&lt;li>Naive Bayes models&lt;/li>
+&lt;/ul>
+&lt;p>The package can also be used as a template for adding new models to &lt;code>tidymodels&lt;/code> without having to directly involve &lt;code>parsnip&lt;/code>.&lt;/p>
+&lt;p>As an example, the package contains a simulated data set with two factors and two classes:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidyverse&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; ── Attaching packages ────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ tibble 2.1.3 ✔ purrr 0.3.2&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ tidyr 1.0.0 ✔ dplyr 0.8.3&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ readr 1.3.1 ✔ stringr 1.4.0&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ tibble 2.1.3 ✔ forcats 0.4.0&lt;/span>
+&lt;span class="c1">#&amp;gt; ── Conflicts ───────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──&lt;/span>
+&lt;span class="c1">#&amp;gt; ✖ dplyr::filter() masks stats::filter()&lt;/span>
+&lt;span class="c1">#&amp;gt; ✖ dplyr::lag() masks stats::lag()&lt;/span>
+&lt;span class="c1">#&amp;gt; ✖ dplyr::select() masks MASS::select()&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">rsample&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">discrim&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Loading required package: parsnip&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">earth&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;parabolic&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">package&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;rsample&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Warning in data(&amp;#34;parabolic&amp;#34;, package = &amp;#34;rsample&amp;#34;): data set &amp;#39;parabolic&amp;#39; not&lt;/span>
+&lt;span class="c1">#&amp;gt; found&lt;/span>
+&lt;span class="n">parabolic&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 500 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; X1 X2 class &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;fct&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 3.29 1.66 Class1&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 1.47 0.414 Class2&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 1.66 0.791 Class2&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 1.60 0.276 Class2&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 2.17 3.17 Class1&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 1.94 3.83 Class1&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 -0.588 -0.977 Class2&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 -0.951 1.40 Class1&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 0.275 0.370 Class2&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 -1.13 -1.14 Class1&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 490 more rows&lt;/span>
+&lt;span class="nf">ggplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">parabolic&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">X1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">X2&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_point&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">col&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">class&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">alpha&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">.3&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">coord_equal&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">theme&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">legend.position&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;top&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://www.tidyverse.org/articles/2019-10-discrim-0-01_files/figure-html/startup-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;p>How would a flexible discriminant model do here? We&amp;rsquo;ll split the data then fit the model:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">115&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">data_split&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">initial_split&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">parabolic&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">prop&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">data_tr&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">training&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data_split&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">data_te&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">testing&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data_split&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">fda_mod&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">discrim_flexible&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">set_engine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;earth&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">fda_fit&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="n">fda_mod&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">fit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">class&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">X1&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">X2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">data_tr&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">fda_fit&lt;/span>
+&lt;span class="c1">#&amp;gt; parsnip model object&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Call:&lt;/span>
+&lt;span class="c1">#&amp;gt; mda::fda(formula = formula, data = data, method = earth::earth)&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Dimension: 1 &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Percent Between-Group Variance Explained:&lt;/span>
+&lt;span class="c1">#&amp;gt; v1 &lt;/span>
+&lt;span class="c1">#&amp;gt; 100 &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Training Misclassification Error: 0.105 ( N = 334 )&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Since no model tuning parameters were specified, the MARS algorithm follows its own internal method for optimizing the number of features that are included in the model. The underlying MARS model is:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">summary&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">fda_fit&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">fit&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">fit&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Call: earth(x=x, y=Theta, weights=weights)&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; coefficients&lt;/span>
+&lt;span class="c1">#&amp;gt; (Intercept) -0.892&lt;/span>
+&lt;span class="c1">#&amp;gt; h(X1- -1.42535) 2.780&lt;/span>
+&lt;span class="c1">#&amp;gt; h(X1- -0.907457) -1.972&lt;/span>
+&lt;span class="c1">#&amp;gt; h(X1- -0.450335) -0.766&lt;/span>
+&lt;span class="c1">#&amp;gt; h(X2-0.351695) -1.634&lt;/span>
+&lt;span class="c1">#&amp;gt; h(X2-1.44562) 1.461&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Selected 6 of 13 terms, and 2 of 2 predictors&lt;/span>
+&lt;span class="c1">#&amp;gt; Termination condition: Reached nk 21&lt;/span>
+&lt;span class="c1">#&amp;gt; Importance: X2, X1&lt;/span>
+&lt;span class="c1">#&amp;gt; Number of terms at each degree of interaction: 1 5 (additive model)&lt;/span>
+&lt;span class="c1">#&amp;gt; GCV 0.333 RSS 104 GRSq 0.669 RSq 0.688&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The classification boundary, overlaid on the test set, shows a series of segmented lines:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">pred_grid&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">expand.grid&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">X1&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">seq&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">-5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">length&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">100&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">X2&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">seq&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">-5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">length&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">100&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="n">pred_grid&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">bind_cols&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">pred_grid&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="nf">predict&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">fda_fit&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">pred_grid&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;prob&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">.pred_Class1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">setNames&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;fda_pred&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="n">p&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">ggplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data_te&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">X1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">X2&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_point&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">col&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">class&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">alpha&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">.3&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">coord_equal&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">theme&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">legend.position&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;top&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">p&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_contour&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">pred_grid&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">z&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">fda_pred&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">breaks&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">.5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">col&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;black&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://www.tidyverse.org/articles/2019-10-discrim-0-01_files/figure-html/grid-1-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;p>This boundary seems pretty reasonable.&lt;/p>
+&lt;p>These models also work with the new
+&lt;a href="https://github.com/tidymodels/tune" target="_blank" rel="noopener">&lt;code>tune&lt;/code> package&lt;/a>. To demonstrate, a regularized discriminant analysis model^[Despite the name, this type of regularization is different from the more commonly used lasso ($L_1$) or ridge ($L_2$) regression methods. Here, the &lt;em>covariance matrix&lt;/em> of the predictors is regularized in different ways as described
+&lt;a href="https://rdrr.io/cran/klaR/man/rda.html" target="_blank" rel="noopener">here&lt;/a>.] will be fit to the data and optimized using a simple grid search.&lt;/p>
+&lt;p>We&amp;rsquo;ll use the devel version of dials:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># devtools::install_github(&amp;#34;tidymodels/tune&amp;#34;)&lt;/span>
+&lt;span class="c1"># We use the devel version of several tidymodels packages:&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidymodels&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Registered S3 method overwritten by &amp;#39;xts&amp;#39;:&lt;/span>
+&lt;span class="c1">#&amp;gt; method from&lt;/span>
+&lt;span class="c1">#&amp;gt; as.zoo.xts zoo&lt;/span>
+&lt;span class="c1">#&amp;gt; ── Attaching packages ───────────────────────────────────────────────────────────────────────────────────── tidymodels 0.0.3 ──&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ broom 0.5.2 ✔ recipes 0.1.7.9001&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ dials 0.0.3.9001 ✔ yardstick 0.0.4 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ infer 0.5.0&lt;/span>
+&lt;span class="c1">#&amp;gt; ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────── tidymodels_conflicts() ──&lt;/span>
+&lt;span class="c1">#&amp;gt; ✖ scales::discard() masks purrr::discard()&lt;/span>
+&lt;span class="c1">#&amp;gt; ✖ dplyr::filter() masks stats::filter()&lt;/span>
+&lt;span class="c1">#&amp;gt; ✖ recipes::fixed() masks stringr::fixed()&lt;/span>
+&lt;span class="c1">#&amp;gt; ✖ dplyr::lag() masks stats::lag()&lt;/span>
+&lt;span class="c1">#&amp;gt; ✖ dials::margin() masks ggplot2::margin()&lt;/span>
+&lt;span class="c1">#&amp;gt; ✖ dials::offset() masks stats::offset()&lt;/span>
+&lt;span class="c1">#&amp;gt; ✖ dplyr::select() masks MASS::select()&lt;/span>
+&lt;span class="c1">#&amp;gt; ✖ yardstick::spec() masks readr::spec()&lt;/span>
+&lt;span class="c1">#&amp;gt; ✖ recipes::step() masks stats::step()&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tune&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>First, we mark the parameters for tuning:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">rda_mod&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">discrim_regularized&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">frac_common_cov&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">tune&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="n">frac_identity&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">tune&lt;/span>&lt;span class="p">())&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">set_engine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;klaR&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>In order to tune the model, we require a grid of candidate values along with a resampling specification. We&amp;rsquo;ll also setup a &lt;code>yardstick&lt;/code> object to measure the area under the ROC curve for each candidate model:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">20014&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">folds&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">vfold_cv&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data_tr&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">repeats&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Use a space-filling design with 30 candidate models&lt;/span>
+&lt;span class="n">candidates&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="n">rda_mod&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">param_set&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">grid_max_entropy&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">size&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">30&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">roc_values&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">metric_set&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">roc_auc&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now we can tune the model:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">rda_res&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">tune_grid&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">class&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">X1&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">X2&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">model&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">rda_mod&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">rs&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">folds&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">grid&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">candidates&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">perf&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">roc_values&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The resampling estimates rank the models (starting with the best) as:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">auc_values&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">estimate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">rda_res&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">arrange&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">desc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mean&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="n">auc_values&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">slice&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 5 x 7&lt;/span>
+&lt;span class="c1">#&amp;gt; frac_common_cov frac_identity .metric .estimator mean n std_err&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 0.0223 0.171 roc_auc binary 0.949 50 0.00392&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 0.107 0.362 roc_auc binary 0.943 50 0.00421&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 0.255 0.410 roc_auc binary 0.941 50 0.00445&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 0.434 0.685 roc_auc binary 0.939 50 0.00454&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 0.357 0.584 roc_auc binary 0.939 50 0.00454&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Let&amp;rsquo;s plot the resampling results:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">ggplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">auc_values&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">frac_common_cov&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">frac_identity&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">size&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mean&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_point&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">alpha&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">.5&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">coord_equal&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://www.tidyverse.org/articles/2019-10-discrim-0-01_files/figure-html/grid-res-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;p>There is a wide range of parameter combinations associated with good performance here. The poor results occur mostly when the model tries to enforce a mostly LDA covariance matrix (&lt;code>frac_common_cov&lt;/code> &amp;gt; 0.9) along with &lt;code>frac_identity&lt;/code> &amp;lt;= 0.6. The latter parameter tries to shrink the covariance matrix towards one where the parameters are considered to be nearly independent.&lt;/p>
+&lt;p>The &lt;code>parsnip&lt;/code> model object can be updated with the best parameter combination (&lt;code>frac_common_cov&lt;/code> = 0.022 and &lt;code>frac_identity&lt;/code> = 0.171). These parameter values result in a model close to a pure QDA model. The &lt;code>merge()&lt;/code> function can be used to insert these values into our original &lt;code>parsnip&lt;/code> object:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">final_param&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="n">auc_values&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">slice&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">frac_common_cov&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">frac_identity&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">rda_mod&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="n">rda_mod&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">merge&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">final_param&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">pull&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">pluck&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">rda_mod&lt;/span>
+&lt;span class="c1">#&amp;gt; Regularized Discriminant Model Specification (classification)&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Main Arguments:&lt;/span>
+&lt;span class="c1">#&amp;gt; frac_common_cov = 0.0222721435129642&lt;/span>
+&lt;span class="c1">#&amp;gt; frac_identity = 0.171292591374367&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Computational engine: klaR&lt;/span>
+&lt;span class="n">rda_fit&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="n">rda_mod&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">fit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">class&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">X1&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">X2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">data_tr&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>To show the class boundary:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">pred_grid&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">bind_cols&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">pred_grid&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="nf">predict&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">rda_fit&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">pred_grid&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;prob&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">.pred_Class1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">setNames&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;rda_pred&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="n">p&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_contour&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">pred_grid&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">z&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">fda_pred&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">breaks&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">.5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">col&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;black&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">alpha&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">.5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">lty&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_contour&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">pred_grid&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">z&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">rda_pred&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">breaks&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">.5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">col&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;black&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://www.tidyverse.org/articles/2019-10-discrim-0-01_files/figure-html/rda-boundary-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;p>This is pretty close to the true simulated boundary, which is parabolic in nature.&lt;/p>
+&lt;p>The test sets results are:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">probs_te&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">predict&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">rda_fit&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data_te&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;prob&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">bind_cols&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data_te&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">class&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="n">probs_te&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 166 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; .pred_Class1 .pred_Class2 class &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;fct&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 0.851 0.149 Class1&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 0.205 0.795 Class2&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 1.000 0.000339 Class1&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 0.326 0.674 Class2&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 0.377 0.623 Class2&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 0.202 0.798 Class2&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 0.333 0.667 Class1&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 0.472 0.528 Class1&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 0.979 0.0210 Class1&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 0.166 0.834 Class2&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 156 more rows&lt;/span>
+&lt;span class="nf">roc_auc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">probs_te&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">class&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.pred_Class1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; .metric .estimator .estimate&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 roc_auc binary 0.971&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Pretty good!&lt;/p></description></item></channel></rss>

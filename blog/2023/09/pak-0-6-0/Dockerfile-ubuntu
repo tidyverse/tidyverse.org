@@ -1,0 +1,14 @@
+# -*- Dockerfile -*-
+
+FROM ubuntu:22.04
+
+# We use a pre-prelease of rig
+RUN apt-get update && \
+    apt-get install -y curl && \
+    curl -Ls https://github.com/r-lib/rig/releases/download/v0.5.99/rig-linux-0.5.99.tar.gz | \
+    tar xz -C /usr/local
+
+# The blog post is about pak 0.6.0, currently RC
+RUN rig add release --pak-version rc
+
+RUN R -q -e 'pak::pak_install_extra()'

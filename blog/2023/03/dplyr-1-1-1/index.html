@@ -1,0 +1,255 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>dplyr 1.1.1</title><meta property="og:title" content="dplyr 1.1.1"><meta property="og:description" content="dplyr 1.1.1 is on CRAN! This patch release includes a number of performance regression fixes along with refinements to the multiple match join warnings that result in warnings being thrown much less often."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2023/03/dplyr-1-1-1/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="dplyr 1.1.1 - Tidyverse"><meta property="description" content="dplyr 1.1.1 is on CRAN! This patch release includes a number of performance regression fixes along with refinements to the multiple match join warnings that result in warnings being thrown much less often."><meta property="og:description" content="dplyr 1.1.1 is on CRAN! This patch release includes a number of performance regression fixes along with refinements to the multiple match join warnings that result in warnings being thrown much less often."><meta property="og:image" content="https://www.tidyverse.org/blog/2023/03/dplyr-1-1-1/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2023/03/dplyr-1-1-1/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>dplyr 1.1.1</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2023/03/dplyr-1-1-1/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/jy8z4NBIYSQ>Jon Tyson</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2023/03/22</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/dplyr/>dplyr</a>,
+<a href=/tags/dplyr-1-1-0/>dplyr-1-1-0</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Davis Vaughan</p><div class=article-content><p>We&rsquo;re stoked to announce the release of
+<a href=https://dplyr.tidyverse.org/ target=_blank rel=noopener>dplyr 1.1.1</a>. We don&rsquo;t typically blog about patch releases, because they generally only fix bugs without significantly changing behavior, but this one includes two important updates:</p><ul><li>Addressing various performance regressions</li><li>Refining the <code>multiple</code> match warning thrown by dplyr&rsquo;s joins</li></ul><p>You can see a full list of changes in the
+<a href=https://dplyr.tidyverse.org/news/index.html target=_blank rel=noopener>release notes</a>. To see the other blog posts in the dplyr 1.1.0 series, head
+<a href=https://www.tidyverse.org/tags/dplyr-1-1-0/ target=_blank rel=noopener>here</a>.</p><p>You can install dplyr 1.1.1 from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span><span class=o>(</span><span class=s>"dplyr"</span><span class=o>)</span></span></code></pre></div><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://dplyr.tidyverse.org>dplyr</a></span><span class=o>)</span></span></code></pre></div><h2 id=performance-regressions>Performance regressions
+<a href=#performance-regressions><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>In the
+<a href=/blog/2023/02/dplyr-1-1-0-vctrs>1.1.0 post on vctrs</a>, we discussed that we&rsquo;ve rewritten all of dplyr&rsquo;s vector functions on top of
+<a href=https://vctrs.r-lib.org/ target=_blank rel=noopener>vctrs</a> for improved versatility. Unfortunately, we accidentally made two sets of functions much slower, especially when used on a data frame with many groups:</p><ul><li><p><a href=https://dplyr.tidyverse.org/reference/case_when.html target=_blank rel=noopener><code>case_when()</code></a> and
+<a href=https://dplyr.tidyverse.org/reference/if_else.html target=_blank rel=noopener><code>if_else()</code></a></p></li><li><p><a href=https://dplyr.tidyverse.org/reference/nth.html target=_blank rel=noopener><code>nth()</code></a>,
+<a href=https://dplyr.tidyverse.org/reference/nth.html target=_blank rel=noopener><code>first()</code></a>, and
+<a href=https://dplyr.tidyverse.org/reference/nth.html target=_blank rel=noopener><code>last()</code></a></p></li></ul><p>These performance issues have been addressed, and should be back to 1.0.10 level of performance.
+<a href=https://dplyr.tidyverse.org/reference/case_when.html target=_blank rel=noopener><code>case_when()</code></a> is still <em>slightly</em> slower than 1.0.10, but it isn&rsquo;t likely to be very noticeable, and we already have plans to improve this further in a future release.</p><h2 id=revisiting-multiple-matches>Revisiting multiple matches
+<a href=#revisiting-multiple-matches><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>In the
+<a href=/blog/2023/01/dplyr-1-1-0-joins>1.1.0 post on joins</a>, we discussed the new <code>multiple</code> argument that was added to
+<a href=https://dplyr.tidyverse.org/reference/mutate-joins.html target=_blank rel=noopener><code>left_join()</code></a> and friends, which had a built in safety check that warned when you performed a join where a row from <code>x</code> matched more than one row from <code>y</code>. The TLDR of the discussion below is that we&rsquo;ve realized that this warning was being thrown in too many cases, so we&rsquo;ve adjusted it in such a way that it now only catches the most dangerous type of join (a many-to-many join), meaning that you should see the warning <em>much</em> less often.</p><p>As a reminder, <code>multiple</code> determines what happens when a row from <code>x</code> matches more than one row from <code>y</code>. You can choose to return <code>"all"</code> of the matches, the <code>"first"</code> or <code>"last"</code> match, or <code>"any"</code> of the matches if you are just interested in detecting if there is at least one. <code>multiple</code> defaulted to a behavior similar to <code>"all"</code>, with the added side effect of throwing a warning if multiple matches were actually detected, like this:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>student</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span></span>
+<span>  student_id <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>2</span>, <span class=m>3</span><span class=o>)</span>,</span>
+<span>  transfer <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=kc>FALSE</span>, <span class=kc>TRUE</span>, <span class=kc>TRUE</span><span class=o>)</span>,</span>
+<span>  initial_term <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"fall 2018"</span>, <span class=s>"fall 2020"</span>, <span class=s>"fall 2020"</span><span class=o>)</span></span>
+<span><span class=o>)</span></span>
+<span></span>
+<span><span class=nv>term</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span></span>
+<span>  student_id <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>1</span>, <span class=m>2</span>, <span class=m>3</span>, <span class=m>3</span>, <span class=m>3</span><span class=o>)</span>,</span>
+<span>  term <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"fall 2018"</span>, <span class=s>"spring 2019"</span>, <span class=s>"fall 2020"</span>, <span class=s>"fall 2020"</span>, <span class=s>"spring 2021"</span>, <span class=s>"fall 2021"</span><span class=o>)</span>,</span>
+<span>  course_load <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>12</span>, <span class=m>15</span>, <span class=m>10</span>, <span class=m>14</span>, <span class=m>15</span>, <span class=m>12</span><span class=o>)</span></span>
+<span><span class=o>)</span></span></code></pre></div><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=c># Information about students attending a university.</span></span>
+<span><span class=c># One row per (student_id).</span></span>
+<span><span class=nv>student</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 3 × 3</span></span></span>
+<span><span class=c>#&gt;   student_id transfer initial_term</span></span>
+<span><span class=c>#&gt;        <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;lgl&gt;</span>    <span style=color:#555;font-style:italic>&lt;chr&gt;</span>       </span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>          1 FALSE    fall 2018   </span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>          2 TRUE     fall 2020   </span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>          3 TRUE     fall 2020</span></span>
+<span></span><span></span>
+<span><span class=c># Term specific information about each student.</span></span>
+<span><span class=c># One row per (student_id, term) combination.</span></span>
+<span><span class=nv>term</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 6 × 3</span></span></span>
+<span><span class=c>#&gt;   student_id term        course_load</span></span>
+<span><span class=c>#&gt;        <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span>             <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>          1 fall 2018            12</span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>          1 spring 2019          15</span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>          2 fall 2020            10</span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span>          3 fall 2020            14</span></span>
+<span><span class=c>#&gt; <span style=color:#555>5</span>          3 spring 2021          15</span></span>
+<span><span class=c>#&gt; <span style=color:#555>6</span>          3 fall 2021            12</span></span>
+<span></span></code></pre></div><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>student</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/mutate-joins.html>left_join</a></span><span class=o>(</span><span class=nv>term</span>, <span class=nf><a href=https://dplyr.tidyverse.org/reference/join_by.html>join_by</a></span><span class=o>(</span><span class=nv>student_id</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; Warning in left_join(student, term, join_by(student_id)): Each row in `x` is expected to match at most 1 row in `y`.</span></span>
+<span><span class=c>#&gt; i Row 1 of `x` matches multiple rows.</span></span>
+<span><span class=c>#&gt; i If multiple matches are expected, set `multiple = "all"` to silence this warning.</span></span>
+<span><span class=c>#&gt; # A tibble: 6 × 5</span></span>
+<span><span class=c>#&gt;   student_id transfer initial_term term        course_load</span></span>
+<span><span class=c>#&gt;        &lt;dbl&gt; &lt;lgl&gt;    &lt;chr&gt;        &lt;chr&gt;             &lt;dbl&gt;</span></span>
+<span><span class=c>#&gt; 1          1 FALSE    fall 2018    fall 2018            12</span></span>
+<span><span class=c>#&gt; 2          1 FALSE    fall 2018    spring 2019          15</span></span>
+<span><span class=c>#&gt; 3          2 TRUE     fall 2020    fall 2020            10</span></span>
+<span><span class=c>#&gt; 4          3 TRUE     fall 2020    fall 2020            14</span></span>
+<span><span class=c>#&gt; 5          3 TRUE     fall 2020    spring 2021          15</span></span>
+<span><span class=c>#&gt; 6          3 TRUE     fall 2020    fall 2021            12</span></span></code></pre></div><p>To silence this warning, we encouraged you to set <code>multiple = "all"</code> to be explicit about the fact that you expected a row from <code>x</code> to match multiple rows in <code>y</code>.</p><p>The original motivation for this behavior comes from a two-part hypothesis of ours:</p><ul><li><p>Users are often surprised when a join returns more rows than the left-hand table started with (in the above example, <code>student</code> has 3 rows but the join result has 6).</p></li><li><p>It is dangerous to allow joins that can result in a Cartesian explosion of the number of rows (i.e. <code>nrow(x) * nrow(y)</code>).</p></li></ul><p>This hypothesis led us to automatically warn on two types of join relationships, one-to-many joins and many-to-many joins. If you aren&rsquo;t familiar with these terms, here is a quick rundown of the 4 types of join relationships (often discussed in a SQL context), which provide constraints on the number of allowed matches:</p><ul><li>one-to-one:<ul><li>A row from <code>x</code> can match at most 1 row from <code>y</code>.</li><li>A row from <code>y</code> can match at most 1 row from <code>x</code>.</li></ul></li><li>one-to-many:<ul><li>A row from <code>x</code> can match any number of rows in <code>y</code>.</li><li>A row from <code>y</code> can match at most 1 row from <code>x</code>.</li></ul></li><li>many-to-one:<ul><li>A row from <code>x</code> can match at most 1 row from <code>y</code>.</li><li>A row from <code>y</code> can match any number of rows in <code>x</code>.</li></ul></li><li>many-to-many:<ul><li>A row from <code>x</code> can match any number of rows in <code>y</code>.</li><li>A row from <code>y</code> can match any number of rows in <code>x</code>.</li></ul></li></ul><p>After gathering some valuable
+<a href=https://github.com/tidyverse/dplyr/issues/6717 target=_blank rel=noopener>user feedback</a> and conducting an
+<a href=https://github.com/tidyverse/dplyr/issues/6731 target=_blank rel=noopener>in depth analysis</a> of these join relationships, we&rsquo;ve determined that the only relationship style actually worth warning on is many-to-many, because that is the one that can result in a Cartesian explosion of rows. In retrospect, the one-to-many relationship is actually quite common, and is symmetrical with many-to-one, which we weren&rsquo;t warning on. You could actually exploit this fact by switching the above join around, which would silence the warning:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>term</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/mutate-joins.html>left_join</a></span><span class=o>(</span><span class=nv>student</span>, <span class=nf><a href=https://dplyr.tidyverse.org/reference/join_by.html>join_by</a></span><span class=o>(</span><span class=nv>student_id</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 6 × 5</span></span></span>
+<span><span class=c>#&gt;   student_id term        course_load transfer initial_term</span></span>
+<span><span class=c>#&gt;        <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span>             <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;lgl&gt;</span>    <span style=color:#555;font-style:italic>&lt;chr&gt;</span>       </span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>          1 fall 2018            12 FALSE    fall 2018   </span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>          1 spring 2019          15 FALSE    fall 2018   </span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>          2 fall 2020            10 TRUE     fall 2020   </span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span>          3 fall 2020            14 TRUE     fall 2020   </span></span>
+<span><span class=c>#&gt; <span style=color:#555>5</span>          3 spring 2021          15 TRUE     fall 2020   </span></span>
+<span><span class=c>#&gt; <span style=color:#555>6</span>          3 fall 2021            12 TRUE     fall 2020</span></span>
+<span></span></code></pre></div><p>We still believe that new users are often surprised when a join returns more rows than they originally started with, but the many-to-one case of this is rarely a problem in practice. So, as of dplyr 1.1.1, we no longer warn on one-to-many relationships, which should drastically reduce the amount of warnings that you see.</p><h3 id=many-to-many-relationships>Many-to-many relationships
+<a href=#many-to-many-relationships><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>A many-to-many relationship is much harder to construct (which is good). In fact, a database system won&rsquo;t even let you create one of these &ldquo;relationships&rdquo; between two tables directly, instead requiring you to create a third bridge table that turns the many-to-many relationship into two one-to-many relationships. We can &ldquo;accidentally&rdquo; create one of these in R though:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>course</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span></span>
+<span>  student_id <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>1</span>, <span class=m>1</span>, <span class=m>2</span>, <span class=m>2</span>, <span class=m>3</span>, <span class=m>3</span>, <span class=m>3</span>, <span class=m>3</span><span class=o>)</span>,</span>
+<span>  instructor_id <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>2</span>, <span class=m>3</span>, <span class=m>1</span>, <span class=m>2</span>, <span class=m>1</span>, <span class=m>2</span>, <span class=m>3</span>, <span class=m>4</span><span class=o>)</span>,</span>
+<span>  course <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>101</span>, <span class=m>110</span>, <span class=m>123</span>, <span class=m>110</span>, <span class=m>101</span>, <span class=m>110</span>, <span class=m>115</span>, <span class=m>110</span>, <span class=m>101</span><span class=o>)</span>,</span>
+<span>  term <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span></span>
+<span>    <span class=s>"fall 2018"</span>, <span class=s>"fall 2018"</span>, <span class=s>"spring 2019"</span>, <span class=s>"fall 2020"</span>, <span class=s>"fall 2020"</span>, </span>
+<span>    <span class=s>"fall 2020"</span>, <span class=s>"fall 2020"</span>, <span class=s>"spring 2021"</span>, <span class=s>"fall 2021"</span></span>
+<span>  <span class=o>)</span>,</span>
+<span>  grade <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"A"</span>, <span class=s>"B"</span>, <span class=s>"A"</span>, <span class=s>"B"</span>, <span class=s>"C"</span>, <span class=s>"A"</span>, <span class=s>"C"</span>, <span class=s>"D"</span>, <span class=s>"B"</span><span class=o>)</span></span>
+<span><span class=o>)</span></span>
+<span></span>
+<span><span class=c># Information about the courses each student took per semester.</span></span>
+<span><span class=c># One row per (student_id, course, term) combination.</span></span>
+<span><span class=nv>course</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 9 × 5</span></span></span>
+<span><span class=c>#&gt;   student_id instructor_id course term        grade</span></span>
+<span><span class=c>#&gt;        <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>         <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>  <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span>       <span style=color:#555;font-style:italic>&lt;chr&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>          1             1    101 fall 2018   A    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>          1             2    110 fall 2018   B    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>          1             3    123 spring 2019 A    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span>          2             1    110 fall 2020   B    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>5</span>          2             2    101 fall 2020   C    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>6</span>          3             1    110 fall 2020   A    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>7</span>          3             2    115 fall 2020   C    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>8</span>          3             3    110 spring 2021 D    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>9</span>          3             4    101 fall 2021   B</span></span>
+<span></span></code></pre></div><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=c># Forgetting to join by both `student_id` and `term`!</span></span>
+<span><span class=nv>term</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/mutate-joins.html>left_join</a></span><span class=o>(</span><span class=nv>course</span>, by <span class=o>=</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/join_by.html>join_by</a></span><span class=o>(</span><span class=nv>student_id</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; Warning in left_join(term, course, by = join_by(student_id)): Detected an unexpected many-to-many relationship between `x` and `y`.</span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> Row 1 of `x` matches multiple rows in `y`.</span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> Row 1 of `y` matches multiple rows in `x`.</span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> If a many-to-many relationship is expected, set `relationship =</span></span>
+<span><span class=c>#&gt;   "many-to-many"` to silence this warning.</span></span>
+<span></span><span><span class=c>#&gt; <span style=color:#555># A tibble: 20 × 7</span></span></span>
+<span><span class=c>#&gt;    student_id term.x      course_load instructor_id course term.y      grade</span></span>
+<span><span class=c>#&gt;         <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span>             <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>         <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>  <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span>       <span style=color:#555;font-style:italic>&lt;chr&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555> 1</span>          1 fall 2018            12             1    101 fall 2018   A    </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 2</span>          1 fall 2018            12             2    110 fall 2018   B    </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 3</span>          1 fall 2018            12             3    123 spring 2019 A    </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 4</span>          1 spring 2019          15             1    101 fall 2018   A    </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 5</span>          1 spring 2019          15             2    110 fall 2018   B    </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 6</span>          1 spring 2019          15             3    123 spring 2019 A    </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 7</span>          2 fall 2020            10             1    110 fall 2020   B    </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 8</span>          2 fall 2020            10             2    101 fall 2020   C    </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 9</span>          3 fall 2020            14             1    110 fall 2020   A    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>10</span>          3 fall 2020            14             2    115 fall 2020   C    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>11</span>          3 fall 2020            14             3    110 spring 2021 D    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>12</span>          3 fall 2020            14             4    101 fall 2021   B    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>13</span>          3 spring 2021          15             1    110 fall 2020   A    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>14</span>          3 spring 2021          15             2    115 fall 2020   C    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>15</span>          3 spring 2021          15             3    110 spring 2021 D    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>16</span>          3 spring 2021          15             4    101 fall 2021   B    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>17</span>          3 fall 2021            12             1    110 fall 2020   A    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>18</span>          3 fall 2021            12             2    115 fall 2020   C    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>19</span>          3 fall 2021            12             3    110 spring 2021 D    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>20</span>          3 fall 2021            12             4    101 fall 2021   B</span></span>
+<span></span></code></pre></div><p>In the example above, we&rsquo;ve forgotten to include the <code>term</code> column when joining these two tables together, which accidentally results in a small explosion of rows (we end up with 20 rows, more than in either original input, but not quite the maximum possible amount, which is a whopping 54 rows!). Luckily, dplyr warns us that at least one row in each table matches more than one row in the opposite table - a sign that something isn&rsquo;t right. At this point we can do one of two things:</p><ul><li><p>Look into the new <code>relationship</code> argument that the warning mentions (we&rsquo;ll discuss this below)</p></li><li><p>Look at our join to see if we made a mistake</p></li></ul><p>Of course, in this case we&rsquo;ve messed up, and adding <code>term</code> into the by expression results in the correct (and silent) join:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>term</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/mutate-joins.html>left_join</a></span><span class=o>(</span><span class=nv>course</span>, by <span class=o>=</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/join_by.html>join_by</a></span><span class=o>(</span><span class=nv>student_id</span>, <span class=nv>term</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 9 × 6</span></span></span>
+<span><span class=c>#&gt;   student_id term        course_load instructor_id course grade</span></span>
+<span><span class=c>#&gt;        <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span>             <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>         <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>  <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>          1 fall 2018            12             1    101 A    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>          1 fall 2018            12             2    110 B    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>          1 spring 2019          15             3    123 A    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span>          2 fall 2020            10             1    110 B    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>5</span>          2 fall 2020            10             2    101 C    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>6</span>          3 fall 2020            14             1    110 A    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>7</span>          3 fall 2020            14             2    115 C    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>8</span>          3 spring 2021          15             3    110 D    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>9</span>          3 fall 2021            12             4    101 B</span></span>
+<span></span></code></pre></div><h3 id=join-relationships>Join <code>relationship</code>s
+<a href=#join-relationships><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>To adjust the joins to only warn on many-to-many relationships, we&rsquo;ve done two things:</p><ul><li><p><code>multiple</code> now defaults to <code>"all"</code>, and is now focused solely on limiting the matches returned if multiple are detected, rather than also optionally warning/erroring.</p></li><li><p>We&rsquo;ve added a new <code>relationship</code> argument.</p></li></ul><p>The <code>relationship</code> argument allows you to explicitly specify the expected join relationship between the keys of <code>x</code> and <code>y</code> using the exact options we listed above: <code>"one-to-one"</code>, <code>"one-to-many"</code>, <code>"many-to-one"</code>, and <code>"many-to-many"</code>. If the constraints of the relationship you choose are violated, an error is thrown. For example, we could use this to require that the <code>student</code> + <code>term</code> join contains a one-to-many relationship between the two tables:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>student</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/mutate-joins.html>left_join</a></span><span class=o>(</span><span class=nv>term</span>, <span class=nf><a href=https://dplyr.tidyverse.org/reference/join_by.html>join_by</a></span><span class=o>(</span><span class=nv>student_id</span><span class=o>)</span>, relationship <span class=o>=</span> <span class=s>"one-to-many"</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 6 × 5</span></span></span>
+<span><span class=c>#&gt;   student_id transfer initial_term term        course_load</span></span>
+<span><span class=c>#&gt;        <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;lgl&gt;</span>    <span style=color:#555;font-style:italic>&lt;chr&gt;</span>        <span style=color:#555;font-style:italic>&lt;chr&gt;</span>             <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>          1 FALSE    fall 2018    fall 2018            12</span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>          1 FALSE    fall 2018    spring 2019          15</span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>          2 TRUE     fall 2020    fall 2020            10</span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span>          3 TRUE     fall 2020    fall 2020            14</span></span>
+<span><span class=c>#&gt; <span style=color:#555>5</span>          3 TRUE     fall 2020    spring 2021          15</span></span>
+<span><span class=c>#&gt; <span style=color:#555>6</span>          3 TRUE     fall 2020    fall 2021            12</span></span>
+<span></span></code></pre></div><p>Let&rsquo;s violate this by adding a duplicate row in <code>student</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>student_bad</span> <span class=o>&lt;-</span> <span class=nv>student</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf>tibble</span><span class=nf>::</span><span class=nf><a href=https://tibble.tidyverse.org/reference/add_row.html>add_row</a></span><span class=o>(</span></span>
+<span>    student_id <span class=o>=</span> <span class=m>1</span>, </span>
+<span>    transfer <span class=o>=</span> <span class=kc>FALSE</span>, </span>
+<span>    initial_term <span class=o>=</span> <span class=s>"fall 2019"</span>, </span>
+<span>    .after <span class=o>=</span> <span class=m>1</span></span>
+<span>  <span class=o>)</span></span>
+<span></span>
+<span><span class=nv>student_bad</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 4 × 3</span></span></span>
+<span><span class=c>#&gt;   student_id transfer initial_term</span></span>
+<span><span class=c>#&gt;        <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;lgl&gt;</span>    <span style=color:#555;font-style:italic>&lt;chr&gt;</span>       </span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>          1 FALSE    fall 2018   </span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>          1 FALSE    fall 2019   </span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>          2 TRUE     fall 2020   </span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span>          3 TRUE     fall 2020</span></span>
+<span></span></code></pre></div><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>student_bad</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/mutate-joins.html>left_join</a></span><span class=o>(</span><span class=nv>term</span>, <span class=nf><a href=https://dplyr.tidyverse.org/reference/join_by.html>join_by</a></span><span class=o>(</span><span class=nv>student_id</span><span class=o>)</span>, relationship <span class=o>=</span> <span class=s>"one-to-many"</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `left_join()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> Each row in `y` must match at most 1 row in `x`.</span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> Row 1 of `y` matches multiple rows in `x`.</span></span>
+<span></span></code></pre></div><p>The default value of <code>relationship</code> doesn&rsquo;t add any constraints, but for equality joins it will check to see if a many-to-many relationship exists, and will warn if one occurs (like with the <code>term</code> + <code>course</code> join from above). As mentioned before, this is quite hard to do, and often means you have a mistake in your join call or in the data itself. If you really do want to perform a join with this kind of relationship, to silence the warning you can explicitly specify <code>relationship = "many-to-many"</code>.</p><p>One last thing to note is that <code>relationship</code> doesn&rsquo;t handle the case of an <em>unmatched</em> row. For that, you should use the <code>unmatched</code> argument that was also added in 1.1.0. The combination of <code>relationship</code> and <code>unmatched</code> provides a complete set of tools for adding production level quality control checks to your joins.</p><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The examples used in this blog post were adapted from
+<a href=https://github.com/eipi10 target=_blank rel=noopener>@eipi10</a> in
+<a href=https://github.com/tidyverse/dplyr/issues/6717 target=_blank rel=noopener>this issue</a>.</p><p>We&rsquo;d like to thank all 66 contributors who help in someway, whether it was filing issues or contributing code and documentation:
+<a href=https://github.com/alexhallam target=_blank rel=noopener>@alexhallam</a>,
+<a href=https://github.com/ammar-gla target=_blank rel=noopener>@ammar-gla</a>,
+<a href=https://github.com/arnaudgallou target=_blank rel=noopener>@arnaudgallou</a>,
+<a href=https://github.com/ArthurAndrews target=_blank rel=noopener>@ArthurAndrews</a>,
+<a href=https://github.com/AuburnEagle-578 target=_blank rel=noopener>@AuburnEagle-578</a>,
+<a href=https://github.com/batpigandme target=_blank rel=noopener>@batpigandme</a>,
+<a href=https://github.com/billdenney target=_blank rel=noopener>@billdenney</a>,
+<a href=https://github.com/Bisaloo target=_blank rel=noopener>@Bisaloo</a>,
+<a href=https://github.com/bitplane target=_blank rel=noopener>@bitplane</a>,
+<a href=https://github.com/chrarnold target=_blank rel=noopener>@chrarnold</a>,
+<a href=https://github.com/D5n9sMatrix target=_blank rel=noopener>@D5n9sMatrix</a>,
+<a href=https://github.com/daattali target=_blank rel=noopener>@daattali</a>,
+<a href=https://github.com/DanChaltiel target=_blank rel=noopener>@DanChaltiel</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/dieghernan target=_blank rel=noopener>@dieghernan</a>,
+<a href=https://github.com/dkutner target=_blank rel=noopener>@dkutner</a>,
+<a href=https://github.com/eipi10 target=_blank rel=noopener>@eipi10</a>,
+<a href=https://github.com/eitsupi target=_blank rel=noopener>@eitsupi</a>,
+<a href=https://github.com/emilBeBri target=_blank rel=noopener>@emilBeBri</a>,
+<a href=https://github.com/fawda123 target=_blank rel=noopener>@fawda123</a>,
+<a href=https://github.com/fedassembly target=_blank rel=noopener>@fedassembly</a>,
+<a href=https://github.com/fkohrt target=_blank rel=noopener>@fkohrt</a>,
+<a href=https://github.com/gavinsimpson target=_blank rel=noopener>@gavinsimpson</a>,
+<a href=https://github.com/geogale target=_blank rel=noopener>@geogale</a>,
+<a href=https://github.com/ggrothendieck target=_blank rel=noopener>@ggrothendieck</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/hope-data-science target=_blank rel=noopener>@hope-data-science</a>,
+<a href=https://github.com/jaganmn target=_blank rel=noopener>@jaganmn</a>,
+<a href=https://github.com/jakub-jedrusiak target=_blank rel=noopener>@jakub-jedrusiak</a>,
+<a href=https://github.com/JorisChau target=_blank rel=noopener>@JorisChau</a>,
+<a href=https://github.com/krlmlr target=_blank rel=noopener>@krlmlr</a>,
+<a href=https://github.com/krprasangdas target=_blank rel=noopener>@krprasangdas</a>,
+<a href=https://github.com/larry77 target=_blank rel=noopener>@larry77</a>,
+<a href=https://github.com/lionel- target=_blank rel=noopener>@lionel-</a>,
+<a href=https://github.com/lschneiderbauer target=_blank rel=noopener>@lschneiderbauer</a>,
+<a href=https://github.com/LukasWallrich target=_blank rel=noopener>@LukasWallrich</a>,
+<a href=https://github.com/maellecoursonnais target=_blank rel=noopener>@maellecoursonnais</a>,
+<a href=https://github.com/manhnguyen48 target=_blank rel=noopener>@manhnguyen48</a>,
+<a href=https://github.com/mattansb target=_blank rel=noopener>@mattansb</a>,
+<a href=https://github.com/mgirlich target=_blank rel=noopener>@mgirlich</a>,
+<a href=https://github.com/mhaynam target=_blank rel=noopener>@mhaynam</a>,
+<a href=https://github.com/MichaelChirico target=_blank rel=noopener>@MichaelChirico</a>,
+<a href=https://github.com/mine-cetinkaya-rundel target=_blank rel=noopener>@mine-cetinkaya-rundel</a>,
+<a href=https://github.com/mkoohafkan target=_blank rel=noopener>@mkoohafkan</a>,
+<a href=https://github.com/moodymudskipper target=_blank rel=noopener>@moodymudskipper</a>,
+<a href=https://github.com/Moohan target=_blank rel=noopener>@Moohan</a>,
+<a href=https://github.com/msgoussi target=_blank rel=noopener>@msgoussi</a>,
+<a href=https://github.com/multimeric target=_blank rel=noopener>@multimeric</a>,
+<a href=https://github.com/osheen1 target=_blank rel=noopener>@osheen1</a>,
+<a href=https://github.com/Pozdniakov target=_blank rel=noopener>@Pozdniakov</a>,
+<a href=https://github.com/psychelzh target=_blank rel=noopener>@psychelzh</a>,
+<a href=https://github.com/pur80a target=_blank rel=noopener>@pur80a</a>,
+<a href=https://github.com/robayo target=_blank rel=noopener>@robayo</a>,
+<a href=https://github.com/rszulkin target=_blank rel=noopener>@rszulkin</a>,
+<a href=https://github.com/salim-b target=_blank rel=noopener>@salim-b</a>,
+<a href=https://github.com/sda030 target=_blank rel=noopener>@sda030</a>,
+<a href=https://github.com/sfirke target=_blank rel=noopener>@sfirke</a>,
+<a href=https://github.com/shannonpileggi target=_blank rel=noopener>@shannonpileggi</a>,
+<a href=https://github.com/stephLH target=_blank rel=noopener>@stephLH</a>,
+<a href=https://github.com/szabgab target=_blank rel=noopener>@szabgab</a>,
+<a href=https://github.com/tjebo target=_blank rel=noopener>@tjebo</a>,
+<a href=https://github.com/Torvaney target=_blank rel=noopener>@Torvaney</a>,
+<a href=https://github.com/twest820 target=_blank rel=noopener>@twest820</a>,
+<a href=https://github.com/vanillajonathan target=_blank rel=noopener>@vanillajonathan</a>,
+<a href=https://github.com/warnes target=_blank rel=noopener>@warnes</a>, and
+<a href=https://github.com/zknitter target=_blank rel=noopener>@zknitter</a>.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#performance-regressions>Performance regressions</a></li><li><a href=#revisiting-multiple-matches>Revisiting multiple matches</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

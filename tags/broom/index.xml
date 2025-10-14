@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>broom | Tidyverse</title><link>https://www.tidyverse.org/tags/broom/</link><atom:link href="https://www.tidyverse.org/tags/broom/index.xml" rel="self" type="application/rss+xml"/><description>broom</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 17 Jul 2018 00:00:00 +0000</lastBuildDate><item><title>broom 0.5.0</title><link>https://www.tidyverse.org/blog/2018/07/broom-0-5-0/</link><pubDate>Tue, 17 Jul 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/07/broom-0-5-0/</guid><description>&lt;html>
+&lt;style>
+h2 code {
+font-size: 1em;
+}
+&lt;/style>
+&lt;/html>
+&lt;p>I am delighted to announced that
+&lt;a href="https://broom.tidyverse.org/" target="_blank" rel="noopener">broom&lt;/a> 0.5.0 is now available on CRAN. broom 0.5.0 is a major new release featuring changes that affect both users and developers. See the
+&lt;a href="https://broom.tidyverse.org/news/" target="_blank" rel="noopener">News&lt;/a> for a detailed list of changes.&lt;/p>
+&lt;p>This release was possible due to RStudio&amp;rsquo;s internship program, which has enabled me (
+&lt;a href="https://github.com/alexpghayes/" target="_blank" rel="noopener">Alex Hayes&lt;/a>) to act as broom&amp;rsquo;s maintainer for the course of the summer. David Robinson continues to steer design decisions. Many thanks to both RStudio and Dave for this opportunity.&lt;/p>
+&lt;h2 id="tibble">Tibble output
+&lt;a href="#tibble">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>All tidiers should now return &lt;code>tibble&lt;/code>s rather than &lt;code>data.frame&lt;/code>s. This allows broom to take advantage of the nice tibble print method and the more consistent behavior of tibbles:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">broom&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">fit&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">lm&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">tidy&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">fit&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 11 x 5
+## term estimate std.error statistic p.value
+## &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 (Intercept) 12.3 18.7 0.657 0.518
+## 2 cyl -0.111 1.05 -0.107 0.916
+## 3 disp 0.0133 0.0179 0.747 0.463
+## 4 hp -0.0215 0.0218 -0.987 0.335
+## 5 drat 0.787 1.64 0.481 0.635
+## # ... with 6 more rows
+&lt;/code>&lt;/pre>&lt;p>These changes will mostly likely affect you when you:&lt;/p>
+&lt;ul>
+&lt;li>subset with &lt;code>[&lt;/code>, which always returns a tibble.&lt;/li>
+&lt;li>set rownames on a tibble, which is deprecated.&lt;/li>
+&lt;li>use augment methods on models with matrix covariates specified in a formula, which will error.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;code>augment()&lt;/code> will error with matrix covariates because tibbles are more strict about their contents than data frames. More details are
+&lt;a href="#appendix">available below&lt;/a>.&lt;/p>
+&lt;p>Deprecated tidiers still return data frames. Tidiers for mixed models also return data frames.&lt;/p>
+&lt;h2 id="new-tidiers">New tidiers
+&lt;a href="#new-tidiers">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>broom 0.5.0 introduces tidiers for:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>lavaan&lt;/code> objects from the &lt;code>lavaan&lt;/code> package&lt;/li>
+&lt;li>&lt;code>ivreg&lt;/code> objects from the &lt;code>AER&lt;/code> package&lt;/li>
+&lt;li>&lt;code>Kendall&lt;/code> objects from the &lt;code>Kendall&lt;/code> package&lt;/li>
+&lt;li>&lt;code>garch&lt;/code> objects from the &lt;code>tseries&lt;/code> package&lt;/li>
+&lt;li>&lt;code>irlba&lt;/code> lists from the &lt;code>irlba&lt;/code> package&lt;/li>
+&lt;li>&lt;code>durbinWatsonTest&lt;/code> objects from the &lt;code>car&lt;/code> package&lt;/li>
+&lt;li>&lt;code>confusionMatrix&lt;/code> objects from the &lt;code>caret&lt;/code> package&lt;/li>
+&lt;li>&lt;code>glmnet&lt;/code> and &lt;code>cv.glmnet&lt;/code> objects from the &lt;code>glmnetUtils&lt;/code> package&lt;/li>
+&lt;li>&lt;code>clm&lt;/code> and &lt;code>clmm&lt;/code> objects from the &lt;code>ordinal&lt;/code> package&lt;/li>
+&lt;li>&lt;code>svyolr&lt;/code> objects from the &lt;code>survey&lt;/code> package, and&lt;/li>
+&lt;li>&lt;code>polr&lt;/code> objects from the &lt;code>MASS&lt;/code> package.&lt;/li>
+&lt;/ul>
+&lt;p>In addition to these new tidiers, this release includes fixes for a large number of bugs in existing tidiers.&lt;/p>
+&lt;h2 id="new-test-suite">New test suite
+&lt;a href="#new-test-suite">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We are heavily invested in making it easier to contribute to broom, and also in making broom behavior more standardized and consistent. To this end, we&amp;rsquo;ve written new testing infrastructure. At the moment, the new tests mostly ensure tibble output. For example, &lt;code>tidy()&lt;/code> output should now pass the following test:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">td&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">tidy&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">model&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">check_tidy_output&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">td&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Similar tests exist for &lt;code>glance()&lt;/code> and &lt;code>augment()&lt;/code>. Stricter versions of these tests are under development for future releases.&lt;/p>
+&lt;h2 id="mixed-models-are-moving-to-broommixed">Mixed models are moving to &lt;code>broom.mixed&lt;/code>
+&lt;a href="#mixed-models-are-moving-to-broommixed">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>As broom&amp;rsquo;s popularity has grown, broom has grown to encompass a fairly broad range of models. Dave and I have little to no experience with many of these models, and while we can fix bugs in the tidying code, we are no longer able to determine what constitutes a reasonable summary for many of these models.&lt;/p>
+&lt;p>Our intended solution is to split broom into several packages for tidying model objects. broom will provide tidiers for popular models (and those in &lt;code>base&lt;/code> and &lt;code>stats&lt;/code>), and then domain experts will manage domain-specific tidying packages. Currently we&amp;rsquo;re working on a spec for all of these sub-packages to implement. With any luck this we&amp;rsquo;ll have a well-written spec to accompany the next release. We&amp;rsquo;d like all of the domain-specific tidying packages to eventually live in
+&lt;a href="https://github.com/tidymodels" target="_blank" rel="noopener">tidymodels&lt;/a>, so that users can load a bunch of tools all at once with &lt;code>library(tidymodels)&lt;/code>. tidymodels will act as meta-package that gathers together tidyverse compatible tools for modelling. Max Kuhn has migrated a number of his packages to the tidymodels organization, and we plan to move broom in the near future.&lt;/p>
+&lt;p>Mixed-model tidiers have long been a bit of a mess in broom. A while back
+&lt;a href="https://github.com/bbolker/broom.mixed" target="_blank" rel="noopener">&lt;code>broom.mixed&lt;/code>&lt;/a> forked off to clean them up. broom.mixed is now a pilot for the larger project of splitting broom into domain specific tidying packages. We anticipate that broom.mixed will makes its way onto CRAN in the next several weeks, which will allow us to deprecate mixed model tidiers in broom 0.7.0. Although these models are
+&lt;a href="https://broom.tidyverse.org/news/index.html#deprecations" target="_blank" rel="noopener">not yet deprecated&lt;/a>, there is currently no ongoing development work for them. In particular, the tidiers for:&lt;/p>
+&lt;ul>
+&lt;li>lme, lme4 and nmle models,&lt;/li>
+&lt;li>brms models,&lt;/li>
+&lt;li>rstanarm models, and&lt;/li>
+&lt;li>mcmc objects&lt;/li>
+&lt;/ul>
+&lt;p>are one release away from deprecation, and effectively frozen.&lt;/p>
+&lt;h2 id="new-suggested-workflow">New suggested workflow
+&lt;a href="#new-suggested-workflow">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>When working with many models at the same time, we now recommend using list-columns and a &lt;code>nest()-map()-unnest()&lt;/code> workflow. This mirrors similar moves across the rest of the tidyverse. We have updated the
+&lt;a href="https://broom.tidyverse.org/articles/kmeans.html" target="_blank" rel="noopener">kmeans&lt;/a>,
+&lt;a href="https://broom.tidyverse.org/articles/broom_and_dplyr.html" target="_blank" rel="noopener">broom and dplyr&lt;/a> and
+&lt;a href="https://broom.tidyverse.org/articles/bootstrapping.html" target="_blank" rel="noopener">bootstrapping&lt;/a> vignettes to reflect the new workflow. Additional, we&amp;rsquo;ve updated the bootstrapping vignette to use
+&lt;a href="https://tidymodels.github.io/rsample/" target="_blank" rel="noopener">rsample&lt;/a> rather than the now-deprecated &lt;code>bootstrap()&lt;/code> function. We no longer recommend the older &lt;code>group_by()-do()&lt;/code> workflow.&lt;/p>
+&lt;h2 id="new-vignettes-and-documentation">New vignettes and documentation
+&lt;a href="#new-vignettes-and-documentation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The list of available tidiers has been moved out of the README and into the
+&lt;a href="https://broom.tidyverse.org/articles/available-methods.html" target="_blank" rel="noopener">Available Methods&lt;/a> vignette.&lt;/p>
+&lt;p>We also have two new vignettes that are &lt;strong>strictly works in progress&lt;/strong> at the moment. The first covers
+&lt;a href="https://broom.tidyverse.org/articles/adding-tidiers.html" target="_blank" rel="noopener">Adding New Tidiers&lt;/a> and seeks to make the barrier of entry for broom contributions as low as possible. The second contains a
+&lt;a href="https://broom.tidyverse.org/articles/glossary.html" target="_blank" rel="noopener">Glossary&lt;/a> of terms we are developing for use in an upcoming release of broom. This glossary will standardize argument names across tidiers, and column names across tidy output.&lt;/p>
+&lt;p>We have also migrated to a new template-based documentation strategy. Repeated documentation material now lives in &lt;code>roxygen2&lt;/code> templates and can easily be added to a new tidy method. For an example of how this works, see
+&lt;a href="https://github.com/tidyverse/broom/blob/master/R/aer-tidiers.R" target="_blank" rel="noopener">&lt;code>R/aer-tidiers.R&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="deprecations">Deprecations
+&lt;a href="#deprecations">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="hard-deprecations">Hard deprecations
+&lt;a href="#hard-deprecations">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;ul>
+&lt;li>&lt;code>inflate()&lt;/code> has been removed from &lt;code>broom&lt;/code>&lt;/li>
+&lt;li>Matrix and vector tidiers have been deprecated in favor of &lt;code>tibble::as_tibble()&lt;/code> and &lt;code>tibble::enframe()&lt;/code>&lt;/li>
+&lt;li>Dataframe tidiers and rowwise dataframe tidiers have been deprecated&lt;/li>
+&lt;li>&lt;code>bootstrap()&lt;/code> has been deprecated in favor of the
+&lt;a href="https://tidymodels.github.io/rsample/" target="_blank" rel="noopener">&lt;code>rsample&lt;/code>&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h3 id="soft-deprecations">Soft deprecations
+&lt;a href="#soft-deprecations">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The following functions will be deprecated in the next release of broom:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>sp&lt;/code> tidying methods (in favor of &lt;code>sf&lt;/code>)&lt;/li>
+&lt;li>&lt;code>tidy.summaryDefault()&lt;/code> (in favor of &lt;code>skimr::skim()&lt;/code>)&lt;/li>
+&lt;li>&lt;code>tidy.table()&lt;/code> (in favor of &lt;code>tibble::as_tibble()&lt;/code>)&lt;/li>
+&lt;li>Mixed model and bayesian tidiers&lt;/li>
+&lt;/ul>
+&lt;h2 id="contributors">Contributors
+&lt;a href="#contributors">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Max Kuhn provided advice on dealing with model objects. Mara Averick provided feedback on drafts of this post.&lt;/p>
+&lt;p>An additional 38 fantastic contributors offered thoughtful comments on design, wrote bug reports and created PRs. The broom community has been kind, supportive and insighftul and I look forward to working you all again!&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/atyre2" target="_blank" rel="noopener">@atyre2&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/bfgray3" target="_blank" rel="noopener">@bfgray3&lt;/a>,
+&lt;a href="https://github.com/bmannakee" target="_blank" rel="noopener">@bmannakee&lt;/a>,
+&lt;a href="https://github.com/briatte" target="_blank" rel="noopener">@briatte&lt;/a>,
+&lt;a href="https://github.com/cawoodjm" target="_blank" rel="noopener">@cawoodjm&lt;/a>,
+&lt;a href="https://github.com/cimentadaj" target="_blank" rel="noopener">@cimentadaj&lt;/a>,
+&lt;a href="https://github.com/dan87134" target="_blank" rel="noopener">@dan87134&lt;/a>,
+&lt;a href="https://github.com/dmenne" target="_blank" rel="noopener">@dmenne&lt;/a>,
+&lt;a href="https://github.com/ekatko1" target="_blank" rel="noopener">@ekatko1&lt;/a>,
+&lt;a href="https://github.com/ellessenne" target="_blank" rel="noopener">@ellessenne&lt;/a>,
+&lt;a href="https://github.com/erleholgersen" target="_blank" rel="noopener">@erleholgersen&lt;/a>,
+&lt;a href="https://github.com/Hong-Revo" target="_blank" rel="noopener">@Hong-Revo&lt;/a>,
+&lt;a href="https://github.com/huftis" target="_blank" rel="noopener">@huftis&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/jacob-long" target="_blank" rel="noopener">@jacob-long&lt;/a>,
+&lt;a href="https://github.com/jarvisc1" target="_blank" rel="noopener">@jarvisc1&lt;/a>,
+&lt;a href="https://github.com/jenzopr" target="_blank" rel="noopener">@jenzopr&lt;/a>,
+&lt;a href="https://github.com/jgabry" target="_blank" rel="noopener">@jgabry&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/josue-rodriguez" target="_blank" rel="noopener">@josue-rodriguez&lt;/a>,
+&lt;a href="https://github.com/karldw" target="_blank" rel="noopener">@karldw&lt;/a>,
+&lt;a href="https://github.com/kfeilich" target="_blank" rel="noopener">@kfeilich&lt;/a>,
+&lt;a href="https://github.com/larmarange" target="_blank" rel="noopener">@larmarange&lt;/a>,
+&lt;a href="https://github.com/lboller" target="_blank" rel="noopener">@lboller&lt;/a>,
+&lt;a href="https://github.com/mariusbarth" target="_blank" rel="noopener">@mariusbarth&lt;/a>,
+&lt;a href="https://github.com/michaelweylandt" target="_blank" rel="noopener">@michaelweylandt&lt;/a>,
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>,
+&lt;a href="https://github.com/mkuehn10" target="_blank" rel="noopener">@mkuehn10&lt;/a>,
+&lt;a href="https://github.com/mvevans89" target="_blank" rel="noopener">@mvevans89&lt;/a>,
+&lt;a href="https://github.com/nutterb" target="_blank" rel="noopener">@nutterb&lt;/a>,
+&lt;a href="https://github.com/ShreyasSingh" target="_blank" rel="noopener">@ShreyasSingh&lt;/a>,
+&lt;a href="https://github.com/stephlocke" target="_blank" rel="noopener">@stephlocke&lt;/a>,
+&lt;a href="https://github.com/strengejacke" target="_blank" rel="noopener">@strengejacke&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>,
+&lt;a href="https://github.com/willbowditch" target="_blank" rel="noopener">@willbowditch&lt;/a>,
+&lt;a href="https://github.com/WillemSleegers" target="_blank" rel="noopener">@WillemSleegers&lt;/a>, and
+&lt;a href="https://github.com/wilsonfreitas" target="_blank" rel="noopener">@wilsonfreitas&lt;/a>&lt;/p>
+&lt;h2 id="appendix">Additional details on tibbles and &lt;code>augment()&lt;/code>
+&lt;a href="#appendix">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Data frames allow users to specify columns in a matrix, like so:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">y&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">rnorm&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">matrix&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">rnorm&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">10&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">nrow&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">df&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">data.frame&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Tibbles do not:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tibble&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## Error: Column `x` must be a 1d atomic vector or a list
+&lt;/code>&lt;/pre>&lt;p>Modelling functions will occasionally create a data frame like this, but since the model frame can&amp;rsquo;t be coerced a tibble method, &lt;code>augment()&lt;/code> will fail:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">fit&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">lm&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">y&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">df&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">augment&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">fit&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## Error: Column `x` must be a 1d atomic vector or a list
+&lt;/code>&lt;/pre>&lt;p>In some cases, explicitly passing the original dataset via the &lt;code>data&lt;/code> argument can resolve this:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">augment&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">fit&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">df&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 5 x 10
+## X1 X2 y .fitted .se.fit .resid .hat .sigma .cooksd
+## * &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 0.617 -0.720 -0.167 0.173 0.341 -0.340 0.661 0.108 1.26
+## 2 -0.164 0.943 -0.389 -0.158 0.291 -0.232 0.480 0.499 0.181
+## 3 -0.434 0.424 -0.339 -0.529 0.390 0.190 0.863 0.300 3.12
+## 4 0.231 0.696 0.148 0.150 0.310 -0.00177 0.545 0.594 0.0000156
+## 5 0.663 -0.274 0.704 0.320 0.282 0.384 0.451 0.290 0.418
+## # ... with 1 more variable: .std.resid &amp;lt;dbl&amp;gt;
+&lt;/code>&lt;/pre>&lt;p>Support for matrix-columns is on the way in dplyr and in a release cycle or two this won&amp;rsquo;t be an issue.&lt;/p>
+&lt;p>
+&lt;a href="#tibble">Back to tibble section&lt;/a>&lt;/p></description></item></channel></rss>

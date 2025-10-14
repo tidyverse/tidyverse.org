@@ -1,0 +1,338 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>vroom 1.0.0</title><meta property="og:title" content="vroom 1.0.0"><meta property="og:description" content="Introducing the vroom package, extremely fast data import in R."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2019/05/vroom-1-0-0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="vroom 1.0.0 - Tidyverse"><meta property="description" content="Introducing the vroom package, extremely fast data import in R."><meta property="og:description" content="Introducing the vroom package, extremely fast data import in R."><meta property="og:image" content="https://www.tidyverse.org/blog/2019/05/vroom-1-0-0/vroom-1-0-0-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2019/05/vroom-1-0-0/vroom-1-0-0-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>vroom 1.0.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2019/05/vroom-1-0-0/vroom-1-0-0-wd.jpg></div><div class=photoCredit>Photo by <a href=https://www.pexels.com/photo/12801/>Chris Peeters</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2019/05/07</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/r-lib/>r-lib</a>,
+<a href=/tags/vroom/>vroom</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Jim Hester</p><div class=article-content><html><style>h2 code{font-size:1em}</style></html><p>I&rsquo;m excited to announce that
+<a href=http://vroom.r-lib.org target=_blank rel=noopener>vroom 1.0.0</a> is now
+available on CRAN!</p><p>vroom reads rectangular data, such as comma separated
+(csv), tab separated (tsv) or fixed width files (fwf) into R. It performs
+similar roles to functions like
+<a href=http://readr.r-lib.org target=_blank rel=noopener><code>readr::read_csv()</code></a>,
+<a href=http://r-datatable.com target=_blank rel=noopener><code>data.table::fread()</code></a> or <code>read.csv()</code>. But for many
+datasets <code>vroom::vroom()</code> can read them much, much faster (hence the name).</p><p>The main reason vroom can be faster is because character data is read from the
+file lazily; you only pay for the data you use. This lazy access is done
+automatically, so no changes to your R data-manipulation code are needed.</p><p>vroom also provides efficient, multi-threaded writing that is multiple times
+faster on most inputs than the <code>readr::write_*()</code> functions.</p><p>Install vroom with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>install.packages</span><span class=p>(</span><span class=s>&#34;vroom&#34;</span><span class=p>)</span>
+</code></pre></div><p>The best way to get acquainted with the package is the
+<a href=http://vroom.r-lib.org/articles/vroom.html target=_blank rel=noopener>getting
+started</a> vignette.</p><h2 id=vroom-vs-readr>vroom vs readr
+<a href=#vroom-vs-readr><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>What does the release of vroom mean for readr? For now we plan
+to let the two packages evolve separately, but likely we will unite the
+packages in the future. One disadvantage to vroom&rsquo;s lazy reading is certain
+data problems can&rsquo;t be reported up front, so how best to unify them requires
+some thought.</p><h2 id=reading-delimited-files>Reading delimited files
+<a href=#reading-delimited-files><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Compared to readr, the first difference you may note is you use only one
+function to read the files,
+<a href=http://vroom.r-lib.org/reference/vroom.html target=_blank rel=noopener><code>vroom()</code></a>. This is because
+<code>vroom()</code> guesses the delimiter of the file automatically based on the first
+few lines (this feature is inspired by a similar feature in
+<code>data.table::fread()</code>). This works well most of the time, but may fail to guess
+properly in some cases. The <code>delim</code> argument can be used to specify the
+delimiter of the file explicitly.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>vroom</span><span class=p>)</span>
+
+<span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>vroom</span><span class=p>(</span><span class=s>&#34;flights.tsv&#34;</span><span class=p>)</span>
+<span class=c1>#&gt; Observations: 336,776</span>
+<span class=c1>#&gt; Variables: 19</span>
+<span class=c1>#&gt; chr  [ 4]: carrier, tailnum, origin, dest</span>
+<span class=c1>#&gt; dbl  [14]: year, month, day, dep_time, sched_dep_time, dep_delay, arr_time, sched_arr...</span>
+<span class=c1>#&gt; dttm [ 1]: time_hour</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Call `spec()` for a copy-pastable column specification</span>
+<span class=c1>#&gt; Specify the column types with `col_types` to quiet this message</span>
+</code></pre></div><p>The summary message after reading also differs from readr. We hope this output
+gives a more informative indication as to whether the types of your columns are
+being guessed properly. However you can still retrieve and print the full
+column specification with
+<a href=http://vroom.r-lib.org/reference/spec.html target=_blank rel=noopener><code>spec()</code></a>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>spec</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+<span class=c1>#&gt; cols(</span>
+<span class=c1>#&gt;   year = col_double(),</span>
+<span class=c1>#&gt;   month = col_double(),</span>
+<span class=c1>#&gt;   day = col_double(),</span>
+<span class=c1>#&gt;   dep_time = col_double(),</span>
+<span class=c1>#&gt;   sched_dep_time = col_double(),</span>
+<span class=c1>#&gt;   dep_delay = col_double(),</span>
+<span class=c1>#&gt;   arr_time = col_double(),</span>
+<span class=c1>#&gt;   sched_arr_time = col_double(),</span>
+<span class=c1>#&gt;   arr_delay = col_double(),</span>
+<span class=c1>#&gt;   carrier = col_character(),</span>
+<span class=c1>#&gt;   flight = col_double(),</span>
+<span class=c1>#&gt;   tailnum = col_character(),</span>
+<span class=c1>#&gt;   origin = col_character(),</span>
+<span class=c1>#&gt;   dest = col_character(),</span>
+<span class=c1>#&gt;   air_time = col_double(),</span>
+<span class=c1>#&gt;   distance = col_double(),</span>
+<span class=c1>#&gt;   hour = col_double(),</span>
+<span class=c1>#&gt;   minute = col_double(),</span>
+<span class=c1>#&gt;   time_hour = col_datetime(format = &#34;&#34;)</span>
+<span class=c1>#&gt; )</span>
+</code></pre></div><p>The message will be disabled if you supply a column specification to <code>col_types</code> when reading.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>s</span> <span class=o>&lt;-</span> <span class=nf>spec</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+
+<span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>vroom</span><span class=p>(</span><span class=s>&#34;flights.tsv&#34;</span><span class=p>,</span> <span class=n>col_types</span> <span class=o>=</span> <span class=n>s</span><span class=p>)</span>
+</code></pre></div><h2 id=reading-multiple-files>Reading multiple files
+<a href=#reading-multiple-files><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>One feature new to vroom is built-in support for reading sets of files with the
+same columns into one table. Just pass the filenames to be read directly to
+<code>vroom()</code>. Imagine we have a directory of files containing the flights data, where
+each file corresponds to a single airline.</p><p>Then, we can efficiently read all of the files into one tibble by passing a
+vector of the filenames directly to <code>vroom()</code>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>files</span> <span class=o>&lt;-</span> <span class=n>fs</span><span class=o>::</span><span class=nf>dir_ls</span><span class=p>(</span><span class=n>glob</span> <span class=o>=</span> <span class=s>&#34;flights_*tsv&#34;</span><span class=p>)</span>
+<span class=n>files</span>
+<span class=c1>#&gt; flights_9E.tsv flights_AA.tsv flights_AS.tsv flights_B6.tsv flights_DL.tsv </span>
+<span class=c1>#&gt; flights_EV.tsv flights_F9.tsv flights_FL.tsv flights_HA.tsv flights_MQ.tsv </span>
+<span class=c1>#&gt; flights_OO.tsv flights_UA.tsv flights_US.tsv flights_VX.tsv flights_WN.tsv </span>
+<span class=c1>#&gt; flights_YV.tsv</span>
+<span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>vroom</span><span class=p>(</span><span class=n>files</span><span class=p>)</span>
+<span class=c1>#&gt; Observations: 336,776</span>
+<span class=c1>#&gt; Variables: 19</span>
+<span class=c1>#&gt; chr  [ 4]: carrier, tailnum, origin, dest</span>
+<span class=c1>#&gt; dbl  [14]: year, month, day, dep_time, sched_dep_time, dep_delay, arr_time, sched_arr...</span>
+<span class=c1>#&gt; dttm [ 1]: time_hour</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Call `spec()` for a copy-pastable column specification</span>
+<span class=c1>#&gt; Specify the column types with `col_types` to quiet this message</span>
+</code></pre></div><h2 id=reading-and-writing-compressed-files>Reading and writing compressed files
+<a href=#reading-and-writing-compressed-files><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Just like readr, vroom automatically reads and writes zip, gzip, bz2 and xz compressed
+files with the standard file extensions.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>vroom_write</span><span class=p>(</span><span class=n>flights</span><span class=p>,</span> <span class=s>&#34;flights.tsv.gz&#34;</span><span class=p>)</span>
+
+<span class=c1># Check file sizes to show file is compressed</span>
+<span class=n>fs</span><span class=o>::</span><span class=nf>file_size</span><span class=p>(</span><span class=nf>c</span><span class=p>(</span><span class=s>&#34;flights.tsv&#34;</span><span class=p>,</span> <span class=s>&#34;flights.tsv.gz&#34;</span><span class=p>))</span>
+<span class=c1>#&gt; 29.62M  7.87M</span>
+
+<span class=c1># Read the file back in</span>
+<span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>vroom</span><span class=p>(</span><span class=s>&#34;flights.tsv.gz&#34;</span><span class=p>)</span>
+<span class=c1>#&gt; Observations: 336,776</span>
+<span class=c1>#&gt; Variables: 19</span>
+<span class=c1>#&gt; chr  [ 4]: carrier, tailnum, origin, dest</span>
+<span class=c1>#&gt; dbl  [14]: year, month, day, dep_time, sched_dep_time, dep_delay, arr_time, sched_arr...</span>
+<span class=c1>#&gt; dttm [ 1]: time_hour</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Call `spec()` for a copy-pastable column specification</span>
+<span class=c1>#&gt; Specify the column types with `col_types` to quiet this message</span>
+</code></pre></div><h1 id=reading-remote-files>Reading remote files
+<a href=#reading-remote-files><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h1><p>vroom can also read files from the internet as well by passing the URL of the file to <code>vroom()</code>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>file</span> <span class=o>&lt;-</span> <span class=s>&#34;https://raw.githubusercontent.com/r-lib/vroom/master/inst/extdata/mtcars.csv&#34;</span>
+<span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>vroom</span><span class=p>(</span><span class=n>file</span><span class=p>)</span>
+<span class=c1>#&gt; Observations: 32</span>
+<span class=c1>#&gt; Variables: 12</span>
+<span class=c1>#&gt; chr [ 1]: model</span>
+<span class=c1>#&gt; dbl [11]: mpg, cyl, disp, hp, drat, wt, qsec, vs, am, gear, carb</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Call `spec()` for a copy-pastable column specification</span>
+<span class=c1>#&gt; Specify the column types with `col_types` to quiet this message</span>
+</code></pre></div><p>It can even read gzipped files from the internet (although currently not the other compressed formats).</p><h2 id=reading-and-writing-from-pipe-connections>Reading and writing from pipe connections
+<a href=#reading-and-writing-from-pipe-connections><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>vroom provides efficient input and output from <code>pipe()</code> connections.</p><p>This is useful for doing things like pre-filtering large inputs with command line tools like
+<a href=https://en.wikipedia.org/wiki/Grep target=_blank rel=noopener>grep</a>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c1># Return only flights on United Airlines</span>
+<span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>vroom</span><span class=p>(</span><span class=nf>pipe</span><span class=p>(</span><span class=s>&#34;grep -w UA flights.tsv&#34;</span><span class=p>),</span> <span class=n>col_names</span> <span class=o>=</span> <span class=nf>names</span><span class=p>(</span><span class=n>flights</span><span class=p>))</span>
+<span class=c1>#&gt; Observations: 58,665</span>
+<span class=c1>#&gt; Variables: 19</span>
+<span class=c1>#&gt; chr  [ 4]: carrier, tailnum, origin, dest</span>
+<span class=c1>#&gt; dbl  [14]: year, month, day, dep_time, sched_dep_time, dep_delay, arr_time, sched_arr...</span>
+<span class=c1>#&gt; dttm [ 1]: time_hour</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Call `spec()` for a copy-pastable column specification</span>
+<span class=c1>#&gt; Specify the column types with `col_types` to quiet this message</span>
+</code></pre></div><p>Or using multi-threaded compression programs like
+<a href=https://zlib.net/pigz/ target=_blank rel=noopener>pigz</a>, which can greatly reduce the time to write compressed
+files.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>bench</span><span class=o>::</span><span class=nf>workout</span><span class=p>({</span>
+  <span class=nf>vroom_write</span><span class=p>(</span><span class=n>flights</span><span class=p>,</span> <span class=s>&#34;flights.tsv.gz&#34;</span><span class=p>)</span>
+  <span class=nf>vroom_write</span><span class=p>(</span><span class=n>flights</span><span class=p>,</span> <span class=nf>pipe</span><span class=p>(</span><span class=s>&#34;pigz &gt; flights.tsv.gz&#34;</span><span class=p>))</span>
+<span class=p>})</span>
+<span class=c1>#&gt; # A tibble: 2 x 3</span>
+<span class=c1>#&gt;   exprs                                                process     real</span>
+<span class=c1>#&gt;   &lt;bch:expr&gt;                                          &lt;bch:tm&gt; &lt;bch:tm&gt;</span>
+<span class=c1>#&gt; 1 vroom_write(flights, &#34;flights.tsv.gz&#34;)                  3.5s    2.69s</span>
+<span class=c1>#&gt; 2 vroom_write(flights, pipe(&#34;pigz &gt; flights.tsv.gz&#34;))    1.54s 975.09ms</span>
+</code></pre></div><h2 id=column-selection>Column selection
+<a href=#column-selection><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><code>vroom</code> introduces a new argument, <code>col_select</code>, which makes selecting columns to
+keep (or omit) more straightforward.</p><p><code>col_select</code> uses the same interface as <code>dplyr::select()</code>, so you can do flexible selection operations.</p><ul><li>Select with the column names</li></ul><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>vroom</span><span class=p>(</span><span class=s>&#34;flights.tsv&#34;</span><span class=p>,</span> <span class=n>col_select</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=n>year</span><span class=p>,</span> <span class=n>flight</span><span class=p>,</span> <span class=n>tailnum</span><span class=p>))</span>
+<span class=c1>#&gt; Observations: 336,776</span>
+<span class=c1>#&gt; Variables: 3</span>
+<span class=c1>#&gt; chr [1]: tailnum</span>
+<span class=c1>#&gt; dbl [2]: year, flight</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Call `spec()` for a copy-pastable column specification</span>
+<span class=c1>#&gt; Specify the column types with `col_types` to quiet this message</span>
+</code></pre></div><ul><li>Drop columns by name</li></ul><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>vroom</span><span class=p>(</span><span class=s>&#34;flights.tsv&#34;</span><span class=p>,</span> <span class=n>col_select</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=o>-</span><span class=n>dep_time</span><span class=p>,</span> <span class=o>-</span><span class=n>air_time</span><span class=o>:-</span><span class=n>time_hour</span><span class=p>))</span>
+<span class=c1>#&gt; Observations: 336,776</span>
+<span class=c1>#&gt; Variables: 13</span>
+<span class=c1>#&gt; chr [4]: carrier, tailnum, origin, dest</span>
+<span class=c1>#&gt; dbl [9]: year, month, day, sched_dep_time, dep_delay, arr_time, sched_arr_time, arr...</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Call `spec()` for a copy-pastable column specification</span>
+<span class=c1>#&gt; Specify the column types with `col_types` to quiet this message</span>
+</code></pre></div><ul><li>Use the selection helpers</li></ul><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>vroom</span><span class=p>(</span><span class=s>&#34;flights.tsv&#34;</span><span class=p>,</span> <span class=n>col_select</span> <span class=o>=</span> <span class=nf>ends_with</span><span class=p>(</span><span class=s>&#34;time&#34;</span><span class=p>))</span>
+<span class=c1>#&gt; Observations: 336,776</span>
+<span class=c1>#&gt; Variables: 5</span>
+<span class=c1>#&gt; dbl [5]: dep_time, sched_dep_time, arr_time, sched_arr_time, air_time</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Call `spec()` for a copy-pastable column specification</span>
+<span class=c1>#&gt; Specify the column types with `col_types` to quiet this message</span>
+</code></pre></div><ul><li>Or rename columns</li></ul><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>vroom</span><span class=p>(</span><span class=s>&#34;flights.tsv&#34;</span><span class=p>,</span> <span class=n>col_select</span> <span class=o>=</span> <span class=nf>list</span><span class=p>(</span><span class=n>plane</span> <span class=o>=</span> <span class=n>tailnum</span><span class=p>,</span> <span class=nf>everything</span><span class=p>()))</span>
+<span class=c1>#&gt; Observations: 336,776</span>
+<span class=c1>#&gt; Variables: 19</span>
+<span class=c1>#&gt; chr  [ 4]: carrier, tailnum, origin, dest</span>
+<span class=c1>#&gt; dbl  [14]: year, month, day, dep_time, sched_dep_time, dep_delay, arr_time, sched_arr...</span>
+<span class=c1>#&gt; dttm [ 1]: time_hour</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Call `spec()` for a copy-pastable column specification</span>
+<span class=c1>#&gt; Specify the column types with `col_types` to quiet this message</span>
+<span class=n>data</span>
+<span class=c1>#&gt; # A tibble: 336,776 x 19</span>
+<span class=c1>#&gt;    plane  year month   day dep_time sched_dep_time dep_delay arr_time</span>
+<span class=c1>#&gt;    &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;          &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;</span>
+<span class=c1>#&gt;  1 N142…  2013     1     1      517            515         2      830</span>
+<span class=c1>#&gt;  2 N242…  2013     1     1      533            529         4      850</span>
+<span class=c1>#&gt;  3 N619…  2013     1     1      542            540         2      923</span>
+<span class=c1>#&gt;  4 N804…  2013     1     1      544            545        -1     1004</span>
+<span class=c1>#&gt;  5 N668…  2013     1     1      554            600        -6      812</span>
+<span class=c1>#&gt;  6 N394…  2013     1     1      554            558        -4      740</span>
+<span class=c1>#&gt;  7 N516…  2013     1     1      555            600        -5      913</span>
+<span class=c1>#&gt;  8 N829…  2013     1     1      557            600        -3      709</span>
+<span class=c1>#&gt;  9 N593…  2013     1     1      557            600        -3      838</span>
+<span class=c1>#&gt; 10 N3AL…  2013     1     1      558            600        -2      753</span>
+<span class=c1>#&gt; # … with 336,766 more rows, and 11 more variables: sched_arr_time &lt;dbl&gt;,</span>
+<span class=c1>#&gt; #   arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;dbl&gt;, origin &lt;chr&gt;,</span>
+<span class=c1>#&gt; #   dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;,</span>
+<span class=c1>#&gt; #   time_hour &lt;dttm&gt;</span>
+</code></pre></div><h2 id=name-repair>Name repair
+<a href=#name-repair><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Often the names of columns in the original dataset are not ideal to work with.
+<code>vroom()</code> uses the same
+<a href=https://www.tidyverse.org/articles/2019/01/tibble-2.0.1/#name-repair target=_blank rel=noopener>.name_repair</a>
+argument as tibble, so you can use one of the default name repair strategies or
+provide a custom function. A great approach is to use the
+<a href=http://sfirke.github.io/janitor/ target=_blank rel=noopener>janitor</a> <code>make_clean_names()</code> function as the input.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>vroom</span><span class=p>(</span><span class=s>&#34;flights.tsv&#34;</span><span class=p>,</span> <span class=n>.name_repair</span> <span class=o>=</span> <span class=n>janitor</span><span class=o>::</span><span class=n>make_clean_names</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 336,776 x 19</span>
+<span class=c1>#&gt;     year month   day dep_time sched_dep_time dep_delay arr_time</span>
+<span class=c1>#&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;          &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;</span>
+<span class=c1>#&gt;  1  2013     1     1      517            515         2      830</span>
+<span class=c1>#&gt;  2  2013     1     1      533            529         4      850</span>
+<span class=c1>#&gt;  3  2013     1     1      542            540         2      923</span>
+<span class=c1>#&gt;  4  2013     1     1      544            545        -1     1004</span>
+<span class=c1>#&gt;  5  2013     1     1      554            600        -6      812</span>
+<span class=c1>#&gt;  6  2013     1     1      554            558        -4      740</span>
+<span class=c1>#&gt;  7  2013     1     1      555            600        -5      913</span>
+<span class=c1>#&gt;  8  2013     1     1      557            600        -3      709</span>
+<span class=c1>#&gt;  9  2013     1     1      557            600        -3      838</span>
+<span class=c1>#&gt; 10  2013     1     1      558            600        -2      753</span>
+<span class=c1>#&gt; # … with 336,766 more rows, and 12 more variables: sched_arr_time &lt;dbl&gt;,</span>
+<span class=c1>#&gt; #   arr_delay &lt;dbl&gt;, carrier &lt;chr&gt;, flight &lt;dbl&gt;, tailnum &lt;chr&gt;,</span>
+<span class=c1>#&gt; #   origin &lt;chr&gt;, dest &lt;chr&gt;, air_time &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;,</span>
+<span class=c1>#&gt; #   minute &lt;dbl&gt;, time_hour &lt;dttm&gt;</span>
+
+<span class=nf>vroom</span><span class=p>(</span><span class=s>&#34;flights.tsv&#34;</span><span class=p>,</span> <span class=n>.name_repair</span> <span class=o>=</span> <span class=o>~</span> <span class=n>janitor</span><span class=o>::</span><span class=nf>make_clean_names</span><span class=p>(</span><span class=n>.,</span> <span class=n>case</span> <span class=o>=</span> <span class=s>&#34;lower_camel&#34;</span><span class=p>))</span>
+<span class=c1>#&gt; # A tibble: 336,776 x 19</span>
+<span class=c1>#&gt;     year month   day depTime schedDepTime depDelay arrTime schedArrTime</span>
+<span class=c1>#&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;        &lt;dbl&gt;</span>
+<span class=c1>#&gt;  1  2013     1     1     517          515        2     830          819</span>
+<span class=c1>#&gt;  2  2013     1     1     533          529        4     850          830</span>
+<span class=c1>#&gt;  3  2013     1     1     542          540        2     923          850</span>
+<span class=c1>#&gt;  4  2013     1     1     544          545       -1    1004         1022</span>
+<span class=c1>#&gt;  5  2013     1     1     554          600       -6     812          837</span>
+<span class=c1>#&gt;  6  2013     1     1     554          558       -4     740          728</span>
+<span class=c1>#&gt;  7  2013     1     1     555          600       -5     913          854</span>
+<span class=c1>#&gt;  8  2013     1     1     557          600       -3     709          723</span>
+<span class=c1>#&gt;  9  2013     1     1     557          600       -3     838          846</span>
+<span class=c1>#&gt; 10  2013     1     1     558          600       -2     753          745</span>
+<span class=c1>#&gt; # … with 336,766 more rows, and 11 more variables: arrDelay &lt;dbl&gt;,</span>
+<span class=c1>#&gt; #   carrier &lt;chr&gt;, flight &lt;dbl&gt;, tailnum &lt;chr&gt;, origin &lt;chr&gt;, dest &lt;chr&gt;,</span>
+<span class=c1>#&gt; #   airTime &lt;dbl&gt;, distance &lt;dbl&gt;, hour &lt;dbl&gt;, minute &lt;dbl&gt;,</span>
+<span class=c1>#&gt; #   timeHour &lt;dttm&gt;</span>
+</code></pre></div><h2 id=column-types>Column types
+<a href=#column-types><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Like readr, vroom guesses the data types of columns as they are read. readr
+simply used the first <code>n</code> rows of data, vroom uses an improved heuristic of
+looking at data throughout the file, which should improve guessing accuracy.
+However if the guessing fails it can be necessary to change the type of one or
+more columns.</p><p>The available specifications are: (with single letter abbreviations in quotes)</p><ul><li><code>col_logical()</code> &lsquo;l&rsquo;, containing only <code>T</code>, <code>F</code>, <code>TRUE</code>, <code>FALSE</code>, <code>1</code> or <code>0</code>.</li><li><code>col_integer()</code> &lsquo;i&rsquo;, integer values.</li><li><code>col_double()</code> &lsquo;d&rsquo;, floating point values.</li><li><code>col_number()</code> [n], numbers containing the <code>grouping_mark</code></li><li><code>col_date(format = "")</code> [D]: with the locale&rsquo;s <code>date_format</code>.</li><li><code>col_time(format = "")</code> [t]: with the locale&rsquo;s <code>time_format</code>.</li><li><code>col_datetime(format = "")</code> [T]: ISO8601 date times.</li><li><code>col_factor(levels, ordered)</code> &lsquo;f&rsquo;, a fixed set of values.</li><li><code>col_character()</code> &lsquo;c&rsquo;, everything else.</li><li><code>col_skip()</code> &lsquo;_, -', don&rsquo;t import this column.</li><li><code>col_guess()</code> &lsquo;?', parse using the &ldquo;best&rdquo; type based on the input.</li></ul><p>You can tell vroom what columns to use with the <code>col_types()</code> argument in a number of ways.</p><p>If you only need to override a single column, the most concise way is to use a named vector.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c1># read the &#39;year&#39; column as an integer</span>
+<span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>vroom</span><span class=p>(</span><span class=s>&#34;flights.tsv&#34;</span><span class=p>,</span> <span class=n>col_types</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=n>year</span> <span class=o>=</span> <span class=s>&#34;i&#34;</span><span class=p>))</span>
+
+<span class=c1># also skip reading the &#39;time_hour&#39; column</span>
+<span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>vroom</span><span class=p>(</span><span class=s>&#34;flights.tsv&#34;</span><span class=p>,</span> <span class=n>col_types</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=n>year</span> <span class=o>=</span> <span class=s>&#34;i&#34;</span><span class=p>,</span> <span class=n>time_hour</span> <span class=o>=</span> <span class=s>&#34;_&#34;</span><span class=p>))</span>
+
+<span class=c1># also read the carrier as a factor</span>
+<span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>vroom</span><span class=p>(</span><span class=s>&#34;flights.tsv&#34;</span><span class=p>,</span> <span class=n>col_types</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=n>year</span> <span class=o>=</span> <span class=s>&#34;i&#34;</span><span class=p>,</span> <span class=n>time_hour</span> <span class=o>=</span> <span class=s>&#34;_&#34;</span><span class=p>,</span> <span class=n>carrier</span> <span class=o>=</span> <span class=s>&#34;f&#34;</span><span class=p>))</span>
+</code></pre></div><p>However, you can also use the <code>col_*()</code> functions in a list.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>vroom</span><span class=p>(</span><span class=s>&#34;flights.tsv&#34;</span><span class=p>,</span>
+  <span class=n>col_types</span> <span class=o>=</span> <span class=nf>list</span><span class=p>(</span><span class=n>year</span> <span class=o>=</span> <span class=nf>col_integer</span><span class=p>(),</span> <span class=n>time_hour</span> <span class=o>=</span> <span class=nf>col_skip</span><span class=p>(),</span> <span class=n>carrier</span> <span class=o>=</span> <span class=nf>col_factor</span><span class=p>())</span>
+<span class=p>)</span>
+</code></pre></div><p>This is most useful when a column type needs additional information, such as
+for categorical data when you know all of the levels of a factor.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>vroom</span><span class=p>(</span><span class=s>&#34;flights.tsv&#34;</span><span class=p>,</span>
+  <span class=n>col_types</span> <span class=o>=</span> <span class=nf>list</span><span class=p>(</span><span class=n>dest</span> <span class=o>=</span> <span class=nf>col_factor</span><span class=p>(</span><span class=n>levels</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=s>&#34;EWR&#34;</span><span class=p>,</span> <span class=s>&#34;JFK&#34;</span><span class=p>,</span> <span class=s>&#34;LGA&#34;</span><span class=p>)))</span>
+<span class=p>)</span>
+</code></pre></div><h2 id=speed>Speed
+<a href=#speed><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>vroom is fast, but how fast?
+We benchmarked vroom using a real-world dataset of taxi-trip data, with
+14.7 million rows, 11 columns. It contains a mix of numeric and text data, and has a
+total file size of 1.55 GB.</p><pre><code>#&gt; Observations: 14,776,615
+#&gt; Variables: 11
+#&gt; $ medallion       &lt;chr&gt; &quot;89D227B655E5C82AECF13C3F540D4CF4&quot;, &quot;0BD7C8F5B...
+#&gt; $ hack_license    &lt;chr&gt; &quot;BA96DE419E711691B9445D6A6307C170&quot;, &quot;9FD8F69F0...
+#&gt; $ vendor_id       &lt;chr&gt; &quot;CMT&quot;, &quot;CMT&quot;, &quot;CMT&quot;, &quot;CMT&quot;, &quot;CMT&quot;, &quot;CMT&quot;, &quot;CMT...
+#&gt; $ pickup_datetime &lt;chr&gt; &quot;2013-01-01 15:11:48&quot;, &quot;2013-01-06 00:18:35&quot;, ...
+#&gt; $ payment_type    &lt;chr&gt; &quot;CSH&quot;, &quot;CSH&quot;, &quot;CSH&quot;, &quot;CSH&quot;, &quot;CSH&quot;, &quot;CSH&quot;, &quot;CSH...
+#&gt; $ fare_amount     &lt;dbl&gt; 6.5, 6.0, 5.5, 5.0, 9.5, 9.5, 6.0, 34.0, 5.5, ...
+#&gt; $ surcharge       &lt;dbl&gt; 0.0, 0.5, 1.0, 0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 0...
+#&gt; $ mta_tax         &lt;dbl&gt; 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0...
+#&gt; $ tip_amount      &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0...
+#&gt; $ tolls_amount    &lt;dbl&gt; 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4.8, 0.0, 0...
+#&gt; $ total_amount    &lt;dbl&gt; 7.0, 7.0, 7.0, 6.0, 10.5, 10.0, 6.5, 39.3, 7.0...
+</code></pre><p>We performed a series of simple manipulations with each approach.</p><ul><li>Reading the data</li><li><code>print()</code></li><li><code>head()</code></li><li><code>tail()</code></li><li>Sampling 100 random rows</li><li>Filtering for &ldquo;UNK&rdquo; payment, this is 6434 rows (0.0435% of total).</li><li>Summarizing the mean fare amount per payment type.</li></ul><style>td,th{padding:.4em}thead{border-top:1px solid #aaa;border-bottom:1px solid #aaa}table{margin-left:auto;margin-right:auto;border-bottom:1px solid #aaa}</style><p><img src=/articles/2019-05-vroom-1-0-0_files/figure-html/benchmark_plot-1.png width=960></p><table><thead><tr><th align=right>package</th><th align=right>read</th><th align=right>print</th><th align=right>head</th><th align=right>tail</th><th align=right>sample</th><th align=right>filter</th><th align=right>summarise</th><th align=right>total</th></tr></thead><tbody><tr><td align=right>read.delim</td><td align=right>1m 21.5s</td><td align=right>6ms</td><td align=right>1ms</td><td align=right>1ms</td><td align=right>1ms</td><td align=right>315ms</td><td align=right>764ms</td><td align=right>1m 22.6s</td></tr><tr><td align=right>readr</td><td align=right>33.1s</td><td align=right>90ms</td><td align=right>1ms</td><td align=right>1ms</td><td align=right>2ms</td><td align=right>202ms</td><td align=right>825ms</td><td align=right>34.2s</td></tr><tr><td align=right>data.table</td><td align=right>15.7s</td><td align=right>13ms</td><td align=right>1ms</td><td align=right>1ms</td><td align=right>1ms</td><td align=right>129ms</td><td align=right>394ms</td><td align=right>16.3s</td></tr><tr><td align=right>vroom</td><td align=right>3.6s</td><td align=right>86ms</td><td align=right>1ms</td><td align=right>1ms</td><td align=right>2ms</td><td align=right>1.4s</td><td align=right>1.9s</td><td align=right>7s</td></tr></tbody></table><br><p>Some things to note in the results. The initial reading is much faster in vroom
+than any other method, and most of the manipulations, such as <code>print()</code>,
+<code>head()</code>, <code>tail()</code> and <code>sample()</code> are equally fast, so fast they can&rsquo;t be seen
+in the plots. However because the character data is read lazily, operations such
+as <code>filter</code> and <code>summarise</code>, which need character values, require additional
+time. However, this cost will only occur once. After the values have been read,
+they will be stored in memory, and subsequent accesses will be equivalent to
+other packages.</p><p>For more details on how the benchmarks were performed and additional benchmarks
+with other types of data see the
+<a href=http://vroom.r-lib.org/articles/benchmarks.html target=_blank rel=noopener>benchmark
+vignette</a>.</p><h2 id=feedback-welcome>Feedback welcome!
+<a href=#feedback-welcome><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>vroom is a new package and, like any newborn, may fall down a few times before
+learning to run. If you do run into a bug or think of a new feature that
+would work well in vroom please
+<a href=https://github.com/r-lib/vroom/issues target=_blank rel=noopener>open an
+issue</a> so we can discuss it!</p><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Even though this is a new release, a number of people have been testing out
+pre-release versions on their datasets and opening issues, which has been a
+huge help in making the package more robust.</p><p>A big thanks to
+<a href=https://github.com/alex-gable target=_blank rel=noopener>@alex-gable</a>,
+<a href=https://github.com/andrie target=_blank rel=noopener>@andrie</a>,
+<a href=https://github.com/dan-reznik target=_blank rel=noopener>@dan-reznik</a>,
+<a href=https://github.com/Evgeniy- target=_blank rel=noopener>@Evgeniy-</a>,
+<a href=https://github.com/ginolhac target=_blank rel=noopener>@ginolhac</a>,
+<a href=https://github.com/ibarraespinosa target=_blank rel=noopener>@ibarraespinosa</a>,
+<a href=https://github.com/KasperSkytte target=_blank rel=noopener>@KasperSkytte</a>,
+<a href=https://github.com/ldecicco-USGS target=_blank rel=noopener>@ldecicco-USGS</a>,
+<a href=https://github.com/LuisQ95 target=_blank rel=noopener>@LuisQ95</a>,
+<a href=https://github.com/matthieu-haudiquet target=_blank rel=noopener>@matthieu-haudiquet</a>,
+<a href=https://github.com/md0u80c9 target=_blank rel=noopener>@md0u80c9</a>,
+<a href=https://github.com/mkiang target=_blank rel=noopener>@mkiang</a>,
+<a href=https://github.com/R3myG target=_blank rel=noopener>@R3myG</a>,
+<a href=https://github.com/randomgambit target=_blank rel=noopener>@randomgambit</a>,
+<a href=https://github.com/slowkow target=_blank rel=noopener>@slowkow</a>,
+<a href=https://github.com/telaroz target=_blank rel=noopener>@telaroz</a>,
+<a href=https://github.com/thierrygosselin target=_blank rel=noopener>@thierrygosselin</a>, and
+<a href=https://github.com/xiaodaigh target=_blank rel=noopener>@xiaodaigh</a>!</p><p>Also this package would not be possible without the following significant
+contributions to the R ecosystem.</p><ul><li><a href=https://twitter.com/groundwalkergmb target=_blank rel=noopener>Gabe Becker</a>,
+<a href=https://stat.uiowa.edu/~luke/ target=_blank rel=noopener>Luke
+Tierney</a> and
+<a href=https://github.com/kalibera target=_blank rel=noopener>Tomas
+Kalibera</a> for conceiving, implementing
+and maintaining the
+<a href=https://svn.r-project.org/R/branches/ALTREP/ALTREP.html target=_blank rel=noopener>Altrep
+framework</a> used extensively in vroom.</li><li><a href=https://twitter.com/romain_francois target=_blank rel=noopener>Romain François</a>, whose
+<a href=https://purrple.cat/blog/2018/10/14/altrep-and-cpp/ target=_blank rel=noopener>Altrepisode</a>
+package and
+<a href=https://purrple.cat/blog/2018/10/14/altrep-and-cpp/ target=_blank rel=noopener>related
+blog-posts</a>
+were a great guide for creating new Altrep objects in C++.</li><li><a href=https://twitter.com/mattdowle target=_blank rel=noopener>Matt Dowle</a> and the rest of the
+<a href=https://github.com/Rdatatable target=_blank rel=noopener>Rdatatable</a> team,
+<code>data.table::fread()</code> is blazing fast and a great motivator to think about
+how to read delimited files fast!</li></ul></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#vroom-vs-readr>vroom vs readr</a></li><li><a href=#reading-delimited-files>Reading delimited files</a></li><li><a href=#reading-multiple-files>Reading multiple files</a></li><li><a href=#reading-and-writing-compressed-files>Reading and writing compressed files</a></li></ul><ul><li><a href=#reading-and-writing-from-pipe-connections>Reading and writing from pipe connections</a></li><li><a href=#column-selection>Column selection</a></li><li><a href=#name-repair>Name repair</a></li><li><a href=#column-types>Column types</a></li><li><a href=#speed>Speed</a></li><li><a href=#feedback-welcome>Feedback welcome!</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

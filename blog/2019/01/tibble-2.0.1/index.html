@@ -1,0 +1,277 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>tibble 2.0.1</title><meta property="og:title" content="tibble 2.0.1"><meta property="og:description" content="Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! This article describes the latest major release and provides an outlook on further developments"><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2019/01/tibble-2.0.1/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="tibble 2.0.1 - Tidyverse"><meta property="description" content="Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! This article describes the latest major release and provides an outlook on further developments"><meta property="og:description" content="Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! This article describes the latest major release and provides an outlook on further developments"><meta property="og:image" content="https://www.tidyverse.org/blog/2019/01/tibble-2.0.1/tibble-2.0.1-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2019/01/tibble-2.0.1/tibble-2.0.1-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>tibble 2.0.1</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2019/01/tibble-2.0.1/tibble-2.0.1-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/KA89yJKYtjE>Marcello Gennari</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2019/01/15</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/tidyverse/>tidyverse</a>,
+<a href=/tags/tibble/>tibble</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Kirill Müller</p><div class=article-content><style type=text/css scoped>pre.fansi span{padding-top:.25em;padding-bottom:.25em}</style><p>I&rsquo;m pleased to announce that version 2.0.1 of the <em>tibble</em> package is on CRAN now, just in time for
+<a href=https://www.rstudio.com/conference/ target=_blank rel=noopener>rstudio::conf()</a>. Tibbles are a modern reimagining of the data frame, keeping what time has shown to be effective, and throwing out what is not, with nicer default output too! Grab the latest version with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>install.packages</span><span class=p>(</span><span class=s>&#34;tibble&#34;</span><span class=p>)</span>
+</code></pre></div><p>This release required a bit of preparation, including a
+<a href=https://www.tidyverse.org/articles/2018/11/tibble-2.0.0-pre-announce/ target=_blank rel=noopener>pre-release blog post</a> that described the breaking changes, mostly in
+<a href=https://tibble.tidyverse.org/reference/as_tibble.html target=_blank rel=noopener><code>as_tibble()</code></a>,
+<a href=https://tibble.tidyverse.org/reference/new_tibble.html target=_blank rel=noopener><code>new_tibble()</code></a>,
+<a href=https://tibble.tidyverse.org/reference/set_tidy_names.html target=_blank rel=noopener><code>set_tidy_names()</code></a>,
+<a href=https://tibble.tidyverse.org/reference/tidy_names.html target=_blank rel=noopener><code>tidy_names()</code></a>, and <code>names&lt;-()</code>, and a patch release that fixed problems found after the initial 2.0.0 release.
+In this blog post, I focus on a few user- and programmer-related changes, and give an outlook over future development:</p><ul><li><a href=https://tibble.tidyverse.org/reference/view.html target=_blank rel=noopener><code>view()</code></a>, nameless
+<a href=https://tibble.tidyverse.org/reference/enframe.html target=_blank rel=noopener><code>enframe()</code></a>, 2D columns</li><li>Lifecycle, robustness, name repair, row names,
+<a href=https://tibble.tidyverse.org/reference/glimpse.html target=_blank rel=noopener><code>glimpse()</code></a> for subclasses</li><li><em>vctrs</em>, dependencies, decorations</li></ul><p>For a complete overview please see the
+<a href=https://github.com/tidyverse/tibble/releases/tag/v2.0.0 target=_blank rel=noopener>release notes</a>.</p><p>Use the
+<a href=https://github.com/tidyverse/tibble/issues target=_blank rel=noopener>issue tracker</a> to submit bugs or suggest ideas, your contributions are always welcome.</p><h2 id=changes-that-affect-users>Changes that affect users
+<a href=#changes-that-affect-users><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><h3 id=view>view
+<a href=#view><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>The experimental
+<a href=https://tibble.tidyverse.org/reference/view.html target=_blank rel=noopener><code>view()</code></a> function forwards its input to <code>utils::View()</code> (only in interactive mode) and always returns its input invisibly, which is useful for pipe-based workflows.
+Currently it is unclear if this functionality should live in <em>tibble</em> or elsewhere.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c1># This is a no-op in non-interactive mode.</span>
+<span class=c1># In interactive mode, a viewer window/pane will open.</span>
+<span class=n>iris</span> <span class=o>%&gt;%</span>
+  <span class=nf>view</span><span class=p>()</span>
+</code></pre></div><h3 id=nameless-enframe>Nameless enframe
+<a href=#nameless-enframe><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>The
+<a href=https://tibble.tidyverse.org/reference/enframe.html target=_blank rel=noopener><code>enframe()</code></a> function always has been a good way to convert a (named) vector to a two-column data frame.
+In this version, conversion to a one-column data frame is also supported by setting the <code>name</code> argument to <code>NULL</code>.
+This is now the recommended way to turn a vector to a one-column tibble, due to changes to the default implementation of
+<a href=https://tibble.tidyverse.org/reference/as_tibble.html target=_blank rel=noopener><code>as_tibble()</code></a>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>enframe</span><span class=p>(</span><span class=kc>letters</span><span class=n>[1</span><span class=o>:</span><span class=m>3</span><span class=n>]</span><span class=p>)</span>
+</code></pre></div><pre class="fansi fansi-output"><code>#&gt; <span style=color:#555># A tibble: 3 x 2</span>
+#&gt;    <span style=font-weight:700>name</span><span> </span><span style=font-weight:700>value</span>
+#&gt;   <span style=color:#555;font-style:italic>&lt;int&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;chr&gt;</span>
+#&gt; <span style=color:#555>1</span><span>     1 a    </span>
+#&gt; <span style=color:#555>2</span><span>     2 b    </span>
+#&gt; <span style=color:#555>3</span><span>     3 c</span></code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>enframe</span><span class=p>(</span><span class=kc>letters</span><span class=n>[1</span><span class=o>:</span><span class=m>3</span><span class=n>]</span><span class=p>,</span> <span class=n>name</span> <span class=o>=</span> <span class=kc>NULL</span><span class=p>)</span>
+</code></pre></div><pre class="fansi fansi-output"><code>#&gt; <span style=color:#555># A tibble: 3 x 1</span>
+#&gt;   <span style=font-weight:700>value</span>
+#&gt;   <span style=color:#555;font-style:italic>&lt;chr&gt;</span>
+#&gt; <span style=color:#555>1</span><span> a    </span>
+#&gt; <span style=color:#555>2</span><span> b    </span>
+#&gt; <span style=color:#555>3</span><span> c</span></code></pre><h3 id=2d-columns>2D columns
+<a href=#2d-columns><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p><code>tibble()</code> now supports columns that are matrices or data frames.
+These have always been supported in data frames and are used in some modelling functions.
+We are looking forward to supporting these and other exciting use cases, see also the
+<a href=https://adv-r.hadley.nz/vectors-chap.html#matrix-and-data-frame-columns target=_blank rel=noopener>Matrix and data frame columns</a> chapter of adv-r.
+The number of rows in these objects must be consistent with the length of the other columns.
+Internally, this feature required using <code>NROW()</code> instead of <code>length()</code> in a few spots, which conveniently returns the length for vectors and the number of rows for 2D objects.
+The required support in <em>pillar</em> has been added earlier last year.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>tibble</span><span class=p>(</span>
+  <span class=n>a</span> <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>3</span><span class=p>,</span>
+  <span class=n>b</span> <span class=o>=</span> <span class=nf>tibble</span><span class=p>(</span><span class=n>c</span> <span class=o>=</span> <span class=m>4</span><span class=o>:</span><span class=m>6</span><span class=p>),</span>
+  <span class=n>d</span> <span class=o>=</span> <span class=nf>tibble</span><span class=p>(</span><span class=n>e</span> <span class=o>=</span> <span class=m>7</span><span class=o>:</span><span class=m>9</span><span class=p>,</span> <span class=n>f</span> <span class=o>=</span> <span class=nf>tibble</span><span class=p>(</span><span class=n>g</span> <span class=o>=</span> <span class=m>10</span><span class=p>,</span> <span class=n>h</span> <span class=o>=</span> <span class=m>11</span><span class=p>)),</span>
+  <span class=n>i</span> <span class=o>=</span> <span class=nf>diag</span><span class=p>(</span><span class=m>3</span><span class=p>)</span>
+<span class=p>)</span>
+</code></pre></div><pre class="fansi fansi-output"><code>#&gt; <span style=color:#555># A tibble: 3 x 4</span>
+#&gt;       <span style=font-weight:700>a</span><span>   </span><span style=font-weight:700>b$c</span><span>   </span><span style=font-weight:700>d$e</span><span>  </span><span style=font-weight:700>$f$g</span><span>   </span><span style=font-weight:700>$$h</span><span> </span><span style=font-weight:700>i[,1]</span><span>  </span><span style=font-weight:700>[,2]</span><span>  </span><span style=font-weight:700>[,3]</span>
+#&gt;   <span style=color:#555;font-style:italic>&lt;int&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;int&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;int&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span>
+#&gt; <span style=color:#555>1</span><span>     1     4     7    10    11     1     0     0</span>
+#&gt; <span style=color:#555>2</span><span>     2     5     8    10    11     0     1     0</span>
+#&gt; <span style=color:#555>3</span><span>     3     6     9    10    11     0     0     1</span></code></pre><h2 id=changes-that-affect-package-developers>Changes that affect package developers
+<a href=#changes-that-affect-package-developers><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><h3 id=lifecycle>Lifecycle
+<a href=#lifecycle><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p><a href=https://www.tidyverse.org/lifecycle/ target=_blank rel=noopener><img src=https://img.shields.io/badge/lifecycle-stable-brightgreen.svg alt=Lifecycle></a></p><p>All functions have been assigned a lifecycle.
+The <em>tibble</em> package has now reached the &ldquo;stable&rdquo; lifecycle, functions in a different lifecycle stage are marked as such in their documentation.
+One example is the
+<a href=https://tibble.tidyverse.org/reference/add_row.html target=_blank rel=noopener><code>add_row()</code></a> function: it is unclear if it should ensure that all columns have length one by wrapping in a list if necessary, and a better implementation is perhaps possible once <em>tibble</em> uses the <em>vctrs</em> package, see below.
+Therefore this function is marked &ldquo;questioning&rdquo;.
+Learn more about lifecycle in the tidyverse at <a href=https://www.tidyverse.org/lifecycle/>https://www.tidyverse.org/lifecycle/</a>.</p><h3 id=robustness>Robustness
+<a href=#robustness><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>The new <code>.rows</code> argument to
+<a href=https://tibble.tidyverse.org/reference/tibble.html target=_blank rel=noopener><code>tibble()</code></a> and
+<a href=https://tibble.tidyverse.org/reference/as_tibble.html target=_blank rel=noopener><code>as_tibble()</code></a> allows specifying the expected number of rows explicitly, even if it&rsquo;s evident from the data.
+This supports writing even more defensive code.
+The <code>nrow</code> argument to the low-level
+<a href=https://tibble.tidyverse.org/reference/new_tibble.html target=_blank rel=noopener><code>new_tibble()</code></a> constructor is now mandatory, on the other hand most expensive checks have been moved to the new
+<a href=https://tibble.tidyverse.org/reference/validate_tibble.html target=_blank rel=noopener><code>validate_tibble()</code></a> function.
+This means that constructions of tibbles is now faster by default if you know that the inputs are correct, but you can always double-check if needed.
+See also the
+<a href=https://adv-r.hadley.nz/s3.html#s3-classes target=_blank rel=noopener>S3 classes</a> chapter in adv-r for motivation.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>tibble</span><span class=p>(</span><span class=n>a</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>b</span> <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>3</span><span class=p>,</span> <span class=n>.rows</span> <span class=o>=</span> <span class=m>3</span><span class=p>)</span>
+</code></pre></div><pre class="fansi fansi-output"><code>#&gt; <span style=color:#555># A tibble: 3 x 2</span>
+#&gt;       <span style=font-weight:700>a</span><span>     </span><span style=font-weight:700>b</span>
+#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;int&gt;</span>
+#&gt; <span style=color:#555>1</span><span>     1     1</span>
+#&gt; <span style=color:#555>2</span><span>     1     2</span>
+#&gt; <span style=color:#555>3</span><span>     1     3</span></code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>tibble</span><span class=p>(</span><span class=n>a</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>b</span> <span class=o>=</span> <span class=m>2</span><span class=o>:</span><span class=m>3</span><span class=p>,</span> <span class=n>.rows</span> <span class=o>=</span> <span class=m>3</span><span class=p>)</span>
+<span class=c1>#&gt; Error: Tibble columns must have consistent lengths, only values of length one are recycled:</span>
+<span class=c1>#&gt; * Length 3: Requested with `.rows` argument</span>
+<span class=c1>#&gt; * Length 2: Column `b`</span>
+<span class=nf>tibble</span><span class=p>(</span><span class=n>a</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>.rows</span> <span class=o>=</span> <span class=m>3</span><span class=p>)</span>
+</code></pre></div><pre class="fansi fansi-output"><code>#&gt; <span style=color:#555># A tibble: 3 x 1</span>
+#&gt;       <span style=font-weight:700>a</span>
+#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>
+#&gt; <span style=color:#555>1</span><span>     1</span>
+#&gt; <span style=color:#555>2</span><span>     1</span>
+#&gt; <span style=color:#555>3</span><span>     1</span></code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>as_tibble</span><span class=p>(</span><span class=n>iris[1</span><span class=o>:</span><span class=m>3</span><span class=p>,</span> <span class=n>]</span><span class=p>,</span> <span class=n>.rows</span> <span class=o>=</span> <span class=m>3</span><span class=p>)</span>
+</code></pre></div><pre class="fansi fansi-output"><code>#&gt; <span style=color:#555># A tibble: 3 x 5</span>
+#&gt;   <span style=font-weight:700>Sepal.Length</span><span> </span><span style=font-weight:700>Sepal.Width</span><span> </span><span style=font-weight:700>Petal.Length</span><span> </span><span style=font-weight:700>Petal.Width</span><span> </span><span style=font-weight:700>Species</span>
+#&gt;          <span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span>       </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span>        </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span>       </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;fct&gt;</span><span>  </span>
+#&gt; <span style=color:#555>1</span><span>          5.1         3.5          1.4         0.2 setosa </span>
+#&gt; <span style=color:#555>2</span><span>          4.9         3            1.4         0.2 setosa </span>
+#&gt; <span style=color:#555>3</span><span>          4.7         3.2          1.3         0.2 setosa</span></code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>new_tibble</span><span class=p>(</span><span class=nf>list</span><span class=p>(</span><span class=n>a</span> <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>3</span><span class=p>),</span> <span class=n>nrow</span> <span class=o>=</span> <span class=m>3</span><span class=p>)</span>
+</code></pre></div><pre class="fansi fansi-output"><code>#&gt; <span style=color:#555># A tibble: 3 x 1</span>
+#&gt;       <span style=font-weight:700>a</span>
+#&gt;   <span style=color:#555;font-style:italic>&lt;int&gt;</span>
+#&gt; <span style=color:#555>1</span><span>     1</span>
+#&gt; <span style=color:#555>2</span><span>     2</span>
+#&gt; <span style=color:#555>3</span><span>     3</span></code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>bad</span> <span class=o>&lt;-</span> <span class=nf>new_tibble</span><span class=p>(</span><span class=nf>list</span><span class=p>(</span><span class=n>a</span> <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>2</span><span class=p>),</span> <span class=n>nrow</span> <span class=o>=</span> <span class=m>3</span><span class=p>)</span>
+<span class=nf>validate_tibble</span><span class=p>(</span><span class=n>bad</span><span class=p>)</span>
+<span class=c1>#&gt; Error: Tibble columns must have consistent lengths, only values of length one are recycled:</span>
+<span class=c1>#&gt; * Length 3: Requested with `nrow` argument</span>
+<span class=c1>#&gt; * Length 2: Column `a`</span>
+</code></pre></div><h3 id=name-repair>Name repair
+<a href=#name-repair><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>Column name repair has more direct support, via the new <code>.name_repair</code> argument to
+<a href=https://tibble.tidyverse.org/reference/tibble.html target=_blank rel=noopener><code>tibble()</code></a> and
+<a href=https://tibble.tidyverse.org/reference/as_tibble.html target=_blank rel=noopener><code>as_tibble()</code></a>.
+It takes the following values:</p><ul><li><code>"minimal"</code>: No name repair or checks, beyond basic existence.</li><li><code>"unique"</code>: Make sure names are unique and not empty.</li><li><code>"check_unique"</code>: (default value), no name repair, but check they are <code>unique</code>.</li><li><code>"universal"</code>: Make the names <code>unique</code> and syntactic.</li><li>a function: apply custom name repair (e.g., <code>.name_repair = make.names</code> or <code>.name_repair = ~make.names(., unique = TRUE)</code> for names in the style of base R).</li></ul><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c1>## by default, duplicate names are not allowed</span>
+<span class=nf>tibble</span><span class=p>(</span><span class=n>`1a`</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>`1a`</span> <span class=o>=</span> <span class=m>2</span><span class=p>)</span>
+<span class=c1>#&gt; Error: Column name `1a` must not be duplicated.</span>
+<span class=c1>#&gt; Use .name_repair to specify repair.</span>
+
+<span class=c1>## you can authorize duplicate names</span>
+<span class=nf>tibble</span><span class=p>(</span><span class=n>`1a`</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>`1a`</span> <span class=o>=</span> <span class=m>2</span><span class=p>,</span> <span class=n>.name_repair</span> <span class=o>=</span> <span class=s>&#34;minimal&#34;</span><span class=p>)</span>
+</code></pre></div><pre class="fansi fansi-output"><code>#&gt; <span style=color:#555># A tibble: 1 x 2</span>
+#&gt;    <span style=font-weight:700>`1a`</span><span>  </span><span style=font-weight:700>`1a`</span>
+#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span>
+#&gt; <span style=color:#555>1</span><span>     1     2</span></code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c1>## or request that the names be made unique</span>
+<span class=nf>tibble</span><span class=p>(</span><span class=n>`1a`</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>`1a`</span> <span class=o>=</span> <span class=m>2</span><span class=p>,</span> <span class=n>.name_repair</span> <span class=o>=</span> <span class=s>&#34;unique&#34;</span><span class=p>)</span>
+<span class=c1>#&gt; New names:</span>
+<span class=c1>#&gt; * `1a` -&gt; `1a..1`</span>
+<span class=c1>#&gt; * `1a` -&gt; `1a..2`</span>
+</code></pre></div><pre class="fansi fansi-output"><code>#&gt; <span style=color:#555># A tibble: 1 x 2</span>
+#&gt;   <span style=font-weight:700>`1a..1`</span><span> </span><span style=font-weight:700>`1a..2`</span>
+#&gt;     <span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span>   </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span>
+#&gt; <span style=color:#555>1</span><span>       1       2</span></code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c1>## or universal</span>
+<span class=nf>tibble</span><span class=p>(</span><span class=n>`1a`</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>`1a`</span> <span class=o>=</span> <span class=m>2</span><span class=p>,</span> <span class=n>.name_repair</span> <span class=o>=</span> <span class=s>&#34;universal&#34;</span><span class=p>)</span>
+<span class=c1>#&gt; New names:</span>
+<span class=c1>#&gt; * `1a` -&gt; ..1a..1</span>
+<span class=c1>#&gt; * `1a` -&gt; ..1a..2</span>
+</code></pre></div><pre class="fansi fansi-output"><code>#&gt; <span style=color:#555># A tibble: 1 x 2</span>
+#&gt;   <span style=font-weight:700>..1a..1</span><span> </span><span style=font-weight:700>..1a..2</span>
+#&gt;     <span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span>   </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span>
+#&gt; <span style=color:#555>1</span><span>       1       2</span></code></pre><h3 id=row-names>Row names
+<a href=#row-names><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>Row name handling is stricter.
+Row names were never supported in
+<a href=https://tibble.tidyverse.org/reference/tibble.html target=_blank rel=noopener><code>tibble()</code></a> and
+<a href=https://tibble.tidyverse.org/reference/new_tibble.html target=_blank rel=noopener><code>new_tibble()</code></a>, and are now stripped by default in
+<a href=https://tibble.tidyverse.org/reference/as_tibble.html target=_blank rel=noopener><code>as_tibble()</code></a>.
+The <code>rownames</code> argument to
+<a href=https://tibble.tidyverse.org/reference/as_tibble.html target=_blank rel=noopener><code>as_tibble()</code></a> supports:</p><ul><li><code>NULL</code>: remove row names (default),</li><li><code>NA</code>: keep row names,</li><li>A string: the name of the new column that will contain the existing row names, which are no longer present in the result.</li></ul><p>The old default can be restored by calling <code>pkgconfig::set_config("tibble::rownames", NA)</code>, this also works for packages that import <em>tibble</em>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>rownames</span><span class=p>(</span><span class=nf>as_tibble</span><span class=p>(</span><span class=n>mtcars</span><span class=p>))</span>
+<span class=c1>#&gt;  [1] &#34;1&#34;  &#34;2&#34;  &#34;3&#34;  &#34;4&#34;  &#34;5&#34;  &#34;6&#34;  &#34;7&#34;  &#34;8&#34;  &#34;9&#34;  &#34;10&#34; &#34;11&#34; &#34;12&#34; &#34;13&#34; &#34;14&#34;</span>
+<span class=c1>#&gt; [15] &#34;15&#34; &#34;16&#34; &#34;17&#34; &#34;18&#34; &#34;19&#34; &#34;20&#34; &#34;21&#34; &#34;22&#34; &#34;23&#34; &#34;24&#34; &#34;25&#34; &#34;26&#34; &#34;27&#34; &#34;28&#34;</span>
+<span class=c1>#&gt; [29] &#34;29&#34; &#34;30&#34; &#34;31&#34; &#34;32&#34;</span>
+<span class=nf>as_tibble</span><span class=p>(</span><span class=n>mtcars</span><span class=p>,</span> <span class=n>rownames</span> <span class=o>=</span> <span class=s>&#34;make_model&#34;</span><span class=p>)</span>
+</code></pre></div><pre class="fansi fansi-output"><code>#&gt; <span style=color:#555># A tibble: 32 x 12</span>
+#&gt;    <span style=font-weight:700>make_model</span><span>   </span><span style=font-weight:700>mpg</span><span>   </span><span style=font-weight:700>cyl</span><span>  </span><span style=font-weight:700>disp</span><span>    </span><span style=font-weight:700>hp</span><span>  </span><span style=font-weight:700>drat</span><span>    </span><span style=font-weight:700>wt</span><span>  </span><span style=font-weight:700>qsec</span><span>    </span><span style=font-weight:700>vs</span><span>    </span><span style=font-weight:700>am</span><span>  </span><span style=font-weight:700>gear</span>
+#&gt;    <span style=color:#555;font-style:italic>&lt;chr&gt;</span><span>      </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span>
+#&gt; <span style=color:#555> 1</span><span> Mazda RX4   21       6  160    110  3.9   2.62  16.5     0     1     4</span>
+#&gt; <span style=color:#555> 2</span><span> Mazda RX4…  21       6  160    110  3.9   2.88  17.0     0     1     4</span>
+#&gt; <span style=color:#555> 3</span><span> Datsun 710  22.8     4  108     93  3.85  2.32  18.6     1     1     4</span>
+#&gt; <span style=color:#555> 4</span><span> Hornet 4 …  21.4     6  258    110  3.08  3.22  19.4     1     0     3</span>
+#&gt; <span style=color:#555> 5</span><span> Hornet Sp…  18.7     8  360    175  3.15  3.44  17.0     0     0     3</span>
+#&gt; <span style=color:#555> 6</span><span> Valiant     18.1     6  225    105  2.76  3.46  20.2     1     0     3</span>
+#&gt; <span style=color:#555> 7</span><span> Duster 360  14.3     8  360    245  3.21  3.57  15.8     0     0     3</span>
+#&gt; <span style=color:#555> 8</span><span> Merc 240D   24.4     4  147.    62  3.69  3.19  20       1     0     4</span>
+#&gt; <span style=color:#555> 9</span><span> Merc 230    22.8     4  141.    95  3.92  3.15  22.9     1     0     4</span>
+#&gt; <span style=color:#555>10</span><span> Merc 280    19.2     6  168.   123  3.92  3.44  18.3     1     0     4</span>
+#&gt; <span style=color:#555># … with 22 more rows, and 1 more variable: </span><span style=color:#555;font-weight:700>carb</span><span style=color:#555> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span></code></pre><h3 id=glimpse-for-subclasses>glimpse for subclasses
+<a href=#glimpse-for-subclasses><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>The
+<a href=https://tibble.tidyverse.org/reference/glimpse.html target=_blank rel=noopener><code>glimpse()</code></a> function shows information obtained from
+<a href=https://tibble.tidyverse.org/reference/tbl_sum.html target=_blank rel=noopener><code>tbl_sum()</code></a> in the header, e.g. grouping information for <code>grouped_df</code> from <em>dplyr</em>, or other information from packages that override the <code>tbl_df</code> class.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>iris</span> <span class=o>%&gt;%</span>
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>Species</span><span class=p>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>glimpse</span><span class=p>()</span>
+</code></pre></div><pre class="fansi fansi-output"><code>#&gt; Observations: 150
+#&gt; Variables: 5
+#&gt; Groups: Species [3]
+#&gt; $ <span style=font-weight:700>Sepal.Length</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> 5.1, 4.9, 4.7, 4.6, 5.0, 5.4, 4.6, 5.0, 4.4, 4.9, 5…</span>
+#&gt; $ <span style=font-weight:700>Sepal.Width </span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> 3.5, 3.0, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1, 3…</span>
+#&gt; $ <span style=font-weight:700>Petal.Length</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> 1.4, 1.4, 1.3, 1.5, 1.4, 1.7, 1.4, 1.5, 1.4, 1.5, 1…</span>
+#&gt; $ <span style=font-weight:700>Petal.Width </span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> 0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1, 0…</span>
+#&gt; $ <span style=font-weight:700>Species     </span><span> </span><span style=color:#555;font-style:italic>&lt;fct&gt;</span><span> setosa, setosa, setosa, setosa, setosa, setosa, set…</span></code></pre><h2 id=outlook>Outlook
+<a href=#outlook><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><h3 id=vctrs>vctrs
+<a href=#vctrs><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>The plan is to
+<a href=https://github.com/tidyverse/tibble/issues/521 target=_blank rel=noopener>use <em>vctrs</em></a> in <em>tibble</em> 2.1.0.
+This package is a solid foundation for handling coercion, concatenation and recycling in vectors of arbitrary type.
+The support provided by <em>vctrs</em> will yield a better
+<a href=https://tibble.tidyverse.org/reference/add_row.html target=_blank rel=noopener><code>add_row()</code></a> implementation, in return name repair which is currently defined in <em>tibble</em> should likely live in <em>vctrs</em>.</p><h3 id=dependencies>Dependencies
+<a href=#dependencies><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>Currently, installing <em>tibble</em> can bring in almost dozen other packages:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>tools</span><span class=o>::</span><span class=nf>package_dependencies</span><span class=p>(</span><span class=s>&#34;tibble&#34;</span><span class=p>,</span> <span class=n>recursive</span> <span class=o>=</span> <span class=kc>TRUE</span><span class=p>,</span> <span class=n>which</span> <span class=o>=</span> <span class=s>&#34;Imports&#34;</span><span class=p>)</span>
+<span class=c1>#&gt; $tibble</span>
+<span class=c1>#&gt;  [1] &#34;cli&#34;        &#34;crayon&#34;     &#34;fansi&#34;      &#34;methods&#34;    &#34;pillar&#34;    </span>
+<span class=c1>#&gt;  [6] &#34;pkgconfig&#34;  &#34;rlang&#34;      &#34;utils&#34;      &#34;assertthat&#34; &#34;grDevices&#34; </span>
+<span class=c1>#&gt; [11] &#34;utf8&#34;       &#34;tools&#34;</span>
+</code></pre></div><p>Some of them, namely <em>fansi</em> and <em>utf8</em>, contain code that requires compilation and are only required for optional features.
+<a href=https://github.com/tidyverse/tibble/issues/475 target=_blank rel=noopener>The plan</a> is to make these packages, and <em>crayon</em>, a suggested package to <em>cli</em>, and provide fallback implementations there.
+When finished, taking a strong dependency on <em>tibble</em> won&rsquo;t add too many new dependencies (again): <em>rlang</em>, <em>vctrs</em> and <em>cli</em> will be used by most of the tidyverse anyway, <em>pillar</em> is the only truly new strong dependency.
+Packages that subclass <code>tbl_df</code> should import <em>tibble</em> to make sure that the subsetting operator <code>[</code> always behaves the same.
+Constructing (subclasses of) tibbles should happen through
+<a href=https://tibble.tidyverse.org/reference/new_tibble.html target=_blank rel=noopener><code>new_tibble()</code></a> only.</p><h3 id=decorations>Decorations
+<a href=#decorations><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>Tibbles have a very opinionated way to print their data, not always in line with users&rsquo; expectations, and sometimes clearly wrong (e.g. for numerical data where the absolute mean is much larger than the standard deviation).
+It seems difficult to devise a formatting that suits all needs, especially for numbers: how do we tell if a number represents money, or perhaps is a misspecified categorical variable or a UID?
+<a href=https://github.com/tidyverse/tibble/pull/411 target=_blank rel=noopener>Decorations</a> are an idea that might help here.
+A decoration is applied only when printing a vector, which behaves identically to a bare vector otherwise.
+Decorations can be &ldquo;learned&rdquo; from the data (using heuristics), or specified directly after import or when creating column,
+and stored in attribues like <code>"class"</code>.
+It will be important to make sure that these attributes survive subsetting and perhaps some arithmetic transformations, easiest to achieve with the help of <em>vctrs</em>.</p><h2 id=acknowledgments>Acknowledgments
+<a href=#acknowledgments><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Thanks to Brodie Gaslam (
+<a href=https://github.com/brodieG target=_blank rel=noopener>@brodieG</a>) for his help with formatting this blog post and for spotting inaccurate wording.</p><p>We also received issues, pull requests, and comments from 108 people since tibble 1.4.2. Thanks to everyone:</p><p><a href=https://github.com/adam-gruer target=_blank rel=noopener>@adam-gruer</a>,
+<a href=https://github.com/aegerton target=_blank rel=noopener>@aegerton</a>,
+<a href=https://github.com/alaindanet target=_blank rel=noopener>@alaindanet</a>,
+<a href=https://github.com/alexpghayes target=_blank rel=noopener>@alexpghayes</a>,
+<a href=https://github.com/alexwhan target=_blank rel=noopener>@alexwhan</a>,
+<a href=https://github.com/alistaire47 target=_blank rel=noopener>@alistaire47</a>,
+<a href=https://github.com/anhqle target=_blank rel=noopener>@anhqle</a>,
+<a href=https://github.com/batpigandme target=_blank rel=noopener>@batpigandme</a>,
+<a href=https://github.com/brendanf target=_blank rel=noopener>@brendanf</a>,
+<a href=https://github.com/brodieG target=_blank rel=noopener>@brodieG</a>,
+<a href=https://github.com/cfhammill target=_blank rel=noopener>@cfhammill</a>,
+<a href=https://github.com/christophsax target=_blank rel=noopener>@christophsax</a>,
+<a href=https://github.com/cimentadaj target=_blank rel=noopener>@cimentadaj</a>,
+<a href=https://github.com/czeildi target=_blank rel=noopener>@czeildi</a>,
+<a href=https://github.com/DasHammett target=_blank rel=noopener>@DasHammett</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/earowang target=_blank rel=noopener>@earowang</a>,
+<a href=https://github.com/Eluvias target=_blank rel=noopener>@Eluvias</a>,
+<a href=https://github.com/Enchufa2 target=_blank rel=noopener>@Enchufa2</a>,
+<a href=https://github.com/esford3 target=_blank rel=noopener>@esford3</a>,
+<a href=https://github.com/flying-sheep target=_blank rel=noopener>@flying-sheep</a>,
+<a href=https://github.com/gavinsimpson target=_blank rel=noopener>@gavinsimpson</a>,
+<a href=https://github.com/GeorgeHayduke target=_blank rel=noopener>@GeorgeHayduke</a>,
+<a href=https://github.com/gregorp target=_blank rel=noopener>@gregorp</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/IndrajeetPatil target=_blank rel=noopener>@IndrajeetPatil</a>,
+<a href=https://github.com/iron0012 target=_blank rel=noopener>@iron0012</a>,
+<a href=https://github.com/isteves target=_blank rel=noopener>@isteves</a>,
+<a href=https://github.com/jeffreyhanson target=_blank rel=noopener>@jeffreyhanson</a>,
+<a href=https://github.com/jennybc target=_blank rel=noopener>@jennybc</a>,
+<a href=https://github.com/jimhester target=_blank rel=noopener>@jimhester</a>,
+<a href=https://github.com/JLYJabc target=_blank rel=noopener>@JLYJabc</a>,
+<a href=https://github.com/joranE target=_blank rel=noopener>@joranE</a>,
+<a href=https://github.com/jtelleriar target=_blank rel=noopener>@jtelleriar</a>,
+<a href=https://github.com/karldw target=_blank rel=noopener>@karldw</a>,
+<a href=https://github.com/kendonB target=_blank rel=noopener>@kendonB</a>,
+<a href=https://github.com/kevinushey target=_blank rel=noopener>@kevinushey</a>,
+<a href=https://github.com/kovla target=_blank rel=noopener>@kovla</a>,
+<a href=https://github.com/lbusett target=_blank rel=noopener>@lbusett</a>,
+<a href=https://github.com/lionel- target=_blank rel=noopener>@lionel-</a>,
+<a href=https://github.com/lorenzwalthert target=_blank rel=noopener>@lorenzwalthert</a>,
+<a href=https://github.com/lwiklendt target=_blank rel=noopener>@lwiklendt</a>,
+<a href=https://github.com/mattfidler target=_blank rel=noopener>@mattfidler</a>,
+<a href=https://github.com/MatthieuStigler target=_blank rel=noopener>@MatthieuStigler</a>,
+<a href=https://github.com/maxheld83 target=_blank rel=noopener>@maxheld83</a>,
+<a href=https://github.com/michaelweylandt target=_blank rel=noopener>@michaelweylandt</a>,
+<a href=https://github.com/mingsu target=_blank rel=noopener>@mingsu</a>,
+<a href=https://github.com/momeara target=_blank rel=noopener>@momeara</a>,
+<a href=https://github.com/PalaceChan target=_blank rel=noopener>@PalaceChan</a>,
+<a href=https://github.com/pat-s target=_blank rel=noopener>@pat-s</a>,
+<a href=https://github.com/plantarum target=_blank rel=noopener>@plantarum</a>,
+<a href=https://github.com/prosoitos target=_blank rel=noopener>@prosoitos</a>,
+<a href=https://github.com/ptoche target=_blank rel=noopener>@ptoche</a>,
+<a href=https://github.com/QuLogic target=_blank rel=noopener>@QuLogic</a>,
+<a href=https://github.com/ralonso-igenomix target=_blank rel=noopener>@ralonso-igenomix</a>,
+<a href=https://github.com/randomgambit target=_blank rel=noopener>@randomgambit</a>,
+<a href=https://github.com/riccardopinosio target=_blank rel=noopener>@riccardopinosio</a>,
+<a href=https://github.com/romainfrancois target=_blank rel=noopener>@romainfrancois</a>,
+<a href=https://github.com/tomroh target=_blank rel=noopener>@tomroh</a>,
+<a href=https://github.com/Woosah target=_blank rel=noopener>@Woosah</a>,
+<a href=https://github.com/yonicd target=_blank rel=noopener>@yonicd</a>, and
+<a href=https://github.com/yutannihilation target=_blank rel=noopener>@yutannihilation</a>.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#changes-that-affect-users>Changes that affect users</a></li><li><a href=#changes-that-affect-package-developers>Changes that affect package developers</a></li><li><a href=#outlook>Outlook</a></li><li><a href=#acknowledgments>Acknowledgments</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

@@ -1,0 +1,282 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>tidyr 1.1.0</title><meta property="og:title" content="tidyr 1.1.0"><meta property="og:description" content="tidyr 1.1.0 includes a bunch of quality of life improvements, particularly for pivoting and rectangling."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2020/05/tidyr-1.1.0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="tidyr 1.1.0 - Tidyverse"><meta property="description" content="tidyr 1.1.0 includes a bunch of quality of life improvements, particularly for pivoting and rectangling."><meta property="og:description" content="tidyr 1.1.0 includes a bunch of quality of life improvements, particularly for pivoting and rectangling."><meta property="og:image" content="https://www.tidyverse.org/blog/2020/05/tidyr-1.1.0/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2020/05/tidyr-1.1.0/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>tidyr 1.1.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2020/05/tidyr-1.1.0/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/__ZMnefoI3k>Jan Vasek</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2020/05/26</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/tidyr/>tidyr</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Hadley Wickham</p><div class=article-content><p>We&rsquo;re delighted to announce that
+<a href=http://tidyr.tidyverse.org/ target=_blank rel=noopener>tidyr</a> 1.1.0 is now available from CRAN. tidyr provides a set of tools for transforming data frames to and from tidy data, where each variable is a column and each observation is a row. Tidy data is a convention for matching the semantics and structure of your data that makes using the rest of the tidyverse (and many other R packages) much easier.</p><p>You can install install tidyr with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>install.packages</span><span class=p>(</span><span class=s>&#34;tidyr&#34;</span><span class=p>)</span>
+</code></pre></div><p>This release doesn&rsquo;t include any major new excitement but it includes a whole passel of minor improvements building on the major changes in
+<a href=https://www.tidyverse.org/blog/2019/09/tidyr-1-0-0/ target=_blank rel=noopener>tidyr 1.0.0</a>, and generally making everything easier to use and a bit more flexible. In this blog post, I&rsquo;ll give a quick run down on new pivoting features; see the
+<a href=https://github.com/tidyverse/tidyr/releases/tag/v1.1.0 target=_blank rel=noopener>full release announcement</a> for the details of other changes.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>tidyr</span><span class=p>)</span>
+</code></pre></div><h2 id=pivot_longer><code>pivot_longer()</code>
+<a href=#pivot_longer><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><ul><li><p><code>pivot_longer()</code> gains a new <code>names_transform</code> argument that allows you to
+transform column names before they turn into data. For example, you can
+use this new argument along with
+<a href=https://readr.tidyverse.org/reference/parse_number.html target=_blank rel=noopener><code>readr::parse_number()</code></a> to
+parse column names that really should be numbers:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>tibble</span><span class=p>(</span><span class=n>id</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>wk1</span> <span class=o>=</span> <span class=m>0</span><span class=p>,</span> <span class=n>wk2</span> <span class=o>=</span> <span class=m>4</span><span class=p>,</span> <span class=n>wk3</span> <span class=o>=</span> <span class=m>9</span><span class=p>,</span> <span class=n>wk4</span> <span class=o>=</span> <span class=m>25</span><span class=p>)</span>
+<span class=n>df</span> <span class=o>%&gt;%</span> <span class=nf>pivot_longer</span><span class=p>(</span>
+  <span class=n>cols</span> <span class=o>=</span> <span class=nf>starts_with</span><span class=p>(</span><span class=s>&#34;wk&#34;</span><span class=p>),</span>
+  <span class=n>names_to</span> <span class=o>=</span> <span class=s>&#34;week&#34;</span><span class=p>,</span>
+  <span class=n>names_transform</span> <span class=o>=</span> <span class=nf>list</span><span class=p>(</span><span class=n>week</span> <span class=o>=</span> <span class=n>readr</span><span class=o>::</span><span class=n>parse_number</span><span class=p>),</span>
+<span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 4 x 3</span>
+<span class=c1>#&gt;      id  week value</span>
+<span class=c1>#&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     1     1     0</span>
+<span class=c1>#&gt; 2     1     2     4</span>
+<span class=c1>#&gt; 3     1     3     9</span>
+<span class=c1>#&gt; 4     1     4    25</span>
+</code></pre></div></li><li><p><code>pivot_longer()</code> can now discard uninformative column names by setting
+<code>names_to = character()</code>, thanks to idea and implementation from
+<a href=https://github.com/mitchelloharawild target=_blank rel=noopener>Mitch O&rsquo;Hara Wild</a>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>tibble</span><span class=p>(</span><span class=n>id</span> <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>2</span><span class=p>,</span> <span class=n>fruitful_panda</span> <span class=o>=</span> <span class=m>3</span><span class=o>:</span><span class=m>4</span><span class=p>,</span> <span class=n>angry_aardvark</span> <span class=o>=</span> <span class=m>5</span><span class=o>:</span><span class=m>6</span><span class=p>)</span>  
+<span class=n>df</span> <span class=o>%&gt;%</span> <span class=nf>pivot_longer</span><span class=p>(</span><span class=o>-</span><span class=n>id</span><span class=p>,</span> <span class=n>names_to</span> <span class=o>=</span> <span class=nf>character</span><span class=p>())</span>
+<span class=c1>#&gt; # A tibble: 4 x 2</span>
+<span class=c1>#&gt;      id value</span>
+<span class=c1>#&gt;   &lt;int&gt; &lt;int&gt;</span>
+<span class=c1>#&gt; 1     1     3</span>
+<span class=c1>#&gt; 2     1     5</span>
+<span class=c1>#&gt; 3     2     4</span>
+<span class=c1>#&gt; 4     2     6</span>
+</code></pre></div></li><li><p><code>pivot_longer()</code> no longer creates a <code>.copy</code> variable in the presence of
+duplicate column names. This makes it more consistent with the handling
+of non-unique pivot specifications.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>tibble</span><span class=p>(</span><span class=n>id</span> <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>3</span><span class=p>,</span> <span class=n>x</span> <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>3</span><span class=p>,</span> <span class=n>x</span> <span class=o>=</span> <span class=m>4</span><span class=o>:</span><span class=m>6</span><span class=p>,</span> <span class=n>.name_repair</span> <span class=o>=</span> <span class=s>&#34;minimal&#34;</span><span class=p>)</span>  
+<span class=n>df</span> <span class=o>%&gt;%</span> <span class=nf>pivot_longer</span><span class=p>(</span><span class=o>-</span><span class=n>id</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 6 x 3</span>
+<span class=c1>#&gt;      id name  value</span>
+<span class=c1>#&gt;   &lt;int&gt; &lt;chr&gt; &lt;int&gt;</span>
+<span class=c1>#&gt; 1     1 x         1</span>
+<span class=c1>#&gt; 2     1 x         4</span>
+<span class=c1>#&gt; 3     2 x         2</span>
+<span class=c1>#&gt; 4     2 x         5</span>
+<span class=c1>#&gt; 5     3 x         3</span>
+<span class=c1>#&gt; 6     3 x         6</span>
+</code></pre></div></li><li><p><code>pivot_longer()</code> automatically disambiguates non-unique outputs, which can
+occur when the input variables include some additional component that you
+don&rsquo;t care about and want to discard. You can discard parts of column names
+either with <code>names_pattern</code> or with <code>NA</code> in <code>names_to</code>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>tibble</span><span class=p>(</span><span class=n>id</span> <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>3</span><span class=p>,</span> <span class=n>x_1</span> <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>3</span><span class=p>,</span> <span class=n>y_2</span> <span class=o>=</span> <span class=m>4</span><span class=o>:</span><span class=m>6</span><span class=p>,</span> <span class=n>y_3</span> <span class=o>=</span> <span class=m>9</span><span class=o>:</span><span class=m>11</span><span class=p>)</span>
+<span class=n>df</span> <span class=o>%&gt;%</span> <span class=nf>pivot_longer</span><span class=p>(</span><span class=o>-</span><span class=n>id</span><span class=p>,</span> <span class=n>names_pattern</span> <span class=o>=</span> <span class=s>&#34;(.)_.&#34;</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 9 x 3</span>
+<span class=c1>#&gt;      id name  value</span>
+<span class=c1>#&gt;   &lt;int&gt; &lt;chr&gt; &lt;int&gt;</span>
+<span class=c1>#&gt; 1     1 x         1</span>
+<span class=c1>#&gt; 2     1 y         4</span>
+<span class=c1>#&gt; 3     1 y         9</span>
+<span class=c1>#&gt; 4     2 x         2</span>
+<span class=c1>#&gt; 5     2 y         5</span>
+<span class=c1>#&gt; 6     2 y        10</span>
+<span class=c1>#&gt; 7     3 x         3</span>
+<span class=c1>#&gt; 8     3 y         6</span>
+<span class=c1>#&gt; 9     3 y        11</span>
+    
+<span class=n>df</span> <span class=o>%&gt;%</span> <span class=nf>pivot_longer</span><span class=p>(</span><span class=o>-</span><span class=n>id</span><span class=p>,</span> <span class=n>names_sep</span> <span class=o>=</span> <span class=s>&#34;_&#34;</span><span class=p>,</span> <span class=n>names_to</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=s>&#34;name&#34;</span><span class=p>,</span> <span class=kc>NA</span><span class=p>))</span>
+<span class=c1>#&gt; # A tibble: 9 x 3</span>
+<span class=c1>#&gt;      id name  value</span>
+<span class=c1>#&gt;   &lt;int&gt; &lt;chr&gt; &lt;int&gt;</span>
+<span class=c1>#&gt; 1     1 x         1</span>
+<span class=c1>#&gt; 2     1 y         4</span>
+<span class=c1>#&gt; 3     1 y         9</span>
+<span class=c1>#&gt; 4     2 x         2</span>
+<span class=c1>#&gt; 5     2 y         5</span>
+<span class=c1>#&gt; 6     2 y        10</span>
+<span class=c1>#&gt; 7     3 x         3</span>
+<span class=c1>#&gt; 8     3 y         6</span>
+<span class=c1>#&gt; 9     3 y        11</span>
+    
+<span class=n>df</span> <span class=o>%&gt;%</span> <span class=nf>pivot_longer</span><span class=p>(</span><span class=o>-</span><span class=n>id</span><span class=p>,</span> <span class=n>names_sep</span> <span class=o>=</span> <span class=s>&#34;_&#34;</span><span class=p>,</span> <span class=n>names_to</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=s>&#34;.value&#34;</span><span class=p>,</span> <span class=kc>NA</span><span class=p>))</span>
+<span class=c1>#&gt; # A tibble: 6 x 3</span>
+<span class=c1>#&gt;      id     x     y</span>
+<span class=c1>#&gt;   &lt;int&gt; &lt;int&gt; &lt;int&gt;</span>
+<span class=c1>#&gt; 1     1     1     4</span>
+<span class=c1>#&gt; 2     1    NA     9</span>
+<span class=c1>#&gt; 3     2     2     5</span>
+<span class=c1>#&gt; 4     2    NA    10</span>
+<span class=c1>#&gt; 5     3     3     6</span>
+<span class=c1>#&gt; 6     3    NA    11</span>
+</code></pre></div></li></ul><h2 id=pivot_wider><code>pivot_wider()</code>
+<a href=#pivot_wider><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><ul><li><p><code>pivot_wider()</code> gains a <code>names_sort</code> argument which allows you to sort
+column names in order. The default, <code>FALSE</code>, orders columns by their
+first appearance. I&rsquo;m considering changing the default value to <code>TRUE</code>
+in a future version.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>tibble</span><span class=p>(</span>
+  <span class=n>day_int</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=m>4</span><span class=p>,</span> <span class=m>3</span><span class=p>,</span> <span class=m>5</span><span class=p>,</span> <span class=m>1</span><span class=p>,</span> <span class=m>2</span><span class=p>),</span>
+  <span class=n>day_fac</span> <span class=o>=</span> <span class=nf>factor</span><span class=p>(</span><span class=n>day_int</span><span class=p>,</span> <span class=n>labels</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=s>&#34;Mon&#34;</span><span class=p>,</span> <span class=s>&#34;Tue&#34;</span><span class=p>,</span> <span class=s>&#34;Wed&#34;</span><span class=p>,</span> <span class=s>&#34;Thu&#34;</span><span class=p>,</span> <span class=s>&#34;Fri&#34;</span><span class=p>))</span>
+<span class=p>)</span>
+<span class=n>df</span> <span class=o>%&gt;%</span> <span class=nf>pivot_wider</span><span class=p>(</span>
+  <span class=n>names_from</span> <span class=o>=</span> <span class=n>day_fac</span><span class=p>,</span> 
+  <span class=n>values_from</span> <span class=o>=</span> <span class=n>day_int</span>
+<span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 1 x 5</span>
+<span class=c1>#&gt;     Thu   Wed   Fri   Mon   Tue</span>
+<span class=c1>#&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     4     3     5     1     2</span>
+<span class=n>df</span> <span class=o>%&gt;%</span> <span class=nf>pivot_wider</span><span class=p>(</span>
+  <span class=n>names_from</span> <span class=o>=</span> <span class=n>day_fac</span><span class=p>,</span>
+  <span class=n>names_sort</span> <span class=o>=</span> <span class=kc>TRUE</span><span class=p>,</span>
+  <span class=n>values_from</span> <span class=o>=</span> <span class=n>day_int</span>
+<span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 1 x 5</span>
+<span class=c1>#&gt;     Mon   Tue   Wed   Thu   Fri</span>
+<span class=c1>#&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     1     2     3     4     5</span>
+</code></pre></div></li><li><p><code>pivot_wider()</code> gains a <code>names_glue</code> argument that allows you to construct
+output column names with a glue specification when <code>names_to</code> includes
+multiple columns.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>tibble</span><span class=p>(</span>
+  <span class=n>first</span> <span class=o>=</span> <span class=s>&#34;a&#34;</span><span class=p>,</span>
+  <span class=n>second</span> <span class=o>=</span> <span class=s>&#34;1&#34;</span><span class=p>,</span>
+  <span class=n>third</span> <span class=o>=</span> <span class=s>&#34;X&#34;</span><span class=p>,</span>
+  <span class=n>val</span> <span class=o>=</span> <span class=m>1</span>
+<span class=p>)</span>
+<span class=n>df</span> <span class=o>%&gt;%</span> <span class=nf>pivot_wider</span><span class=p>(</span>
+  <span class=n>names_from</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=n>first</span><span class=p>,</span> <span class=n>second</span><span class=p>,</span> <span class=n>third</span><span class=p>),</span> 
+  <span class=n>values_from</span> <span class=o>=</span> <span class=n>val</span><span class=p>,</span>
+  <span class=n>names_glue</span> <span class=o>=</span> <span class=s>&#34;{first}.{second}_{third}&#34;</span>
+<span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 1 x 1</span>
+<span class=c1>#&gt;   a.1_X</span>
+<span class=c1>#&gt;   &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     1</span>
+</code></pre></div></li><li><p><code>pivot_wider()</code> arguments <code>values_fn</code> and <code>values_fill</code> can now be single
+values; you now only need to use a named list if you want to use different
+values for different value columns. You&rsquo;ll also get better errors if
+they&rsquo;re not of the correct type.</p></li><li><p>Finally, both <code>pivot_wider()</code> and <code>pivot_longer()</code> are considerably more
+performant, thanks largely to improvements in the underlying vctrs code
+by
+<a href=http://github.com/DavisVaughan target=_blank rel=noopener>Davis Vaughn</a>.</p></li></ul><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Thanks to all 135 people who contributed to this version of tidyr by discussing issues and suggesting new code!
+<a href=https://github.com/abichat target=_blank rel=noopener>@abichat</a>,
+<a href=https://github.com/abiyug target=_blank rel=noopener>@abiyug</a>,
+<a href=https://github.com/adisarid target=_blank rel=noopener>@adisarid</a>,
+<a href=https://github.com/ahmohamed target=_blank rel=noopener>@ahmohamed</a>,
+<a href=https://github.com/akikirinrin target=_blank rel=noopener>@akikirinrin</a>,
+<a href=https://github.com/albertotb target=_blank rel=noopener>@albertotb</a>,
+<a href=https://github.com/alex-pax target=_blank rel=noopener>@alex-pax</a>,
+<a href=https://github.com/amirmazmi target=_blank rel=noopener>@amirmazmi</a>,
+<a href=https://github.com/andtheWings target=_blank rel=noopener>@andtheWings</a>,
+<a href=https://github.com/ashiklom target=_blank rel=noopener>@ashiklom</a>,
+<a href=https://github.com/atusy target=_blank rel=noopener>@atusy</a>,
+<a href=https://github.com/batpigandme target=_blank rel=noopener>@batpigandme</a>,
+<a href=https://github.com/bertrandh target=_blank rel=noopener>@bertrandh</a>,
+<a href=https://github.com/BillBlanc target=_blank rel=noopener>@BillBlanc</a>,
+<a href=https://github.com/billdenney target=_blank rel=noopener>@billdenney</a>,
+<a href=https://github.com/BrianDiggs target=_blank rel=noopener>@BrianDiggs</a>,
+<a href=https://github.com/bushdanielkwajaffa target=_blank rel=noopener>@bushdanielkwajaffa</a>,
+<a href=https://github.com/cderv target=_blank rel=noopener>@cderv</a>,
+<a href=https://github.com/CGMossa target=_blank rel=noopener>@CGMossa</a>,
+<a href=https://github.com/cgoo4 target=_blank rel=noopener>@cgoo4</a>,
+<a href=https://github.com/charliejhadley target=_blank rel=noopener>@charliejhadley</a>,
+<a href=https://github.com/chester-gan target=_blank rel=noopener>@chester-gan</a>,
+<a href=https://github.com/cimentadaj target=_blank rel=noopener>@cimentadaj</a>,
+<a href=https://github.com/cjvanlissa target=_blank rel=noopener>@cjvanlissa</a>,
+<a href=https://github.com/cloversleaves target=_blank rel=noopener>@cloversleaves</a>,
+<a href=https://github.com/colearendt target=_blank rel=noopener>@colearendt</a>,
+<a href=https://github.com/dah33 target=_blank rel=noopener>@dah33</a>,
+<a href=https://github.com/DanOvando target=_blank rel=noopener>@DanOvando</a>,
+<a href=https://github.com/dapperjapper target=_blank rel=noopener>@dapperjapper</a>,
+<a href=https://github.com/daranzolin target=_blank rel=noopener>@daranzolin</a>,
+<a href=https://github.com/davidhunterwalsh target=_blank rel=noopener>@davidhunterwalsh</a>,
+<a href=https://github.com/davisadamw target=_blank rel=noopener>@davisadamw</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/dchiu911 target=_blank rel=noopener>@dchiu911</a>,
+<a href=https://github.com/dpastoor target=_blank rel=noopener>@dpastoor</a>,
+<a href=https://github.com/dpeterson71 target=_blank rel=noopener>@dpeterson71</a>,
+<a href=https://github.com/dpprdan target=_blank rel=noopener>@dpprdan</a>,
+<a href=https://github.com/eantworth target=_blank rel=noopener>@eantworth</a>,
+<a href=https://github.com/earcanal target=_blank rel=noopener>@earcanal</a>,
+<a href=https://github.com/echasnovski target=_blank rel=noopener>@echasnovski</a>,
+<a href=https://github.com/enixam target=_blank rel=noopener>@enixam</a>,
+<a href=https://github.com/ericgunnink target=_blank rel=noopener>@ericgunnink</a>,
+<a href=https://github.com/florianm target=_blank rel=noopener>@florianm</a>,
+<a href=https://github.com/fmmattioni target=_blank rel=noopener>@fmmattioni</a>,
+<a href=https://github.com/franzbischoff target=_blank rel=noopener>@franzbischoff</a>,
+<a href=https://github.com/GegznaV target=_blank rel=noopener>@GegznaV</a>,
+<a href=https://github.com/geotheory target=_blank rel=noopener>@geotheory</a>,
+<a href=https://github.com/ggrothendieck target=_blank rel=noopener>@ggrothendieck</a>,
+<a href=https://github.com/gregorp target=_blank rel=noopener>@gregorp</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/HanOostdijk target=_blank rel=noopener>@HanOostdijk</a>,
+<a href=https://github.com/henry090 target=_blank rel=noopener>@henry090</a>,
+<a href=https://github.com/iago-pssjd target=_blank rel=noopener>@iago-pssjd</a>,
+<a href=https://github.com/ifellows target=_blank rel=noopener>@ifellows</a>,
+<a href=https://github.com/infotroph target=_blank rel=noopener>@infotroph</a>,
+<a href=https://github.com/jam1015 target=_blank rel=noopener>@jam1015</a>,
+<a href=https://github.com/jannikbuhr target=_blank rel=noopener>@jannikbuhr</a>,
+<a href=https://github.com/jasonpcasey target=_blank rel=noopener>@jasonpcasey</a>,
+<a href=https://github.com/jeffreypullin target=_blank rel=noopener>@jeffreypullin</a>,
+<a href=https://github.com/jennybc target=_blank rel=noopener>@jennybc</a>,
+<a href=https://github.com/jenren target=_blank rel=noopener>@jenren</a>,
+<a href=https://github.com/JenspederM target=_blank rel=noopener>@JenspederM</a>,
+<a href=https://github.com/jeonghyunwoo target=_blank rel=noopener>@jeonghyunwoo</a>,
+<a href=https://github.com/jjnote target=_blank rel=noopener>@jjnote</a>,
+<a href=https://github.com/jmh530 target=_blank rel=noopener>@jmh530</a>,
+<a href=https://github.com/JohnCoene target=_blank rel=noopener>@JohnCoene</a>,
+<a href=https://github.com/joshua-theisen target=_blank rel=noopener>@joshua-theisen</a>,
+<a href=https://github.com/JosiahParry target=_blank rel=noopener>@JosiahParry</a>,
+<a href=https://github.com/jthomasmock target=_blank rel=noopener>@jthomasmock</a>,
+<a href=https://github.com/jwilliman target=_blank rel=noopener>@jwilliman</a>,
+<a href=https://github.com/kaneplusplus target=_blank rel=noopener>@kaneplusplus</a>,
+<a href=https://github.com/kaybenleroll target=_blank rel=noopener>@kaybenleroll</a>,
+<a href=https://github.com/kent37 target=_blank rel=noopener>@kent37</a>,
+<a href=https://github.com/kiernann target=_blank rel=noopener>@kiernann</a>,
+<a href=https://github.com/krlmlr target=_blank rel=noopener>@krlmlr</a>,
+<a href=https://github.com/lionel- target=_blank rel=noopener>@lionel-</a>,
+<a href=https://github.com/Ljupch0 target=_blank rel=noopener>@Ljupch0</a>,
+<a href=https://github.com/lymanmark target=_blank rel=noopener>@lymanmark</a>,
+<a href=https://github.com/maelle target=_blank rel=noopener>@maelle</a>,
+<a href=https://github.com/majazaloznik target=_blank rel=noopener>@majazaloznik</a>,
+<a href=https://github.com/mattantaliss target=_blank rel=noopener>@mattantaliss</a>,
+<a href=https://github.com/mattwarkentin target=_blank rel=noopener>@mattwarkentin</a>,
+<a href=https://github.com/maurolepore target=_blank rel=noopener>@maurolepore</a>,
+<a href=https://github.com/md0u80c9 target=_blank rel=noopener>@md0u80c9</a>,
+<a href=https://github.com/mgirlich target=_blank rel=noopener>@mgirlich</a>,
+<a href=https://github.com/MikeEdinger target=_blank rel=noopener>@MikeEdinger</a>,
+<a href=https://github.com/mikemahoney218 target=_blank rel=noopener>@mikemahoney218</a>,
+<a href=https://github.com/mikmart target=_blank rel=noopener>@mikmart</a>,
+<a href=https://github.com/mitchelloharawild target=_blank rel=noopener>@mitchelloharawild</a>,
+<a href=https://github.com/moodymudskipper target=_blank rel=noopener>@moodymudskipper</a>,
+<a href=https://github.com/msberends target=_blank rel=noopener>@msberends</a>,
+<a href=https://github.com/msgoussi target=_blank rel=noopener>@msgoussi</a>,
+<a href=https://github.com/mstackhouse target=_blank rel=noopener>@mstackhouse</a>,
+<a href=https://github.com/MyKo101 target=_blank rel=noopener>@MyKo101</a>,
+<a href=https://github.com/nacnudus target=_blank rel=noopener>@nacnudus</a>,
+<a href=https://github.com/namelessjon target=_blank rel=noopener>@namelessjon</a>,
+<a href=https://github.com/ndrewGele target=_blank rel=noopener>@ndrewGele</a>,
+<a href=https://github.com/Nicktz target=_blank rel=noopener>@Nicktz</a>,
+<a href=https://github.com/npjc target=_blank rel=noopener>@npjc</a>,
+<a href=https://github.com/osorensen target=_blank rel=noopener>@osorensen</a>,
+<a href=https://github.com/PathosEthosLogos target=_blank rel=noopener>@PathosEthosLogos</a>,
+<a href=https://github.com/philipp-baumann target=_blank rel=noopener>@philipp-baumann</a>,
+<a href=https://github.com/PMSeitzer target=_blank rel=noopener>@PMSeitzer</a>,
+<a href=https://github.com/psychelzh target=_blank rel=noopener>@psychelzh</a>,
+<a href=https://github.com/randomgambit target=_blank rel=noopener>@randomgambit</a>,
+<a href=https://github.com/riinuots target=_blank rel=noopener>@riinuots</a>,
+<a href=https://github.com/romagnolid target=_blank rel=noopener>@romagnolid</a>,
+<a href=https://github.com/romainfrancois target=_blank rel=noopener>@romainfrancois</a>,
+<a href=https://github.com/rvino target=_blank rel=noopener>@rvino</a>,
+<a href=https://github.com/salim-b target=_blank rel=noopener>@salim-b</a>,
+<a href=https://github.com/shanepiesik target=_blank rel=noopener>@shanepiesik</a>,
+<a href=https://github.com/shannonpileggi target=_blank rel=noopener>@shannonpileggi</a>,
+<a href=https://github.com/sharleenw target=_blank rel=noopener>@sharleenw</a>,
+<a href=https://github.com/siddharthprabhu target=_blank rel=noopener>@siddharthprabhu</a>,
+<a href=https://github.com/simazhi target=_blank rel=noopener>@simazhi</a>,
+<a href=https://github.com/skr5k target=_blank rel=noopener>@skr5k</a>,
+<a href=https://github.com/skydavis435 target=_blank rel=noopener>@skydavis435</a>,
+<a href=https://github.com/smingerson target=_blank rel=noopener>@smingerson</a>,
+<a href=https://github.com/smithjd target=_blank rel=noopener>@smithjd</a>,
+<a href=https://github.com/srnnkls target=_blank rel=noopener>@srnnkls</a>,
+<a href=https://github.com/stragu target=_blank rel=noopener>@stragu</a>,
+<a href=https://github.com/stufield target=_blank rel=noopener>@stufield</a>,
+<a href=https://github.com/tangcxx target=_blank rel=noopener>@tangcxx</a>,
+<a href=https://github.com/tdhock target=_blank rel=noopener>@tdhock</a>,
+<a href=https://github.com/the-Zian target=_blank rel=noopener>@the-Zian</a>,
+<a href=https://github.com/tomhopper target=_blank rel=noopener>@tomhopper</a>,
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>,
+<a href=https://github.com/wgrundlingh target=_blank rel=noopener>@wgrundlingh</a>,
+<a href=https://github.com/wibeasley target=_blank rel=noopener>@wibeasley</a>,
+<a href=https://github.com/william3031 target=_blank rel=noopener>@william3031</a>,
+<a href=https://github.com/wmoldham target=_blank rel=noopener>@wmoldham</a>,
+<a href=https://github.com/wolski target=_blank rel=noopener>@wolski</a>,
+<a href=https://github.com/xkdog target=_blank rel=noopener>@xkdog</a>,
+<a href=https://github.com/xtimbeau target=_blank rel=noopener>@xtimbeau</a>, and
+<a href=https://github.com/yusuzech target=_blank rel=noopener>@yusuzech</a>.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#pivot_longer><code>pivot_longer()</code></a></li><li><a href=#pivot_wider><code>pivot_wider()</code></a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

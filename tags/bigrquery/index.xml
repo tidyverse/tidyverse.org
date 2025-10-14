@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>bigrquery | Tidyverse</title><link>https://www.tidyverse.org/tags/bigrquery/</link><atom:link href="https://www.tidyverse.org/tags/bigrquery/index.xml" rel="self" type="application/rss+xml"/><description>bigrquery</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 22 Jan 2024 00:00:00 +0000</lastBuildDate><item><title>bigrquery 1.5.0</title><link>https://www.tidyverse.org/blog/2024/01/bigrquery-1-5-0/</link><pubDate>Mon, 22 Jan 2024 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2024/01/bigrquery-1-5-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re stoked to announce the release of
+&lt;a href="http://bigrquery.r-dbi.org/" target="_blank" rel="noopener">bigrquery&lt;/a> 1.5.0. bigrquery makes it easy to work with data stored in
+&lt;a href="https://developers.google.com/bigquery/" target="_blank" rel="noopener">Google BigQuery&lt;/a>, a hosted database for big data.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"bigrquery"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This has been the first major update to bigrquery for a while, and is mostly about catching up with innovations elsewhere as well as squashing a bunch of smaller annoyances.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://bigrquery.r-dbi.org'>bigrquery&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Here&amp;rsquo;s a summary of the biggest changes:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>bigrquery is now
+&lt;a href="https://www.tidyverse.org/blog/2021/12/relicensing-packages/" target="_blank" rel="noopener">MIT licensed&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Deprecated functions (i.e. those not starting with &lt;code>bq_&lt;/code>) have been removed. These have been superseded for a long time and were formally deprecated in bigrquery 1.3.0 (2020).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> now returns unknown fields as character vectors. In particular, this means that &lt;code>BIGNUMERIC&lt;/code> and &lt;code>JSON&lt;/code> columns are downloaded into R for you to process as you wish.
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> now uses the
+&lt;a href="https://clock.r-lib.org" target="_blank" rel="noopener">clock package&lt;/a> to parse dates, leading to a considerable performance improvement and correct parsing for dates prior to 1970-01-01.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>bigquery datasets and tables will now appear in the
+&lt;a href="https://docs.posit.co/ide/user/ide/guide/data/data-connections.html" target="_blank" rel="noopener">RStudio connections pane&lt;/a> when connecting with
+&lt;a href="https://dbi.r-dbi.org/reference/dbConnect.html" target="_blank" rel="noopener">&lt;code>DBI::dbConnect()&lt;/code>&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>DBI::dbAppendTable(),&lt;/code>
+&lt;a href="https://dbi.r-dbi.org/reference/dbCreateTable.html" target="_blank" rel="noopener">&lt;code>DBI::dbCreateTable()&lt;/code>&lt;/a>, and
+&lt;a href="https://dbi.r-dbi.org/reference/dbExecute.html" target="_blank" rel="noopener">&lt;code>DBI::dbExecute()&lt;/code>&lt;/a> are now supported, and
+&lt;a href="https://dbi.r-dbi.org/reference/dbGetQuery.html" target="_blank" rel="noopener">&lt;code>DBI::dbGetQuery()&lt;/code>&lt;/a>/
+&lt;a href="https://dbi.r-dbi.org/reference/dbSendQuery.html" target="_blank" rel="noopener">&lt;code>DBI::dbSendQuery()&lt;/code>&lt;/a> support parameterised queries via the &lt;code>params&lt;/code> argument.
+&lt;a href="https://dbi.r-dbi.org/reference/dbReadTable.html" target="_blank" rel="noopener">&lt;code>DBI::dbReadTable()&lt;/code>&lt;/a>,
+&lt;a href="https://dbi.r-dbi.org/reference/dbWriteTable.html" target="_blank" rel="noopener">&lt;code>DBI::dbWriteTable()&lt;/code>&lt;/a>,
+&lt;a href="https://dbi.r-dbi.org/reference/dbExistsTable.html" target="_blank" rel="noopener">&lt;code>DBI::dbExistsTable()&lt;/code>&lt;/a>,
+&lt;a href="https://dbi.r-dbi.org/reference/dbRemoveTable.html" target="_blank" rel="noopener">&lt;code>DBI::dbRemoveTable()&lt;/code>&lt;/a>, and
+&lt;a href="https://dbi.r-dbi.org/reference/dbListFields.html" target="_blank" rel="noopener">&lt;code>DBI::dbListFields()&lt;/code>&lt;/a> now all work with
+&lt;a href="https://dbi.r-dbi.org/reference/Id.html" target="_blank" rel="noopener">&lt;code>DBI::Id()&lt;/code>&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>bigrquery now uses 2nd edition of dbplyr interface and is compatible with dbplyr 2.4.0.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>See the
+&lt;a href="https://github.com/r-dbi/bigrquery/releases/tag/v1.5.0" target="_blank" rel="noopener">release notes&lt;/a> for a full list of changes.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all 14 folks who helped make this release happen with questions, comments, and code:
+&lt;a href="https://github.com/abalter" target="_blank" rel="noopener">@abalter&lt;/a>,
+&lt;a href="https://github.com/ablack3" target="_blank" rel="noopener">@ablack3&lt;/a>,
+&lt;a href="https://github.com/evanrollinsdrumline" target="_blank" rel="noopener">@evanrollinsdrumline&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/husseyd" target="_blank" rel="noopener">@husseyd&lt;/a>,
+&lt;a href="https://github.com/jacobmpeters" target="_blank" rel="noopener">@jacobmpeters&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/Kvit" target="_blank" rel="noopener">@Kvit&lt;/a>,
+&lt;a href="https://github.com/meztez" target="_blank" rel="noopener">@meztez&lt;/a>,
+&lt;a href="https://github.com/mgirlich" target="_blank" rel="noopener">@mgirlich&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/mjbroerman" target="_blank" rel="noopener">@mjbroerman&lt;/a>,
+&lt;a href="https://github.com/ncuriale" target="_blank" rel="noopener">@ncuriale&lt;/a>, and
+&lt;a href="https://github.com/rdavis120" target="_blank" rel="noopener">@rdavis120&lt;/a>.&lt;/p></description></item><item><title>bigrquery 1.4.0</title><link>https://www.tidyverse.org/blog/2021/08/bigrquery-1-4-0/</link><pubDate>Wed, 04 Aug 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/08/bigrquery-1-4-0/</guid><description>&lt;p>We&amp;rsquo;re gratified to announce the release of
+&lt;a href="https://bigrquery.r-dbi.org" target="_blank" rel="noopener">bigrquery&lt;/a> 1.4.0. bigrquery makes it easy to work with data stored in
+&lt;a href="https://developers.google.com/bigquery/" target="_blank" rel="noopener">Google BigQuery&lt;/a>, a hosted database for big data.&lt;/p>
+&lt;p>You can install bigrquery from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"bigrquery"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This release is mostly to fix a bug in
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a>. We&amp;rsquo;re also bumping the required version of the gargle package (&lt;a href="https://gargle.r-lib.org">https://gargle.r-lib.org&lt;/a>), which handles everything around auth.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://bigrquery.r-dbi.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="bq_table_download-bug-fix">&lt;code>bq_table_download()&lt;/code> bug fix
+&lt;a href="#bq_table_download-bug-fix">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> is a good way to bring small-to-medium data out of BigQuery and into R, in the form of a tibble.&lt;/p>
+&lt;p>Under the hood,
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> retrieves the data in chunks, using several simultaneous connections to BigQuery servers, then parses and reassembles it. The use of concurrent requests has a substantial performance benefit, which we think is absolutely worth it. We ask for these chunks in terms of specific rows, but if the server determines the response will be too large, it sends fewer-than-expected rows (plus a token that can be used to pick up where things left off).&lt;/p>
+&lt;p>The bug is that
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> previously did not account for this and silently returned a tibble with the requested shape but, potentially, with lots of missing data. Many users and datasets are unaffected, because all chunks are received in their entirety. But the problem has been seen with datasets with many columns and where data complexity and sparsity mean that different slices of rows have a very different memory footprint.&lt;/p>
+&lt;p>
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> has been heavily refactored to make this phenomenon much less likely and to detect it when it happens:&lt;/p>
+&lt;ul>
+&lt;li>The default value of &lt;code>page_size&lt;/code> is no longer fixed and, instead, is determined empirically. Users are strongly recommended to let bigrquery select &lt;code>page_size&lt;/code> automatically, unless there&amp;rsquo;s a specific reason to do otherwise.&lt;/li>
+&lt;li>If one of our so-called chunks does not fit on a BigQuery page,
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> now throws an error with some advice about &lt;code>page_size&lt;/code>.&lt;/li>
+&lt;li>The &lt;code>max_results&lt;/code> argument has been deprecated in favor of &lt;code>n_max&lt;/code>, which better reflects what we actually do with this number and is consistent with the &lt;code>n_max&lt;/code> argument elsewhere, e.g.,
+&lt;a href="https://readr.tidyverse.org/reference/read_delim.html" target="_blank" rel="noopener">&lt;code>readr::read_csv()&lt;/code>&lt;/a>.&lt;/li>
+&lt;/ul>
+&lt;p>Here&amp;rsquo;s a look at the new and improved
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://bigrquery.r-dbi.org'>bigrquery&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>dat&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://bigrquery.r-dbi.org/reference/bq_table_download.html'>bq_table_download&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+&lt;span class='s'>"bigquery-public-data.chicago_taxi_trips.taxi_trips"&lt;/span>,
+n_max &lt;span class='o'>=&lt;/span> &lt;span class='m'>100000&lt;/span>,
+bigint &lt;span class='o'>=&lt;/span> &lt;span class='s'>"integer64"&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; Downloading first chunk of data.&lt;/span>
+&lt;span class='c'>#&amp;gt; Received 29,221 rows in the first chunk.&lt;/span>
+&lt;span class='c'>#&amp;gt; Downloading the remaining 70,779 rows in 4 chunks of (up to) 21,915 rows.&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/head.html'>tail&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>dat&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; # A tibble: 6 x 23&lt;/span>
+&lt;span class='c'>#&amp;gt; unique_key taxi_id trip_start_timesta… trip_end_timestamp trip_seconds&lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dttm&amp;gt; &amp;lt;dttm&amp;gt; &amp;lt;int64&amp;gt;&lt;/span>
+&lt;span class='c'>#&amp;gt; 1 1ad3f7df79d3… 0caf3d04eb… 2013-12-27 12:45:00 2013-12-27 13:00:00 840&lt;/span>
+&lt;span class='c'>#&amp;gt; 2 3c982851afee… d7f7e8e4b0… 2014-01-25 19:45:00 2014-01-25 20:00:00 720&lt;/span>
+&lt;span class='c'>#&amp;gt; 3 da7428c5329e… 46e168456e… 2014-01-06 17:45:00 2014-01-06 18:00:00 540&lt;/span>
+&lt;span class='c'>#&amp;gt; 4 b0bb177ea839… 8d1222551a… 2014-01-08 11:45:00 2014-01-08 12:00:00 540&lt;/span>
+&lt;span class='c'>#&amp;gt; 5 eee61e8e6c6d… ac39a2b21a… 2014-01-07 20:45:00 2014-01-07 21:00:00 540&lt;/span>
+&lt;span class='c'>#&amp;gt; 6 4cc0ba56e6de… 25c1126afa… 2013-12-16 22:45:00 2013-12-16 22:45:00 420&lt;/span>
+&lt;span class='c'>#&amp;gt; # … with 18 more variables: trip_miles &amp;lt;dbl&amp;gt;, pickup_census_tract &amp;lt;int64&amp;gt;,&lt;/span>
+&lt;span class='c'>#&amp;gt; # dropoff_census_tract &amp;lt;int64&amp;gt;, pickup_community_area &amp;lt;int64&amp;gt;,&lt;/span>
+&lt;span class='c'>#&amp;gt; # dropoff_community_area &amp;lt;int64&amp;gt;, fare &amp;lt;dbl&amp;gt;, tips &amp;lt;dbl&amp;gt;, tolls &amp;lt;dbl&amp;gt;,&lt;/span>
+&lt;span class='c'>#&amp;gt; # extras &amp;lt;dbl&amp;gt;, trip_total &amp;lt;dbl&amp;gt;, payment_type &amp;lt;chr&amp;gt;, company &amp;lt;chr&amp;gt;,&lt;/span>
+&lt;span class='c'>#&amp;gt; # pickup_latitude &amp;lt;dbl&amp;gt;, pickup_longitude &amp;lt;dbl&amp;gt;, pickup_location &amp;lt;chr&amp;gt;,&lt;/span>
+&lt;span class='c'>#&amp;gt; # dropoff_latitude &amp;lt;dbl&amp;gt;, dropoff_longitude &amp;lt;dbl&amp;gt;, dropoff_location &amp;lt;chr&amp;gt;&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="auth-updates">Auth updates
+&lt;a href="#auth-updates">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If you are generally fairly passive about bigrquery auth, then you should just sit back and let things happen organically during usage. If you&amp;rsquo;ve used bigrquery before, you can expect to see some messages about cleaning and relocating the token cache when you first use v1.4.0. You can also expect to re-authenticate yourself with Google and re-authorize the &amp;ldquo;Tidyverse API Packages&amp;rdquo; to work with your files. This is all due to changes in gargle.&lt;/p>
+&lt;p>If your usage requires you to be more proactive about auth, read the
+&lt;a href="https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/" target="_blank" rel="noopener">blog post for gargle&amp;rsquo;s recent v1.2.0 release&lt;/a>. A key point is that we have rolled the built-in OAuth client, which is why those relying on it will need to re-auth.&lt;/p>
+&lt;p>&lt;strong>If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call&lt;/strong> that you should be using your own OAuth client or, quite possibly, an entirely different method of auth. Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.&lt;/p>
+&lt;p>gargle v1.2.0 offers support for a new method of auth that is especially relevant to bigrquery users: &lt;em>workload identity federation&lt;/em>. This is a new (as of April 2021) keyless authentication mechanism offered by Google. Identity federation allows applications running on a non-Google Cloud platform, such as AWS, to access Google Cloud resources without using a conventional service account token, eliminating the security problem posed by long-lived, powerful service account credential files. Basically, instead of storing sensitive information in a file that must be managed with great care, the necessary secrets are obtained on-the-fly and exchanged for short-lived tokens, with very granular control over what actions are allowed. There is a cost, of course, which is that this auth method requires substantial configuration on both the GCP and AWS sides.&lt;/p>
+&lt;p>See the
+&lt;a href="https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/" target="_blank" rel="noopener">gargle v1.2.0 blog post&lt;/a> and the docs for
+&lt;a href="https://gargle.r-lib.org/reference/credentials_external_account.html" target="_blank" rel="noopener">&lt;code>gargle::credentials_external_account()&lt;/code>&lt;/a> to learn more.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank everyone who has furthered the development of bigrquery, since the last major release (v1.0.0), through their contributions in issues and pull requests:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/414theodore" target="_blank" rel="noopener">@414theodore&lt;/a>,
+&lt;a href="https://github.com/abalter" target="_blank" rel="noopener">@abalter&lt;/a>,
+&lt;a href="https://github.com/acvelozo" target="_blank" rel="noopener">@acvelozo&lt;/a>,
+&lt;a href="https://github.com/adhi-r" target="_blank" rel="noopener">@adhi-r&lt;/a>,
+&lt;a href="https://github.com/afalcioni" target="_blank" rel="noopener">@afalcioni&lt;/a>,
+&lt;a href="https://github.com/ahmohamed" target="_blank" rel="noopener">@ahmohamed&lt;/a>,
+&lt;a href="https://github.com/ajhindle" target="_blank" rel="noopener">@ajhindle&lt;/a>,
+&lt;a href="https://github.com/AlekseyBuzmakov" target="_blank" rel="noopener">@AlekseyBuzmakov&lt;/a>,
+&lt;a href="https://github.com/analyse9823" target="_blank" rel="noopener">@analyse9823&lt;/a>,
+&lt;a href="https://github.com/andirey" target="_blank" rel="noopener">@andirey&lt;/a>,
+&lt;a href="https://github.com/ArbenKqiku" target="_blank" rel="noopener">@ArbenKqiku&lt;/a>,
+&lt;a href="https://github.com/arvhug" target="_blank" rel="noopener">@arvhug&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/bbrewington" target="_blank" rel="noopener">@bbrewington&lt;/a>,
+&lt;a href="https://github.com/bhargavimoorthyrao" target="_blank" rel="noopener">@bhargavimoorthyrao&lt;/a>,
+&lt;a href="https://github.com/btrx-sreddy" target="_blank" rel="noopener">@btrx-sreddy&lt;/a>,
+&lt;a href="https://github.com/byapparov" target="_blank" rel="noopener">@byapparov&lt;/a>,
+&lt;a href="https://github.com/carbocation" target="_blank" rel="noopener">@carbocation&lt;/a>,
+&lt;a href="https://github.com/CartWill" target="_blank" rel="noopener">@CartWill&lt;/a>,
+&lt;a href="https://github.com/chrisherold" target="_blank" rel="noopener">@chrisherold&lt;/a>,
+&lt;a href="https://github.com/ChrisJohnsonUMG" target="_blank" rel="noopener">@ChrisJohnsonUMG&lt;/a>,
+&lt;a href="https://github.com/cpcgoogle" target="_blank" rel="noopener">@cpcgoogle&lt;/a>,
+&lt;a href="https://github.com/danny-molamola" target="_blank" rel="noopener">@danny-molamola&lt;/a>,
+&lt;a href="https://github.com/deflaux" target="_blank" rel="noopener">@deflaux&lt;/a>,
+&lt;a href="https://github.com/dmoimpact" target="_blank" rel="noopener">@dmoimpact&lt;/a>,
+&lt;a href="https://github.com/downloaderfan" target="_blank" rel="noopener">@downloaderfan&lt;/a>,
+&lt;a href="https://github.com/dsolito" target="_blank" rel="noopener">@dsolito&lt;/a>,
+&lt;a href="https://github.com/dujm" target="_blank" rel="noopener">@dujm&lt;/a>,
+&lt;a href="https://github.com/eamcvey" target="_blank" rel="noopener">@eamcvey&lt;/a>,
+&lt;a href="https://github.com/eddelbuettel" target="_blank" rel="noopener">@eddelbuettel&lt;/a>,
+&lt;a href="https://github.com/edgararuiz-zz" target="_blank" rel="noopener">@edgararuiz-zz&lt;/a>,
+&lt;a href="https://github.com/eduardodrc" target="_blank" rel="noopener">@eduardodrc&lt;/a>,
+&lt;a href="https://github.com/evandropp10" target="_blank" rel="noopener">@evandropp10&lt;/a>,
+&lt;a href="https://github.com/everron" target="_blank" rel="noopener">@everron&lt;/a>,
+&lt;a href="https://github.com/geotheory" target="_blank" rel="noopener">@geotheory&lt;/a>,
+&lt;a href="https://github.com/gikis1" target="_blank" rel="noopener">@gikis1&lt;/a>,
+&lt;a href="https://github.com/gjuggler" target="_blank" rel="noopener">@gjuggler&lt;/a>,
+&lt;a href="https://github.com/gkmuralimech" target="_blank" rel="noopener">@gkmuralimech&lt;/a>,
+&lt;a href="https://github.com/grantmcdermott" target="_blank" rel="noopener">@grantmcdermott&lt;/a>,
+&lt;a href="https://github.com/guillaumed90" target="_blank" rel="noopener">@guillaumed90&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/HarlanH" target="_blank" rel="noopener">@HarlanH&lt;/a>,
+&lt;a href="https://github.com/hlynurhallgrims" target="_blank" rel="noopener">@hlynurhallgrims&lt;/a>,
+&lt;a href="https://github.com/htappen" target="_blank" rel="noopener">@htappen&lt;/a>,
+&lt;a href="https://github.com/Iuiu1234" target="_blank" rel="noopener">@Iuiu1234&lt;/a>,
+&lt;a href="https://github.com/izzetagoren" target="_blank" rel="noopener">@izzetagoren&lt;/a>,
+&lt;a href="https://github.com/j450h1" target="_blank" rel="noopener">@j450h1&lt;/a>,
+&lt;a href="https://github.com/janejuenyang" target="_blank" rel="noopener">@janejuenyang&lt;/a>,
+&lt;a href="https://github.com/jayBana" target="_blank" rel="noopener">@jayBana&lt;/a>,
+&lt;a href="https://github.com/jberninger" target="_blank" rel="noopener">@jberninger&lt;/a>,
+&lt;a href="https://github.com/jcheng5" target="_blank" rel="noopener">@jcheng5&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimmyg3g" target="_blank" rel="noopener">@jimmyg3g&lt;/a>,
+&lt;a href="https://github.com/joetortorelli" target="_blank" rel="noopener">@joetortorelli&lt;/a>,
+&lt;a href="https://github.com/jordanwebb10" target="_blank" rel="noopener">@jordanwebb10&lt;/a>,
+&lt;a href="https://github.com/jpryda" target="_blank" rel="noopener">@jpryda&lt;/a>,
+&lt;a href="https://github.com/jrecasens" target="_blank" rel="noopener">@jrecasens&lt;/a>,
+&lt;a href="https://github.com/Ka2wei" target="_blank" rel="noopener">@Ka2wei&lt;/a>,
+&lt;a href="https://github.com/KarimZaoui" target="_blank" rel="noopener">@KarimZaoui&lt;/a>,
+&lt;a href="https://github.com/kesnalawrence" target="_blank" rel="noopener">@kesnalawrence&lt;/a>,
+&lt;a href="https://github.com/kevinwang09" target="_blank" rel="noopener">@kevinwang09&lt;/a>,
+&lt;a href="https://github.com/kkmann" target="_blank" rel="noopener">@kkmann&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/Kvit" target="_blank" rel="noopener">@Kvit&lt;/a>,
+&lt;a href="https://github.com/ldanai" target="_blank" rel="noopener">@ldanai&lt;/a>,
+&lt;a href="https://github.com/leemc-data-ed" target="_blank" rel="noopener">@leemc-data-ed&lt;/a>,
+&lt;a href="https://github.com/LukasWallrich" target="_blank" rel="noopener">@LukasWallrich&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/mapinas" target="_blank" rel="noopener">@mapinas&lt;/a>,
+&lt;a href="https://github.com/mauricioita" target="_blank" rel="noopener">@mauricioita&lt;/a>,
+&lt;a href="https://github.com/meystingray" target="_blank" rel="noopener">@meystingray&lt;/a>,
+&lt;a href="https://github.com/meztez" target="_blank" rel="noopener">@meztez&lt;/a>,
+&lt;a href="https://github.com/mr2dark" target="_blank" rel="noopener">@mr2dark&lt;/a>,
+&lt;a href="https://github.com/mwilson19" target="_blank" rel="noopener">@mwilson19&lt;/a>,
+&lt;a href="https://github.com/paleolimbot" target="_blank" rel="noopener">@paleolimbot&lt;/a>,
+&lt;a href="https://github.com/paulsendavidjay" target="_blank" rel="noopener">@paulsendavidjay&lt;/a>,
+&lt;a href="https://github.com/philbrierley" target="_blank" rel="noopener">@philbrierley&lt;/a>,
+&lt;a href="https://github.com/ras44" target="_blank" rel="noopener">@ras44&lt;/a>,
+&lt;a href="https://github.com/rasmusab" target="_blank" rel="noopener">@rasmusab&lt;/a>,
+&lt;a href="https://github.com/reliscu" target="_blank" rel="noopener">@reliscu&lt;/a>,
+&lt;a href="https://github.com/riccardopinosio" target="_blank" rel="noopener">@riccardopinosio&lt;/a>,
+&lt;a href="https://github.com/Saikri5hna" target="_blank" rel="noopener">@Saikri5hna&lt;/a>,
+&lt;a href="https://github.com/samudzi" target="_blank" rel="noopener">@samudzi&lt;/a>,
+&lt;a href="https://github.com/santic113" target="_blank" rel="noopener">@santic113&lt;/a>,
+&lt;a href="https://github.com/saptarshiguha" target="_blank" rel="noopener">@saptarshiguha&lt;/a>,
+&lt;a href="https://github.com/Schumzy" target="_blank" rel="noopener">@Schumzy&lt;/a>,
+&lt;a href="https://github.com/SeagleLiu" target="_blank" rel="noopener">@SeagleLiu&lt;/a>,
+&lt;a href="https://github.com/selcukakbas" target="_blank" rel="noopener">@selcukakbas&lt;/a>,
+&lt;a href="https://github.com/selesnow" target="_blank" rel="noopener">@selesnow&lt;/a>,
+&lt;a href="https://github.com/siroros" target="_blank" rel="noopener">@siroros&lt;/a>,
+&lt;a href="https://github.com/skydavis435" target="_blank" rel="noopener">@skydavis435&lt;/a>,
+&lt;a href="https://github.com/spgarbet" target="_blank" rel="noopener">@spgarbet&lt;/a>,
+&lt;a href="https://github.com/spiddy69" target="_blank" rel="noopener">@spiddy69&lt;/a>,
+&lt;a href="https://github.com/srkpratap" target="_blank" rel="noopener">@srkpratap&lt;/a>,
+&lt;a href="https://github.com/stelsemeyer" target="_blank" rel="noopener">@stelsemeyer&lt;/a>,
+&lt;a href="https://github.com/stevecondylios" target="_blank" rel="noopener">@stevecondylios&lt;/a>,
+&lt;a href="https://github.com/svmakarovv" target="_blank" rel="noopener">@svmakarovv&lt;/a>,
+&lt;a href="https://github.com/tchaithonov" target="_blank" rel="noopener">@tchaithonov&lt;/a>,
+&lt;a href="https://github.com/tdsmith" target="_blank" rel="noopener">@tdsmith&lt;/a>,
+&lt;a href="https://github.com/theclue" target="_blank" rel="noopener">@theclue&lt;/a>,
+&lt;a href="https://github.com/tinoater" target="_blank" rel="noopener">@tinoater&lt;/a>,
+&lt;a href="https://github.com/valentas-kurauskas" target="_blank" rel="noopener">@valentas-kurauskas&lt;/a>,
+&lt;a href="https://github.com/valentinumbach" target="_blank" rel="noopener">@valentinumbach&lt;/a>,
+&lt;a href="https://github.com/victorz-ca" target="_blank" rel="noopener">@victorz-ca&lt;/a>,
+&lt;a href="https://github.com/warnes" target="_blank" rel="noopener">@warnes&lt;/a>,
+&lt;a href="https://github.com/YuanyuanZhang1986" target="_blank" rel="noopener">@YuanyuanZhang1986&lt;/a>,
+&lt;a href="https://github.com/zacdav" target="_blank" rel="noopener">@zacdav&lt;/a>,
+&lt;a href="https://github.com/ZainRizvi" target="_blank" rel="noopener">@ZainRizvi&lt;/a>,
+&lt;a href="https://github.com/zerobytes" target="_blank" rel="noopener">@zerobytes&lt;/a>, and
+&lt;a href="https://github.com/zoews" target="_blank" rel="noopener">@zoews&lt;/a>.&lt;/p></description></item><item><title>gargle 1.2.0</title><link>https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/</link><pubDate>Sun, 04 Jul 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/</guid><description>&lt;p>We&amp;rsquo;re psyched to announce the release of
+&lt;a href="https://gargle.r-lib.org" target="_blank" rel="noopener">gargle&lt;/a> 1.2.0. gargle is meant to take some of the pain out of working with Google APIs and is mostly aimed at the &lt;em>maintainers&lt;/em> of R packages that call Google APIs.&lt;/p>
+&lt;p>Packages that use gargle internally include
+&lt;a href="https://bigrquery.r-dbi.org" target="_blank" rel="noopener">bigrquery&lt;/a>,
+&lt;a href="https://gmailr.r-lib.org" target="_blank" rel="noopener">gmailr&lt;/a>,
+&lt;a href="https://code.markedmondson.me/googleAuthR/" target="_blank" rel="noopener">googleAuthR&lt;/a>,
+&lt;a href="https://googledrive.tidyverse.org" target="_blank" rel="noopener">googledrive&lt;/a>, and
+&lt;a href="https://googlesheets4.tidyverse.org" target="_blank" rel="noopener">googlesheets4&lt;/a>. As a conservative lower bound, gargle facilitates more than 1.5 million requests per day and over 50 million requests per month. Users of these packages, especially those who take an interest in the details around auth, may want to read on.&lt;/p>
+&lt;p>You can install gargle from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"gargle"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>I last blogged about gargle in
+&lt;a href="https://www.tidyverse.org/blog/2019/08/gargle-hello-world/" target="_blank" rel="noopener">August 2019, around the release of v0.3.1&lt;/a>. There have been several releases since then and this post highlights important changes across all of them.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://gargle.r-lib.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="stewarding-the-cache-of-user-tokens">Stewarding the cache of user tokens
+&lt;a href="#stewarding-the-cache-of-user-tokens">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Users who &amp;ldquo;just go with the flow&amp;rdquo; generally find themselves doing the
+&lt;a href="https://medium.com/typeforms-engineering-blog/the-beginners-guide-to-oauth-dancing-4b8f3666de10" target="_blank" rel="noopener">OAuth Dance&lt;/a> in the browser:&lt;/p>
+&lt;div class="highlight">
+&lt;div class="figure" style="text-align: center">
+&lt;p>&lt;img src="oauth-dance-web-flow.png" alt="Typical OAuth dance in the browser, when initiated from within R" width="100%" />&lt;/p>
+&lt;p class="caption">
+Typical OAuth dance in the browser, when initiated from within R
+&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;p>Upon success, you see this message in the browser:&lt;/p>
+&lt;pre>&lt;code>Authentication complete. Please close this page and return to R.
+&lt;/code>&lt;/pre>
+&lt;p>The dance concludes with gargle (or a wrapper package) in possession of a
+&lt;a href="https://developers.google.com/identity/protocols/oauth2#installed" target="_blank" rel="noopener">Google user token&lt;/a>. This credential usually comes with an access token, which is valid for about an hour, and a more persistent refresh token, which can be used to get new access tokens in the future. It is nice to store this refresh token somewhere, to reduce future friction for this user. We&amp;rsquo;ll refer to this &amp;ldquo;somewhere&amp;rdquo; as the &lt;em>OAuth token cache&lt;/em>. You can get a cache &amp;ldquo;situation report&amp;rdquo; with
+&lt;a href="https://gargle.r-lib.org/reference/gargle_oauth_sitrep.html" target="_blank" rel="noopener">&lt;code>gargle::gargle_oauth_sitrep()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>One of the original motivations for the gargle package was to depart from httr&amp;rsquo;s behaviour around token caching, which defaults to the current working directory.&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> By default, gargle caches user tokens centrally, at the user level, and their keys or labels also convey which Google identity is associated with each token. This reduces the chance of accidentally exposing tokens in projects that sync to remote servers (like DropBox or GitHub), increases the ability to reuse tokens across multiple R projects, and makes it easier to use multiple identities within a single project.&lt;/p>
+&lt;p>Various incremental improvements have been made around gargle&amp;rsquo;s token cache:&lt;/p>
+&lt;ul>
+&lt;li>The default cache location has moved, to better align with general conventions around where to cache user data. After upgrading gargle, don&amp;rsquo;t be surprised if you see some messages about cache relocation.&lt;/li>
+&lt;li>Token storage relies on serialized R objects and therefore is potentially sensitive to differences in R version and operating system between when a token is created and when it is (re)used. gargle is now able to recognize and cope with the most predictable and harmless effects of moving a token across time or space.&lt;/li>
+&lt;li>gargle is quite conservative about using cached tokens and likes to have explicit permission from the user. However, this is in tension with the desire to make things &amp;ldquo;just work&amp;rdquo;. Balancing these two goals is an ongoing effort:
+&lt;ul>
+&lt;li>
+&lt;p>In a non-interactive context, gargle will use a cached token, if it can find (at least) one, even if the user has not given explicit instructions. However, we complain noisily and urge the user to make their intent unambiguous in the code. This comes up, for example, when rendering an R Markdown document(&lt;code>.Rmd&lt;/code>).&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googledrive.tidyverse.org'>googledrive&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_find.html'>drive_find&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>n_max &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ℹ Suitable tokens found in the cache, associated with these emails:&lt;/span>
+&lt;span class='c'>#&amp;gt; • 'jane_personal@gmail.com'&lt;/span>
+&lt;span class='c'>#&amp;gt; • 'jane_work@example.com'&lt;/span>
+&lt;span class='c'>#&amp;gt; Defaulting to the first email.&lt;/span>
+&lt;span class='c'>#&amp;gt; ! Using an auto-discovered, cached token.&lt;/span>
+&lt;span class='c'>#&amp;gt; To suppress this message, modify your code or options to clearly consent to&lt;/span>
+&lt;span class='c'>#&amp;gt; the use of a cached token.&lt;/span>
+&lt;span class='c'>#&amp;gt; See gargle's "Non-interactive auth" vignette for more details:&lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;https://gargle.r-lib.org/articles/non-interactive-auth.html&amp;gt;&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>One of several ways to suppress this scolding is to specify an email:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googledrive.tidyverse.org'>googledrive&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_auth.html'>drive_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"jane_personal@gmail.com"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_find.html'>drive_find&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>n_max &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; # A tibble: 1 x 3&lt;/span>
+&lt;span class='c'>#&amp;gt; name id drive_resource &lt;/span>
+&lt;span class='c'>#&amp;gt; * &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;list&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; 1 useR2021-Instructions_for… 11T7_aYpSObAhUzjQU6EUCHmTFQ2s0wXK… &amp;lt;named list [32…&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>You can now identify the token you want to use with a domain-only glob-like pattern. This makes it possible to successfully execute code like this, non-interactively, on the machines of both &lt;code>alice@example.com&lt;/code> and &lt;code>bob@example.com&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googledrive.tidyverse.org'>googledrive&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'># googledrive uses gargle for auth&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_auth.html'>drive_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>email &lt;span class='o'>=&lt;/span> &lt;span class='s'>"*@example.com"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="rolling-the-built-in-oauth-client">Rolling the built-in OAuth client
+&lt;a href="#rolling-the-built-in-oauth-client">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>User tokens created with gargle are the result of
+&lt;a href="#stewarding-the-cache-of-user-tokens">the OAuth Dance mentioned above&lt;/a>, involving three parties: the user, Google, and an OAuth client (id and secret). Each user or application potentially needs to set up their own OAuth client, in order to execute this flow.&lt;/p>
+&lt;p>A small set of packages maintained by the tidyverse team make use of a shared, built-in OAuth client, which helps new users get started quickly, without the need to create their own client in order to do &amp;ldquo;Hello, World!&amp;quot;. Only these specific packages are allowed to use this client and these packages do so according to a specific
+&lt;a href="https://www.tidyverse.org/google_privacy_policy/" target="_blank" rel="noopener">privacy policy&lt;/a>. The &amp;ldquo;Tidyverse API Packages&amp;rdquo; are
+&lt;a href="https://bigrquery.r-dbi.org/" target="_blank" rel="noopener">bigrquery&lt;/a>,
+&lt;a href="https://googledrive.tidyverse.org/" target="_blank" rel="noopener">googledrive&lt;/a>, and
+&lt;a href="https://googlesheets4.tidyverse.org/" target="_blank" rel="noopener">googlesheets4&lt;/a>.&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>&lt;/p>
+&lt;p>As of gargle v1.0.0, released in March 2021, we have rolled the &amp;ldquo;Tidyverse API Packages&amp;rdquo; client, i.e. we are using a new one. Although we have not yet disabled the previous client, users should be prepared for it to stop working at any time. We use nicknames to keep track of the built-in client; the new one is known as &amp;ldquo;tidyverse-clio&amp;rdquo;, which is replacing the older &amp;ldquo;tidyverse-calliope&amp;rdquo;. You might see these nicknames in the output of
+&lt;a href="https://gargle.r-lib.org/reference/gargle_oauth_sitrep.html" target="_blank" rel="noopener">&lt;code>gargle::gargle_oauth_sitrep()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>We anticipate disabling the older &amp;ldquo;tidyverse-calliope&amp;rdquo; client no later than December 31, 2021. If a specific reason arises before then, we could disable it even sooner. This will also be announced in a future, dedicated blog post.&lt;/p>
+&lt;p>When gargle encounters a token created with the old built-in client, the token is deleted from the cache. So don&amp;rsquo;t be surprised if you see some messages about cleaning out (and relocating) the cache, after you upgrade gargle.&lt;/p>
+&lt;p>You can expect to do the interactive OAuth dance to obtain new credentials, with the new client, stored in the new token cache, approximately once per wrapper package / API. The consequence of credential rolling are also covered here:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://gargle.r-lib.org/articles/troubleshooting.html#credential-rolling">https://gargle.r-lib.org/articles/troubleshooting.html#credential-rolling&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call&lt;/strong> that you should be using your own OAuth client or, quite possibly, an entirely different method of auth. Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.&lt;/p>
+&lt;p>As always, these articles explain how to take more control of auth:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://gargle.r-lib.org/articles/get-api-credentials.html">https://gargle.r-lib.org/articles/get-api-credentials.html&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://gargle.r-lib.org/articles/non-interactive-auth.html">https://gargle.r-lib.org/articles/non-interactive-auth.html&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="workload-identity-federation">Workload identity federation
+&lt;a href="#workload-identity-federation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Workload identity federation is a new (as of April 2021) keyless authentication mechanism offered by Google. This allows applications running on a non-Google Cloud platform, such as AWS, to access Google Cloud resources without using a conventional service account token, eliminating the security problem posed by long-lived, powerful service account credential files. Basically, instead of storing sensitive information in a file that must be managed with great care, the necessary secrets are obtained on-the-fly and exchanged for short-lived tokens, with very granular control over what actions are allowed. There is a cost, of course, which is that this auth method requires substantial configuration on both the GCP and AWS sides.&lt;/p>
+&lt;p>&lt;code>credentials_external_account()&lt;/code> is a new function that implements workload identity federation. &lt;code>credentials_external_account()&lt;/code> has been inserted into the default registry of credential-fetchers tried by &lt;code>token_fetch()&lt;/code>, which makes it automatically available in packages that use gargle for auth, such as bigrquery. &lt;code>credentials_app_default()&lt;/code> recognizes the JSON configuration for an external account and passes such a call along to &lt;code>credentials_external_account()&lt;/code>. This means that, when placed in one of the locations searched by the Application Default Credential strategy, an external account configuration file will be automatically discovered.&lt;/p>
+&lt;p>This new feature is still experimental and currently only supports AWS. This blog post provides a good high-level introduction to workload identity federation:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://cloud.google.com/blog/products/identity-security/enable-keyless-access-to-gcp-with-workload-identity-federation" target="_blank" rel="noopener">Keyless API authentication&amp;mdash;Better cloud security through workload identity federation, no service account keys necessary&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="out-of-bound-auth">Out of bound auth
+&lt;a href="#out-of-bound-auth">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The
+&lt;a href="#stewarding-the-cache-of-user-tokens">browser-based OAuth dance described above&lt;/a> is, ironically, not fully available when you are using R inside a web browser, as is the case for RStudio Workbench, Server, and Cloud. When working on these platforms, you need to use the &lt;strong>&amp;ldquo;out of bound&amp;rdquo; (oob)&lt;/strong> auth flow. After authenticating yourself and confirming permissions, a token is made available for you to copy and paste into R.&lt;/p>
+&lt;div class="highlight">
+&lt;div class="figure" style="text-align: center">
+&lt;p>&lt;img src="oauth-dance-oob-copy-paste.png" alt="A Google Sign in process ending with &amp;quot;Please copy this code, switch to your application and paste it there&amp;quot;" width="40%" />&lt;/p>
+&lt;p class="caption">
+A Google Sign in process ending with "Please copy this code, switch to your application and paste it there"
+&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;p>Back in R, you will paste this code at the prompt and then be on your merry way:&lt;/p>
+&lt;pre>&lt;code>Enter authorization code:
+&lt;/code>&lt;/pre>
+&lt;p>gargle-using wrapper packages generally expose an argument to request oob auth, e.g.:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>googledrive&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_auth.html'>drive_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>...&lt;/span>, use_oob &lt;span class='o'>=&lt;/span> &lt;span class='nf'>gargle&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://gargle.r-lib.org/reference/gargle_options.html'>gargle_oob_default&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The problem is, lots of folks who need oob auth have never even heard of oob auth! And, therefore, they don&amp;rsquo;t know to request it. This reality is something we can, and now do, anticipate.&lt;/p>
+&lt;p>Instead of possibly failing with an inscrutable error,
+&lt;a href="https://gargle.r-lib.org/reference/gargle_options.html" target="_blank" rel="noopener">&lt;code>gargle::gargle_oob_default()&lt;/code>&lt;/a> has gotten smarter about figuring out whether oob is needed:&lt;/p>
+&lt;ul>
+&lt;li>We now (try to) detect if we&amp;rsquo;re running on RStudio Workbench, Server, or Cloud and, if so, &lt;code>gargle_oob_default()&lt;/code> returns &lt;code>TRUE&lt;/code> unconditionally.&lt;/li>
+&lt;li>We honor the &lt;code>&amp;quot;httr_oob_default&amp;quot;&lt;/code> option, when set, if the option &lt;code>&amp;quot;gargle_oob_default&amp;quot;&lt;/code> is unset. Previously, we only consulted the gargle option, but it makes sense to honor httr&amp;rsquo;s as well.&lt;/li>
+&lt;/ul>
+&lt;h3 id="suggesting-httpuv">Suggesting httpuv
+&lt;a href="#suggesting-httpuv">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The slick in-browser OAuth flow described at the start of the post &amp;ndash; i.e., the nicer &lt;em>alternative&lt;/em> to oob auth &amp;ndash; requires the httpuv package. Sometimes users who could enjoy this flow don&amp;rsquo;t have httpuv installed and end up with the clunky oob auth flow, for no good reason. This is a shame, as the experience is definitely inferior.&lt;/p>
+&lt;p>We&amp;rsquo;ve taken a few measures to encourage these folks to install httpuv and enjoy a happier auth life:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Previously, httpuv was only indirectly suggested by gargle, via httr. gargle now lists httpuv in its own &lt;code>Suggests&lt;/code> field.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>We encourage the installation of httpuv in interactive sessions, if we&amp;rsquo;re about to initiate oob auth, when it seems like we don&amp;rsquo;t have to.&lt;/p>
+&lt;pre>&lt;code>The httpuv package enables a nicer Google auth experience, in many cases.
+It doesn't seem to be installed.
+Would you like to install it now?
+1: Yes
+2: No
+Selection:
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="user-interface">User interface
+&lt;a href="#user-interface">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The user interface has gotten more stylish, thanks to the cli package (&lt;a href="https://cli.r-lib.org">https://cli.r-lib.org&lt;/a>). This applies to informational messages, as well as to errors.&lt;/p>
+&lt;p>All errors thrown by gargle now route through
+&lt;a href="https://rlang.r-lib.org/reference/abort.html" target="_blank" rel="noopener">&lt;code>rlang::abort()&lt;/code>&lt;/a>, providing better access to the backtrace and error data. These errors have, at the very least, the &lt;code>gargle_error&lt;/code> class and may also have additional subclasses.&lt;/p>
+&lt;h3 id="verbosity">Verbosity
+&lt;a href="#verbosity">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Since gargle is not a user-facing package, it has very little to say and only emits messages that end users &lt;em>really&lt;/em> need to see. But sometimes it is useful to get more information about gargle&amp;rsquo;s activities, especially when trying to figure out why &lt;code>token_fetch()&lt;/code> isn&amp;rsquo;t working the way you expect. In the past, we used the &lt;code>&amp;quot;gargle_quiet&amp;quot;&lt;/code> option for this, which could be &lt;code>TRUE&lt;/code> or &lt;code>FALSE&lt;/code>.&lt;/p>
+&lt;p>The previous on/off switch has been deprecated in favor of the new &lt;code>&amp;quot;gargle_verbosity&amp;quot;&lt;/code> option, which has three levels:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>&amp;quot;debug&amp;quot;&lt;/code> is equivalent to the previous &lt;code>gargle_quiet = FALSE&lt;/code>. Use for debugging and troubleshooting.&lt;/li>
+&lt;li>&lt;code>&amp;quot;info&amp;quot;&lt;/code> (the default) is basically equivalent to the previous &lt;code>gargle_quiet = TRUE&lt;/code>.&lt;/li>
+&lt;li>&lt;code>&amp;quot;silent&amp;quot;&lt;/code> can be used to suppress all gargle messages. It has no previous equivalent.&lt;/li>
+&lt;/ul>
+&lt;p>There are a couple of helpers around verbosity:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>gargle_verbosity()&lt;/code> reports the current verbosity level.&lt;/li>
+&lt;li>&lt;code>with_gargle_verbosity()&lt;/code> and &lt;code>local_gargle_verbosity()&lt;/code> are
+&lt;a href="https://withr.r-lib.org" target="_blank" rel="noopener">withr-style&lt;/a> functions that temporarily modify the verbosity level.&lt;/li>
+&lt;/ul>
+&lt;h2 id="retries">Retries
+&lt;a href="#retries">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>gargle offers some Google-specific support for forming requests and handling responses, in addition to and separate from auth.&lt;/p>
+&lt;p>Not all wrapper packages use this functionality, but &lt;em>googlesheets4 does&lt;/em>. The
+&lt;a href="https://developers.google.com/sheets/api/reference/limits" target="_blank" rel="noopener">usage limits for the Sheets API&lt;/a> are low enough that regular folks run up against them fairly often. This aggravation is somewhat specific to Sheets, i.e. we don&amp;rsquo;t see similar pain with the Drive and BigQuery APIs, which have much more generous limits. When you hit the Sheets &amp;ldquo;per user&amp;rdquo; or &amp;ldquo;per project&amp;rdquo; limit, requests fail with the error code &lt;code>429 RESOURCE_EXHAUSTED&lt;/code>.&lt;/p>
+&lt;p>Sidebar: As of July 2021, there is a limit of &amp;ldquo;500 requests per 100 seconds per project&amp;rdquo;. In the case of a user token, the &amp;ldquo;project&amp;rdquo; refers to the GCP project that owns the OAuth client. Everyone who uses the built-in &amp;ldquo;Tidyverse API Packages&amp;rdquo; OAuth client is sharing this &amp;ldquo;per project&amp;rdquo; quota! If you&amp;rsquo;re hitting &amp;ldquo;per project&amp;rdquo; limits regularly and it upsets your workflow, the universe is telling you that it&amp;rsquo;s time to configure your own OAuth client or use a different method of auth. End of sidebar.&lt;/p>
+&lt;p>
+&lt;a href="https://gargle.r-lib.org/reference/request_retry.html" target="_blank" rel="noopener">&lt;code>gargle::request_retry()&lt;/code>&lt;/a> is a drop-in substitute for
+&lt;a href="https://gargle.r-lib.org/reference/request_make.html" target="_blank" rel="noopener">&lt;code>gargle::request_make()&lt;/code>&lt;/a> that uses (modified) exponential backoff to retry requests that fail with error &lt;code>429&lt;/code>. &lt;code>request_retry()&lt;/code> even has some special knowledge about Sheets-specific limits and, in some cases, will wait 100 seconds for the user&amp;rsquo;s quota to reset.&lt;/p>
+&lt;p>The development version of googlesheets4 already uses &lt;code>request_retry()&lt;/code>, which will be released to CRAN soon.&lt;/p>
+&lt;p>&lt;code>request_retry()&lt;/code> will support error codes beyond &lt;code>429&lt;/code> in the next gargle release.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank everyone who has furthered the development of gargle, from v0.3.1 to v1.2.0, through their contributions in issues and pull requests:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/acroz" target="_blank" rel="noopener">@acroz&lt;/a>,
+&lt;a href="https://github.com/akgold" target="_blank" rel="noopener">@akgold&lt;/a>,
+&lt;a href="https://github.com/alanfalcaothe" target="_blank" rel="noopener">@alanfalcaothe&lt;/a>,
+&lt;a href="https://github.com/atreibs" target="_blank" rel="noopener">@atreibs&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/biol75" target="_blank" rel="noopener">@biol75&lt;/a>,
+&lt;a href="https://github.com/btrx-sreddy" target="_blank" rel="noopener">@btrx-sreddy&lt;/a>,
+&lt;a href="https://github.com/craigcitro" target="_blank" rel="noopener">@craigcitro&lt;/a>,
+&lt;a href="https://github.com/domsle" target="_blank" rel="noopener">@domsle&lt;/a>,
+&lt;a href="https://github.com/ekarsten" target="_blank" rel="noopener">@ekarsten&lt;/a>,
+&lt;a href="https://github.com/EricGoldsmith" target="_blank" rel="noopener">@EricGoldsmith&lt;/a>,
+&lt;a href="https://github.com/FedericoTrifoglio" target="_blank" rel="noopener">@FedericoTrifoglio&lt;/a>,
+&lt;a href="https://github.com/irfanalidv" target="_blank" rel="noopener">@irfanalidv&lt;/a>,
+&lt;a href="https://github.com/jayBana" target="_blank" rel="noopener">@jayBana&lt;/a>,
+&lt;a href="https://github.com/jcheng5" target="_blank" rel="noopener">@jcheng5&lt;/a>,
+&lt;a href="https://github.com/jdtrat" target="_blank" rel="noopener">@jdtrat&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/MarkEdmondson1234" target="_blank" rel="noopener">@MarkEdmondson1234&lt;/a>,
+&lt;a href="https://github.com/michaelquinn32" target="_blank" rel="noopener">@michaelquinn32&lt;/a>,
+&lt;a href="https://github.com/muschellij2" target="_blank" rel="noopener">@muschellij2&lt;/a>,
+&lt;a href="https://github.com/ogola89" target="_blank" rel="noopener">@ogola89&lt;/a>,
+&lt;a href="https://github.com/Ozan147" target="_blank" rel="noopener">@Ozan147&lt;/a>,
+&lt;a href="https://github.com/petrbouchal" target="_blank" rel="noopener">@petrbouchal&lt;/a>,
+&lt;a href="https://github.com/pofl" target="_blank" rel="noopener">@pofl&lt;/a>,
+&lt;a href="https://github.com/py9mrg" target="_blank" rel="noopener">@py9mrg&lt;/a>,
+&lt;a href="https://github.com/rensa" target="_blank" rel="noopener">@rensa&lt;/a>,
+&lt;a href="https://github.com/samterfa" target="_blank" rel="noopener">@samterfa&lt;/a>,
+&lt;a href="https://github.com/selesnow" target="_blank" rel="noopener">@selesnow&lt;/a>,
+&lt;a href="https://github.com/tareefk" target="_blank" rel="noopener">@tareefk&lt;/a>,
+&lt;a href="https://github.com/tstratopoulos" target="_blank" rel="noopener">@tstratopoulos&lt;/a>, and
+&lt;a href="https://github.com/vimota" target="_blank" rel="noopener">@vimota&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>The successor to httr is under development and, like gargle, it will also cache user tokens at the user level: &lt;a href="https://httr2.r-lib.org">https://httr2.r-lib.org&lt;/a>. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>gmailr is not included here, because the Gmail scopes are so sensitive that anyone wishing to work with Gmail programmatically really must set up their own OAuth client. &lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>bigrquery 1.1.0</title><link>https://www.tidyverse.org/blog/2019/02/bigrquery-1-1-0/</link><pubDate>Fri, 15 Feb 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/02/bigrquery-1-1-0/</guid><description>&lt;p>We&amp;rsquo;re delighted to announce that
+&lt;a href="https://bigrquery.r-dbi.org/" target="_blank" rel="noopener">bigrquery&lt;/a> 1.1.0 is now on CRAN. bigrquery makes it easy to work with data stored in
+&lt;a href="https://developers.google.com/bigquery/" target="_blank" rel="noopener">Google BigQuery&lt;/a>, a hosted database for big data. This is a minor release, with some improved type support, and SQL translation. For a complete list of updates, please see the
+&lt;a href="https://bigrquery.r-dbi.org/news/index.html#bigrquery-1-1-0" target="_blank" rel="noopener">Changelog&lt;/a>.&lt;/p>
+&lt;h2 id="improved-type-support">Improved type support
+&lt;a href="#improved-type-support">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> and the
+&lt;a href="https://www.rdocumentation.org/packages/DBI/versions/0.5-1/topics/dbConnect" target="_blank" rel="noopener">&lt;code>DBI::dbConnect&lt;/code>&lt;/a> method now have a &lt;code>bigint&lt;/code> argument, which governs how BigQuery integer columns are imported into R. As before, the default will be &lt;code>bigint = &amp;quot;integer&amp;quot;&lt;/code>. However, you can now set &lt;code>bigint = &amp;quot;integer64&amp;quot;&lt;/code> to import BigQuery integer columns as &lt;code>bit64::integer64&lt;/code> columns in R. This allows for values outside the range of integer (&lt;code>-2147483647&lt;/code> to &lt;code>2147483647&lt;/code>). Thanks to
+&lt;a href="https://github.com/rasmusab" target="_blank" rel="noopener">Rasmus Bååth&lt;/a> for implementing these changes.&lt;/p>
+&lt;p>&lt;code>bq_table_download()&lt;/code> now treats &lt;code>NUMERIC&lt;/code> columns in the same way as &lt;code>FLOAT&lt;/code> columns.&lt;/p>
+&lt;p>&lt;code>bq_table_upload()&lt;/code> now works with date-time (&lt;code>POSIXct&lt;/code>) variables. Unparseable date times return &lt;code>NA&lt;/code>.&lt;/p>
+&lt;h2 id="sql-translation">SQL translation
+&lt;a href="#sql-translation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>&lt;code>as.character()&lt;/code> now translates to &lt;code>SAFE_CAST(x AS STRING)&lt;/code>.&lt;/li>
+&lt;li>&lt;code>median()&lt;/code> now translates to &lt;code>APPROX_QUANTILES(x, 2)[SAFE_ORDINAL(2)]&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;h2 id="minor-fixes">Minor fixes
+&lt;a href="#minor-fixes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_refs.html" target="_blank" rel="noopener">&lt;code>bq_job()&lt;/code>&lt;/a> tracks location, so bigrquery now works painlessly with non-US/EU locations.&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thank you to everyone who contributed to this release:
+&lt;a href="https://github.com/414theodore" target="_blank" rel="noopener">@414theodore&lt;/a>,
+&lt;a href="https://github.com/ajh3000" target="_blank" rel="noopener">@ajh3000&lt;/a>,
+&lt;a href="https://github.com/AlekseyBuzmakov" target="_blank" rel="noopener">@AlekseyBuzmakov&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/byapparov" target="_blank" rel="noopener">@byapparov&lt;/a>,
+&lt;a href="https://github.com/ChrisJohnsonUMG" target="_blank" rel="noopener">@ChrisJohnsonUMG&lt;/a>,
+&lt;a href="https://github.com/cpcgoogle" target="_blank" rel="noopener">@cpcgoogle&lt;/a>,
+&lt;a href="https://github.com/dujm" target="_blank" rel="noopener">@dujm&lt;/a>,
+&lt;a href="https://github.com/eddelbuettel" target="_blank" rel="noopener">@eddelbuettel&lt;/a>,
+&lt;a href="https://github.com/edgararuiz" target="_blank" rel="noopener">@edgararuiz&lt;/a>,
+&lt;a href="https://github.com/everron" target="_blank" rel="noopener">@everron&lt;/a>,
+&lt;a href="https://github.com/guillaumed90" target="_blank" rel="noopener">@guillaumed90&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/Iuiu1234" target="_blank" rel="noopener">@Iuiu1234&lt;/a>,
+&lt;a href="https://github.com/izzetagoren" target="_blank" rel="noopener">@izzetagoren&lt;/a>,
+&lt;a href="https://github.com/j450h1" target="_blank" rel="noopener">@j450h1&lt;/a>,
+&lt;a href="https://github.com/jberninger" target="_blank" rel="noopener">@jberninger&lt;/a>,
+&lt;a href="https://github.com/jordanwebb10" target="_blank" rel="noopener">@jordanwebb10&lt;/a>,
+&lt;a href="https://github.com/jrecasens" target="_blank" rel="noopener">@jrecasens&lt;/a>,
+&lt;a href="https://github.com/KarimZaoui" target="_blank" rel="noopener">@KarimZaoui&lt;/a>,
+&lt;a href="https://github.com/ldanai" target="_blank" rel="noopener">@ldanai&lt;/a>,
+&lt;a href="https://github.com/paulsendavidjay" target="_blank" rel="noopener">@paulsendavidjay&lt;/a>,
+&lt;a href="https://github.com/ras44" target="_blank" rel="noopener">@ras44&lt;/a>,
+&lt;a href="https://github.com/rasmusab" target="_blank" rel="noopener">@rasmusab&lt;/a>,
+&lt;a href="https://github.com/Saikri5hna" target="_blank" rel="noopener">@Saikri5hna&lt;/a>,
+&lt;a href="https://github.com/selcukakbas" target="_blank" rel="noopener">@selcukakbas&lt;/a>,
+&lt;a href="https://github.com/SergeiMakarovWeb" target="_blank" rel="noopener">@SergeiMakarovWeb&lt;/a>,
+&lt;a href="https://github.com/skydavis435" target="_blank" rel="noopener">@skydavis435&lt;/a>,
+&lt;a href="https://github.com/tdsmith" target="_blank" rel="noopener">@tdsmith&lt;/a>,
+&lt;a href="https://github.com/tinoater" target="_blank" rel="noopener">@tinoater&lt;/a>,
+&lt;a href="https://github.com/tortorellij1" target="_blank" rel="noopener">@tortorellij1&lt;/a>,
+&lt;a href="https://github.com/valentinumbach" target="_blank" rel="noopener">@valentinumbach&lt;/a>, and
+&lt;a href="https://github.com/zacdav" target="_blank" rel="noopener">@zacdav&lt;/a>.&lt;/p></description></item><item><title>bigrquery 1.0.0</title><link>https://www.tidyverse.org/blog/2018/04/bigrquery-1-0-0/</link><pubDate>Tue, 24 Apr 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/04/bigrquery-1-0-0/</guid><description>
+&lt;p>I’m very excited to announce that bigrquery 1.0.0 is now on CRAN. This package makes it easy to work with data stored in &lt;a href="https://developers.google.com/bigquery/">Google BigQuery&lt;/a>, a hosted database for big data. The bigrquery package provides three levels of abstraction on top of BigQuery:&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>The low-level API provides thin wrappers over the underlying REST API. In
+this version, all the low-level functions start with &lt;code>bq_&lt;/code>, and mostly have
+the form &lt;code>bq_noun_verb()&lt;/code>. This level of abstraction is most appropriate if
+you’re familiar with the REST API and you want do something not supported in
+the higher-level APIs.&lt;/p>&lt;/li>
+&lt;li>&lt;p>The &lt;a href="http://www.r-dbi.org">DBI interface&lt;/a> wraps the low-level API and
+makes working with BigQuery like working with any other database system.
+This is the most convenient layer if you want to execute SQL queries in
+BigQuery or upload smaller amounts (i.e. &amp;lt;100 MB) of data.&lt;/p>&lt;/li>
+&lt;li>&lt;p>The &lt;a href="http://dbplyr.tidyverse.org/">dplyr interface&lt;/a> lets you treat BigQuery
+tables as if they are in-memory data frames. This is the most convenient
+layer if you don’t want to write SQL, but instead want dbplyr to write it
+for you.&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;p>Install it with:&lt;/p>
+&lt;pre class="r">&lt;code>install.packages(&amp;quot;bigrquery&amp;quot;)&lt;/code>&lt;/pre>
+&lt;p>Four big changes in this version of bigrquery are described in detail below:&lt;/p>
+&lt;ul>
+&lt;li>Support for repeated and nested fields.&lt;/li>
+&lt;li>Easier cross-dataset queries.&lt;/li>
+&lt;li>Greatly improved download speeds.&lt;/li>
+&lt;li>A new low-level API.&lt;/li>
+&lt;/ul>
+&lt;p>There are also many smaller improvements and bug fixes, as described in the &lt;a href="https://github.com/r-dbi/bigrquery/releases/tag/v1.0.0">release notes&lt;/a>.&lt;/p>
+&lt;div id="nested-and-repeated-fields" class="section level2">
+&lt;h2>Nested and repeated fields&lt;/h2>
+&lt;p>One of the neatest things about BigQuery is that it supports nested and repeated fields, which are also called structs (or records) and arrays. bigrquery now supports those types of fields, reading them into list-columns:&lt;/p>
+&lt;ul>
+&lt;li>Repeated values become list-columns containing vectors.&lt;/li>
+&lt;li>Nested values become list-columns containing named lists.&lt;/li>
+&lt;li>Repeated nested values become list-columns containing data frames.&lt;/li>
+&lt;/ul>
+&lt;p>The following code illustrates the output for the two most important types: an array, and an array of structs:&lt;/p>
+&lt;pre class="r">&lt;code>library(bigrquery)
+con &amp;lt;- DBI::dbConnect(bigquery(), project = bq_test_project())
+sql &amp;lt;- &amp;quot;SELECT
+[1, 2, 3] as list,
+[STRUCT(1 as a, &amp;#39;a&amp;#39; as b), STRUCT(2, &amp;#39;b&amp;#39;), STRUCT(3, &amp;#39;c&amp;#39;)] as df
+&amp;quot;
+out &amp;lt;- DBI::dbGetQuery(con, sql)
+#&amp;gt; Auto-refreshing stale OAuth token.
+out
+#&amp;gt; # A tibble: 1 x 2
+#&amp;gt; list df
+#&amp;gt; &amp;lt;list&amp;gt; &amp;lt;list&amp;gt;
+#&amp;gt; 1 &amp;lt;int [3]&amp;gt; &amp;lt;tibble [3 × 2]&amp;gt;
+out$list[[1]]
+#&amp;gt; [1] 1 2 3
+out$df[[1]]
+#&amp;gt; # A tibble: 3 x 2
+#&amp;gt; a b
+#&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt;
+#&amp;gt; 1 1 a
+#&amp;gt; 2 2 b
+#&amp;gt; 3 3 c&lt;/code>&lt;/pre>
+&lt;p>Note that results are now returned as tibbles, not data frames, because the base print method does not handle list columns well. If for some reason you do need a data frame, use &lt;code>as.data.frame()&lt;/code> to convert back.&lt;/p>
+&lt;p>This work has made me think a bunch about list-colums and df-columns (which might be a better fit for non-repeated nested fields). The germination of these ideas is likely to have widespread (if subtle) infuence throughout the tidyverse, with initial impacts most likely to be felt in &lt;a href="http://tidyr.tidyverse.org/">tidyr&lt;/a>.&lt;/p>
+&lt;/div>
+&lt;div id="cross-dataset-queries" class="section level2">
+&lt;h2>Cross-dataset queries&lt;/h2>
+&lt;p>In the previous version of bigrquery it was difficult to perform queries across datasets because &lt;code>dbConnect()&lt;/code> forced you to specify a &lt;code>dataset&lt;/code> and only allowed you to reference tables within that dataset. Now the dataset is optional (the only required argument to &lt;code>DBI::dbConnect()&lt;/code> is a project to bill) and both DBI and dplyr interfaces accept qualified table names: either &lt;code>dataset.table&lt;/code> or &lt;code>project.dataset.table&lt;/code>.&lt;/p>
+&lt;p>The following example demonstrates with my test project, which contains a &lt;code>basedata&lt;/code> dataset containing the &lt;code>mtcars&lt;/code> table:&lt;/p>
+&lt;pre class="r">&lt;code>library(bigrquery)
+con &amp;lt;- DBI::dbConnect(bigquery(), project = bq_test_project())
+mtcars1 &amp;lt;- DBI::dbReadTable(con, &amp;quot;basedata.mtcars&amp;quot;)
+head(mtcars1)
+#&amp;gt; # A tibble: 6 x 11
+#&amp;gt; mpg cyl disp hp drat wt qsec vs am gear carb
+#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+#&amp;gt; 1 24.4 4. 147. 62. 3.69 3.19 20.0 1. 0. 4. 2.
+#&amp;gt; 2 21.5 4. 120. 97. 3.70 2.46 20.0 1. 0. 3. 1.
+#&amp;gt; 3 18.1 6. 225. 105. 2.76 3.46 20.2 1. 0. 3. 1.
+#&amp;gt; 4 21.4 6. 258. 110. 3.08 3.22 19.4 1. 0. 3. 1.
+#&amp;gt; 5 15.2 8. 276. 180. 3.07 3.78 18.0 0. 0. 3. 3.
+#&amp;gt; 6 17.3 8. 276. 180. 3.07 3.73 17.6 0. 0. 3. 3.
+mtcars2 &amp;lt;- dplyr::tbl(con, &amp;quot;basedata.mtcars&amp;quot;)
+head(mtcars2)
+#&amp;gt; # Source: lazy query [?? x 11]
+#&amp;gt; # Database: BigQueryConnection
+#&amp;gt; mpg cyl disp hp drat wt qsec vs am gear carb
+#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+#&amp;gt; 1 24.4 4. 147. 62. 3.69 3.19 20.0 1. 0. 4. 2.
+#&amp;gt; 2 21.5 4. 120. 97. 3.70 2.46 20.0 1. 0. 3. 1.
+#&amp;gt; 3 18.1 6. 225. 105. 2.76 3.46 20.2 1. 0. 3. 1.
+#&amp;gt; 4 21.4 6. 258. 110. 3.08 3.22 19.4 1. 0. 3. 1.
+#&amp;gt; 5 15.2 8. 276. 180. 3.07 3.78 18.0 0. 0. 3. 3.
+#&amp;gt; 6 17.3 8. 276. 180. 3.07 3.73 17.6 0. 0. 3. 3.&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="improved-download-speeds" class="section level2">
+&lt;h2>Improved download speeds&lt;/h2>
+&lt;p>The system for downloading data from BigQuery into R has been rewritten from the ground up to considerably improve performance:&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>By default, data is downloaded from BigQuery in pages of 10,000 rows.
+Previously, bigrquery downloaded then parsed each page. Now, bigrquery
+downloads all pages, then parses all pages. This means that you’ll now see
+two progress bars: one for downloading JSON from BigQuery and one for parsing
+that JSON into a data frame.&lt;/p>&lt;/li>
+&lt;li>&lt;p>Because all pages are downloaded in a single pass, we can now download in
+parallel, using up to 6 simultaneous connections by default. This generally
+doesn’t result in a six-fold speed up, but should at least double download
+speed.&lt;/p>&lt;/li>
+&lt;li>&lt;p>The parsing code has been rewritten in C++. This eliminates several expensive
+intermediate computations, and means that bigrquery no longer requires
+&lt;a href="http://readr.tidyverse.org/">readr&lt;/a>.&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;p>All up, I can now download the first million rows of &lt;code>publicdata.samples.natality&lt;/code> in about a minute, about 8x faster than the previous version. This data frame takes up 170 MB of space in BigQuery and 140 MB of memory in R, so a minute to download doesn’t seem unreasonable. The bottleneck for loading BigQuery data is now parsing BigQuery’s JSON format, which is difficult to optimise further because I’m already using the fastest C++ JSON parser, &lt;a href="http://rapidjson.org">RapidJson&lt;/a>. If this is still too slow (because you download a lot of data), see &lt;code>?bq_table_download&lt;/code> for an alternative approach.&lt;/p>
+&lt;/div>
+&lt;div id="low-level-api" class="section level2">
+&lt;h2>Low-level API&lt;/h2>
+&lt;p>The low-level API has been completely overhauled to make it easier to use. The primary motivation was to make bigrquery development more enjoyable for me, but it should also be helpful to you when you need to go outside of the features provided by the higher-level DBI and dplyr interfaces.&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>&lt;strong>Consistent naming scheme&lt;/strong>:
+All API functions now have the form &lt;code>bq_object_verb()&lt;/code>, e.g.
+&lt;code>bq_table_create()&lt;/code>, or &lt;code>bq_dataset_delete()&lt;/code>.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;strong>S3 classes&lt;/strong>:
+&lt;code>bq_table()&lt;/code>, &lt;code>bq_dataset()&lt;/code>, &lt;code>bq_job()&lt;/code>, &lt;code>bq_field()&lt;/code> and &lt;code>bq_fields()&lt;/code>
+constructors create S3 objects corresponding to important BigQuery objects. T
+hese are paired with &lt;code>as_&lt;/code> coercion functions and used throughout the new API.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;strong>Easier local testing&lt;/strong>:
+New &lt;code>bq_test_project()&lt;/code> and &lt;code>bq_test_dataset()&lt;/code> make it easier to run
+bigrquery tests locally. To run the tests yourself, you need to create a
+BigQuery project, and then follow the instructions in &lt;code>?bq_test_project&lt;/code>.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;strong>More efficient data transfer&lt;/strong>:
+The new API makes extensive use of the &lt;code>fields&lt;/code> query parameter, ensuring
+that functions only download data that they actually use.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;strong>Tighter GCS connections&lt;/strong>:
+New &lt;code>bq_table_load()&lt;/code> loads data from a Google Cloud Storage URI, pairing
+with &lt;code>bq_table_save()&lt;/code> which saves data to a GCS URI.&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;p>The old API has been soft-deprecated - it will continue to work, but no further development will occur (including bug fixes). It will be formally deprecated in the next version, and then removed in the version after that.&lt;/p>
+&lt;/div>
+&lt;div id="acknowledgements" class="section level2">
+&lt;h2>Acknowledgements&lt;/h2>
+&lt;p>A big thanks goes out to all 41 users who contributed issues, pull requests, and comments since the last release: &lt;a href="https://github.com/alex-danilin">@alex-danilin&lt;/a>, &lt;a href="https://github.com/aschwartzSGI">@aschwartzSGI&lt;/a>, &lt;a href="https://github.com/aumdavis">@aumdavis&lt;/a>, &lt;a href="https://github.com/barnettjacob">@barnettjacob&lt;/a>, &lt;a href="https://github.com/batpigandme">@batpigandme&lt;/a>, &lt;a href="https://github.com/blakeyc">@blakeyc&lt;/a>, &lt;a href="https://github.com/bulam">@bulam&lt;/a>, &lt;a href="https://github.com/byapparov">@byapparov&lt;/a>, &lt;a href="https://github.com/c3212218">@c3212218&lt;/a>, &lt;a href="https://github.com/craigcitro">@craigcitro&lt;/a>, &lt;a href="https://github.com/czeildi">@czeildi&lt;/a>, &lt;a href="https://github.com/dan-booth">@dan-booth&lt;/a>, &lt;a href="https://github.com/edgararuiz">@edgararuiz&lt;/a>, &lt;a href="https://github.com/EricGoldsmith">@EricGoldsmith&lt;/a>, &lt;a href="https://github.com/everron">@everron&lt;/a>, &lt;a href="https://github.com/haavardw">@haavardw&lt;/a>, &lt;a href="https://github.com/hadley">@hadley&lt;/a>, &lt;a href="https://github.com/hidekoji">@hidekoji&lt;/a>, &lt;a href="https://github.com/inkrement">@inkrement&lt;/a>, &lt;a href="https://github.com/j450h1">@j450h1&lt;/a>, &lt;a href="https://github.com/jarodmeng">@jarodmeng&lt;/a>, &lt;a href="https://github.com/jennybc">@jennybc&lt;/a>, &lt;a href="https://github.com/JHowix">@JHowix&lt;/a>, &lt;a href="https://github.com/krlmlr">@krlmlr&lt;/a>, &lt;a href="https://github.com/ldanai">@ldanai&lt;/a>, &lt;a href="https://github.com/leggitta">@leggitta&lt;/a>, &lt;a href="https://github.com/michaelquinn32">@michaelquinn32&lt;/a>, &lt;a href="https://github.com/mpancia">@mpancia&lt;/a>, &lt;a href="https://github.com/ned2">@ned2&lt;/a>, &lt;a href="https://github.com/pcejrowski">@pcejrowski&lt;/a>, &lt;a href="https://github.com/Praxiteles">@Praxiteles&lt;/a>, &lt;a href="https://github.com/ras44">@ras44&lt;/a>, &lt;a href="https://github.com/realAkhmed">@realAkhmed&lt;/a>, &lt;a href="https://github.com/robincrlee">@robincrlee&lt;/a>, &lt;a href="https://github.com/selesnow">@selesnow&lt;/a>, &lt;a href="https://github.com/TerryZhangHL">@TerryZhangHL&lt;/a>, &lt;a href="https://github.com/VictArt">@VictArt&lt;/a>, &lt;a href="https://github.com/vivshume">@vivshume&lt;/a>, &lt;a href="https://github.com/zippeurfou">@zippeurfou&lt;/a>, &lt;a href="https://github.com/zkostitsyn">@zkostitsyn&lt;/a>, and &lt;a href="https://github.com/Zsedo">@Zsedo&lt;/a>&lt;/p>
+&lt;/div></description></item></channel></rss>

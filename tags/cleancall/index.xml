@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>cleancall | Tidyverse</title><link>https://www.tidyverse.org/tags/cleancall/</link><atom:link href="https://www.tidyverse.org/tags/cleancall/index.xml" rel="self" type="application/rss+xml"/><description>cleancall</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 22 May 2019 00:00:00 +0000</lastBuildDate><item><title>Resource Cleanup in C and the R API</title><link>https://www.tidyverse.org/blog/2019/05/resource-cleanup-in-c-and-the-r-api/</link><pubDate>Wed, 22 May 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/05/resource-cleanup-in-c-and-the-r-api/</guid><description>
+&lt;style>
+h1 code, h2 code {
+font-size: 0.8em;
+}
+&lt;/style>
+&lt;div id="introduction" class="section level1">
+&lt;h1>Introduction&lt;/h1>
+&lt;p>We have just released the &lt;a href="https://github.com/r-lib/cleancall#readme">cleancall&lt;/a> package to CRAN. &lt;a href="https://github.com/r-lib/cleancall#readme">cleancall&lt;/a> is a
+new package that helps avoiding resource leaks in the C code of your
+R package. In this blog post, we show some example resource leaks from
+base R and R packages, and also show three different ways to fix them,
+one of which uses the &lt;a href="https://github.com/r-lib/cleancall#readme">cleancall&lt;/a> package.&lt;/p>
+&lt;/div>
+&lt;div id="the-problem" class="section level1">
+&lt;h1>The problem&lt;/h1>
+&lt;p>When writing C code in R packages, one non-trivial issue is to make
+sure that resources acquired by a C function are correctly released
+or wrapped before giving back control to R. The difficulties partially
+arise from the many ways a C function can terminate and transfer control
+back to R:&lt;/p>
+&lt;ul>
+&lt;li>regular termination,&lt;/li>
+&lt;li>error,&lt;/li>
+&lt;li>warning or other condition caught with &lt;code>tryCatch()&lt;/code>,&lt;/li>
+&lt;li>debugger exit,&lt;/li>
+&lt;li>keyboard interruption.&lt;/li>
+&lt;/ul>
+&lt;p>Resources that need to be released include:&lt;/p>
+&lt;ul>
+&lt;li>memory areas,&lt;/li>
+&lt;li>file handles,&lt;/li>
+&lt;li>connections (sockets),&lt;/li>
+&lt;li>database connections,&lt;/li>
+&lt;li>Windows handles for threads, events, etc.,&lt;/li>
+&lt;li>others.&lt;/li>
+&lt;/ul>
+&lt;div id="regular-termination" class="section level2">
+&lt;h2>Regular termination&lt;/h2>
+&lt;p>Most functions terminate successfully, most of the time. Releasing
+resources is easy in this case, we can simply do it at the end of the
+function, before returning.&lt;/p>
+&lt;/div>
+&lt;div id="error" class="section level2">
+&lt;h2>Error&lt;/h2>
+&lt;p>Errors may happen two ways. They can be thrown directly, or by the R API.
+A function that reads a file will throw an error it if
+fails to open the file for reading. These errors are easy to handle, we
+can release all resources before throwing the error.&lt;/p>
+&lt;p>Errors can also be thrown by the R API. The R C API functions do not
+return on error, instead they perform an error (a &lt;code>longjmp&lt;/code> technically),
+that can be caught by R or (recently) C code. Releasing resources is
+trickier in this case, as our C function never gets back the control after
+the failed R API call.&lt;/p>
+&lt;/div>
+&lt;div id="warning-or-other-condition-caught-with-trycatch" class="section level2">
+&lt;h2>Warning or other condition caught with &lt;code>tryCatch()&lt;/code>&lt;/h2>
+&lt;p>Usually we assume that throwing a warning (or other non-error condition)
+does not cause an early exit, but this is not always the case. Warnings can
+be caught by an exiting &lt;code>tryCatch()&lt;/code>.&lt;/p>
+&lt;/div>
+&lt;div id="debugger-exit" class="section level2">
+&lt;h2>Debugger exit&lt;/h2>
+&lt;p>If the C function calls back to R to evaluate R expressions, then
+these might invoke the debugger, see &lt;code>?debug&lt;/code> or &lt;code>?trace&lt;/code>. The &lt;code>Q&lt;/code> debugger
+command invokes the &lt;code>abort&lt;/code> restart, to get back to the top-level prompt.
+In this case most functions on the (R and C) stack are removed at once.&lt;/p>
+&lt;/div>
+&lt;div id="keyboard-interruption" class="section level2">
+&lt;h2>Keyboard interruption&lt;/h2>
+&lt;p>C code can call &lt;code>R_CheckUserInterrupt()&lt;/code>, and it is indeed suggested to do
+so during long computation or I/O. If the user initiates an interrupt via
+the keyboard or a signal, then &lt;code>R_CheckUserInterrupt()&lt;/code> never returns, and
+the control goes back to top level.&lt;/p>
+&lt;p>To illustrate the resource cleanup problem more, we’ll show some examples
+from base R and CRAN packages that contain potential resource leaks.&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;div id="example-1-download.filemethod-internal" class="section level1">
+&lt;h1>Example 1: &lt;code>download.file(method = &amp;quot;internal&amp;quot;)&lt;/code>&lt;/h1>
+&lt;p>The C implementation of &lt;code>download.file()&lt;/code> opens a file for saving the
+downloaded data to, and it does not clean or even close this file on a
+keyboard interrupt. The file is opened here:
+&lt;a href="https://github.com/wch/r-source/blob/f3a67c36c5cf4c715dac374e33168cfc348106aa/src/modules/internet/internet.c#L553" class="uri">https://github.com/wch/r-source/blob/f3a67c36c5cf4c715dac374e33168cfc348106aa/src/modules/internet/internet.c#L553&lt;/a>&lt;/p>
+&lt;pre class="c">&lt;code> FILE *out;
+[...]
+out = R_fopen(R_ExpandFileName(file), mode);
+[...]&lt;/code>&lt;/pre>
+&lt;p>We can easily show the problem in practice as well.
+First, we create a handy function that interrupts the current process
+one second after calling it. This allows us to simulate an interrupt from
+the keyboard. It starts a background process that will send an interrupt
+(SIGINT on Unix, CTRL+C on Windows) to our R process.&lt;/p>
+&lt;pre class="r">&lt;code>interrupt &amp;lt;- function(expr, after = 1) {
+tryCatch({
+p &amp;lt;- callr::r_bg(function(pid, after) {
+Sys.sleep(after)
+ps::ps_interrupt(ps::ps_handle(pid))
+}, list(pid = Sys.getpid(), after = after))
+expr
+p$kill()
+}, interrupt = function(e) e)
+}&lt;/code>&lt;/pre>
+&lt;p>&lt;code>ps::ps_open_files()&lt;/code> lists all open files of a process,&lt;code>ps::ps_handle()&lt;/code>
+returns a handle for the current R process. You should see the three
+file descriptors corresponding to standard input, output and error here,
+and another file is used by the blogdown engine rendering this page. If you
+run this code in your R session you’ll not see that file, but of course you
+may see others.&lt;/p>
+&lt;pre class="r">&lt;code>ps::ps_open_files(ps::ps_handle())
+#&amp;gt; # A tibble: 4 x 2
+#&amp;gt; fd path
+#&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt;
+#&amp;gt; 1 0 /dev/ttys021
+#&amp;gt; 2 1 /dev/ttys021
+#&amp;gt; 3 2 /dev/ttys021
+#&amp;gt; 4 7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R&lt;/code>&lt;/pre>
+&lt;p>Now we will start downloading a file, and while it is downloading, we’ll
+send an interrupt to our R process, causing an early exit.&lt;/p>
+&lt;pre class="r">&lt;code>interrupt(
+download.file(&amp;quot;http://httpbin.org/delay/3&amp;quot;, tempfile(), method = &amp;quot;internal&amp;quot;)
+)
+#&amp;gt; &amp;lt;interrupt: &amp;gt;&lt;/code>&lt;/pre>
+&lt;p>The list of open files will now include the one opened by &lt;code>download.file()&lt;/code>:&lt;/p>
+&lt;pre class="r">&lt;code>ps::ps_open_files(ps::ps_handle())
+#&amp;gt; # A tibble: 5 x 2
+#&amp;gt; fd path
+#&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt;
+#&amp;gt; 1 0 /dev/ttys021
+#&amp;gt; 2 1 /dev/ttys021
+#&amp;gt; 3 2 /dev/ttys021
+#&amp;gt; 4 7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R
+#&amp;gt; 5 9 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…&lt;/code>&lt;/pre>
+&lt;p>Because &lt;code>download.file()&lt;/code> fails to clean up this file handle, it is not
+released until the R session quits. On Windows this file is probably locked,
+and cannot be removed until R exits.&lt;/p>
+&lt;/div>
+&lt;div id="example-2-download.filemethod-libcurl" class="section level1">
+&lt;h1>Example 2: &lt;code>download.file(method = &amp;quot;libcurl&amp;quot;)&lt;/code>&lt;/h1>
+&lt;p>There is a very similar bug in the implementation of the &lt;code>download.file()&lt;/code>
+libcurl method, which opens an output file here:
+&lt;a href="https://github.com/wch/r-source/blob/def075db88ae87104c38437a57e9327b078bb804/src/modules/internet/libcurl.c#L566" class="uri">https://github.com/wch/r-source/blob/def075db88ae87104c38437a57e9327b078bb804/src/modules/internet/libcurl.c#L566&lt;/a>
+but it does not close it on error or interrupt. This method can download
+many files in parallel, in which case multiple file handles may be lost:&lt;/p>
+&lt;pre class="r">&lt;code>ps::ps_open_files(ps::ps_handle())
+#&amp;gt; # A tibble: 5 x 2
+#&amp;gt; fd path
+#&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt;
+#&amp;gt; 1 0 /dev/ttys021
+#&amp;gt; 2 1 /dev/ttys021
+#&amp;gt; 3 2 /dev/ttys021
+#&amp;gt; 4 7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R
+#&amp;gt; 5 9 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
+interrupt(
+download.file(
+rep(&amp;quot;https://httpbin.org/delay/3&amp;quot;, 3), paste0(tempfile(), 1:3),
+method = &amp;quot;libcurl&amp;quot;)
+)
+#&amp;gt; &amp;lt;interrupt: &amp;gt;
+ps::ps_open_files(ps::ps_handle())
+#&amp;gt; # A tibble: 8 x 2
+#&amp;gt; fd path
+#&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt;
+#&amp;gt; 1 0 /dev/ttys021
+#&amp;gt; 2 1 /dev/ttys021
+#&amp;gt; 3 2 /dev/ttys021
+#&amp;gt; 4 7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R
+#&amp;gt; 5 9 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
+#&amp;gt; 6 15 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
+#&amp;gt; 7 16 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
+#&amp;gt; 8 17 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="example-3-edit" class="section level1">
+&lt;h1>Example 3: &lt;code>edit()&lt;/code>&lt;/h1>
+&lt;p>&lt;code>edit()&lt;/code> invokes the text editor specified by the &lt;code>editor&lt;/code> option, with the
+supplied object to be edited. &lt;code>edit()&lt;/code> can also write the edited version
+to a file. It opens a file here to create its first version, before starting
+the editor:
+&lt;a href="https://github.com/wch/r-source/blob/019f16d3dec4f97c1b4e4f0ec905148e36979e37/src/main/edit.c#L121-L128" class="uri">https://github.com/wch/r-source/blob/019f16d3dec4f97c1b4e4f0ec905148e36979e37/src/main/edit.c#L121-L128&lt;/a>&lt;/p>
+&lt;pre class="c">&lt;code>121 if((fp=R_fopen(R_ExpandFileName(filename), &amp;quot;w&amp;quot;)) == NULL)
+122 errorcall(call, _(&amp;quot;unable to open file&amp;quot;));
+123 if (LENGTH(STRING_ELT(fn, 0)) == 0) EdFileUsed++;
+124 PROTECT(src = deparse1(x, 0, FORSOURCING)); /* deparse for sourcing, not for display */
+125 for (i = 0; i &amp;lt; LENGTH(src); i++)
+126 fprintf(fp, &amp;quot;%s\n&amp;quot;, translateChar(STRING_ELT(src, i)));
+127 UNPROTECT(1); /* src */
+128 fclose(fp);&lt;/code>&lt;/pre>
+&lt;p>If all goes well, then it will close it just 7 code lines later.
+However, it also calls the R API a number of times before closing the file,
+so if any of these API calls fail, the file is never closed. In particular,
+it calls &lt;code>deparse1()&lt;/code> which is roughly equivalent to the R &lt;code>deparse()&lt;/code>
+function, and &lt;code>deparse&lt;/code>()` fails on long vectors:&lt;/p>
+&lt;pre class="r">&lt;code>ps::ps_open_files(ps::ps_handle())
+#&amp;gt; # A tibble: 8 x 2
+#&amp;gt; fd path
+#&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt;
+#&amp;gt; 1 0 /dev/ttys021
+#&amp;gt; 2 1 /dev/ttys021
+#&amp;gt; 3 2 /dev/ttys021
+#&amp;gt; 4 7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R
+#&amp;gt; 5 9 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
+#&amp;gt; 6 15 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
+#&amp;gt; 7 16 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
+#&amp;gt; 8 17 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
+edit(1:10e10, file = tempfile())
+#&amp;gt; Error in edit.default(1:1e+11, file = tempfile()): long vectors not supported yet: ../../../../R-3.5.3/src/include/Rinlinedfuns.h:519
+ps::ps_open_files(ps::ps_handle())
+#&amp;gt; # A tibble: 9 x 2
+#&amp;gt; fd path
+#&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt;
+#&amp;gt; 1 0 /dev/ttys021
+#&amp;gt; 2 1 /dev/ttys021
+#&amp;gt; 3 2 /dev/ttys021
+#&amp;gt; 4 7 /Users/gaborcsardi/R/blogdown/scripts/render_page.R
+#&amp;gt; 5 8 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
+#&amp;gt; 6 9 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
+#&amp;gt; 7 15 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
+#&amp;gt; 8 16 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…
+#&amp;gt; 9 17 /private/var/folders/59/0gkmw1yj2w7bf2dfc3jznv5w0000gn/T/Rtmp0Uww3…&lt;/code>&lt;/pre>
+&lt;p>Notice that we have one more extra open file here.&lt;/p>
+&lt;/div>
+&lt;div id="example-4-the-wait-method-in-processx" class="section level1">
+&lt;h1>Example 4: the wait() method in &lt;a href="https://github.com/r-lib/processx#readme">processx&lt;/a>:&lt;/h1>
+&lt;p>&lt;code>processx::process&lt;/code> is an R6 class for a subprocess. Its &lt;code>$wait()&lt;/code> method
+waits for the subprocess to finish, with a timeout. To implement &lt;code>$wait()&lt;/code>
+on Unix, &lt;a href="https://github.com/r-lib/processx#readme">processx&lt;/a> opens a pair of pipe file descriptors. These are
+temporary and should be closed once the function exits. &lt;code>$wait()&lt;/code> is
+interruptible, it calls &lt;code>R_CheckUserInterrupt()&lt;/code> periodically. However,
+in the current, 3.3.0 version of &lt;a href="https://github.com/r-lib/processx#readme">processx&lt;/a> it does not close the pipe
+file descriptors on an interrupt. Here is an illustration:&lt;/p>
+&lt;pre class="r">&lt;code>ps::ps_num_fds(ps::ps_handle())
+#&amp;gt; [1] 20
+p &amp;lt;- processx::process$new(&amp;quot;sleep&amp;quot;, &amp;quot;10&amp;quot;)
+interrupt(
+p$wait()
+)
+#&amp;gt; &amp;lt;interrupt: &amp;gt;
+p$kill()
+#&amp;gt; [1] TRUE
+gc()
+#&amp;gt; used (Mb) gc trigger (Mb) limit (Mb) max used (Mb)
+#&amp;gt; Ncells 626041 33.5 1203691 64.3 NA 1203691 64.3
+#&amp;gt; Vcells 1188386 9.1 8388608 64.0 16384 2160124 16.5
+ps::ps_num_fds(ps::ps_handle())
+#&amp;gt; [1] 22&lt;/code>&lt;/pre>
+&lt;p>&lt;code>ps_num_fds()&lt;/code> prints the number of open file descriptors of a process.
+The two extra file descriptors that are open after garbage collection are
+the two ends of the (supposedly) temporary pipe, just opened by &lt;code>$wait()&lt;/code>.&lt;/p>
+&lt;/div>
+&lt;div id="fix-1-external-pointer-and-finalizer" class="section level1">
+&lt;h1>Fix 1: External pointer and finalizer&lt;/h1>
+&lt;p>One generic solution to resource cleanup is to wrap all C resources into
+one or more R external pointer objects, and add finalizers to them. We
+show how this can fix the &lt;a href="https://github.com/r-lib/processx#readme">processx&lt;/a> problem in the previous example.&lt;/p>
+&lt;p>This is how the &lt;code>processx_wait()&lt;/code> C function looks like before the fix:
+&lt;a href="https://github.com/r-lib/processx/blob/a8f09d147fead78347a87fcf4e0fbd1c07de1c21/src/unix/processx.c#L507-L589" class="uri">https://github.com/r-lib/processx/blob/a8f09d147fead78347a87fcf4e0fbd1c07de1c21/src/unix/processx.c#L507-L589&lt;/a>&lt;/p>
+&lt;p>First, we need to create a finalizer function, that will be called by
+the R garbage collector, after &lt;code>$wait()&lt;/code> has finished, at the next
+garbage collection:&lt;/p>
+&lt;pre class="c">&lt;code>static void processx__wait_finalizer(SEXP xptr) {
+SEXP tag = R_ExternalPtrTag(xptr);
+if (INTEGER(tag)[0] &amp;gt;= 0) close(INTEGER(tag)[0]);
+if (INTEGER(tag)[1] &amp;gt;= 0) close(INTEGER(tag)[1]);
+}&lt;/code>&lt;/pre>
+&lt;p>An external pointer can have a &lt;em>tag&lt;/em>, which is an R object that is kept
+alive as long the pointer object itself is alive. In this case we can put
+the file descriptors in the tag, in an integer vector of length two.
+In more complicated cases the resources cannot easily be represented as
+R objects, so you would use the actual C pointer, with a custom C
+&lt;code>struct&lt;/code> to store them.&lt;/p>
+&lt;p>Now we need to create the external pointer, before the pipes are opened:&lt;/p>
+&lt;pre class="c">&lt;code> SEXP tag = PROTECT(allocVector(INTSXP, 2));
+INTEGER(tag)[0] = INTEGER(tag)[1] = -1;
+SEXP xptr = PROTECT(R_MakeExternalPtr(NULL, tag, R_NilValue));
+R_RegisterCFinalizerEx(xptr, processx__wait_finalizer, 0);&lt;/code>&lt;/pre>
+&lt;p>We initialize the file descriptors to -1, which is guard value, meaning
+that no cleanup is needed.&lt;/p>
+&lt;p>We can now open the pipes and save their file descriptors in the tag of
+the external pointer.&lt;/p>
+&lt;pre class="c">&lt;code> if (pipe(handle-&amp;gt;waitpipe)) {
+processx__unblock_sigchld();
+error(&amp;quot;processx error: %s&amp;quot;, strerror(errno));
+}
+INTEGER(tag)[0] = handle-&amp;gt;waitpipe[0];
+INTEGER(tag)[1] = handle-&amp;gt;waitpipe[1];&lt;/code>&lt;/pre>
+&lt;p>At the end of the function, we need to unprotect the external pointer,
+and the tag:&lt;/p>
+&lt;pre class="c">&lt;code> UNPROTECT(2);
+return ScalarLogical(ret != 0);
+}&lt;/code>&lt;/pre>
+&lt;p>One potential problem with the external pointer fix is that the resources
+will only be cleaned up at the next garbage collection, and sometimes this
+is too late. For example, if an open file is locked by the operating system,
+then we won’t be able to remove that file, or its directory, until the
+garbage collector runs and closes it. It is easier to program if
+resource cleanup is immediate, and luckily the other two fixes below are.&lt;/p>
+&lt;/div>
+&lt;div id="fix-2-the-r_execwithcleanup-function" class="section level1">
+&lt;h1>Fix 2: the &lt;code>R_ExecWithCleanup()&lt;/code> function&lt;/h1>
+&lt;p>&lt;code>R_ExecWithCleanup()&lt;/code> is a function in the R API, that can add a cleanup
+function to a regular C function call. The cleanup function is always
+executed, even on early exit:&lt;/p>
+&lt;pre class="c">&lt;code>SEXP R_ExecWithCleanup(SEXP (*fun)(void *), void *data,
+void (*cleanfun)(void *), void *cleandata);&lt;/code>&lt;/pre>
+&lt;p>&lt;code>R_ExecWithCleanup()&lt;/code> calls &lt;code>fun&lt;/code> with &lt;code>data&lt;/code>, and then calls
+&lt;code>cleanfun&lt;/code> with &lt;code>cleandata&lt;/code>. If &lt;code>fun&lt;/code> calls the R API and exits early,
+then it will still call &lt;code>cleanfun&lt;/code> with &lt;code>cleandata&lt;/code>, before throwing
+the error up the stack.&lt;/p>
+&lt;p>To fix &lt;code>$wait()&lt;/code> with &lt;code>R_ExecWithCleanup()&lt;/code>, we’ll need to define a
+cleanup function first. The cleanup function receives the cleanup data
+as a &lt;code>void&lt;/code> pointer, we’ll define a &lt;code>struct&lt;/code> for this. For simplicity,
+this struct will also include the arguments to &lt;code>processx_wait()&lt;/code>, so
+we can use the same struct for both &lt;code>fun&lt;/code> and &lt;code>cleanupfun&lt;/code>.&lt;/p>
+&lt;pre class="c">&lt;code>struct processx_wait_data {
+SEXP status;
+SEXP timeout;
+int fds[2];
+};
+void processx_wait_cleanup(void *data) {
+struct processx_wait_data *pdata = data;
+if (pdata-&amp;gt;fds[0] &amp;gt;= 0) close(pdata-&amp;gt;fds[0]);
+if (pdata-&amp;gt;fds[1] &amp;gt;= 0) close(pdata-&amp;gt;fds[1]);
+}&lt;/code>&lt;/pre>
+&lt;p>The new &lt;code>processx_wait()&lt;/code> function will call &lt;code>R_ExecWithCleanup()&lt;/code>,
+to call the original &lt;code>processx_wait()&lt;/code>, under a new name:&lt;/p>
+&lt;pre class="c">&lt;code>SEXP processx_wait_internal(void *data);
+SEXP processx_wait(SEXP status, SEXP timeout) {
+struct processx_wait_data pdata = { status, timeout, { -1, -1 } };
+SEXP result = R_ExecWithCleanup(processx_wait_internal, &amp;amp;pdata,
+processx_wait_cleanup, &amp;amp;pdata);
+return result;
+}&lt;/code>&lt;/pre>
+&lt;p>&lt;code>processx_wait_internal()&lt;/code> is very much like &lt;code>processx_wait()&lt;/code> used to
+be, but we need to extract the arguments from the struct at the beginning:&lt;/p>
+&lt;pre class="c">&lt;code>SEXP processx_wait_internal(void *data) {
+struct processx_wait_data *pdata = data;
+SEXP status = pdata-&amp;gt;status;
+SEXP timeout = pdata-&amp;gt;timeout;
+int *fds = pdata-&amp;gt;fds;
+...&lt;/code>&lt;/pre>
+&lt;p>Now the only other thing we need to do is saving the file descriptors
+in the data struct:&lt;/p>
+&lt;pre>&lt;code> if (pipe(handle-&amp;gt;waitpipe)) {
+processx__unblock_sigchld();
+error(&amp;quot;processx error: %s&amp;quot;, strerror(errno));
+}
+fds[0] = handle-&amp;gt;waitpipe[0];
+fds[1] = handle-&amp;gt;waitpipe[1];&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="fix-3-the-cleancall-package" class="section level1">
+&lt;h1>Fix 3: the &lt;a href="https://github.com/r-lib/cleancall#readme">cleancall&lt;/a> package&lt;/h1>
+&lt;p>&lt;code>R_ExecWithCleanup()&lt;/code> is a good fix to the resource cleanup problem,
+but it can be verbose and error prone. It also requires that you
+replace your original function with a wrapper that packs the original
+function arguments into a &lt;code>struct&lt;/code> and an internal function that
+only has a &lt;code>void*&lt;/code> argument.&lt;/p>
+&lt;p>We created the &lt;a href="https://github.com/r-lib/cleancall#readme">cleancall&lt;/a> package to make resource cleanup easier.
+This package automates wrapping your functions with &lt;code>R_ExecWithCleanup()&lt;/code>.
+&lt;a href="https://github.com/r-lib/cleancall#readme">cleancall&lt;/a> has been just published on CRAN. Here we show how to use it to
+fix the &lt;a href="https://github.com/r-lib/processx#readme">processx&lt;/a> &lt;code>$wait()&lt;/code> method.&lt;/p>
+&lt;p>To use it in your package, you need to specify &lt;a href="https://github.com/r-lib/cleancall#readme">cleancall&lt;/a> as a dependency,
+both as &lt;code>LinkingTo&lt;/code> and &lt;code>Imports&lt;/code>:&lt;/p>
+&lt;pre>&lt;code>...
+Imports: cleancall
+LinkingTo: cleancall
+...&lt;/code>&lt;/pre>
+&lt;p>&lt;a href="https://github.com/r-lib/cleancall#readme">cleancall&lt;/a> defines the &lt;code>call_with_cleanup()&lt;/code> R function and the
+&lt;code>r_call_on_exit()&lt;/code> and &lt;code>r_call_on_early_exit()&lt;/code> C functions.&lt;/p>
+&lt;p>You need to replace &lt;code>.Call()&lt;/code> with &lt;code>call_with_cleanup()&lt;/code> in your R code:&lt;/p>
+&lt;pre>&lt;code>cleancall::call_with_cleanup(c_processx_wait, private$status,
+as.integer(timeout))&lt;/code>&lt;/pre>
+&lt;p>In your C code, include the &lt;code>cleancall.h&lt;/code> header:&lt;/p>
+&lt;pre class="c">&lt;code>#include &amp;lt;cleancall.h&amp;gt;&lt;/code>&lt;/pre>
+&lt;p>Next, create a cleanup function for the resource type:&lt;/p>
+&lt;pre class="c">&lt;code>void processx__close_fd(void *ptr) {
+int *fd = ptr;
+if (*fd &amp;gt;= 0) close(*fd);
+}&lt;/code>&lt;/pre>
+&lt;p>This cleanup function closes a file descriptor. Once your resource type
+has a cleanup function, you can call &lt;code>r_call_on_exit()&lt;/code> or
+&lt;code>r_call_on_early_exit()&lt;/code> every time you acquire a resource of that type.
+Use &lt;code>r_call_on_exit()&lt;/code> if the resource must be released on normal
+termination as well, and &lt;code>r_call_on_early_exit()&lt;/code> if it must be released
+on early termination only:&lt;/p>
+&lt;pre class="c">&lt;code> if (pipe(handle-&amp;gt;waitpipe)) {
+processx__unblock_sigchld();
+error(&amp;quot;processx error: %s&amp;quot;, strerror(errno));
+}
+r_call_on_exit(processx__close_fd, handle-&amp;gt;waitpipe);
+r_call_on_exit(processx__close_fd, handle-&amp;gt;waitpipe + 1);&lt;/code>&lt;/pre>
+&lt;p>Typically &lt;code>r_call_on_exit()&lt;/code> is more convenient for temporary resources.
+&lt;code>r_call_on_early_exit()&lt;/code> is more convenient if the C function returns a
+handle (e.g. external pointer), for which it needs to allocate resources
+gradually. If all resource allocations are successful, and the function
+returns normally, then no cleanup is needed. However if an intermediate
+step fails, you need to release the resources acquired before the failure.&lt;/p>
+&lt;p>In does not matter much in this simple example, but it in important in
+general that exit handlers are always executed in reverse order (last one in
+is the first one out, LIFO). This makes it easy to build a resource
+gradually. Exit handlers installed via &lt;code>r_call_on_exit()&lt;/code> and
+&lt;code>r_call_on_early_exit()&lt;/code> share the same stack.&lt;/p>
+&lt;p>We suggest that exit handlers are kept as simple and fast as possible.
+In particular, errors (and other early exits) triggered from exit handlers
+are not caught currently. If an exit handler exits early the others do not
+run. If this is an issue, you can wrap the exit handler in &lt;code>R_tryCatch()&lt;/code>
+(available for R 3.4.0 and later). But in general the best error handlers
+do not call the R API at all.&lt;/p>
+&lt;/div>
+&lt;div id="what-about-c" class="section level1">
+&lt;h1>What about C++?&lt;/h1>
+&lt;p>The resource cleanup problem is also present if you interface C++ code.
+While &lt;a href="https://github.com/r-lib/cleancall#readme">cleancall&lt;/a> can be used with C++, it works best with C code,
+since it follows C idioms.&lt;/p>
+&lt;p>Using external pointers and finalizers works for C++ as well, as does
+wrapping R API calls in &lt;code>R_ExecWithCleanup()&lt;/code>.&lt;/p>
+&lt;p>Alternatively, you can wrap your R API calls in &lt;code>R_tryCatch()&lt;/code> (R 3.4.0
+and later), or use &lt;code>R_UnwindProtect()&lt;/code> (R 3.5.0 and later).&lt;/p>
+&lt;p>If your C++ code needs to support older R versions, that is more
+challenging, and one possibility is to call back to R and call &lt;code>tryCatch()&lt;/code>
+there.&lt;/p>
+&lt;/div>
+&lt;div id="summary" class="section level1">
+&lt;h1>Summary&lt;/h1>
+&lt;p>Resource cleanup in C code can be challenging, especially given that there
+is not very much documentation on this topic.&lt;/p>
+&lt;p>Hopefully this post and the &lt;a href="https://github.com/r-lib/cleancall#readme">cleancall&lt;/a> package will make resource
+cleanup much simpler, and fewer R packages will suffer from resource
+leaks in the future.&lt;/p>
+&lt;/div></description></item></channel></rss>

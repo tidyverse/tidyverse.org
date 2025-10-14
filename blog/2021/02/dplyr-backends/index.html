@@ -1,0 +1,254 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>dplyr backends: multidplyr 0.1.0, dtplyr 1.1.0, dbplyr 2.1.0</title><meta property="og:title" content="dplyr backends: multidplyr 0.1.0, dtplyr 1.1.0, dbplyr 2.1.0"><meta property="og:description" content="We've recently released a bunch of improvements to dplyr backends. multidplyr, which allows you to spread work across multiple cores, is now on CRAN. dtplyr adds translations for dplyr 1.0.0 and fixes many bugs. dbplyr 2.1.0 adds translations for many tidyr verbs, gains an  author, and has improved `across()` translations."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2021/02/dplyr-backends/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="dplyr backends: multidplyr 0.1.0, dtplyr 1.1.0, dbplyr 2.1.0 - Tidyverse"><meta property="description" content="We've recently released a bunch of improvements to dplyr backends. multidplyr, which allows you to spread work across multiple cores, is now on CRAN. dtplyr adds translations for dplyr 1.0.0 and fixes many bugs. dbplyr 2.1.0 adds translations for many tidyr verbs, gains an  author, and has improved `across()` translations."><meta property="og:description" content="We've recently released a bunch of improvements to dplyr backends. multidplyr, which allows you to spread work across multiple cores, is now on CRAN. dtplyr adds translations for dplyr 1.0.0 and fixes many bugs. dbplyr 2.1.0 adds translations for many tidyr verbs, gains an  author, and has improved `across()` translations."><meta property="og:image" content="https://www.tidyverse.org/blog/2021/02/dplyr-backends/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2021/02/dplyr-backends/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>dplyr backends: multidplyr 0.1.0, dtplyr 1.1.0, dbplyr 2.1.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2021/02/dplyr-backends/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/jVYnBn3M9R0>Charles Deluvio</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2021/02/25</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/dplyr/>dplyr</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Hadley Wickham</p><div class=article-content><p>One of my favourite things about dplyr is that it decouples describing the data manipulation you want from its actual computation. This makes it possible to take basically the same dplyr code and execute it in radically different ways by using different backends. This blog post covers a passel of updates to the dplyr backends that we maintain:</p><ul><li><p><a href=https://multidplyr.tidyverse.org/ target=_blank rel=noopener>multidplyr</a>, which spreads computation over multiple cores, is now on CRAN!</p></li><li><p><a href=https://dtplyr.tidyverse.org/ target=_blank rel=noopener>dtplyr</a>, which translates your dplyr code to the wonderfully fast
+<a href=https://r-datatable.com/ target=_blank rel=noopener>data.table</a> package, now supports all dplyr 1.0.0 features.</p></li><li><p><a href=https://dbplyr.tidyverse.org/ target=_blank rel=noopener>dbplyr</a>, which translates your dplyr code to SQL, now also translates many tidyr verbs.</p></li></ul><p>You can install these packages in one fell sweep with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"multidplyr"</span>, <span class=s>"dtplyr"</span>, <span class=s>"dbplyr"</span><span class=o>)</span><span class=o>)</span></code></pre></div><p>I&rsquo;ll explain these changes in more detail below. But to get started, we need to load dplyr.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://dplyr.tidyverse.org>dplyr</a></span>, warn.conflicts <span class=o>=</span> <span class=kc>FALSE</span><span class=o>)</span></code></pre></div><h2 id=multidplyr-010>multidplyr 0.1.0
+<a href=#multidplyr-010><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><a href=https://multidplyr.tidyverse.org target=_blank rel=noopener>multidplyr</a> creates multiple R processes and spreads your data out across them, providing a simple way to take advantage of multiple cores. To use it, start by creating a cluster of R processes and load dplyr on them:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://github.com/tidyverse/multidplyr>multidplyr</a></span><span class=o>)</span>
+<span class=nv>cluster</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/pkg/multidplyr/man/new_cluster.html>new_cluster</a></span><span class=o>(</span><span class=m>4</span><span class=o>)</span>
+<span class=nf><a href=https://rdrr.io/pkg/multidplyr/man/cluster_utils.html>cluster_library</a></span><span class=o>(</span><span class=nv>cluster</span>, <span class=s>"dplyr"</span><span class=o>)</span></code></pre></div><p>Then spread data across those processes using
+<a href=https://rdrr.io/pkg/multidplyr/man/partition.html target=_blank rel=noopener><code>partition()</code></a>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>flight_dest</span> <span class=o>&lt;-</span> <span class=nf>nycflights13</span><span class=nf>::</span><span class=nv><a href=https://rdrr.io/pkg/nycflights13/man/flights.html>flights</a></span> <span class=o>%&gt;%</span> 
+  <span class=nf><a href=https://dplyr.tidyverse.org/reference/group_by.html>group_by</a></span><span class=o>(</span><span class=nv>dest</span><span class=o>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf><a href=https://rdrr.io/pkg/multidplyr/man/partition.html>partition</a></span><span class=o>(</span><span class=nv>cluster</span><span class=o>)</span>
+<span class=nv>flight_dest</span>
+<span class=c>#&gt; Source: party_df [336,776 x 19]</span>
+<span class=c>#&gt; Groups: dest</span>
+<span class=c>#&gt; Shards: 4 [81,594--86,548 rows]</span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt;    <span style=font-weight:700>year</span><span> </span><span style=font-weight:700>month</span><span>   </span><span style=font-weight:700>day</span><span> </span><span style=font-weight:700>dep_time</span><span> </span><span style=font-weight:700>sched_dep_time</span><span> </span><span style=font-weight:700>dep_delay</span><span> </span><span style=font-weight:700>arr_time</span><span> </span><span style=font-weight:700>sched_arr_time</span></span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;int&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;int&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;int&gt;</span><span>    </span><span style=color:#555;font-style:italic>&lt;int&gt;</span><span>          </span><span style=color:#555;font-style:italic>&lt;int&gt;</span><span>     </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span>    </span><span style=color:#555;font-style:italic>&lt;int&gt;</span><span>          </span><span style=color:#555;font-style:italic>&lt;int&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span><span>  </span><span style=text-decoration:underline>2</span><span>013     1     1      544            545        -</span><span style=color:#b00>1</span><span>     </span><span style=text-decoration:underline>1</span><span>004           </span><span style=text-decoration:underline>1</span><span>022</span></span>
+<span class=c>#&gt; <span style=color:#555>2</span><span>  </span><span style=text-decoration:underline>2</span><span>013     1     1      558            600        -</span><span style=color:#b00>2</span><span>      923            937</span></span>
+<span class=c>#&gt; <span style=color:#555>3</span><span>  </span><span style=text-decoration:underline>2</span><span>013     1     1      559            600        -</span><span style=color:#b00>1</span><span>      854            902</span></span>
+<span class=c>#&gt; <span style=color:#555>4</span><span>  </span><span style=text-decoration:underline>2</span><span>013     1     1      602            610        -</span><span style=color:#b00>8</span><span>      812            820</span></span>
+<span class=c>#&gt; <span style=color:#555>5</span><span>  </span><span style=text-decoration:underline>2</span><span>013     1     1      602            605        -</span><span style=color:#b00>3</span><span>      821            805</span></span>
+<span class=c>#&gt; <span style=color:#555>6</span><span>  </span><span style=text-decoration:underline>2</span><span>013     1     1      611            600        11      945            931</span></span>
+<span class=c>#&gt; <span style=color:#555># … with 336,770 more rows, and 11 more variables: </span><span style=color:#555;font-weight:700>arr_delay</span><span style=color:#555> &lt;dbl&gt;,</span></span>
+<span class=c>#&gt; <span style=color:#555>#   </span><span style=color:#555;font-weight:700>carrier</span><span style=color:#555> &lt;chr&gt;, </span><span style=color:#555;font-weight:700>flight</span><span style=color:#555> &lt;int&gt;, </span><span style=color:#555;font-weight:700>tailnum</span><span style=color:#555> &lt;chr&gt;, </span><span style=color:#555;font-weight:700>origin</span><span style=color:#555> &lt;chr&gt;, </span><span style=color:#555;font-weight:700>dest</span><span style=color:#555> &lt;chr&gt;,</span></span>
+<span class=c>#&gt; <span style=color:#555>#   </span><span style=color:#555;font-weight:700>air_time</span><span style=color:#555> &lt;dbl&gt;, </span><span style=color:#555;font-weight:700>distance</span><span style=color:#555> &lt;dbl&gt;, </span><span style=color:#555;font-weight:700>hour</span><span style=color:#555> &lt;dbl&gt;, </span><span style=color:#555;font-weight:700>minute</span><span style=color:#555> &lt;dbl&gt;, </span><span style=color:#555;font-weight:700>time_hour</span><span style=color:#555> &lt;dttm&gt;</span></span></code></pre></div><p>The data is now spread across four &ldquo;shards&rdquo;, each consisting of around 80,000 rows. Generally, you&rsquo;ll want to group the data before partitioning which ensures that all observations in one group end up on the same worker.</p><p>You can work with this <code>party_df</code> as if it was a data frame, but any work will be spread out across all the processes (which your operating system will usually allocate to different cores).</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>mean_delay</span> <span class=o>&lt;-</span> <span class=nv>flight_dest</span> <span class=o>%&gt;%</span> 
+  <span class=nf><a href=https://dplyr.tidyverse.org/reference/summarise.html>summarise</a></span><span class=o>(</span>delay <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/mean.html>mean</a></span><span class=o>(</span><span class=nv>arr_delay</span>, na.rm <span class=o>=</span> <span class=kc>TRUE</span><span class=o>)</span>, n <span class=o>=</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/context.html>n</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf><a href=https://dplyr.tidyverse.org/reference/filter.html>filter</a></span><span class=o>(</span><span class=nv>n</span> <span class=o>&gt;</span> <span class=m>25</span><span class=o>)</span>
+<span class=nv>mean_delay</span>
+<span class=c>#&gt; Source: party_df [96 x 3]</span>
+<span class=c>#&gt; Shards: 4 [21--26 rows]</span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt;   <span style=font-weight:700>dest</span><span>  </span><span style=font-weight:700>delay</span><span>     </span><span style=font-weight:700>n</span></span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;chr&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;int&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span><span> ABQ    4.38   254</span></span>
+<span class=c>#&gt; <span style=color:#555>2</span><span> AUS    6.02  </span><span style=text-decoration:underline>2</span><span>439</span></span>
+<span class=c>#&gt; <span style=color:#555>3</span><span> BQN    8.25   896</span></span>
+<span class=c>#&gt; <span style=color:#555>4</span><span> BTV    8.95  </span><span style=text-decoration:underline>2</span><span>589</span></span>
+<span class=c>#&gt; <span style=color:#555>5</span><span> BUF    8.95  </span><span style=text-decoration:underline>4</span><span>681</span></span>
+<span class=c>#&gt; <span style=color:#555>6</span><span> CLE    9.18  </span><span style=text-decoration:underline>4</span><span>573</span></span>
+<span class=c>#&gt; <span style=color:#555># … with 90 more rows</span></span></code></pre></div><p>Once you&rsquo;re done with expensive computation, you can bring the results back to the current session with
+<a href=https://dplyr.tidyverse.org/reference/compute.html target=_blank rel=noopener><code>collect()</code></a>. Learn more in
+<a href=https://cran.rstudio.com/web/packages/multidplyr/vignettes/multidplyr.html target=_blank rel=noopener><code>vignette("multidplyr")</code></a>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>results</span> <span class=o>&lt;-</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/compute.html>collect</a></span><span class=o>(</span><span class=nv>mean_delay</span><span class=o>)</span>
+<span class=nf><a href=https://rdrr.io/r/utils/head.html>head</a></span><span class=o>(</span><span class=nv>results</span><span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 6 x 3</span></span>
+<span class=c>#&gt;   <span style=font-weight:700>dest</span><span>  </span><span style=font-weight:700>delay</span><span>     </span><span style=font-weight:700>n</span></span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;chr&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;int&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span><span> ABQ    4.38   254</span></span>
+<span class=c>#&gt; <span style=color:#555>2</span><span> AUS    6.02  </span><span style=text-decoration:underline>2</span><span>439</span></span>
+<span class=c>#&gt; <span style=color:#555>3</span><span> BQN    8.25   896</span></span>
+<span class=c>#&gt; <span style=color:#555>4</span><span> BTV    8.95  </span><span style=text-decoration:underline>2</span><span>589</span></span>
+<span class=c>#&gt; <span style=color:#555>5</span><span> BUF    8.95  </span><span style=text-decoration:underline>4</span><span>681</span></span>
+<span class=c>#&gt; <span style=color:#555>6</span><span> CLE    9.18  </span><span style=text-decoration:underline>4</span><span>573</span></span></code></pre></div><p>multidplyr is a good fit for problems where the bottleneck is complex, non-dplyr computation (e.g. fitting models). There&rsquo;s some overhead initially partitioning the data and then transferring the commands to each worker, so it&rsquo;s not a magic bullet, but it is very easy to use.</p><p>multidplyr is still quite young, so please try it out and
+<a href=https://github.com/tidyverse/multidplyr/issues target=_blank rel=noopener>let us know</a> about any problems that you encounter.</p><h2 id=dtplyr-110>dtplyr 1.1.0
+<a href=#dtplyr-110><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><a href=https://dtplyr.tidyverse.org target=_blank rel=noopener>dtplyr</a> translates dplyr pipelines into equivalent
+<a href=http://r-datatable.com/ target=_blank rel=noopener>data.table</a> code. data.table is incredibly fast, so this often yields performance improvements.</p><p>To use it, start by creating a
+<a href=https://rdrr.io/pkg/dtplyr/man/lazy_dt.html target=_blank rel=noopener><code>lazy_dt()</code></a> object which records your dplyr actions:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://github.com/tidyverse/dtplyr>dtplyr</a></span><span class=o>)</span>
+<span class=nv>dt</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/pkg/dtplyr/man/lazy_dt.html>lazy_dt</a></span><span class=o>(</span><span class=nv>mtcars</span><span class=o>)</span>
+
+<span class=nv>cyl_summary</span> <span class=o>&lt;-</span> <span class=nv>dt</span> <span class=o>%&gt;%</span> 
+  <span class=nf><a href=https://dplyr.tidyverse.org/reference/group_by.html>group_by</a></span><span class=o>(</span><span class=nv>cyl</span><span class=o>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf><a href=https://dplyr.tidyverse.org/reference/summarise.html>summarise</a></span><span class=o>(</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/across.html>across</a></span><span class=o>(</span><span class=nv>disp</span><span class=o>:</span><span class=nv>wt</span>, <span class=nv>mean</span><span class=o>)</span><span class=o>)</span></code></pre></div><p>You can see the translation with
+<a href=https://dplyr.tidyverse.org/reference/explain.html target=_blank rel=noopener><code>show_query()</code></a> or execute the data table code by converting back to a data frame, data table, or tibble:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>cyl_summary</span> <span class=o>%&gt;%</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/explain.html>show_query</a></span><span class=o>(</span><span class=o>)</span>
+<span class=c>#&gt; `_DT1`[, .(disp = mean(disp), hp = mean(hp), drat = mean(drat), </span>
+<span class=c>#&gt;     wt = mean(wt)), keyby = .(cyl)]</span>
+
+<span class=nv>cyl_summary</span> <span class=o>%&gt;%</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/as_tibble.html>as_tibble</a></span><span class=o>(</span><span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 3 x 5</span></span>
+<span class=c>#&gt;     <span style=font-weight:700>cyl</span><span>  </span><span style=font-weight:700>disp</span><span>    </span><span style=font-weight:700>hp</span><span>  </span><span style=font-weight:700>drat</span><span>    </span><span style=font-weight:700>wt</span></span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span><span>     4  105.  82.6  4.07  2.29</span></span>
+<span class=c>#&gt; <span style=color:#555>2</span><span>     6  183. 122.   3.59  3.12</span></span>
+<span class=c>#&gt; <span style=color:#555>3</span><span>     8  353. 209.   3.23  4.00</span></span></code></pre></div><p>The big news in this release is dtplyr can now translate all features that arrived in
+<a href=https://www.tidyverse.org/blog/2020/06/dplyr-1-0-0/ target=_blank rel=noopener>dplyr 1.0.0</a>. This includes:</p><ul><li><p><a href=https://dplyr.tidyverse.org/reference/across.html target=_blank rel=noopener><code>across()</code></a>,
+<a href=https://dplyr.tidyverse.org/reference/across.html target=_blank rel=noopener><code>if_any()</code></a>, and
+<a href=https://dplyr.tidyverse.org/reference/across.html target=_blank rel=noopener><code>if_all()</code></a>. Unfortunately <code>where()</code> is not currently supported because I don&rsquo;t know how to figure out the column types without executing the pipeline (which might take a long time).</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>dt</span> <span class=o>%&gt;%</span> 
+  <span class=nf><a href=https://dplyr.tidyverse.org/reference/filter.html>filter</a></span><span class=o>(</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/across.html>if_any</a></span><span class=o>(</span><span class=nv>cyl</span><span class=o>:</span><span class=nv>wt</span>, <span class=nv>is.na</span><span class=o>)</span><span class=o>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf><a href=https://dplyr.tidyverse.org/reference/explain.html>show_query</a></span><span class=o>(</span><span class=o>)</span>
+<span class=c>#&gt; `_DT1`[is.na(cyl) | is.na(disp) | is.na(hp) | is.na(drat) | is.na(wt)]</span></code></pre></div></li><li><p><a href=https://dplyr.tidyverse.org/reference/relocate.html target=_blank rel=noopener><code>relocate()</code></a>, which is translated to the <code>j</code> argument of <code>[.data.table</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>dt</span> <span class=o>%&gt;%</span> 
+  <span class=nf><a href=https://dplyr.tidyverse.org/reference/relocate.html>relocate</a></span><span class=o>(</span><span class=nv>carb</span>, .before <span class=o>=</span> <span class=nv>mpg</span><span class=o>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf><a href=https://dplyr.tidyverse.org/reference/explain.html>show_query</a></span><span class=o>(</span><span class=o>)</span>
+<span class=c>#&gt; `_DT1`[, .(carb, mpg, cyl, disp, hp, drat, wt, qsec, vs, am, </span>
+<span class=c>#&gt;     gear)]</span></code></pre></div></li><li><p><a href=https://dplyr.tidyverse.org/reference/rename.html target=_blank rel=noopener><code>rename_with()</code></a>, which is translated to
+<a href=https://Rdatatable.gitlab.io/data.table/reference/setattr.html target=_blank rel=noopener><code>setnames()</code></a>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>dt</span> <span class=o>%&gt;%</span> 
+  <span class=nf><a href=https://dplyr.tidyverse.org/reference/rename.html>rename_with</a></span><span class=o>(</span><span class=nv>toupper</span><span class=o>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf><a href=https://dplyr.tidyverse.org/reference/explain.html>show_query</a></span><span class=o>(</span><span class=o>)</span>
+<span class=c>#&gt; setnames(copy(`_DT1`), toupper)</span></code></pre></div></li><li><p><a href=https://dplyr.tidyverse.org/reference/slice.html target=_blank rel=noopener><code>slice_min()</code></a>,
+<a href=https://dplyr.tidyverse.org/reference/slice.html target=_blank rel=noopener><code>slice_max()</code></a>,
+<a href=https://dplyr.tidyverse.org/reference/slice.html target=_blank rel=noopener><code>slice_head()</code></a>,
+<a href=https://dplyr.tidyverse.org/reference/slice.html target=_blank rel=noopener><code>slice_tail()</code></a>, and
+<a href=https://dplyr.tidyverse.org/reference/slice.html target=_blank rel=noopener><code>slice_sample()</code></a> which are translated to various <code>i</code> and <code>j</code> expressions:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>dt</span> <span class=o>%&gt;%</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/group_by.html>group_by</a></span><span class=o>(</span><span class=nv>cyl</span><span class=o>)</span> <span class=o>%&gt;%</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/slice.html>slice_sample</a></span><span class=o>(</span>n <span class=o>=</span> <span class=m>5</span><span class=o>)</span> <span class=o>%&gt;%</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/explain.html>show_query</a></span><span class=o>(</span><span class=o>)</span>
+<span class=c>#&gt; `_DT1`[`_DT1`[, .I[sample.int(.N, min(5L, .N))], by = .(cyl)]$V1]</span>
+<span class=nv>dt</span> <span class=o>%&gt;%</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/group_by.html>group_by</a></span><span class=o>(</span><span class=nv>cyl</span><span class=o>)</span> <span class=o>%&gt;%</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/slice.html>slice_head</a></span><span class=o>(</span>n <span class=o>=</span> <span class=m>1</span><span class=o>)</span> <span class=o>%&gt;%</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/explain.html>show_query</a></span><span class=o>(</span><span class=o>)</span>
+<span class=c>#&gt; `_DT1`[, head(.SD, 1L), keyby = .(cyl)]</span>
+<span class=nv>dt</span> <span class=o>%&gt;%</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/group_by.html>group_by</a></span><span class=o>(</span><span class=nv>cyl</span><span class=o>)</span> <span class=o>%&gt;%</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/slice.html>slice_min</a></span><span class=o>(</span><span class=nv>mpg</span>, n <span class=o>=</span> <span class=m>1</span><span class=o>)</span> <span class=o>%&gt;%</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/explain.html>show_query</a></span><span class=o>(</span><span class=o>)</span>
+<span class=c>#&gt; `_DT1`[, .SD[order(mpg)][frankv(mpg, ties.method = "min", na.last = "keep") &lt;= </span>
+<span class=c>#&gt;     1L], keyby = .(cyl)]</span></code></pre></div></li></ul><p>Thanks to
+<a href=https://github.com/markfairbanks target=_blank rel=noopener>Mark Fairbanks</a>, dtplyr has also gained it&rsquo;s first translation of a tidyr function: <code>pivot_wider()</code>, which is translated to
+<a href=https://Rdatatable.gitlab.io/data.table/reference/dcast.data.table.html target=_blank rel=noopener><code>dcast()</code></a>. You can expect more tidyr translations in the next release 😄.</p><p>I also took this as an opportunity to thoroughly refresh the documentation so that all translated verbs now have
+<a href=https://dtplyr.tidyverse.org/reference/index.html target=_blank rel=noopener>their own help pages</a> that briefly describe how the translation works. You can read about the other minor improvements and bug fixes in the
+<a href=https://github.com/tidyverse/dtplyr/releases/tag/v1.1.0 target=_blank rel=noopener>release notes</a>.</p><h2 id=dbplyr-210>dbplyr 2.1.0
+<a href=#dbplyr-210><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><a href=https://dbplyr.tidyverse.org target=_blank rel=noopener>dbplyr</a> translates dplyr pipelines to their SQL equivalents. If you&rsquo;re new to using dplyr and SQL together, I highly recommend Irene Steve&rsquo;s rstudio::global() talk,
+<a href=https://rstudio.com/resources/rstudioglobal-2021/the-dynamic-duo-sql-and-r/ target=_blank rel=noopener>"The dynamic duo: SQL and R</a>. It discusses why you might want to use dbplyr to generate SQL <strong>and</strong> why you should still learn SQL.</p><p>The biggest change to this release is the addition of many translations for tidyr verbs like
+<a href=https://dbplyr.tidyverse.org/reference/pivot_longer.tbl_lazy.html target=_blank rel=noopener><code>pivot_longer()</code></a>,
+<a href=https://dbplyr.tidyverse.org/reference/pivot_wider.tbl_lazy.html target=_blank rel=noopener><code>pivot_wider()</code></a>,
+<a href=https://dbplyr.tidyverse.org/reference/complete.tbl_lazy.html target=_blank rel=noopener><code>complete()</code></a>, and
+<a href=https://dbplyr.tidyverse.org/reference/replace_na.tbl_lazy.html target=_blank rel=noopener><code>replace_na()</code></a>. These were contributed by
+<a href=https://github.com/mgirlich target=_blank rel=noopener>Maximilian Girlich</a>, and in recognition of his sustained and substantial contributions to the package, he has been added as a package author.</p><p>This release also includes major improvements to the
+<a href=https://dplyr.tidyverse.org/reference/across.html target=_blank rel=noopener><code>across()</code></a> translation, including translation of formulas (like dtplyr,
+<a href=https://dplyr.tidyverse.org/reference/across.html target=_blank rel=noopener><code>across()</code></a> can&rsquo;t currently use <code>where()</code>, because I don&rsquo;t know of a way to figure out the column types without executing the query). There are also a bunch of other minor translation improvements and bug fixes, which you can read about in the
+<a href=https://github.com/tidyverse/dbplyr/releases/tag/v2.1.0 target=_blank rel=noopener>release notes</a>.</p><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>A big thanks to all of the contributors who helped make these releases possible:</p><ul><li><p>dbplyr:
+<a href=https://github.com/abalter target=_blank rel=noopener>@abalter</a>,
+<a href=https://github.com/Alternikaner target=_blank rel=noopener>@Alternikaner</a>,
+<a href=https://github.com/andrew-schulman target=_blank rel=noopener>@andrew-schulman</a>,
+<a href=https://github.com/andyquinterom target=_blank rel=noopener>@andyquinterom</a>,
+<a href=https://github.com/awong234 target=_blank rel=noopener>@awong234</a>,
+<a href=https://github.com/ben1787 target=_blank rel=noopener>@ben1787</a>,
+<a href=https://github.com/bersbersbers target=_blank rel=noopener>@bersbersbers</a>,
+<a href=https://github.com/bwcastillo target=_blank rel=noopener>@bwcastillo</a>,
+<a href=https://github.com/chris-billingham target=_blank rel=noopener>@chris-billingham</a>,
+<a href=https://github.com/coponhub target=_blank rel=noopener>@coponhub</a>,
+<a href=https://github.com/DavidPatShuiFong target=_blank rel=noopener>@DavidPatShuiFong</a>,
+<a href=https://github.com/dcaud target=_blank rel=noopener>@dcaud</a>,
+<a href=https://github.com/dpprdan target=_blank rel=noopener>@dpprdan</a>,
+<a href=https://github.com/dstoeckel target=_blank rel=noopener>@dstoeckel</a>,
+<a href=https://github.com/elicit-bergmann target=_blank rel=noopener>@elicit-bergmann</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/hdplsa target=_blank rel=noopener>@hdplsa</a>,
+<a href=https://github.com/iangow target=_blank rel=noopener>@iangow</a>,
+<a href=https://github.com/Janlow target=_blank rel=noopener>@Janlow</a>,
+<a href=https://github.com/LukasTang target=_blank rel=noopener>@LukasTang</a>,
+<a href=https://github.com/McWraith target=_blank rel=noopener>@McWraith</a>,
+<a href=https://github.com/mfherman target=_blank rel=noopener>@mfherman</a>,
+<a href=https://github.com/mgirlich target=_blank rel=noopener>@mgirlich</a>,
+<a href=https://github.com/mr-c target=_blank rel=noopener>@mr-c</a>,
+<a href=https://github.com/mszefler target=_blank rel=noopener>@mszefler</a>,
+<a href=https://github.com/N1h1l1sT target=_blank rel=noopener>@N1h1l1sT</a>,
+<a href=https://github.com/nathaneastwood target=_blank rel=noopener>@nathaneastwood</a>,
+<a href=https://github.com/nlneas1 target=_blank rel=noopener>@nlneas1</a>,
+<a href=https://github.com/okhoma target=_blank rel=noopener>@okhoma</a>,
+<a href=https://github.com/pachamaltese target=_blank rel=noopener>@pachamaltese</a>,
+<a href=https://github.com/peterdutey target=_blank rel=noopener>@peterdutey</a>,
+<a href=https://github.com/pgramme target=_blank rel=noopener>@pgramme</a>,
+<a href=https://github.com/robchallen target=_blank rel=noopener>@robchallen</a>,
+<a href=https://github.com/shearer target=_blank rel=noopener>@shearer</a>,
+<a href=https://github.com/sheepworrier target=_blank rel=noopener>@sheepworrier</a>,
+<a href=https://github.com/shosaco target=_blank rel=noopener>@shosaco</a>,
+<a href=https://github.com/spirosparaskevasFBB target=_blank rel=noopener>@spirosparaskevasFBB</a>,
+<a href=https://github.com/tonyk7440 target=_blank rel=noopener>@tonyk7440</a>,
+<a href=https://github.com/TuomoNieminen target=_blank rel=noopener>@TuomoNieminen</a>,
+<a href=https://github.com/yitao-li target=_blank rel=noopener>@yitao-li</a>, and
+<a href=https://github.com/yiugn target=_blank rel=noopener>@yiugn</a></p></li><li><p>dtplyr:
+<a href=https://github.com/AdrienMtgn target=_blank rel=noopener>@AdrienMtgn</a>,
+<a href=https://github.com/batpigandme target=_blank rel=noopener>@batpigandme</a>,
+<a href=https://github.com/boerjames target=_blank rel=noopener>@boerjames</a>,
+<a href=https://github.com/cassiel74 target=_blank rel=noopener>@cassiel74</a>,
+<a href=https://github.com/dan-reznik target=_blank rel=noopener>@dan-reznik</a>,
+<a href=https://github.com/ds-jim target=_blank rel=noopener>@ds-jim</a>,
+<a href=https://github.com/edavidaja target=_blank rel=noopener>@edavidaja</a>,
+<a href=https://github.com/edgararuiz-zz target=_blank rel=noopener>@edgararuiz-zz</a>,
+<a href=https://github.com/engineerchange target=_blank rel=noopener>@engineerchange</a>,
+<a href=https://github.com/fkgruber target=_blank rel=noopener>@fkgruber</a>,
+<a href=https://github.com/gmonaie target=_blank rel=noopener>@gmonaie</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/hope-data-science target=_blank rel=noopener>@hope-data-science</a>,
+<a href=https://github.com/jasonopolis target=_blank rel=noopener>@jasonopolis</a>,
+<a href=https://github.com/jimhester target=_blank rel=noopener>@jimhester</a>,
+<a href=https://github.com/JohnMount target=_blank rel=noopener>@JohnMount</a>,
+<a href=https://github.com/larspijnappel target=_blank rel=noopener>@larspijnappel</a>,
+<a href=https://github.com/lbenz-mdsol target=_blank rel=noopener>@lbenz-mdsol</a>,
+<a href=https://github.com/markfairbanks target=_blank rel=noopener>@markfairbanks</a>,
+<a href=https://github.com/MichaelChirico target=_blank rel=noopener>@MichaelChirico</a>,
+<a href=https://github.com/Mitschka target=_blank rel=noopener>@Mitschka</a>,
+<a href=https://github.com/myoung3 target=_blank rel=noopener>@myoung3</a>,
+<a href=https://github.com/nigeljmckernan target=_blank rel=noopener>@nigeljmckernan</a>,
+<a href=https://github.com/PMassicotte target=_blank rel=noopener>@PMassicotte</a>,
+<a href=https://github.com/pnacht target=_blank rel=noopener>@pnacht</a>,
+<a href=https://github.com/psanker target=_blank rel=noopener>@psanker</a>,
+<a href=https://github.com/rossellhayes target=_blank rel=noopener>@rossellhayes</a>,
+<a href=https://github.com/RudolfCardinal target=_blank rel=noopener>@RudolfCardinal</a>,
+<a href=https://github.com/sbashevkin target=_blank rel=noopener>@sbashevkin</a>,
+<a href=https://github.com/ShixiangWang target=_blank rel=noopener>@ShixiangWang</a>,
+<a href=https://github.com/skiamu target=_blank rel=noopener>@skiamu</a>,
+<a href=https://github.com/smingerson target=_blank rel=noopener>@smingerson</a>,
+<a href=https://github.com/sonoshah target=_blank rel=noopener>@sonoshah</a>,
+<a href=https://github.com/tingjhenjiang target=_blank rel=noopener>@tingjhenjiang</a>,
+<a href=https://github.com/tylerferguson target=_blank rel=noopener>@tylerferguson</a>,
+<a href=https://github.com/TysonStanley target=_blank rel=noopener>@TysonStanley</a>,
+<a href=https://github.com/yiugn target=_blank rel=noopener>@yiugn</a>, and
+<a href=https://github.com/ykaeber target=_blank rel=noopener>@ykaeber</a>.</p></li><li><p>multidplyr:
+<a href=https://github.com/12tafran target=_blank rel=noopener>@12tafran</a>,
+<a href=https://github.com/adviksh target=_blank rel=noopener>@adviksh</a>,
+<a href=https://github.com/ahoho target=_blank rel=noopener>@ahoho</a>,
+<a href=https://github.com/baldeagle target=_blank rel=noopener>@baldeagle</a>,
+<a href=https://github.com/borisveytsman target=_blank rel=noopener>@borisveytsman</a>,
+<a href=https://github.com/brianmsm target=_blank rel=noopener>@brianmsm</a>,
+<a href=https://github.com/ChiWPak target=_blank rel=noopener>@ChiWPak</a>,
+<a href=https://github.com/cluelessgumshoe target=_blank rel=noopener>@cluelessgumshoe</a>,
+<a href=https://github.com/CorradoLanera target=_blank rel=noopener>@CorradoLanera</a>,
+<a href=https://github.com/cscheid target=_blank rel=noopener>@cscheid</a>,
+<a href=https://github.com/cwaldock1 target=_blank rel=noopener>@cwaldock1</a>,
+<a href=https://github.com/damiaan target=_blank rel=noopener>@damiaan</a>,
+<a href=https://github.com/david-awam-jansen target=_blank rel=noopener>@david-awam-jansen</a>,
+<a href=https://github.com/dewoller target=_blank rel=noopener>@dewoller</a>,
+<a href=https://github.com/donaldRwilliams target=_blank rel=noopener>@donaldRwilliams</a>,
+<a href=https://github.com/dzhang32 target=_blank rel=noopener>@dzhang32</a>,
+<a href=https://github.com/eliferden target=_blank rel=noopener>@eliferden</a>,
+<a href=https://github.com/FvD target=_blank rel=noopener>@FvD</a>,
+<a href=https://github.com/GegznaV target=_blank rel=noopener>@GegznaV</a>,
+<a href=https://github.com/germanium target=_blank rel=noopener>@germanium</a>,
+<a href=https://github.com/ghost target=_blank rel=noopener>@ghost</a>,
+<a href=https://github.com/guokai8 target=_blank rel=noopener>@guokai8</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/huisaddison target=_blank rel=noopener>@huisaddison</a>,
+<a href=https://github.com/iago-pssjd target=_blank rel=noopener>@iago-pssjd</a>,
+<a href=https://github.com/impactanalysts target=_blank rel=noopener>@impactanalysts</a>,
+<a href=https://github.com/isaac-florence target=_blank rel=noopener>@isaac-florence</a>,
+<a href=https://github.com/javadba target=_blank rel=noopener>@javadba</a>,
+<a href=https://github.com/jiho target=_blank rel=noopener>@jiho</a>,
+<a href=https://github.com/JosiahParry target=_blank rel=noopener>@JosiahParry</a>,
+<a href=https://github.com/julou target=_blank rel=noopener>@julou</a>,
+<a href=https://github.com/kartiksubbarao target=_blank rel=noopener>@kartiksubbarao</a>,
+<a href=https://github.com/kyp0717 target=_blank rel=noopener>@kyp0717</a>,
+<a href=https://github.com/lucazav target=_blank rel=noopener>@lucazav</a>,
+<a href=https://github.com/MarioClueless target=_blank rel=noopener>@MarioClueless</a>,
+<a href=https://github.com/Maschette target=_blank rel=noopener>@Maschette</a>,
+<a href=https://github.com/McChickenNuggets target=_blank rel=noopener>@McChickenNuggets</a>,
+<a href=https://github.com/miho87 target=_blank rel=noopener>@miho87</a>,
+<a href=https://github.com/njudd target=_blank rel=noopener>@njudd</a>,
+<a href=https://github.com/philiporlando target=_blank rel=noopener>@philiporlando</a>,
+<a href=https://github.com/picarus target=_blank rel=noopener>@picarus</a>,
+<a href=https://github.com/samkhan1 target=_blank rel=noopener>@samkhan1</a>,
+<a href=https://github.com/SGMStalin target=_blank rel=noopener>@SGMStalin</a>,
+<a href=https://github.com/stanstrup target=_blank rel=noopener>@stanstrup</a>,
+<a href=https://github.com/taqtiqa-mark target=_blank rel=noopener>@taqtiqa-mark</a>,
+<a href=https://github.com/tmstauss target=_blank rel=noopener>@tmstauss</a>,
+<a href=https://github.com/tsengj target=_blank rel=noopener>@tsengj</a>,
+<a href=https://github.com/wibeasley target=_blank rel=noopener>@wibeasley</a>,
+<a href=https://github.com/willtudorevans target=_blank rel=noopener>@willtudorevans</a>, and
+<a href=https://github.com/zhengjiji456 target=_blank rel=noopener>@zhengjiji456</a>.</p></li></ul></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#multidplyr-010>multidplyr 0.1.0</a></li><li><a href=#dtplyr-110>dtplyr 1.1.0</a></li><li><a href=#dbplyr-210>dbplyr 2.1.0</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ragnar | Tidyverse</title><link>https://www.tidyverse.org/tags/ragnar/</link><atom:link href="https://www.tidyverse.org/tags/ragnar/index.xml" rel="self" type="application/rss+xml"/><description>ragnar</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 20 Aug 2025 00:00:00 +0000</lastBuildDate><item><title>ragnar 0.2</title><link>https://www.tidyverse.org/blog/2025/08/ragnar-0-2/</link><pubDate>Wed, 20 Aug 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/08/ragnar-0-2/</guid><description>
+&lt;h1 id="ragnar-02">ragnar 0.2
+&lt;a href="#ragnar-02">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h1>&lt;p>We&amp;rsquo;re happy to announce the release of
+&lt;a href="ragnar.tidyverse.org">ragnar&lt;/a> 0.2, a new R package for building trustworthy Retrieval-Augmented Generation (RAG) workflows.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;ragnar&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="whats-retrieval-augmented-generation-rag">What&amp;rsquo;s retrieval-augmented generation (RAG)?
+&lt;a href="#whats-retrieval-augmented-generation-rag">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Large language models (LLMs) tend to generate fluent confident text completely detached from facts and reality. We politely call untrue statements from an LLM &lt;em>hallucinations&lt;/em>. RAG reduces the risk of hallucinations by grounding LLMs in your factual, trusted documents.&lt;/p>
+&lt;p>With RAG, instead of asking an LLM to respond from its own memory, we:&lt;/p>
+&lt;ol>
+&lt;li>Retrieve relevant passages from trusted sources.&lt;/li>
+&lt;li>Ask the model to answer using those passages.&lt;/li>
+&lt;/ol>
+&lt;p>RAG shifts the LLMs job from open ended generation towards summarizing and paraphrasing, an easier task where LLMs make substantially fewer fabrications.&lt;/p>
+&lt;h2 id="meet-ragnar">Meet &lt;strong>ragnar&lt;/strong>
+&lt;a href="#meet-ragnar">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>ragnar is a tidy interface for building a RAG pipeline. Use ragnar to:&lt;/p>
+&lt;ul>
+&lt;li>&lt;em>Convert&lt;/em> documents from the web or local filesystem into Markdown.&lt;/li>
+&lt;li>&lt;em>Chunk&lt;/em> documents using meaningful semantic boundaries.&lt;/li>
+&lt;li>&lt;em>Augment&lt;/em> chunks with a short context string that situates each chunk.&lt;/li>
+&lt;li>&lt;em>Embed&lt;/em> chunks with commercial or open-source models.&lt;/li>
+&lt;li>&lt;em>Store&lt;/em> embeddings in DuckDB for fast, local queries.&lt;/li>
+&lt;li>&lt;em>Retrieve&lt;/em> relevant chunks using both vector and text search.&lt;/li>
+&lt;/ul>
+&lt;h2 id="quick-start-collect-convert-chunk-embed-and-store-your-documents">Quick start: collect, convert, chunk, embed, and store your documents
+&lt;a href="#quick-start-collect-convert-chunk-embed-and-store-your-documents">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Here is how to build a RAG knowledge store from the Quarto docs.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://ragnar.tidyverse.org/'>ragnar&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;ol>
+&lt;li>
+&lt;p>Create a knowledge store.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>store&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ragnar.tidyverse.org/reference/ragnar_store_create.html'>ragnar_store_create&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>"./quarto.ragnar.duckdb"&lt;/span>,&lt;/span>
+&lt;span> embed &lt;span class='o'>=&lt;/span> \&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nf'>ragnar&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://ragnar.tidyverse.org/reference/embed_ollama.html'>embed_openai&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>, model &lt;span class='o'>=&lt;/span> &lt;span class='s'>"text-embedding-3-small"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> name &lt;span class='o'>=&lt;/span> &lt;span class='s'>"quarto_docs"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>Generate a list of relevant web page URLs from quarto.org. We can consult the sitemap, or, if a sitemap wasn&amp;rsquo;t available, we could also crawl the site.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>pages&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ragnar.tidyverse.org/reference/ragnar_find_links.html'>ragnar_find_links&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"https://quarto.org/sitemap.xml"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>Convert, chunk, augment, embed, and store each page.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>for&lt;/span> &lt;span class='o'>(&lt;/span>&lt;span class='nv'>page&lt;/span> &lt;span class='kr'>in&lt;/span> &lt;span class='nv'>pages&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>chunks&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>page&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='c'># Convert to markdown&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ragnar.tidyverse.org/reference/read_as_markdown.html'>read_as_markdown&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='c'># Split document into chunks and generate 'context' for each chunk.&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ragnar.tidyverse.org/reference/markdown_chunk.html'>markdown_chunk&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='c'># Embed and store chunks with context and metadata&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ragnar.tidyverse.org/reference/ragnar_store_insert.html'>ragnar_store_insert&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>store&lt;/span>, &lt;span class='nv'>chunks&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>Build the retrieval index.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://ragnar.tidyverse.org/reference/ragnar_store_build_index.html'>ragnar_store_build_index&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>store&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;/ol>
+&lt;p>Once the store is built, you can access it for fast retrieval.&lt;/p>
+&lt;h2 id="retrieve-relevant-chunks">Retrieve relevant chunks
+&lt;a href="#retrieve-relevant-chunks">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Pass a query string to
+&lt;a href="https://ragnar.tidyverse.org/reference/ragnar_retrieve.html" target="_blank" rel="noopener">&lt;code>ragnar_retrieve()&lt;/code>&lt;/a> to perform both semantic search using vector embeddings and conventional text search to retrieve the most relevant chunks.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>store&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ragnar.tidyverse.org/reference/ragnar_store_create.html'>ragnar_store_connect&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"./quarto.ragnar.duckdb"&lt;/span>, read_only &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>query&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='s'>"&amp;#123;.python&amp;#125; or &amp;#123;python&amp;#125; code chunk header"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://ragnar.tidyverse.org/reference/ragnar_retrieve.html'>ragnar_retrieve&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>store&lt;/span>, &lt;span class='nv'>query&lt;/span>, top_k &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 9 × 9&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; origin doc_id chunk_id start end cosine_distance bm25 context text &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;lis&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> https://quart… &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='text-decoration: underline;'>14&lt;/span>318 &lt;span style='text-decoration: underline;'>16&lt;/span>132 &lt;span style='color: #555555;'>&amp;lt;dbl [1]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555;'>"&lt;/span># Dia… &lt;span style='color: #555555;'>"&lt;/span>###…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> https://quart… &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> 869 &lt;span style='text-decoration: underline;'>2&lt;/span>386 &lt;span style='color: #555555;'>&amp;lt;dbl [1]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555;'>"&lt;/span># ASA… &lt;span style='color: #555555;'>"&lt;/span>Hom…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> https://quart… &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> 1 &lt;span style='text-decoration: underline;'>2&lt;/span>497 &lt;span style='color: #555555;'>&amp;lt;dbl [2]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555;'>""&lt;/span> &lt;span style='color: #555555;'>"&lt;/span># U…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> https://quart… &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='text-decoration: underline;'>3&lt;/span>156 &lt;span style='text-decoration: underline;'>4&lt;/span>928 &lt;span style='color: #555555;'>&amp;lt;dbl [1]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555;'>"&lt;/span># v1.… &lt;span style='color: #555555;'>"&lt;/span>## …&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> https://quart… &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='text-decoration: underline;'>5&lt;/span>365 &lt;span style='text-decoration: underline;'>7&lt;/span>389 &lt;span style='color: #555555;'>&amp;lt;dbl [1]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555;'>"&lt;/span># Cre… &lt;span style='color: #555555;'>"&lt;/span>## …&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> https://quart… &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='text-decoration: underline;'>7&lt;/span>319 &lt;span style='text-decoration: underline;'>8&lt;/span>804 &lt;span style='color: #555555;'>&amp;lt;dbl [1]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555;'>"&lt;/span># HTM… &lt;span style='color: #555555;'>"&lt;/span>## …&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>7&lt;/span> https://quart… &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='text-decoration: underline;'>11&lt;/span>096 &lt;span style='text-decoration: underline;'>12&lt;/span>763 &lt;span style='color: #555555;'>&amp;lt;dbl [1]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555;'>"&lt;/span># HTM… &lt;span style='color: #555555;'>"&lt;/span>## …&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>8&lt;/span> https://quart… &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='text-decoration: underline;'>9&lt;/span>426 &lt;span style='text-decoration: underline;'>11&lt;/span>250 &lt;span style='color: #555555;'>&amp;lt;dbl [1]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555;'>"&lt;/span># Rev… &lt;span style='color: #555555;'>"&lt;/span>###…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>9&lt;/span> https://quart… &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='text-decoration: underline;'>5&lt;/span>236 &lt;span style='text-decoration: underline;'>6&lt;/span>904 &lt;span style='color: #555555;'>&amp;lt;dbl [1]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555;'>"&lt;/span># Hel… &lt;span style='color: #555555;'>"&lt;/span>###…&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="equip-an-llm-chat-with-your-store">Equip an LLM chat with your store
+&lt;a href="#equip-an-llm-chat-with-your-store">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>You can equip an ellmer chat with a tool that lets the LLM search your knowledge store automatically.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://ellmer.tidyverse.org'>ellmer&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>chat&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ellmer.tidyverse.org/reference/chat_openai.html'>chat_openai&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> system_prompt &lt;span class='o'>=&lt;/span> &lt;span class='nf'>glue&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://glue.tidyverse.org/reference/trim.html'>trim&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='s'> You are a Quarto documentation search agent and summarizer.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='s'> You are concise.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='s'> For every user question, perform between one and three searches.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='s'> Include links to the source documents in your response.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='s'> "&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ragnar.tidyverse.org/reference/ragnar_register_tool_retrieve.html'>ragnar_register_tool_retrieve&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>store&lt;/span>, top_k &lt;span class='o'>=&lt;/span> &lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Using &lt;span style='color: #00BB00;'>model&lt;/span> = &lt;span style='color: #0000BB;'>"gpt-4.1"&lt;/span>.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The model can now search the store on demand. It has the ability to rewrite the search query and do repeated searches. The model&amp;rsquo;s responses will also cite and link back to your source documents, so users can easily follow links to learn more.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>chat&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nf'>chat&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>"What's the difference between &amp;#123;.python&amp;#125; and &amp;#123;python&amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='s'> in a code chunk header?"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #0000BB;'>◯&lt;/span> [&lt;span style='color: #0000BB;'>tool call&lt;/span>] rag_retrieve_from_store_001(text = "difference between &amp;#123;.python&amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; and &amp;#123;python&amp;#125; in a code chunk header")&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>●&lt;/span> #&amp;gt; &lt;span style='font-style: italic;'>[&amp;#123;"origin":"https://quarto.org/docs/authoring/diagrams.html","doc_id"…&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #0000BB;'>◯&lt;/span> [&lt;span style='color: #0000BB;'>tool call&lt;/span>] rag_retrieve_from_store_001(text = "chunk header options quarto&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; curly braces dot notation")&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>●&lt;/span> #&amp;gt; &lt;span style='font-style: italic;'>[&amp;#123;"origin":"https://quarto.org/docs/authoring/lipsum.html","doc_id":2…&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; The difference between `&amp;#123;.python&amp;#125;` and `&amp;#123;python&amp;#125;` in a code chunk header is:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; - `&amp;#123;python&amp;#125;`: This syntax is used for executable code blocks. Quarto will run &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; the Python code inside the block and include its output in the rendered &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; document. &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ```markdown&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ```&amp;#123;python&amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; print(1 + 1)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ```&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ```&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; This is for running code, capturing output, figures, etc.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; - `&amp;#123;.python&amp;#125;`: This syntax (note the leading dot) is used for a code block that&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; is purely for display (not executed), with `.python` indicating the code should&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; be syntax-highlighted as Python. This is the Pandoc Markdown convention for &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; indicating the language for syntax highlighting only:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ```markdown&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ```&amp;#123;.python&amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; # This code is just displayed, not executed by Quarto&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; print(1 + 1)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ```&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ```&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Or equivalently, you can use triple backticks followed by the language name:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ```&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ```python&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; print(1 + 1)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ```&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ```&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; In both forms, the code is not executed.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; To summarize:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; - `&amp;#123;python&amp;#125;` → Executed code block.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; - `&amp;#123;.python&amp;#125;` or ```python → Non-executed code block with syntax highlighting &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; only.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Sources:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; - [Quarto documentation: Using &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Python](https://quarto.org/docs/computations/python.html)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; - [Quarto documentation: HTML Code &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Blocks](https://quarto.org/docs/output-formats/html-code.html)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h3 id="inspect-and-iterate">Inspect and iterate
+&lt;a href="#inspect-and-iterate">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Use
+&lt;a href="https://ragnar.tidyverse.org/reference/ragnar_store_inspect.html" target="_blank" rel="noopener">&lt;code>ragnar_store_inspect()&lt;/code>&lt;/a> to interactively preview which text chunks are retrieved for different search queries. This helps identify issues like poor document conversion, chunking, or context augmentation, so you can refine your store creation pipeline. By making retrieval results easy to explore, &lt;code>ragnar&lt;/code> lets you iterate and tune your knowledge store before connecting it to an LLM.&lt;/p>
+&lt;p>You can also launch the store inspector with just a single chunked document using
+&lt;a href="https://ragnar.tidyverse.org/reference/ragnar_chunks_view.html" target="_blank" rel="noopener">&lt;code>ragnar_chunks_view()&lt;/code>&lt;/a>. This is particularly useful when deciding what chunking approach is most appropriate for your content.&lt;/p>
+&lt;figure>
+&lt;img src="ragnar-store-inspector-screenshot.png" alt="Store Inspector UI screenshot" />
+&lt;figcaption aria-hidden="true">Store Inspector UI screenshot&lt;/figcaption>
+&lt;/figure>
+&lt;h2 id="additional-features">Additional features
+&lt;a href="#additional-features">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>&lt;strong>Works with many document types&lt;/strong>:
+&lt;a href="https://ragnar.tidyverse.org/reference/read_as_markdown.html" target="_blank" rel="noopener">&lt;code>read_as_markdown()&lt;/code>&lt;/a> uses
+&lt;a href="https://github.com/microsoft/markitdown" target="_blank" rel="noopener">MarkItDown&lt;/a>, which means it can ingest an extremely wide variety of files: HTML, PDF, docx, pptx, epubs, compressed archives, and more.&lt;/li>
+&lt;li>&lt;strong>Flexible embeddings&lt;/strong>: Use embedding models from providers like OpenAI, Google Vertex or Gemini, Bedrock, Databricks, Ollama or LM Studio, or easily supply your own embedding function.&lt;/li>
+&lt;li>&lt;strong>DuckDB native&lt;/strong>: Extremely fast local indexing and retrieval. Native support for MotherDuck if you need to serve the store.&lt;/li>
+&lt;li>&lt;strong>Customizable chunk augmentation&lt;/strong>: Customize how chunks are augmented with context (headings, links, titles), and easily attach additional metadata to chunks.&lt;/li>
+&lt;li>&lt;strong>Not a black box&lt;/strong>: Easily inspect the store contents and retrieval results.&lt;/li>
+&lt;/ul>
+&lt;h2 id="get-started">Get started
+&lt;a href="#get-started">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>&lt;strong>Install:&lt;/strong> &lt;code>install.packages(&amp;quot;ragnar&amp;quot;)&lt;/code>&lt;/li>
+&lt;li>&lt;strong>Read the vignette:&lt;/strong>
+&lt;a href="https://ragnar.tidyverse.org/articles/ragnar.html" target="_blank" rel="noopener">Getting Started&lt;/a>&lt;/li>
+&lt;li>&lt;strong>Explore more examples:&lt;/strong>
+&lt;a href="https://github.com/tidyverse/ragnar" target="_blank" rel="noopener">ragnar GitHub repository&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all contributors who helped out with ragnar development through thoughtful discussions, bug reports, and pull requests.&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/app2let" target="_blank" rel="noopener">@app2let&lt;/a>,
+&lt;a href="https://github.com/arnavchauhan7" target="_blank" rel="noopener">@arnavchauhan7&lt;/a>,
+&lt;a href="https://github.com/atheriel" target="_blank" rel="noopener">@atheriel&lt;/a>,
+&lt;a href="https://github.com/bowerth" target="_blank" rel="noopener">@bowerth&lt;/a>,
+&lt;a href="https://github.com/cboettig" target="_blank" rel="noopener">@cboettig&lt;/a>,
+&lt;a href="https://github.com/Christophe-Regouby" target="_blank" rel="noopener">@Christophe-Regouby&lt;/a>,
+&lt;a href="https://github.com/dfalbel" target="_blank" rel="noopener">@dfalbel&lt;/a>,
+&lt;a href="https://github.com/dingying85" target="_blank" rel="noopener">@dingying85&lt;/a>,
+&lt;a href="https://github.com/gadenbuie" target="_blank" rel="noopener">@gadenbuie&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/JCfly3000" target="_blank" rel="noopener">@JCfly3000&lt;/a>,
+&lt;a href="https://github.com/jrosell" target="_blank" rel="noopener">@jrosell&lt;/a>,
+&lt;a href="https://github.com/kaipingyang" target="_blank" rel="noopener">@kaipingyang&lt;/a>,
+&lt;a href="https://github.com/mattwarkentin" target="_blank" rel="noopener">@mattwarkentin&lt;/a>,
+&lt;a href="https://github.com/PauloSantana2019" target="_blank" rel="noopener">@PauloSantana2019&lt;/a>,
+&lt;a href="https://github.com/pedrobtz" target="_blank" rel="noopener">@pedrobtz&lt;/a>,
+&lt;a href="https://github.com/RichardHooijmaijers" target="_blank" rel="noopener">@RichardHooijmaijers&lt;/a>,
+&lt;a href="https://github.com/schochastics" target="_blank" rel="noopener">@schochastics&lt;/a>,
+&lt;a href="https://github.com/sikiru-atanda" target="_blank" rel="noopener">@sikiru-atanda&lt;/a>,
+&lt;a href="https://github.com/SimonEdscer" target="_blank" rel="noopener">@SimonEdscer&lt;/a>,
+&lt;a href="https://github.com/smach" target="_blank" rel="noopener">@smach&lt;/a>,
+&lt;a href="https://github.com/t-kalinowski" target="_blank" rel="noopener">@t-kalinowski&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p></description></item></channel></rss>

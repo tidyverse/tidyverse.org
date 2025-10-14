@@ -1,0 +1,181 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>testthat 3.1.0</title><meta property="og:title" content="testthat 3.1.0"><meta property="og:description" content="testthat 3.1.0 brings improvements to snapshot testing and one breaking change."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2021/10/testthat-3-1/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="testthat 3.1.0 - Tidyverse"><meta property="description" content="testthat 3.1.0 brings improvements to snapshot testing and one breaking change."><meta property="og:description" content="testthat 3.1.0 brings improvements to snapshot testing and one breaking change."><meta property="og:image" content="https://www.tidyverse.org/blog/2021/10/testthat-3-1/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2021/10/testthat-3-1/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>testthat 3.1.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2021/10/testthat-3-1/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/vasU4-TlC5I>Ethan Hoover</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2021/10/04</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/testthat/>testthat</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Hadley Wickham</p><div class=article-content><p>We&rsquo;re stoked to announce the release of
+<a href=http://testthat.r-lib.org/ target=_blank rel=noopener>testthat</a> 3.1.0. testthat makes it easy to turn your existing informal tests into formal, automated tests that you can rerun quickly and easily. testthat is the most popular unit-testing package for R, and is used by over 6,000 CRAN and Bioconductor packages. You can learn more about unit testing at <a href=https://r-pkgs.org/tests.html>https://r-pkgs.org/tests.html</a>.</p><p>You can install testthat from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span><span class=o>(</span><span class=s>"testthat"</span><span class=o>)</span></code></pre></div><p>This release of testthat includes a bunch of minor improvements to snapshotting, as well as one breaking change (which only applies if you&rsquo;re using the 3rd edition). You can see a full list of changes in the
+<a href=https://github.com/r-lib/testthat/blob/master/NEWS.md target=_blank rel=noopener>release notes</a>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://testthat.r-lib.org>testthat</a></span><span class=o>)</span></code></pre></div><h2 id=snapshot-tests>Snapshot tests
+<a href=#snapshot-tests><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Most of the effort in this release has gone into
+<a href=https://testthat.r-lib.org/articles/snapshotting.html target=_blank rel=noopener>snapshot tests</a>, a new feature in testthat 3.0.0. snapshot tests (also known as
+<a href=https://ro-che.info/articles/2017-12-04-golden-tests target=_blank rel=noopener>golden tests</a>) record expected output in a separate human-readable file instead of using code to describe what the expected output looks like. Since the release of testthat 3.0.0, we&rsquo;ve started using snapshot tests across a bunch of tidyverse packages and they&rsquo;ve been working out really well. I don&rsquo;t anticipate any major changes (although we may continue to add new features), so the snapshot functions have changed lifecycle stages from experimental to <strong>stable</strong>.</p><p>This release also includes two new features that help you use snapshot tests in more places:</p><ul><li><p><a href=https://testthat.r-lib.org/reference/expect_snapshot.html target=_blank rel=noopener><code>expect_snapshot()</code></a> gains a <code>transform</code> argument, which should be a function that takes a character vector of lines and returns a modified character vector of lines. This makes it easy to remove sensitive (e.g. API keys) or stochastic (e.g. random temporary directory names) data from snapshot output.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>get_info</span> <span class=o>&lt;-</span> <span class=kr>function</span><span class=o>(</span><span class=o>)</span> <span class=o>&#123;</span>
+  <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>
+    name <span class=o>=</span> <span class=s>"Hadley"</span>, 
+    password <span class=o>=</span> <span class=s>"sssh-its-a-secret"</span>
+  <span class=o>)</span>
+<span class=o>&#125;</span>
+
+<span class=nv>hide_password</span> <span class=o>&lt;-</span> <span class=kr>function</span><span class=o>(</span><span class=nv>x</span><span class=o>)</span> <span class=o>&#123;</span>
+  <span class=nv>is_password</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/grep.html>grepl</a></span><span class=o>(</span><span class=s>"password"</span>, <span class=nv>x</span><span class=o>)</span>
+  <span class=nf><a href=https://rdrr.io/r/base/ifelse.html>ifelse</a></span><span class=o>(</span><span class=nv>is_password</span>, <span class=s>"&lt;REDACTED&gt;"</span>, <span class=nv>x</span><span class=o>)</span>
+<span class=o>&#125;</span>
+
+<span class=nf><a href=https://testthat.r-lib.org/reference/test_that.html>test_that</a></span><span class=o>(</span><span class=s>"info retruns name and password"</span>, <span class=o>&#123;</span>
+  <span class=nf><a href=https://testthat.r-lib.org/reference/local_edition.html>local_edition</a></span><span class=o>(</span><span class=m>3</span><span class=o>)</span>
+  <span class=nf><a href=https://testthat.r-lib.org/reference/expect_snapshot.html>expect_snapshot</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=nf>get_info</span><span class=o>(</span><span class=o>)</span><span class=o>)</span>, transform <span class=o>=</span> <span class=nv>hide_password</span><span class=o>)</span>
+<span class=o>&#125;</span><span class=o>)</span>
+<span class=c>#&gt; <span style=font-weight:700>Can't compare snapshot to reference when testing interactively</span></span>
+<span class=c>#&gt; <span style=color:#00b>ℹ</span> Run `devtools::test()` or `testthat::test_file()` to see changes</span>
+<span class=c>#&gt; <span style=color:#00b>ℹ</span> Current value:</span>
+<span class=c>#&gt; Code</span>
+<span class=c>#&gt;   str(get_info())</span>
+<span class=c>#&gt; Output</span>
+<span class=c>#&gt;   List of 2</span>
+<span class=c>#&gt;    $ name    : chr "Hadley"</span>
+<span class=c>#&gt;   &lt;REDACTED&gt;</span>
+<span class=c>#&gt; ── <span style=color:#00b;font-weight:700>Skip</span><span style=font-weight:700> (test-that.R:50:3): info retruns name and password</span> ─────────────────────</span>
+<span class=c>#&gt; Reason: empty test</span></code></pre></div><p>If you need <code>transform</code>, I recommend designing your printing methods so the output can be easily manipulated with regexps.</p></li><li><p><a href=https://testthat.r-lib.org/reference/expect_snapshot.html target=_blank rel=noopener><code>expect_snapshot()</code></a> and friends get an experimental new <code>variant</code> argument which causes the snapshot to be saved in <code>_snaps/{variant}/{test}.md</code> instead of <code>_snaps/{test}.md</code>. This allows you to generate (and compare) unique snapshots for different scenarios where the output is otherwise out of your control, like differences across operating systems or R versions.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>r_version</span> <span class=o>&lt;-</span> <span class=kr>function</span><span class=o>(</span><span class=o>)</span> <span class=nf><a href=https://rdrr.io/r/base/paste.html>paste0</a></span><span class=o>(</span><span class=s>"R"</span>, <span class=nf><a href=https://rdrr.io/r/base/numeric_version.html>getRversion</a></span><span class=o>(</span><span class=o>)</span><span class=o>[</span>, <span class=m>1</span><span class=o>:</span><span class=m>2</span><span class=o>]</span><span class=o>)</span>
+
+<span class=nf><a href=https://testthat.r-lib.org/reference/test_that.html>test_that</a></span><span class=o>(</span><span class=s>"can capture version nickname"</span>, <span class=o>&#123;</span>
+  <span class=nf><a href=https://testthat.r-lib.org/reference/expect_snapshot.html>expect_snapshot</a></span><span class=o>(</span><span class=nv>version</span><span class=o>$</span><span class=nv>nickname</span>, variant <span class=o>=</span> <span class=nf>r_version</span><span class=o>(</span><span class=o>)</span><span class=o>)</span>
+<span class=o>&#125;</span><span class=o>)</span></code></pre></div></li></ul><p>Remember that snapshot tests are not run on CRAN by default because they require a human to confirm whether or not a change is a breakage, so you shouldn&rsquo;t rely only on snapshot tests to ensure that your code is correct. While it is possible to set <code>cran = TRUE</code>, to force snapshot tests to run on CRAN, I don&rsquo;t generally recommend it as snapshots are often vulnerable to minor changes that don&rsquo;t merit breaking your released package.</p><h2 id=breaking-changes>Breaking changes
+<a href=#breaking-changes><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>We made one breaking change that affects the
+<a href=https://testthat.r-lib.org/articles/third-edition.html target=_blank rel=noopener>third edition</a>. Previously,
+<a href=https://testthat.r-lib.org/reference/expect_error.html target=_blank rel=noopener><code>expect_message()</code></a> and
+<a href=https://testthat.r-lib.org/reference/expect_error.html target=_blank rel=noopener><code>expect_warning()</code></a> returned the value of the first argument, unless that was <code>NULL</code>, when they instead returned the condition object. This meant you could write code like this:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://testthat.r-lib.org/reference/equality-expectations.html>expect_equal</a></span><span class=o>(</span><span class=nf><a href=https://testthat.r-lib.org/reference/expect_error.html>expect_warning</a></span><span class=o>(</span><span class=nf>f</span><span class=o>(</span><span class=o>)</span>, <span class=s>"warning"</span><span class=o>)</span>, <span class=s>"value"</span><span class=o>)</span></code></pre></div><p>Now
+<a href=https://testthat.r-lib.org/reference/expect_error.html target=_blank rel=noopener><code>expect_message()</code></a> and
+<a href=https://testthat.r-lib.org/reference/expect_error.html target=_blank rel=noopener><code>expect_warning()</code></a> always return the condition object so you need to flip the order of the expectations:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://testthat.r-lib.org/reference/expect_error.html>expect_warning</a></span><span class=o>(</span><span class=nf><a href=https://testthat.r-lib.org/reference/equality-expectations.html>expect_equal</a></span><span class=o>(</span><span class=nf>f</span><span class=o>(</span><span class=o>)</span>, <span class=s>"value"</span><span class=o>)</span>, <span class=s>"warning"</span><span class=o>)</span></code></pre></div><p>This (IMO) is a little easier to read with the pipe:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c># Or use the pipe:</span>
+<span class=nf>f</span><span class=o>(</span><span class=o>)</span> <span class=o><a href=https://magrittr.tidyverse.org/reference/pipe.html>%&gt;%</a></span> 
+  <span class=nf><a href=https://testthat.r-lib.org/reference/equality-expectations.html>expect_equal</a></span><span class=o>(</span><span class=s>"value"</span><span class=o>)</span> <span class=o><a href=https://magrittr.tidyverse.org/reference/pipe.html>%&gt;%</a></span> 
+  <span class=nf><a href=https://testthat.r-lib.org/reference/expect_error.html>expect_warning</a></span><span class=o>(</span><span class=s>"warning"</span><span class=o>)</span></code></pre></div><p>Or with an intermediate object:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://testthat.r-lib.org/reference/expect_error.html>expect_warning</a></span><span class=o>(</span><span class=nv>value</span> <span class=o>&lt;-</span> <span class=nf>f</span><span class=o>(</span><span class=o>)</span>, <span class=s>"warning"</span><span class=o>)</span>
+<span class=nf><a href=https://testthat.r-lib.org/reference/equality-expectations.html>expect_equal</a></span><span class=o>(</span><span class=nv>value</span>, <span class=s>"value"</span><span class=o>)</span></code></pre></div><p>As with any breaking change, we made this change with great care. Fortunately it only affects the 3rd edition, which relatively few packages use, and we submitted PRs to all affected packages on CRAN.</p><p>We made this change because it makes
+<a href=https://testthat.r-lib.org/reference/expect_error.html target=_blank rel=noopener><code>expect_message()</code></a> and
+<a href=https://testthat.r-lib.org/reference/expect_error.html target=_blank rel=noopener><code>expect_warning()</code></a> more consistent with
+<a href=https://testthat.r-lib.org/reference/expect_error.html target=_blank rel=noopener><code>expect_error()</code></a>, while make it easier to inspect both the value and the message/warning. This is important because it makes it easier to test functions that produce
+<a href=https://adv-r.hadley.nz/conditions.html#custom-conditions target=_blank rel=noopener>custom condition objects</a> that themselves contain meaningful data:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://rlang.r-lib.org>rlang</a></span><span class=o>)</span>
+<span class=nv>informative_error</span> <span class=o>&lt;-</span> <span class=kr>function</span><span class=o>(</span><span class=o>)</span> <span class=o>&#123;</span>
+  <span class=nf><a href=https://rlang.r-lib.org/reference/abort.html>abort</a></span><span class=o>(</span>
+    <span class=s>"An error with extra info"</span>,
+    name <span class=o>=</span> <span class=s>"patrice"</span>,
+    number <span class=o>=</span> <span class=m>17</span>
+  <span class=o>)</span>
+<span class=o>&#125;</span>
+
+<span class=nv>err</span> <span class=o>&lt;-</span> <span class=nf><a href=https://testthat.r-lib.org/reference/expect_error.html>expect_error</a></span><span class=o>(</span><span class=nf>my_function</span><span class=o>(</span><span class=o>)</span>, class <span class=o>=</span> <span class=s>"package_error_class"</span><span class=o>)</span>
+<span class=nf><a href=https://testthat.r-lib.org/reference/equality-expectations.html>expect_equal</a></span><span class=o>(</span><span class=nv>err</span><span class=o>$</span><span class=nv>name</span>, <span class=s>"patrice"</span><span class=o>)</span>
+<span class=nf><a href=https://testthat.r-lib.org/reference/equality-expectations.html>expect_equal</a></span><span class=o>(</span><span class=nv>err</span><span class=o>$</span><span class=nv>number</span>, <span class=m>17</span><span class=o>)</span></code></pre></div><p>Richer conditions are a tool that we use within the tidyverse to provide more context in errors, warnings, and messages. You&rsquo;re unlikely to see them directly, but we&rsquo;re using them as part of our general effort to make more actionable error messages.</p><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>A big thanks to all 104 contributors who filed issues and contributed code to this and the last few patch releases:
+<a href=https://github.com/Aariq target=_blank rel=noopener>@Aariq</a>,
+<a href=https://github.com/Aehmlo target=_blank rel=noopener>@Aehmlo</a>,
+<a href=https://github.com/aguynamedryan target=_blank rel=noopener>@aguynamedryan</a>,
+<a href=https://github.com/ahjota target=_blank rel=noopener>@ahjota</a>,
+<a href=https://github.com/akersting target=_blank rel=noopener>@akersting</a>,
+<a href=https://github.com/Akirathan target=_blank rel=noopener>@Akirathan</a>,
+<a href=https://github.com/arnaud-feldmann target=_blank rel=noopener>@arnaud-feldmann</a>,
+<a href=https://github.com/aronatkins target=_blank rel=noopener>@aronatkins</a>,
+<a href=https://github.com/Bisaloo target=_blank rel=noopener>@Bisaloo</a>,
+<a href=https://github.com/boennecd target=_blank rel=noopener>@boennecd</a>,
+<a href=https://github.com/BS1125 target=_blank rel=noopener>@BS1125</a>,
+<a href=https://github.com/byoung target=_blank rel=noopener>@byoung</a>,
+<a href=https://github.com/cboettig target=_blank rel=noopener>@cboettig</a>,
+<a href=https://github.com/clauswilke target=_blank rel=noopener>@clauswilke</a>,
+<a href=https://github.com/ColinFay target=_blank rel=noopener>@ColinFay</a>,
+<a href=https://github.com/CorradoLanera target=_blank rel=noopener>@CorradoLanera</a>,
+<a href=https://github.com/dagola target=_blank rel=noopener>@dagola</a>,
+<a href=https://github.com/DanChaltiel target=_blank rel=noopener>@DanChaltiel</a>,
+<a href=https://github.com/david-barnett target=_blank rel=noopener>@david-barnett</a>,
+<a href=https://github.com/david-cortes target=_blank rel=noopener>@david-cortes</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/dmenne target=_blank rel=noopener>@dmenne</a>,
+<a href=https://github.com/dpprdan target=_blank rel=noopener>@dpprdan</a>,
+<a href=https://github.com/egonulates target=_blank rel=noopener>@egonulates</a>,
+<a href=https://github.com/espinielli target=_blank rel=noopener>@espinielli</a>,
+<a href=https://github.com/eveyp target=_blank rel=noopener>@eveyp</a>,
+<a href=https://github.com/FBartos target=_blank rel=noopener>@FBartos</a>,
+<a href=https://github.com/federicomarini target=_blank rel=noopener>@federicomarini</a>,
+<a href=https://github.com/flying-sheep target=_blank rel=noopener>@flying-sheep</a>,
+<a href=https://github.com/franzbischoff target=_blank rel=noopener>@franzbischoff</a>,
+<a href=https://github.com/gaborcsardi target=_blank rel=noopener>@gaborcsardi</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/hamstr147 target=_blank rel=noopener>@hamstr147</a>,
+<a href=https://github.com/harell target=_blank rel=noopener>@harell</a>,
+<a href=https://github.com/harsh9898 target=_blank rel=noopener>@harsh9898</a>,
+<a href=https://github.com/helix123 target=_blank rel=noopener>@helix123</a>,
+<a href=https://github.com/hongooi73 target=_blank rel=noopener>@hongooi73</a>,
+<a href=https://github.com/hsloot target=_blank rel=noopener>@hsloot</a>,
+<a href=https://github.com/jeffreyhanson target=_blank rel=noopener>@jeffreyhanson</a>,
+<a href=https://github.com/jennybc target=_blank rel=noopener>@jennybc</a>,
+<a href=https://github.com/jeroen target=_blank rel=noopener>@jeroen</a>,
+<a href=https://github.com/jesterxd target=_blank rel=noopener>@jesterxd</a>,
+<a href=https://github.com/jimhester target=_blank rel=noopener>@jimhester</a>,
+<a href=https://github.com/kevinushey target=_blank rel=noopener>@kevinushey</a>,
+<a href=https://github.com/krlmlr target=_blank rel=noopener>@krlmlr</a>,
+<a href=https://github.com/lcougnaud target=_blank rel=noopener>@lcougnaud</a>,
+<a href=https://github.com/linusheinz target=_blank rel=noopener>@linusheinz</a>,
+<a href=https://github.com/lionel- target=_blank rel=noopener>@lionel-</a>,
+<a href=https://github.com/llrs target=_blank rel=noopener>@llrs</a>,
+<a href=https://github.com/lutzgruber-quantco target=_blank rel=noopener>@lutzgruber-quantco</a>,
+<a href=https://github.com/maelle target=_blank rel=noopener>@maelle</a>,
+<a href=https://github.com/maia-sh target=_blank rel=noopener>@maia-sh</a>,
+<a href=https://github.com/malcolmbarrett target=_blank rel=noopener>@malcolmbarrett</a>,
+<a href=https://github.com/MarkEdmondson1234 target=_blank rel=noopener>@MarkEdmondson1234</a>,
+<a href=https://github.com/marko-stojovic target=_blank rel=noopener>@marko-stojovic</a>,
+<a href=https://github.com/mattfidler target=_blank rel=noopener>@mattfidler</a>,
+<a href=https://github.com/maxachis target=_blank rel=noopener>@maxachis</a>,
+<a href=https://github.com/maxheld83 target=_blank rel=noopener>@maxheld83</a>,
+<a href=https://github.com/mbojan target=_blank rel=noopener>@mbojan</a>,
+<a href=https://github.com/mcol target=_blank rel=noopener>@mcol</a>,
+<a href=https://github.com/MechantRouquin target=_blank rel=noopener>@MechantRouquin</a>,
+<a href=https://github.com/mem48 target=_blank rel=noopener>@mem48</a>,
+<a href=https://github.com/mgirlich target=_blank rel=noopener>@mgirlich</a>,
+<a href=https://github.com/MichaelChirico target=_blank rel=noopener>@MichaelChirico</a>,
+<a href=https://github.com/michaelquinn32 target=_blank rel=noopener>@michaelquinn32</a>,
+<a href=https://github.com/mihaiconstantin target=_blank rel=noopener>@mihaiconstantin</a>,
+<a href=https://github.com/mikemahoney218 target=_blank rel=noopener>@mikemahoney218</a>,
+<a href=https://github.com/MilesMcBain target=_blank rel=noopener>@MilesMcBain</a>,
+<a href=https://github.com/mjskay target=_blank rel=noopener>@mjskay</a>,
+<a href=https://github.com/mllg target=_blank rel=noopener>@mllg</a>,
+<a href=https://github.com/Mosk915 target=_blank rel=noopener>@Mosk915</a>,
+<a href=https://github.com/ms609 target=_blank rel=noopener>@ms609</a>,
+<a href=https://github.com/multimeric target=_blank rel=noopener>@multimeric</a>,
+<a href=https://github.com/nbenn target=_blank rel=noopener>@nbenn</a>,
+<a href=https://github.com/neonira target=_blank rel=noopener>@neonira</a>,
+<a href=https://github.com/nicholasproietti target=_blank rel=noopener>@nicholasproietti</a>,
+<a href=https://github.com/njtierney target=_blank rel=noopener>@njtierney</a>,
+<a href=https://github.com/nkehrein target=_blank rel=noopener>@nkehrein</a>,
+<a href=https://github.com/pat-s target=_blank rel=noopener>@pat-s</a>,
+<a href=https://github.com/pbarber target=_blank rel=noopener>@pbarber</a>,
+<a href=https://github.com/pkrog target=_blank rel=noopener>@pkrog</a>,
+<a href=https://github.com/przmv target=_blank rel=noopener>@przmv</a>,
+<a href=https://github.com/r2evans target=_blank rel=noopener>@r2evans</a>,
+<a href=https://github.com/raphael-lorenzdelaigue target=_blank rel=noopener>@raphael-lorenzdelaigue</a>,
+<a href=https://github.com/rfaelens target=_blank rel=noopener>@rfaelens</a>,
+<a href=https://github.com/rjnb50 target=_blank rel=noopener>@rjnb50</a>,
+<a href=https://github.com/romainfrancois target=_blank rel=noopener>@romainfrancois</a>,
+<a href=https://github.com/rwhetten target=_blank rel=noopener>@rwhetten</a>,
+<a href=https://github.com/salim-b target=_blank rel=noopener>@salim-b</a>,
+<a href=https://github.com/schloerke target=_blank rel=noopener>@schloerke</a>,
+<a href=https://github.com/sigmafelix target=_blank rel=noopener>@sigmafelix</a>,
+<a href=https://github.com/srfall target=_blank rel=noopener>@srfall</a>,
+<a href=https://github.com/strengejacke target=_blank rel=noopener>@strengejacke</a>,
+<a href=https://github.com/SubieG target=_blank rel=noopener>@SubieG</a>,
+<a href=https://github.com/thebioengineer target=_blank rel=noopener>@thebioengineer</a>,
+<a href=https://github.com/thisisnic target=_blank rel=noopener>@thisisnic</a>,
+<a href=https://github.com/tiQu target=_blank rel=noopener>@tiQu</a>,
+<a href=https://github.com/torbjorn target=_blank rel=noopener>@torbjorn</a>,
+<a href=https://github.com/ttimbers target=_blank rel=noopener>@ttimbers</a>,
+<a href=https://github.com/tzakharko target=_blank rel=noopener>@tzakharko</a>,
+<a href=https://github.com/vspinu target=_blank rel=noopener>@vspinu</a>,
+<a href=https://github.com/wch target=_blank rel=noopener>@wch</a>,
+<a href=https://github.com/weiyaw target=_blank rel=noopener>@weiyaw</a>, and
+<a href=https://github.com/yasushm target=_blank rel=noopener>@yasushm</a>.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#snapshot-tests>Snapshot tests</a></li><li><a href=#breaking-changes>Breaking changes</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

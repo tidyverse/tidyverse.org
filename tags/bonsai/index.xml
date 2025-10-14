@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>bonsai | Tidyverse</title><link>https://www.tidyverse.org/tags/bonsai/</link><atom:link href="https://www.tidyverse.org/tags/bonsai/index.xml" rel="self" type="application/rss+xml"/><description>bonsai</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 25 Jun 2024 00:00:00 +0000</lastBuildDate><item><title>bonsai 0.3.0</title><link>https://www.tidyverse.org/blog/2024/06/bonsai-0-3-0/</link><pubDate>Tue, 25 Jun 2024 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2024/06/bonsai-0-3-0/</guid><description>&lt;p>We&amp;rsquo;re brimming with glee to announce the release of
+&lt;a href="https://bonsai.tidymodels.org" target="_blank" rel="noopener">bonsai&lt;/a> 0.3.0. bonsai is a parsnip extension package for tree-based models, and includes support for random forest and gradient-boosted tree frameworks like partykit and LightGBM. This most recent release of the package introduces support for the &lt;code>&amp;quot;aorsf&amp;quot;&lt;/code> engine, which implements accelerated oblique random forests (Jaeger et al. 2022, Jaeger et al. 2024).&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"bonsai"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This blog post will demonstrate a modeling workflow where the benefits of using oblique random forests shine through.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://bonsai.tidymodels.org/news/index.html#bonsai-030" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://tidymodels.tidymodels.org'>tidymodels&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://bonsai.tidymodels.org/'>bonsai&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://plsmod.tidymodels.org'>plsmod&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://github.com/tidymodels/corrr'>corrr&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="the-meats-data">The &lt;code>meats&lt;/code> data
+&lt;a href="#the-meats-data">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The modeldata package, loaded automatically with the tidymodels meta-package, includes several example datasets to demonstrate modeling problems. We&amp;rsquo;ll make use of a dataset called &lt;code>meats&lt;/code> in this post. Each row is a measurement of a sample of finely chopped meat.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>meats&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 215 × 103&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; x_001 x_002 x_003 x_004 x_005 x_006 x_007 x_008 x_009 x_010 x_011 x_012 x_013&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> 2.62 2.62 2.62 2.62 2.62 2.62 2.62 2.62 2.63 2.63 2.63 2.63 2.64&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> 2.83 2.84 2.84 2.85 2.85 2.86 2.86 2.87 2.87 2.88 2.88 2.89 2.90&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> 2.58 2.58 2.59 2.59 2.59 2.59 2.59 2.60 2.60 2.60 2.60 2.61 2.61&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> 2.82 2.82 2.83 2.83 2.83 2.83 2.83 2.84 2.84 2.84 2.84 2.85 2.85&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> 2.79 2.79 2.79 2.79 2.80 2.80 2.80 2.80 2.81 2.81 2.81 2.82 2.82&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> 3.01 3.02 3.02 3.03 3.03 3.04 3.04 3.05 3.06 3.06 3.07 3.08 3.09&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> 2.99 2.99 3.00 3.01 3.01 3.02 3.02 3.03 3.04 3.04 3.05 3.06 3.07&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> 2.53 2.53 2.53 2.53 2.53 2.53 2.53 2.53 2.54 2.54 2.54 2.54 2.54&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> 3.27 3.28 3.29 3.29 3.30 3.31 3.31 3.32 3.33 3.33 3.34 3.35 3.36&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> 3.40 3.41 3.41 3.42 3.43 3.43 3.44 3.45 3.46 3.47 3.48 3.48 3.49&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 205 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 90 more variables: x_014 &amp;lt;dbl&amp;gt;, x_015 &amp;lt;dbl&amp;gt;, x_016 &amp;lt;dbl&amp;gt;, x_017 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># x_018 &amp;lt;dbl&amp;gt;, x_019 &amp;lt;dbl&amp;gt;, x_020 &amp;lt;dbl&amp;gt;, x_021 &amp;lt;dbl&amp;gt;, x_022 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># x_023 &amp;lt;dbl&amp;gt;, x_024 &amp;lt;dbl&amp;gt;, x_025 &amp;lt;dbl&amp;gt;, x_026 &amp;lt;dbl&amp;gt;, x_027 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># x_028 &amp;lt;dbl&amp;gt;, x_029 &amp;lt;dbl&amp;gt;, x_030 &amp;lt;dbl&amp;gt;, x_031 &amp;lt;dbl&amp;gt;, x_032 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># x_033 &amp;lt;dbl&amp;gt;, x_034 &amp;lt;dbl&amp;gt;, x_035 &amp;lt;dbl&amp;gt;, x_036 &amp;lt;dbl&amp;gt;, x_037 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># x_038 &amp;lt;dbl&amp;gt;, x_039 &amp;lt;dbl&amp;gt;, x_040 &amp;lt;dbl&amp;gt;, x_041 &amp;lt;dbl&amp;gt;, x_042 &amp;lt;dbl&amp;gt;, …&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>From that dataset&amp;rsquo;s documentation:&lt;/p>
+&lt;blockquote>
+&lt;p>These data are recorded on a Tecator Infratec Food and Feed Analyzer&amp;hellip; For each meat sample the data consists of a 100 channel spectrum of absorbances and the contents of moisture (water), fat and protein. The absorbance is -log10 of the transmittance measured by the spectrometer. The three contents, measured in percent, are determined by analytic chemistry.&lt;/p>
+&lt;/blockquote>
+&lt;p>We&amp;rsquo;ll try to predict the protein content, as a percentage, using the absorbance measurements.&lt;/p>
+&lt;p>Before we take a further look, let&amp;rsquo;s split up our data. I&amp;rsquo;ll first select off two other possible outcome variables and, after splitting into training and testing sets, resample the data using 5-fold cross-validation with 2 repeats.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>meats&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>meats&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;span class='nf'>select&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>-&lt;/span>&lt;span class='nv'>water&lt;/span>, &lt;span class='o'>-&lt;/span>&lt;span class='nv'>fat&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>meats_split&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>initial_split&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>meats&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>meats_train&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>training&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>meats_split&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>meats_test&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>testing&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>meats_split&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>meats_folds&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>vfold_cv&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>meats_train&lt;/span>, v &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>, repeats &lt;span class='o'>=&lt;/span> &lt;span class='m'>2&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The tricky parts of this modeling problem are that:&lt;/p>
+&lt;ol>
+&lt;li>There are few observations to work with (215 total).&lt;/li>
+&lt;li>Each of these 100 absorbance measurements are &lt;em>highly&lt;/em> correlated.&lt;/li>
+&lt;/ol>
+&lt;p>Visualizing that correlation:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>meats_train&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://corrr.tidymodels.org/reference/correlate.html'>correlate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/autoplot.html'>autoplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>theme&lt;/span>&lt;span class='o'>(&lt;/span>axis.text.x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>element_blank&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, axis.text.y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>element_blank&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Correlation computed with&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>•&lt;/span> Method: 'pearson'&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>•&lt;/span> Missing treated using: 'pairwise.complete.obs'&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/correlate-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Almost all of these pairwise correlations between predictors are near 1, besides the last variable and every other variable. That last variable with weaker correlation values? It&amp;rsquo;s the outcome.&lt;/p>
+&lt;h2 id="baseline-models">Baseline models
+&lt;a href="#baseline-models">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>There are several existing model implementations in tidymodels that are resilient to highly correlated predictors. The first one I&amp;rsquo;d probably reach for is an elastic net: an interpolation of the LASSO and Ridge regularized linear regression models. Evaluating that modeling approach against resamples:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># define a regularized linear model&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>spec_lr&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/linear_reg.html'>linear_reg&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>penalty &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://hardhat.tidymodels.org/reference/tune.html'>tune&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, mixture &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://hardhat.tidymodels.org/reference/tune.html'>tune&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_engine.html'>set_engine&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"glmnet"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># try out different penalization approaches&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>res_lr&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>tune_grid&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>spec_lr&lt;/span>, &lt;span class='nv'>protein&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>, &lt;span class='nv'>meats_folds&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>show_best&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>res_lr&lt;/span>, metric &lt;span class='o'>=&lt;/span> &lt;span class='s'>"rmse"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 5 × 8&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; penalty mixture .metric .estimator mean n std_err .config &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> 0.000&lt;span style='text-decoration: underline;'>032&lt;/span>4 0.668 rmse standard 1.24 10 0.051&lt;span style='text-decoration: underline;'>6&lt;/span> Preprocessor1_Mo…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> 0.000&lt;span style='text-decoration: underline;'>000&lt;/span>005&lt;span style='text-decoration: underline;'>24&lt;/span> 0.440 rmse standard 1.25 10 0.054&lt;span style='text-decoration: underline;'>8&lt;/span> Preprocessor1_Mo…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> 0.000&lt;span style='text-decoration: underline;'>000&lt;/span>461 0.839 rmse standard 1.26 10 0.053&lt;span style='text-decoration: underline;'>8&lt;/span> Preprocessor1_Mo…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> 0.000&lt;span style='text-decoration: underline;'>005&lt;/span>50 0.965 rmse standard 1.26 10 0.054&lt;span style='text-decoration: underline;'>0&lt;/span> Preprocessor1_Mo…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> 0.000&lt;span style='text-decoration: underline;'>000&lt;/span>048&lt;span style='text-decoration: underline;'>9&lt;/span> 0.281 rmse standard 1.26 10 0.053&lt;span style='text-decoration: underline;'>4&lt;/span> Preprocessor1_Mo…&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nf'>show_best&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>res_lr&lt;/span>, metric &lt;span class='o'>=&lt;/span> &lt;span class='s'>"rsq"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 5 × 8&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; penalty mixture .metric .estimator mean n std_err .config &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> 0.000&lt;span style='text-decoration: underline;'>032&lt;/span>4 0.668 rsq standard 0.849 10 0.012&lt;span style='text-decoration: underline;'>6&lt;/span> Preprocessor1_Mo…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> 0.000&lt;span style='text-decoration: underline;'>000&lt;/span>005&lt;span style='text-decoration: underline;'>24&lt;/span> 0.440 rsq standard 0.848 10 0.012&lt;span style='text-decoration: underline;'>8&lt;/span> Preprocessor1_Mo…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> 0.000&lt;span style='text-decoration: underline;'>000&lt;/span>461 0.839 rsq standard 0.846 10 0.011&lt;span style='text-decoration: underline;'>4&lt;/span> Preprocessor1_Mo…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> 0.000&lt;span style='text-decoration: underline;'>005&lt;/span>50 0.965 rsq standard 0.846 10 0.011&lt;span style='text-decoration: underline;'>1&lt;/span> Preprocessor1_Mo…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> 0.000&lt;span style='text-decoration: underline;'>000&lt;/span>048&lt;span style='text-decoration: underline;'>9&lt;/span> 0.281 rsq standard 0.846 10 0.012&lt;span style='text-decoration: underline;'>6&lt;/span> Preprocessor1_Mo…&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>That best RMSE value of 1.24 gives us a baseline to work with, and the best R-squared 0.85 seems like a good start.&lt;/p>
+&lt;p>Many tree-based model implementations in tidymodels generally handle correlated predictors well. Just to be apples-to-apples with &lt;code>&amp;quot;aorsf&amp;quot;&lt;/code>, let&amp;rsquo;s use a different random forest engine to get a better sense for baseline performance:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>spec_rf&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/rand_forest.html'>rand_forest&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>mtry &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://hardhat.tidymodels.org/reference/tune.html'>tune&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, min_n &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://hardhat.tidymodels.org/reference/tune.html'>tune&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='c'># this is the default engine, but for consistency's sake:&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_engine.html'>set_engine&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"ranger"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_args.html'>set_mode&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"regression"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>res_rf&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>tune_grid&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>spec_rf&lt;/span>, &lt;span class='nv'>protein&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>, &lt;span class='nv'>meats_folds&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #0000BB;'>i&lt;/span> &lt;span style='color: #000000;'>Creating pre-processing data to finalize unknown parameter: mtry&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>show_best&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>res_rf&lt;/span>, metric &lt;span class='o'>=&lt;/span> &lt;span class='s'>"rmse"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 5 × 8&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; mtry min_n .metric .estimator mean n std_err .config &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> 96 4 rmse standard 2.37 10 0.090&lt;span style='text-decoration: underline;'>5&lt;/span> Preprocessor1_Model08&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> 41 6 rmse standard 2.39 10 0.088&lt;span style='text-decoration: underline;'>3&lt;/span> Preprocessor1_Model01&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> 88 10 rmse standard 2.43 10 0.081&lt;span style='text-decoration: underline;'>6&lt;/span> Preprocessor1_Model06&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> 79 17 rmse standard 2.51 10 0.074&lt;span style='text-decoration: underline;'>0&lt;/span> Preprocessor1_Model07&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> 27 18 rmse standard 2.52 10 0.077&lt;span style='text-decoration: underline;'>8&lt;/span> Preprocessor1_Model04&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nf'>show_best&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>res_rf&lt;/span>, metric &lt;span class='o'>=&lt;/span> &lt;span class='s'>"rsq"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 5 × 8&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; mtry min_n .metric .estimator mean n std_err .config &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> 96 4 rsq standard 0.424 10 0.038&lt;span style='text-decoration: underline;'>5&lt;/span> Preprocessor1_Model08&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> 41 6 rsq standard 0.409 10 0.039&lt;span style='text-decoration: underline;'>4&lt;/span> Preprocessor1_Model01&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> 88 10 rsq standard 0.387 10 0.036&lt;span style='text-decoration: underline;'>5&lt;/span> Preprocessor1_Model06&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> 79 17 rsq standard 0.353 10 0.040&lt;span style='text-decoration: underline;'>4&lt;/span> Preprocessor1_Model07&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> 27 18 rsq standard 0.346 10 0.039&lt;span style='text-decoration: underline;'>7&lt;/span> Preprocessor1_Model04&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Not so hot. Just to show I&amp;rsquo;m not making a straw man here, I&amp;rsquo;ll evaluate a few more alternative modeling approaches behind the curtain and print out their best performance metrics:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Gradient boosted tree with LightGBM&lt;/strong>. Best RMSE: 2.34. Best R-squared: 0.43.&lt;/li>
+&lt;li>&lt;strong>Partial least squares regression&lt;/strong>. Best RMSE: 1.39. Best R-squared: 0.81.&lt;/li>
+&lt;li>&lt;strong>Support vector machine&lt;/strong>. Best RMSE: 2.28. Best R-squared: 0.46.&lt;/li>
+&lt;/ul>
+&lt;p>This is a tricky one.&lt;/p>
+&lt;h2 id="introducing-accelerated-oblique-random-forests">Introducing accelerated oblique random forests
+&lt;a href="#introducing-accelerated-oblique-random-forests">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The 0.3.0 release of bonsai introduces support for accelerated oblique random forests via the &lt;code>&amp;quot;aorsf&amp;quot;&lt;/code> engine for classification and regression in tidymodels. (Tidy survival modelers might note that
+&lt;a href="https://www.tidyverse.org/blog/2023/04/censored-0-2-0/" target="_blank" rel="noopener">we already support &lt;code>&amp;quot;aorsf&amp;quot;&lt;/code> for censored regression&lt;/a> via the
+&lt;a href="https://censored.tidymodels.org" target="_blank" rel="noopener">censored&lt;/a> parsnip extension package!)&lt;/p>
+&lt;p>Unlike trees in conventional random forests, which create splits using thresholds based on individual predictors (e.g. &lt;code>x_001 &amp;gt; 3&lt;/code>), oblique random forests use linear combinations of predictors to create splits (e.g. &lt;code>x_001 * x_002 &amp;gt; 7.5&lt;/code>) and have been shown to improve predictive performance related to conventional random forests for a variety of applications (Menze et al. 2011). &amp;ldquo;Oblique&amp;rdquo; references the appearance of decision boundaries when a set of splits is plotted; I&amp;rsquo;ve grabbed a visual from the
+&lt;a href="https://github.com/ropensci/aorsf?tab=readme-ov-file#what-does-oblique-mean" target="_blank" rel="noopener">aorsf README&lt;/a> that demonstrates:&lt;/p>
+&lt;div class="highlight">
+&lt;p>&lt;img src="figures/oblique.png" alt="Two plots of decision boundaries for a classification problem. One uses single-variable splitting and the other oblique splitting. Both trees partition the predictor space defined by predictors X1 and X2, but the oblique splits do a better job of separating the two classes thanks to an 'oblique' boundary formed by considering both X1 and X2 at the same time." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>In the above, we&amp;rsquo;d like to separate the purple dots from the orange squares. A tree in a traditional random forest, represented on the left, can only generate splits based on one of X1 or X2 at a time. A tree in an oblique random forest, represented on the right, can consider both X1 and X2 in creating decision boundaries, often resulting in stronger predictive performance.&lt;/p>
+&lt;p>Where does the &amp;ldquo;accelerated&amp;rdquo; come from? Generally, finding optimal oblique splits is computationally more intensive than finding single-predictor splits. The aorsf package uses something called &amp;ldquo;Newton Raphson scoring&amp;rdquo;&amp;mdash;the same algorithm under the hood in the survival package&amp;mdash;to identify splits based on linear combinations of predictor variables. This approach speeds up that process greatly, resulting in fit times that are analogous to implementations of traditional random forests in R (and hundreds of times faster than existing oblique random forest implementations, Jaeger et al. 2024).&lt;/p>
+&lt;p>The code to tune this model with the &lt;code>&amp;quot;aorsf&amp;quot;&lt;/code> engine is the same as for &lt;code>&amp;quot;ranger&amp;quot;&lt;/code>, except we switch out the &lt;code>engine&lt;/code> argument to
+&lt;a href="https://parsnip.tidymodels.org/reference/set_engine.html" target="_blank" rel="noopener">&lt;code>set_engine()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>spec_aorsf&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/rand_forest.html'>rand_forest&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> mtry &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://hardhat.tidymodels.org/reference/tune.html'>tune&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> min_n &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://hardhat.tidymodels.org/reference/tune.html'>tune&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_engine.html'>set_engine&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"aorsf"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_args.html'>set_mode&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"regression"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>res_aorsf&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>tune_grid&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>spec_aorsf&lt;/span>, &lt;span class='nv'>protein&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>, &lt;span class='nv'>meats_folds&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #0000BB;'>i&lt;/span> &lt;span style='color: #000000;'>Creating pre-processing data to finalize unknown parameter: mtry&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>show_best&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>res_aorsf&lt;/span>, metric &lt;span class='o'>=&lt;/span> &lt;span class='s'>"rmse"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 5 × 8&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; mtry min_n .metric .estimator mean n std_err .config &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> 87 11 rmse standard 0.786 10 0.037&lt;span style='text-decoration: underline;'>0&lt;/span> Preprocessor1_Model02&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> 98 8 rmse standard 0.789 10 0.036&lt;span style='text-decoration: underline;'>3&lt;/span> Preprocessor1_Model10&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> 48 5 rmse standard 0.793 10 0.036&lt;span style='text-decoration: underline;'>3&lt;/span> Preprocessor1_Model01&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> 16 17 rmse standard 0.803 10 0.032&lt;span style='text-decoration: underline;'>5&lt;/span> Preprocessor1_Model09&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> 31 18 rmse standard 0.813 10 0.035&lt;span style='text-decoration: underline;'>9&lt;/span> Preprocessor1_Model05&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nf'>show_best&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>res_aorsf&lt;/span>, metric &lt;span class='o'>=&lt;/span> &lt;span class='s'>"rsq"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 5 × 8&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; mtry min_n .metric .estimator mean n std_err .config &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> 48 5 rsq standard 0.946 10 0.004&lt;span style='text-decoration: underline;'>46&lt;/span> Preprocessor1_Model01&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> 98 8 rsq standard 0.945 10 0.004&lt;span style='text-decoration: underline;'>82&lt;/span> Preprocessor1_Model10&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> 87 11 rsq standard 0.945 10 0.004&lt;span style='text-decoration: underline;'>84&lt;/span> Preprocessor1_Model02&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> 16 17 rsq standard 0.941 10 0.003&lt;span style='text-decoration: underline;'>70&lt;/span> Preprocessor1_Model09&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> 31 18 rsq standard 0.940 10 0.005&lt;span style='text-decoration: underline;'>47&lt;/span> Preprocessor1_Model05&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Holy smokes. The best RMSE from aorsf is 0.79, much more performant than the previous best RMSE from the elastic net with a value of 1.24, and the best R-squared is 0.95, much stronger than the previous best (also from the elastic net) of 0.85.&lt;/p>
+&lt;p>Especially if your modeling problems involve few samples of many, highly correlated predictors, give the &lt;code>&amp;quot;aorsf&amp;quot;&lt;/code> modeling engine a whirl in your workflows and let us know what you think!&lt;/p>
+&lt;h2 id="references">References
+&lt;a href="#references">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Byron C. Jaeger, Sawyer Welden, Kristin Lenoir, Jaime L. Speiser, Matthew W. Segar, Ambarish Pandey, Nicholas M. Pajewski. 2024. &amp;ldquo;Accelerated and Interpretable Oblique Random Survival Forests.&amp;rdquo; &lt;em>Journal of Computational and Graphical Statistics&lt;/em> 33.1: 192-207.&lt;/p>
+&lt;p>Byron C. Jaeger, Sawyer Welden, Kristin Lenoir, and Nicholas M. Pajewski. 2022. &amp;ldquo;aorsf: An R package for Supervised Learning Using the Oblique Random Survival Forest.&amp;rdquo; &lt;em>The Journal of Open Source Software&lt;/em>.&lt;/p>
+&lt;p>Bjoern H. Menze, B. Michael Kelm, Daniel N. Splitthoff, Ullrich Koethe, and Fred A. Hamprecht. (2011). &amp;ldquo;On Oblique Random Forests.&amp;rdquo; &lt;em>Joint European Conference on Machine Learning and Knowledge Discovery in Databases&lt;/em> (pp. 453&amp;ndash;469). Springer.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thank you to
+&lt;a href="https://github.com/bcjaeger" target="_blank" rel="noopener">@bcjaeger&lt;/a>, the aorsf author, for doing most of the work to implement aorsf support in bonsai. Thank you to
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/joranE" target="_blank" rel="noopener">@joranE&lt;/a>,
+&lt;a href="https://github.com/jrosell" target="_blank" rel="noopener">@jrosell&lt;/a>,
+&lt;a href="https://github.com/nipnipj" target="_blank" rel="noopener">@nipnipj&lt;/a>,
+&lt;a href="https://github.com/p-schaefer" target="_blank" rel="noopener">@p-schaefer&lt;/a>,
+&lt;a href="https://github.com/seb-mueller" target="_blank" rel="noopener">@seb-mueller&lt;/a>, and
+&lt;a href="https://github.com/tcovert" target="_blank" rel="noopener">@tcovert&lt;/a> for their contributions on the bonsai repository since version 0.2.1.&lt;/p></description></item><item><title>bonsai 0.1.0</title><link>https://www.tidyverse.org/blog/2022/06/bonsai-0-1-0/</link><pubDate>Thu, 30 Jun 2022 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2022/06/bonsai-0-1-0/</guid><description>&lt;p>We&amp;rsquo;re super stoked to announce the first release of the
+&lt;a href="https://bonsai.tidymodels.org/" target="_blank" rel="noopener">bonsai&lt;/a> package on CRAN! bonsai is a
+&lt;a href="https://parsnip.tidymodels.org/" target="_blank" rel="noopener">parsnip&lt;/a> extension package for tree-based models.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"bonsai"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Without extension packages, the parsnip package already supports fitting decision trees, random forests, and boosted trees. The bonsai package introduces support for two additional engines that implement variants of these algorithms:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://CRAN.R-project.org/package=partykit" target="_blank" rel="noopener">partykit&lt;/a>: conditional inference trees via
+&lt;a href="https://parsnip.tidymodels.org/reference/decision_tree.html" target="_blank" rel="noopener">&lt;code>decision_tree()&lt;/code>&lt;/a> and conditional random forests via
+&lt;a href="https://parsnip.tidymodels.org/reference/rand_forest.html" target="_blank" rel="noopener">&lt;code>rand_forest()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://CRAN.R-project.org/package=lightgbm" target="_blank" rel="noopener">LightGBM&lt;/a>: optimized gradient boosted trees via
+&lt;a href="https://parsnip.tidymodels.org/reference/boost_tree.html" target="_blank" rel="noopener">&lt;code>boost_tree()&lt;/code>&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>As we introduce further support for tree-based model engines in the tidymodels, new implementations will reside in this package (rather than parsnip).&lt;/p>
+&lt;p>To demonstrate how to use the package, we&amp;rsquo;ll fit a few tree-based models and explore their output. First, loading bonsai as well as the rest of the tidymodels core packages:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://bonsai.tidymodels.org/'>bonsai&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; Loading required package: parsnip&lt;/span>
+&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://tidymodels.tidymodels.org'>tidymodels&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ── &lt;span style='font-weight: bold;'>Attaching packages&lt;/span> ────────────────────────────────────── tidymodels 0.2.0 ──&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>broom &lt;/span> 0.8.0 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>rsample &lt;/span> 0.1.1 &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>dials &lt;/span> 1.0.0 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>tibble &lt;/span> 3.1.7 &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>dplyr &lt;/span> 1.0.9 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>tidyr &lt;/span> 1.2.0 &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>ggplot2 &lt;/span> 3.3.6 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>tune &lt;/span> 0.2.0 &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>infer &lt;/span> 1.0.2 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>workflows &lt;/span> 0.2.6 &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>modeldata &lt;/span> 0.1.1.&lt;span style='color: #BB0000;'>9000&lt;/span> &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>workflowsets&lt;/span> 0.2.1 &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>purrr &lt;/span> 0.3.4 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>yardstick &lt;/span> 1.0.0 &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>recipes &lt;/span> 0.2.0&lt;/span>
+&lt;span class='c'>#&amp;gt; ── &lt;span style='font-weight: bold;'>Conflicts&lt;/span> ───────────────────────────────────────── tidymodels_conflicts() ──&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> &lt;span style='color: #0000BB;'>purrr&lt;/span>::&lt;span style='color: #00BB00;'>discard()&lt;/span> masks &lt;span style='color: #0000BB;'>scales&lt;/span>::discard()&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> &lt;span style='color: #0000BB;'>dplyr&lt;/span>::&lt;span style='color: #00BB00;'>filter()&lt;/span> masks &lt;span style='color: #0000BB;'>stats&lt;/span>::filter()&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> &lt;span style='color: #0000BB;'>dplyr&lt;/span>::&lt;span style='color: #00BB00;'>lag()&lt;/span> masks &lt;span style='color: #0000BB;'>stats&lt;/span>::lag()&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> &lt;span style='color: #0000BB;'>recipes&lt;/span>::&lt;span style='color: #00BB00;'>step()&lt;/span> masks &lt;span style='color: #0000BB;'>stats&lt;/span>::step()&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #0000BB;'>•&lt;/span> Dig deeper into tidy modeling with R at &lt;span style='color: #00BB00;'>https://www.tmwr.org&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Note that we use a development version of the
+&lt;a href="https://modeldata.tidymodels.org/" target="_blank" rel="noopener">modeldata&lt;/a> package to generate example data later on in this post using the new &lt;code>sim_regression()&lt;/code> function&amp;mdash;you can install this version of the package using &lt;code>pak::pak(tidymodels/modeldata)&lt;/code>.&lt;/p>
+&lt;p>We&amp;rsquo;ll use a
+&lt;a href="https://allisonhorst.github.io/palmerpenguins/" target="_blank" rel="noopener">dataset&lt;/a> containing measurements on 3 different species of penguins as an example. Loading that data in and checking it out:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/data.html'>data&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>penguins&lt;/span>, package &lt;span class='o'>=&lt;/span> &lt;span class='s'>"modeldata"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/str.html'>str&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>penguins&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; tibble [344 × 7] (S3: tbl_df/tbl/data.frame)&lt;/span>
+&lt;span class='c'>#&amp;gt; $ species : Factor w/ 3 levels "Adelie","Chinstrap",..: 1 1 1 1 1 1 1 1 1 1 ...&lt;/span>
+&lt;span class='c'>#&amp;gt; $ island : Factor w/ 3 levels "Biscoe","Dream",..: 3 3 3 3 3 3 3 3 3 3 ...&lt;/span>
+&lt;span class='c'>#&amp;gt; $ bill_length_mm : num [1:344] 39.1 39.5 40.3 NA 36.7 39.3 38.9 39.2 34.1 42 ...&lt;/span>
+&lt;span class='c'>#&amp;gt; $ bill_depth_mm : num [1:344] 18.7 17.4 18 NA 19.3 20.6 17.8 19.6 18.1 20.2 ...&lt;/span>
+&lt;span class='c'>#&amp;gt; $ flipper_length_mm: int [1:344] 181 186 195 NA 193 190 181 195 193 190 ...&lt;/span>
+&lt;span class='c'>#&amp;gt; $ body_mass_g : int [1:344] 3750 3800 3250 NA 3450 3650 3625 4675 3475 4250 ...&lt;/span>
+&lt;span class='c'>#&amp;gt; $ sex : Factor w/ 2 levels "female","male": 2 1 1 NA 1 2 1 2 NA NA ...&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Specifically, we&amp;rsquo;ll make use of flipper length and home island to model a penguin&amp;rsquo;s species:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>ggplot&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>penguins&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>aes&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nv'>island&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>flipper_length_mm&lt;/span>, col &lt;span class='o'>=&lt;/span> &lt;span class='nv'>species&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>geom_jitter&lt;/span>&lt;span class='o'>(&lt;/span>width &lt;span class='o'>=&lt;/span> &lt;span class='m'>.2&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/penguin-plot-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Looking at this plot, you might begin to imagine your own simple set of binary splits for guessing which species a penguin might be given its home island and flipper length. Given that this small set of predictors almost completely separates our outcome with only a few splits, a relatively simple tree should serve our purposes just fine.&lt;/p>
+&lt;h2 id="decision-trees">Decision Trees
+&lt;a href="#decision-trees">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>bonsai introduces support for fitting decision trees with partykit, which implements a variety of decision trees called conditional inference trees (CITs).&lt;/p>
+&lt;p>CITs differ from implementations of decision trees available elsewhere in the tidymodels in the criteria used to generate splits. The details of how these criteria differ are outside of the scope of this post.&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> Practically, though, CITs offer a few notable advantages over CART- and C5.0-based decision trees:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Overfitting&lt;/strong>: Common implementations of decision trees are notoriously prone to overfitting, and require several well-chosen penalization (i.e. cost-complexity) and early stopping (e.g. pruning, max depth) hyperparameters to fit a model that will perform well when predicting on new observations. &amp;ldquo;Out-of-the-box,&amp;rdquo; CITs are not as prone to these same issues and do not accept a penalization parameter at all.&lt;/li>
+&lt;li>&lt;strong>Selection bias&lt;/strong>: Common implementations of decision trees are biased towards selecting variables with many possible split points or missing values. CITs are natively not prone to the first issue, and many popular implementations address the second vulnerability.&lt;/li>
+&lt;/ul>
+&lt;p>To define a conditional inference tree model specification, just set the modeling engine to &lt;code>&amp;quot;partykit&amp;quot;&lt;/code> when creating a decision tree. Fitting to the penguins data, then:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>dt_mod&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span>
+&lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/decision_tree.html'>decision_tree&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_engine.html'>set_engine&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>engine &lt;span class='o'>=&lt;/span> &lt;span class='s'>"partykit"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_args.html'>set_mode&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>mode &lt;span class='o'>=&lt;/span> &lt;span class='s'>"classification"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://generics.r-lib.org/reference/fit.html'>fit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+formula &lt;span class='o'>=&lt;/span> &lt;span class='nv'>species&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>flipper_length_mm&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nv'>island&lt;/span>,
+data &lt;span class='o'>=&lt;/span> &lt;span class='nv'>penguins&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>dt_mod&lt;/span>
+&lt;span class='c'>#&amp;gt; parsnip model object&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; Model formula:&lt;/span>
+&lt;span class='c'>#&amp;gt; species ~ flipper_length_mm + island&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; Fitted party:&lt;/span>
+&lt;span class='c'>#&amp;gt; [1] root&lt;/span>
+&lt;span class='c'>#&amp;gt; | [2] island in Biscoe&lt;/span>
+&lt;span class='c'>#&amp;gt; | | [3] flipper_length_mm &amp;lt;= 203&lt;/span>
+&lt;span class='c'>#&amp;gt; | | | [4] flipper_length_mm &amp;lt;= 196: Adelie (n = 38, err = 0.0%)&lt;/span>
+&lt;span class='c'>#&amp;gt; | | | [5] flipper_length_mm &amp;gt; 196: Adelie (n = 8, err = 25.0%)&lt;/span>
+&lt;span class='c'>#&amp;gt; | | [6] flipper_length_mm &amp;gt; 203: Gentoo (n = 122, err = 0.0%)&lt;/span>
+&lt;span class='c'>#&amp;gt; | [7] island in Dream, Torgersen&lt;/span>
+&lt;span class='c'>#&amp;gt; | | [8] island in Dream&lt;/span>
+&lt;span class='c'>#&amp;gt; | | | [9] flipper_length_mm &amp;lt;= 192: Adelie (n = 59, err = 33.9%)&lt;/span>
+&lt;span class='c'>#&amp;gt; | | | [10] flipper_length_mm &amp;gt; 192: Chinstrap (n = 65, err = 26.2%)&lt;/span>
+&lt;span class='c'>#&amp;gt; | | [11] island in Torgersen: Adelie (n = 52, err = 0.0%)&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; Number of inner nodes: 5&lt;/span>
+&lt;span class='c'>#&amp;gt; Number of terminal nodes: 6&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Do any of these splits line up with your intuition? This tree results in only 6 terminal nodes and describes the structure shown in the above plot quite well.&lt;/p>
+&lt;p>Read more about this implementation of decision trees in
+&lt;a href="https://parsnip.tidymodels.org/reference/details_decision_tree_partykit.html" target="_blank" rel="noopener">&lt;code>?details_decision_tree_partykit&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="random-forests">Random Forests
+&lt;a href="#random-forests">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>One generalization of a decision tree is a &lt;em>random forest&lt;/em>, which fits a large number of decision trees, each independently of the others. The fitted random forest model combines predictions from the individual decision trees to generate its predictions.&lt;/p>
+&lt;p>bonsai introduces support for random forests using the &lt;code>partykit&lt;/code> engine, which implements an algorithm called a &lt;em>conditional random forest&lt;/em>. Conditional random forests are a type of random forest that uses conditional inference trees (like the one we fit above!) for its constituent decision trees.&lt;/p>
+&lt;p>To fit a conditional random forest with partykit, our code looks pretty similar to that which we we needed to fit a conditional inference tree. Just switch out
+&lt;a href="https://parsnip.tidymodels.org/reference/decision_tree.html" target="_blank" rel="noopener">&lt;code>decision_tree()&lt;/code>&lt;/a> with
+&lt;a href="https://parsnip.tidymodels.org/reference/rand_forest.html" target="_blank" rel="noopener">&lt;code>rand_forest()&lt;/code>&lt;/a> and remember to keep the engine set as &lt;code>&amp;quot;partykit&amp;quot;&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>rf_mod&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span>
+&lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/rand_forest.html'>rand_forest&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_engine.html'>set_engine&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>engine &lt;span class='o'>=&lt;/span> &lt;span class='s'>"partykit"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_args.html'>set_mode&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>mode &lt;span class='o'>=&lt;/span> &lt;span class='s'>"classification"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://generics.r-lib.org/reference/fit.html'>fit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+formula &lt;span class='o'>=&lt;/span> &lt;span class='nv'>species&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>flipper_length_mm&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nv'>island&lt;/span>,
+data &lt;span class='o'>=&lt;/span> &lt;span class='nv'>penguins&lt;/span>
+&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Read more about this implementation of random forests in
+&lt;a href="https://parsnip.tidymodels.org/reference/details_rand_forest_partykit.html" target="_blank" rel="noopener">&lt;code>?details_rand_forest_partykit&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="boosted-trees">Boosted Trees
+&lt;a href="#boosted-trees">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Another generalization of a decision tree is a series of decision trees where &lt;em>each tree depends on the results of previous trees&lt;/em>&amp;mdash;this is called a &lt;em>boosted tree&lt;/em>. bonsai implements an additional parsnip engine for this model type called &lt;code>&amp;quot;lightgbm&amp;quot;&lt;/code>. While fitting boosted trees is quite computationally intensive, especially with high-dimensional data, LightGBM provides an implementation of a highly efficient variant of the algorithm.&lt;/p>
+&lt;p>To make use of it, start out with a &lt;code>boost_tree&lt;/code> model spec and set &lt;code>engine = &amp;quot;lightgbm&amp;quot;&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>bt_mod&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span>
+&lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/boost_tree.html'>boost_tree&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_engine.html'>set_engine&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>engine &lt;span class='o'>=&lt;/span> &lt;span class='s'>"lightgbm"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_args.html'>set_mode&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>mode &lt;span class='o'>=&lt;/span> &lt;span class='s'>"classification"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://generics.r-lib.org/reference/fit.html'>fit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+formula &lt;span class='o'>=&lt;/span> &lt;span class='nv'>species&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>flipper_length_mm&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nv'>island&lt;/span>,
+data &lt;span class='o'>=&lt;/span> &lt;span class='nv'>penguins&lt;/span>
+&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The main benefit of using LightGBM is its computational efficiency: as the number of observations in training data increases, we can observe an increasingly substantial decrease in time-to-fit when using the LightGBM engine as compared to other implementations of boosted trees, like XGBoost.&lt;/p>
+&lt;p>To show this, we&amp;rsquo;ll use the &lt;code>sim_regression()&lt;/code> function from modeldata to simulate increasingly large datasets that we can fit models to. For example, generating a dataset with 10 observations and 20 numeric predictors:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>sim_regression&lt;/span>&lt;span class='o'>(&lt;/span>num_samples &lt;span class='o'>=&lt;/span> &lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 10 × 21&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; outcome predictor_01 predictor_02 predictor_03 predictor_04 predictor_05&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> 41.9 -&lt;span style='color: #BB0000;'>3.15&lt;/span> 3.72 -&lt;span style='color: #BB0000;'>0.800&lt;/span> -&lt;span style='color: #BB0000;'>5.87&lt;/span> 0.265&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> 49.4 4.93 6.15 5.09 0.501 -&lt;span style='color: #BB0000;'>2.45&lt;/span> &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> -&lt;span style='color: #BB0000;'>9.20&lt;/span> 0.020&lt;span style='text-decoration: underline;'>0&lt;/span> -&lt;span style='color: #BB0000;'>2.31&lt;/span> 4.64 0.422 3.14 &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> -&lt;span style='color: #BB0000;'>0.385&lt;/span> -&lt;span style='color: #BB0000;'>1.97&lt;/span> -&lt;span style='color: #BB0000;'>2.56&lt;/span> -&lt;span style='color: #BB0000;'>0.018&lt;/span>&lt;span style='color: #BB0000; text-decoration: underline;'>2&lt;/span> 1.83 -&lt;span style='color: #BB0000;'>4.23&lt;/span> &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> 8.08 -&lt;span style='color: #BB0000;'>0.266&lt;/span> -&lt;span style='color: #BB0000;'>0.574&lt;/span> -&lt;span style='color: #BB0000;'>1.08&lt;/span> -&lt;span style='color: #BB0000;'>1.75&lt;/span> 1.57 &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> 3.79 0.145 3.86 3.91 3.32 -&lt;span style='color: #BB0000;'>4.27&lt;/span> &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> 1.12 -&lt;span style='color: #BB0000;'>6.35&lt;/span> -&lt;span style='color: #BB0000;'>2.39&lt;/span> 0.119 0.848 1.74 &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> 3.21 4.56 3.20 -&lt;span style='color: #BB0000;'>2.68&lt;/span> -&lt;span style='color: #BB0000;'>1.11&lt;/span> 0.729&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> -&lt;span style='color: #BB0000;'>4.56&lt;/span> 2.97 -&lt;span style='color: #BB0000;'>1.36&lt;/span> -&lt;span style='color: #BB0000;'>1.90&lt;/span> -&lt;span style='color: #BB0000;'>1.01&lt;/span> 0.557&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> 0.140 -&lt;span style='color: #BB0000;'>0.234&lt;/span> -&lt;span style='color: #BB0000;'>1.05&lt;/span> 0.551 0.861 -&lt;span style='color: #BB0000;'>0.937&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># … with 15 more variables: predictor_06 &amp;lt;dbl&amp;gt;, predictor_07 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># predictor_08 &amp;lt;dbl&amp;gt;, predictor_09 &amp;lt;dbl&amp;gt;, predictor_10 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># predictor_11 &amp;lt;dbl&amp;gt;, predictor_12 &amp;lt;dbl&amp;gt;, predictor_13 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># predictor_14 &amp;lt;dbl&amp;gt;, predictor_15 &amp;lt;dbl&amp;gt;, predictor_16 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># predictor_17 &amp;lt;dbl&amp;gt;, predictor_18 &amp;lt;dbl&amp;gt;, predictor_19 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># predictor_20 &amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Now, fitting boosted trees on increasingly large datasets with XGBoost and LightGBM and observing time-to-fit:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='c'># given an engine and nrow(training_data), return the time to fit&lt;/span>
+&lt;span class='nv'>time_boost_fit&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>engine&lt;/span>, &lt;span class='nv'>n&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>
+&lt;span class='nv'>time&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/system.time.html'>system.time&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>&amp;#123;&lt;/span>
+&lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/boost_tree.html'>boost_tree&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_engine.html'>set_engine&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>engine &lt;span class='o'>=&lt;/span> &lt;span class='nv'>engine&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_args.html'>set_mode&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>mode &lt;span class='o'>=&lt;/span> &lt;span class='s'>"regression"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://generics.r-lib.org/reference/fit.html'>fit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+formula &lt;span class='o'>=&lt;/span> &lt;span class='nv'>outcome&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>,
+data &lt;span class='o'>=&lt;/span> &lt;span class='nf'>sim_regression&lt;/span>&lt;span class='o'>(&lt;/span>num_samples &lt;span class='o'>=&lt;/span> &lt;span class='nv'>n&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>tibble&lt;/span>&lt;span class='o'>(&lt;/span>
+engine &lt;span class='o'>=&lt;/span> &lt;span class='nv'>engine&lt;/span>,
+n &lt;span class='o'>=&lt;/span> &lt;span class='nv'>n&lt;/span>,
+time_to_fit &lt;span class='o'>=&lt;/span> &lt;span class='nv'>time&lt;/span>&lt;span class='o'>[[&lt;/span>&lt;span class='s'>"elapsed"&lt;/span>&lt;span class='o'>]&lt;/span>&lt;span class='o'>]&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>&amp;#125;&lt;/span>
+&lt;span class='c'># setup engine and n_samples combinations&lt;/span>
+&lt;span class='nv'>engines&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/rep.html'>rep&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>XGBoost &lt;span class='o'>=&lt;/span> &lt;span class='s'>"xgboost"&lt;/span>, LightGBM &lt;span class='o'>=&lt;/span> &lt;span class='s'>"lightgbm"&lt;/span>&lt;span class='o'>)&lt;/span>, each &lt;span class='o'>=&lt;/span> &lt;span class='m'>11&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>n_samples&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Round.html'>round&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/rep.html'>rep&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='m'>10&lt;/span>&lt;span class='o'>^&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/seq.html'>seq&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>2&lt;/span>, &lt;span class='m'>4.5&lt;/span>, &lt;span class='m'>.25&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>, times &lt;span class='o'>=&lt;/span> &lt;span class='m'>2&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'># apply the function over each combination&lt;/span>
+&lt;span class='nv'>fit_times&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span>
+&lt;span class='nf'>map2_dfr&lt;/span>&lt;span class='o'>(&lt;/span>
+&lt;span class='nv'>engines&lt;/span>,
+&lt;span class='nv'>n_samples&lt;/span>,
+&lt;span class='nv'>time_boost_fit&lt;/span>
+&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>mutate&lt;/span>&lt;span class='o'>(&lt;/span>
+engine &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>engine&lt;/span>, levels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"xgboost"&lt;/span>, &lt;span class='s'>"lightgbm"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='c'># visualize results&lt;/span>
+&lt;span class='nf'>ggplot&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>fit_times&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>aes&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nv'>n&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>time_to_fit&lt;/span>, col &lt;span class='o'>=&lt;/span> &lt;span class='nv'>engine&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>geom_line&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>scale_x_log10&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/boost-comparison-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>As we can see, the decrease in time-to-fit when using LightGBM as opposed to XGBoost becomes more notable as the number of rows in the training data increases.&lt;/p>
+&lt;p>Read more about this implementation of boosted trees in
+&lt;a href="https://parsnip.tidymodels.org/reference/details_boost_tree_lightgbm.html" target="_blank" rel="noopener">&lt;code>?details_boost_tree_lightgbm&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="other-notes">Other Notes
+&lt;a href="#other-notes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This package is based off of
+&lt;a href="https://github.com/curso-r/treesnip" target="_blank" rel="noopener">the treesnip package&lt;/a> by Daniel Falbel, Athos Damiani, and Roel M. Hogervorst. Users of that package will note that we have not included support for
+&lt;a href="https://github.com/catboost/catboost" target="_blank" rel="noopener">the catboost package&lt;/a>. Unfortunately, the catboost R package is not on CRAN, so we&amp;rsquo;re not able to add support for the package for now. We&amp;rsquo;ll be keeping an eye on discussions in that development community and plan to support the package upon its release to CRAN!&lt;/p>
+&lt;p>Each of these model specs and engines have several arguments and tuning parameters that affect user experience and results greatly. We recommend reading about each of these parameters and tuning them when you find them relevant for your modeling use case.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to Daniel Falbel, Athos Damiani, and Roel M. Hogervorst for their work on
+&lt;a href="https://github.com/curso-r/treesnip" target="_blank" rel="noopener">the treesnip package&lt;/a>, on which this package is based. We&amp;rsquo;ve listed the treesnip authors as co-authors of bonsai in recognition of their help in laying the foundations for this project.&lt;/p>
+&lt;p>We&amp;rsquo;re also grateful for the wonderful package hex sticker by Amanda Petri!&lt;/p>
+&lt;p>Finally, thank you to those who have tested and provided feedback on the developmental versions of the package over the last couple months.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>For those interested, the
+&lt;a href="https://doi.org/10.1198/106186006X133933" target="_blank" rel="noopener">original paper&lt;/a> introducing conditional inference trees describes and motivates these differences well. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item></channel></rss>

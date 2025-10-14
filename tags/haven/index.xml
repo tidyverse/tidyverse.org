@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>haven | Tidyverse</title><link>https://www.tidyverse.org/tags/haven/</link><atom:link href="https://www.tidyverse.org/tags/haven/index.xml" rel="self" type="application/rss+xml"/><description>haven</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 15 Apr 2022 00:00:00 +0000</lastBuildDate><item><title>haven 2.5.0</title><link>https://www.tidyverse.org/blog/2022/04/haven-2-5-0/</link><pubDate>Fri, 15 Apr 2022 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2022/04/haven-2-5-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re chuffed to announce the release of
+&lt;a href="https://haven.tidyverse.org" target="_blank" rel="noopener">haven&lt;/a> 2.5.0. haven allows you to read and write SAS, SPSS, and Stata data formats from R, thanks to the wonderful
+&lt;a href="https://github.com/WizardMac/ReadStat" target="_blank" rel="noopener">ReadStat&lt;/a> C library written by
+&lt;a href="https://www.evanmiller.org/" target="_blank" rel="noopener">Evan Miller&lt;/a>.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"haven"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The most important news for this release is that
+&lt;a href="https://github.com/gorcha" target="_blank" rel="noopener">Danny Smith&lt;/a> is now a haven author in recognition of his significant and sustained contributions. He contributed the majority of improvements and bug fixes to this release.&lt;/p>
+&lt;p>Other improvements of note:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>You can set custom variable widths when writing by setting the &lt;code>width&lt;/code> attribute of the variable.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>You can create FDA-compliant SAS transport files with haven, thanks to the addition of custom variable width support and some XPT writing related bug fixes.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>write_dta()&lt;/code> now supports Stata&amp;rsquo;s &lt;code>StrL&lt;/code> variables. This means that it&amp;rsquo;s possible to write Stata files containing strings longer than 2045 characters, which was previously a hard upper limit.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://github.com/tidyverse/haven/blob/main/NEWS.md" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all 24 folks who contributed to this released by filing issues or creating pull requests:
+&lt;a href="https://github.com/aito123" target="_blank" rel="noopener">@aito123&lt;/a>,
+&lt;a href="https://github.com/arnaud-feldmann" target="_blank" rel="noopener">@arnaud-feldmann&lt;/a>,
+&lt;a href="https://github.com/brianstamper" target="_blank" rel="noopener">@brianstamper&lt;/a>,
+&lt;a href="https://github.com/dusadrian" target="_blank" rel="noopener">@dusadrian&lt;/a>,
+&lt;a href="https://github.com/elimillera" target="_blank" rel="noopener">@elimillera&lt;/a>,
+&lt;a href="https://github.com/etiennebacher" target="_blank" rel="noopener">@etiennebacher&lt;/a>,
+&lt;a href="https://github.com/geebioso" target="_blank" rel="noopener">@geebioso&lt;/a>,
+&lt;a href="https://github.com/gorcha" target="_blank" rel="noopener">@gorcha&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/jakoberr" target="_blank" rel="noopener">@jakoberr&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/juansebastianl" target="_blank" rel="noopener">@juansebastianl&lt;/a>,
+&lt;a href="https://github.com/khanhhtt" target="_blank" rel="noopener">@khanhhtt&lt;/a>,
+&lt;a href="https://github.com/Luke791" target="_blank" rel="noopener">@Luke791&lt;/a>,
+&lt;a href="https://github.com/manhnguyen48" target="_blank" rel="noopener">@manhnguyen48&lt;/a>,
+&lt;a href="https://github.com/maxecharel" target="_blank" rel="noopener">@maxecharel&lt;/a>,
+&lt;a href="https://github.com/MokeEire" target="_blank" rel="noopener">@MokeEire&lt;/a>,
+&lt;a href="https://github.com/Nate884" target="_blank" rel="noopener">@Nate884&lt;/a>,
+&lt;a href="https://github.com/pskoulgi" target="_blank" rel="noopener">@pskoulgi&lt;/a>,
+&lt;a href="https://github.com/Sama2than" target="_blank" rel="noopener">@Sama2than&lt;/a>,
+&lt;a href="https://github.com/Shaunson26" target="_blank" rel="noopener">@Shaunson26&lt;/a>,
+&lt;a href="https://github.com/sjkiss" target="_blank" rel="noopener">@sjkiss&lt;/a>,
+&lt;a href="https://github.com/szimmer" target="_blank" rel="noopener">@szimmer&lt;/a>, and
+&lt;a href="https://github.com/yangwenghou123" target="_blank" rel="noopener">@yangwenghou123&lt;/a>.&lt;/p></description></item><item><title>haven 2.4.0</title><link>https://www.tidyverse.org/blog/2021/04/haven-2-4-0/</link><pubDate>Sat, 24 Apr 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/04/haven-2-4-0/</guid><description>&lt;p>We&amp;rsquo;re delighted to announce the release of
+&lt;a href="https://haven.tidyverse.org" target="_blank" rel="noopener">haven&lt;/a> 2.4.0. haven allows you to read and write SAS, SPSS, and Stata data formats from R, thanks to the wonderful
+&lt;a href="https://github.com/WizardMac/ReadStat" target="_blank" rel="noopener">ReadStat&lt;/a> C library written by
+&lt;a href="https://www.evanmiller.org/" target="_blank" rel="noopener">Evan Miller&lt;/a>.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"haven"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This blog post will show off the most important changes to the package; you can see a full list of changes in the
+&lt;a href="https://github.com/tidyverse/haven/releases/tag/v2.4.0" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://haven.tidyverse.org'>haven&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="labelled_spss-and-labelled">&lt;code>labelled_spss()&lt;/code> and &lt;code>labelled()&lt;/code>
+&lt;a href="#labelled_spss-and-labelled">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://haven.tidyverse.org/reference/labelled_spss.html" target="_blank" rel="noopener">&lt;code>labelled_spss()&lt;/code>&lt;/a> gains full vctrs support thanks to the hard work of
+&lt;a href="https://github.com/gorcha" target="_blank" rel="noopener">Danny Smith&lt;/a>. This means that
+&lt;a href="https://haven.tidyverse.org/reference/labelled_spss.html" target="_blank" rel="noopener">&lt;code>labelled_spss()&lt;/code>&lt;/a> objects should now work seamlessly with dplyr 1.0.0, tidyr 1.0.0.&lt;/p>
+&lt;p>I&amp;rsquo;ve also made
+&lt;a href="https://haven.tidyverse.org/reference/labelled.html" target="_blank" rel="noopener">&lt;code>labelled()&lt;/code>&lt;/a> vectors are more permissive when concatenating. Now, output labels will be a combination of the left-hand and the right-hand side, and if there are duplicate labels, the left-hand side (first assigned) will win:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>x1&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://haven.tidyverse.org/reference/labelled.html'>labelled&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>, labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>USA &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>x2&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://haven.tidyverse.org/reference/labelled.html'>labelled&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>64&lt;/span>, labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>NZ &lt;span class='o'>=&lt;/span> &lt;span class='m'>64&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x1&lt;/span>, &lt;span class='nv'>x2&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;labelled&amp;lt;double&amp;gt;[2]&amp;gt;&lt;/span>
+&lt;span class='c'>#&amp;gt; [1] 1 64&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; Labels:&lt;/span>
+&lt;span class='c'>#&amp;gt; value label&lt;/span>
+&lt;span class='c'>#&amp;gt; 1 USA&lt;/span>
+&lt;span class='c'>#&amp;gt; 64 NZ&lt;/span>
+&lt;span class='c'># It's now your responsibility to only combine things that make sense&lt;/span>
+&lt;span class='nv'>x3&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://haven.tidyverse.org/reference/labelled.html'>labelled&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>, &lt;span class='m'>2&lt;/span>, &lt;span class='m'>5&lt;/span>, &lt;span class='m'>3&lt;/span>, &lt;span class='m'>2&lt;/span>&lt;span class='o'>)&lt;/span>, labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>Good &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>, Bad &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x1&lt;/span>, &lt;span class='nv'>x3&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;labelled&amp;lt;double&amp;gt;[6]&amp;gt;&lt;/span>
+&lt;span class='c'>#&amp;gt; [1] 1 1 2 5 3 2&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; Labels:&lt;/span>
+&lt;span class='c'>#&amp;gt; value label&lt;/span>
+&lt;span class='c'>#&amp;gt; 1 USA&lt;/span>
+&lt;span class='c'>#&amp;gt; 5 Good&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="other-improvements">Other improvements
+&lt;a href="#other-improvements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>
+&lt;p>Date-times are no longer converted to UTC. This should ensure that you &lt;em>see&lt;/em> the same date-time in R and in Stata/SPSS/SAS. (But the underlying time point might be different because Stata/SPSS/SAS don&amp;rsquo;t appear to support time zones.)&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Bundleed ReadStat has been updated to version 1.1.5 from 1.1.3 so includes ReadStat improvements in
+&lt;a href="https://github.com/WizardMac/ReadStat/releases/tag/v1.1.5" target="_blank" rel="noopener">v1.1.5&lt;/a> and
+&lt;a href="https://github.com/WizardMac/ReadStat/releases/tag/v1.1.4" target="_blank" rel="noopener">v1.1.4&lt;/a>. Probably the biggest improvement is support for SAS-binary (aka Ross) compression.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>write_*()&lt;/code> now validates file and variable metadata with ReadStat, and validation failures now provide more details about the source of the problem (e.g. the column name), making it easier to track down issues.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to everyone who helped make this release possible by asking questions, providing reprexes, writing code and more!
+&lt;a href="https://github.com/Ales-G" target="_blank" rel="noopener">@Ales-G&lt;/a>,
+&lt;a href="https://github.com/atungate" target="_blank" rel="noopener">@atungate&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/bergen288" target="_blank" rel="noopener">@bergen288&lt;/a>,
+&lt;a href="https://github.com/bergsmat" target="_blank" rel="noopener">@bergsmat&lt;/a>,
+&lt;a href="https://github.com/BernhardClemm" target="_blank" rel="noopener">@BernhardClemm&lt;/a>,
+&lt;a href="https://github.com/bhaney22" target="_blank" rel="noopener">@bhaney22&lt;/a>,
+&lt;a href="https://github.com/cimentadaj" target="_blank" rel="noopener">@cimentadaj&lt;/a>,
+&lt;a href="https://github.com/copernican" target="_blank" rel="noopener">@copernican&lt;/a>,
+&lt;a href="https://github.com/DanChaltiel" target="_blank" rel="noopener">@DanChaltiel&lt;/a>,
+&lt;a href="https://github.com/DavidLukeThiessen" target="_blank" rel="noopener">@DavidLukeThiessen&lt;/a>,
+&lt;a href="https://github.com/deschen1" target="_blank" rel="noopener">@deschen1&lt;/a>,
+&lt;a href="https://github.com/drag05" target="_blank" rel="noopener">@drag05&lt;/a>,
+&lt;a href="https://github.com/drevanzyl" target="_blank" rel="noopener">@drevanzyl&lt;/a>,
+&lt;a href="https://github.com/dsteuer" target="_blank" rel="noopener">@dsteuer&lt;/a>,
+&lt;a href="https://github.com/dswpg" target="_blank" rel="noopener">@dswpg&lt;/a>,
+&lt;a href="https://github.com/dusadrian" target="_blank" rel="noopener">@dusadrian&lt;/a>,
+&lt;a href="https://github.com/elfatherbrown" target="_blank" rel="noopener">@elfatherbrown&lt;/a>,
+&lt;a href="https://github.com/gorcha" target="_blank" rel="noopener">@gorcha&lt;/a>,
+&lt;a href="https://github.com/gowerc" target="_blank" rel="noopener">@gowerc&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hhchang0210" target="_blank" rel="noopener">@hhchang0210&lt;/a>,
+&lt;a href="https://github.com/hjvdwijk" target="_blank" rel="noopener">@hjvdwijk&lt;/a>,
+&lt;a href="https://github.com/iamforerunner" target="_blank" rel="noopener">@iamforerunner&lt;/a>,
+&lt;a href="https://github.com/j-sirgo" target="_blank" rel="noopener">@j-sirgo&lt;/a>,
+&lt;a href="https://github.com/jacciz" target="_blank" rel="noopener">@jacciz&lt;/a>,
+&lt;a href="https://github.com/jackobailey" target="_blank" rel="noopener">@jackobailey&lt;/a>,
+&lt;a href="https://github.com/jaydennord" target="_blank" rel="noopener">@jaydennord&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jkhanson1970" target="_blank" rel="noopener">@jkhanson1970&lt;/a>,
+&lt;a href="https://github.com/kambanane" target="_blank" rel="noopener">@kambanane&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/kwainfan" target="_blank" rel="noopener">@kwainfan&lt;/a>,
+&lt;a href="https://github.com/larmarange" target="_blank" rel="noopener">@larmarange&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/MartinLBarron" target="_blank" rel="noopener">@MartinLBarron&lt;/a>,
+&lt;a href="https://github.com/oliverbock" target="_blank" rel="noopener">@oliverbock&lt;/a>,
+&lt;a href="https://github.com/ookiiwani" target="_blank" rel="noopener">@ookiiwani&lt;/a>,
+&lt;a href="https://github.com/peterolejua" target="_blank" rel="noopener">@peterolejua&lt;/a>,
+&lt;a href="https://github.com/realrbird" target="_blank" rel="noopener">@realrbird&lt;/a>,
+&lt;a href="https://github.com/resuf" target="_blank" rel="noopener">@resuf&lt;/a>,
+&lt;a href="https://github.com/rpruim" target="_blank" rel="noopener">@rpruim&lt;/a>,
+&lt;a href="https://github.com/rubenarslan" target="_blank" rel="noopener">@rubenarslan&lt;/a>,
+&lt;a href="https://github.com/sclewis23" target="_blank" rel="noopener">@sclewis23&lt;/a>,
+&lt;a href="https://github.com/shannonpileggi" target="_blank" rel="noopener">@shannonpileggi&lt;/a>,
+&lt;a href="https://github.com/sjkiss" target="_blank" rel="noopener">@sjkiss&lt;/a>,
+&lt;a href="https://github.com/toerpe" target="_blank" rel="noopener">@toerpe&lt;/a>,
+&lt;a href="https://github.com/tslumley" target="_blank" rel="noopener">@tslumley&lt;/a>,
+&lt;a href="https://github.com/xlejx-rodsxn" target="_blank" rel="noopener">@xlejx-rodsxn&lt;/a>,
+&lt;a href="https://github.com/xmatic" target="_blank" rel="noopener">@xmatic&lt;/a>, and
+&lt;a href="https://github.com/zahlenzauber" target="_blank" rel="noopener">@zahlenzauber&lt;/a>.&lt;/p></description></item><item><title>haven 2.3.0</title><link>https://www.tidyverse.org/blog/2020/06/haven-2-3-0/</link><pubDate>Mon, 01 Jun 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/06/haven-2-3-0/</guid><description>&lt;p>We&amp;rsquo;re tickled pink to announce the release of
+&lt;a href="https://haven.tidyverse.org" target="_blank" rel="noopener">haven&lt;/a> 2.3.0. haven allows you to read and write SAS, SPSS, and Stata data formats from R, thanks to the wonderful
+&lt;a href="https://github.com/WizardMac/ReadStat" target="_blank" rel="noopener">ReadStat&lt;/a> C library written by
+&lt;a href="https://www.evanmiller.org/" target="_blank" rel="noopener">Evan Miller&lt;/a>.&lt;/p>
+&lt;p>You can install haven from CRAN with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;haven&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This release is mainly in preparation for dplyr 1.0.0. It includes improved
+&lt;a href="https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-and-vctrs/" target="_blank" rel="noopener">vctrs support&lt;/a> for the &lt;code>labelled()&lt;/code> class that haven uses to represent labelled vectors that come from SAS, Stata, and SPSS. This is not terribly exciting, but it means that the labelled class is now preserved by every dplyr operation where it makes sense:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">haven&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dplyr&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">warn.conflicts&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">FALSE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">labelled&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">sample&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;bad&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;good&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="s">&amp;#34;scores&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">df&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">letters&lt;/span>&lt;span class="nf">[c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">7&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">9&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">df&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 5 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; x y &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;int+lbl&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 5 [good] a &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 3 c &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 4 e &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 1 [bad] g &lt;/span>
+&lt;span class="c1">#&amp;gt; 5 2 i&lt;/span>
+&lt;span class="n">df&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">arrange&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 5 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; x y &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;int+lbl&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 1 [bad] g &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 2 i &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 3 c &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 4 e &lt;/span>
+&lt;span class="c1">#&amp;gt; 5 5 [good] a&lt;/span>
+&lt;span class="n">df&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">y&lt;/span> &lt;span class="o">%in%&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;a&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;c&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 2 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; x y &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;int+lbl&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 5 [good] a &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 3 c&lt;/span>
+&lt;span class="nf">bind_rows&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">df&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 10 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; x y &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;int+lbl&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 5 [good] a &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 3 c &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 4 e &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 1 [bad] g &lt;/span>
+&lt;span class="c1">#&amp;gt; 5 2 i &lt;/span>
+&lt;span class="c1">#&amp;gt; 6 5 [good] a &lt;/span>
+&lt;span class="c1">#&amp;gt; 7 3 c &lt;/span>
+&lt;span class="c1">#&amp;gt; 8 4 e &lt;/span>
+&lt;span class="c1">#&amp;gt; 9 1 [bad] g &lt;/span>
+&lt;span class="c1">#&amp;gt; 10 2 i&lt;/span>
+&lt;span class="n">df2&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">letters&lt;/span>&lt;span class="n">[1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">10&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">df2&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">left_join&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Joining, by = &amp;#34;y&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 10 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; y x&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;int+lbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 a 5 [good]&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 b NA &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 c 3 &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 d NA &lt;/span>
+&lt;span class="c1">#&amp;gt; 5 e 4 &lt;/span>
+&lt;span class="c1">#&amp;gt; 6 f NA &lt;/span>
+&lt;span class="c1">#&amp;gt; 7 g 1 [bad] &lt;/span>
+&lt;span class="c1">#&amp;gt; 8 h NA &lt;/span>
+&lt;span class="c1">#&amp;gt; 9 i 2 &lt;/span>
+&lt;span class="c1">#&amp;gt; 10 j NA&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>As always thanks to the GitHub community who helped make this release happen:
+&lt;a href="https://github.com/180312allison" target="_blank" rel="noopener">@180312allison&lt;/a>,
+&lt;a href="https://github.com/armenic" target="_blank" rel="noopener">@armenic&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/beckerbenj" target="_blank" rel="noopener">@beckerbenj&lt;/a>,
+&lt;a href="https://github.com/bergen288" target="_blank" rel="noopener">@bergen288&lt;/a>,
+&lt;a href="https://github.com/courtiol" target="_blank" rel="noopener">@courtiol&lt;/a>,
+&lt;a href="https://github.com/deschen1" target="_blank" rel="noopener">@deschen1&lt;/a>,
+&lt;a href="https://github.com/edvbb" target="_blank" rel="noopener">@edvbb&lt;/a>,
+&lt;a href="https://github.com/Ghanshyamsavaliya" target="_blank" rel="noopener">@Ghanshyamsavaliya&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/JackLandry" target="_blank" rel="noopener">@JackLandry&lt;/a>,
+&lt;a href="https://github.com/Jagadeeshkb" target="_blank" rel="noopener">@Jagadeeshkb&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/kurt-vd" target="_blank" rel="noopener">@kurt-vd&lt;/a>,
+&lt;a href="https://github.com/larmarange" target="_blank" rel="noopener">@larmarange&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/mayer79" target="_blank" rel="noopener">@mayer79&lt;/a>,
+&lt;a href="https://github.com/mikmart" target="_blank" rel="noopener">@mikmart&lt;/a>,
+&lt;a href="https://github.com/mitchelloharawild" target="_blank" rel="noopener">@mitchelloharawild&lt;/a>,
+&lt;a href="https://github.com/omsai" target="_blank" rel="noopener">@omsai&lt;/a>,
+&lt;a href="https://github.com/pdbailey0" target="_blank" rel="noopener">@pdbailey0&lt;/a>,
+&lt;a href="https://github.com/randrescastaneda" target="_blank" rel="noopener">@randrescastaneda&lt;/a>,
+&lt;a href="https://github.com/richarddmorey" target="_blank" rel="noopener">@richarddmorey&lt;/a>,
+&lt;a href="https://github.com/romainfrancois" target="_blank" rel="noopener">@romainfrancois&lt;/a>,
+&lt;a href="https://github.com/rubenarslan" target="_blank" rel="noopener">@rubenarslan&lt;/a>,
+&lt;a href="https://github.com/sda030" target="_blank" rel="noopener">@sda030&lt;/a>,
+&lt;a href="https://github.com/Sdurier" target="_blank" rel="noopener">@Sdurier&lt;/a>, and
+&lt;a href="https://github.com/tobwen" target="_blank" rel="noopener">@tobwen&lt;/a>.&lt;/p></description></item><item><title>haven 2.2.0</title><link>https://www.tidyverse.org/blog/2019/11/haven-2-2-0/</link><pubDate>Fri, 08 Nov 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/11/haven-2-2-0/</guid><description>&lt;p>We&amp;rsquo;re delighted to announce that
+&lt;a href="https://haven.tidyverse.org/" target="_blank" rel="noopener">haven 2.2.0&lt;/a> is now on CRAN. haven enables R to read and write various data formats used by other statistical packages by wrapping the
+&lt;a href="https://github.com/WizardMac/ReadStat" target="_blank" rel="noopener">ReadStat&lt;/a> C library written by
+&lt;a href="https://www.evanmiller.org/" target="_blank" rel="noopener">Evan Miller&lt;/a>.&lt;/p>
+&lt;p>You can install haven from CRAN with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;haven&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This release features big improvements thanks to the hard work of
+&lt;a href="https://github.com/mikmart" target="_blank" rel="noopener">Mikko Marttila&lt;/a>: all &lt;code>read_*()&lt;/code> functions gain three new arguments that allow you to read in only part of a large file. I&amp;rsquo;ll quickly show of these features by saving out the
+&lt;a href="https://ggplot2.tidyverse.org/reference/diamonds.html" target="_blank" rel="noopener">&lt;code>diamonds&lt;/code>&lt;/a> dataset to a Stata file:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">haven&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">write_dta&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ggplot2&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">diamonds&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;diamonds.dta&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>n_max&lt;/code> and &lt;code>skip&lt;/code> allow you to read in just a portion of the rows:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">read_dta&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;diamonds.dta&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">n_max&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 5 x 10&lt;/span>
+&lt;span class="c1">#&amp;gt; carat cut color clarity depth table price x y z&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl+lbl&amp;gt; &amp;lt;dbl+lbl&amp;gt; &amp;lt;dbl+lbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 0.23 5 [Ideal] 2 [E] 2 [SI2] 61.5 55 326 3.95 3.98 2.43&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 0.21 4 [Premium] 2 [E] 3 [SI1] 59.8 61 326 3.89 3.84 2.31&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 0.23 2 [Good] 2 [E] 5 [VS1] 56.9 65 327 4.05 4.07 2.31&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 0.290 4 [Premium] 6 [I] 4 [VS2] 62.4 58 334 4.2 4.23 2.63&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 0.31 2 [Good] 7 [J] 2 [SI2] 63.3 58 335 4.34 4.35 2.75&lt;/span>
+&lt;span class="nf">read_dta&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;diamonds.dta&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">skip&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">n_max&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 5 x 10&lt;/span>
+&lt;span class="c1">#&amp;gt; carat cut color clarity depth table price x y z&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl+lbl&amp;gt; &amp;lt;dbl+lbl&amp;gt; &amp;lt;dbl+lb&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 0.31 2 [Good] 7 [J] 2 [SI2] 63.3 58 335 4.34 4.35 2.75&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 0.24 3 [Very Goo… 7 [J] 6 [VVS2] 62.8 57 336 3.94 3.96 2.48&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 0.24 3 [Very Goo… 6 [I] 7 [VVS1] 62.3 57 336 3.95 3.98 2.47&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 0.26 3 [Very Goo… 5 [H] 3 [SI1] 61.9 55 337 4.07 4.11 2.53&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 0.22 1 [Fair] 2 [E] 4 [VS2] 65.1 61 337 3.87 3.78 2.49&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>And &lt;code>col_select()&lt;/code> allows you to read in just some of the columns, using the same syntax that you use with
+&lt;a href="https://dplyr.tidyverse.org/reference/select.html" target="_blank" rel="noopener">&lt;code>dplyr::select()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">read_dta&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;diamonds.dta&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">col_select&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="n">z&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 53,940 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; x y z&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 3.95 3.98 2.43&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 3.89 3.84 2.31&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 4.05 4.07 2.31&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 4.2 4.23 2.63&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 4.34 4.35 2.75&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 3.94 3.96 2.48&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 3.95 3.98 2.47&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 4.07 4.11 2.53&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 3.87 3.78 2.49&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 4 4.05 2.39&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 53,930 more rows&lt;/span>
+&lt;span class="nf">read_dta&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;diamonds.dta&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">col_select&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">starts_with&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;c&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 53,940 x 4&lt;/span>
+&lt;span class="c1">#&amp;gt; carat cut color clarity&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl+lbl&amp;gt; &amp;lt;dbl+lbl&amp;gt; &amp;lt;dbl+lbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 0.23 5 [Ideal] 2 [E] 2 [SI2] &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 0.21 4 [Premium] 2 [E] 3 [SI1] &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 0.23 2 [Good] 2 [E] 5 [VS1] &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 0.290 4 [Premium] 6 [I] 4 [VS2] &lt;/span>
+&lt;span class="c1">#&amp;gt; 5 0.31 2 [Good] 7 [J] 2 [SI2] &lt;/span>
+&lt;span class="c1">#&amp;gt; 6 0.24 3 [Very Good] 7 [J] 6 [VVS2]&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 0.24 3 [Very Good] 6 [I] 7 [VVS1]&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 0.26 3 [Very Good] 5 [H] 3 [SI1] &lt;/span>
+&lt;span class="c1">#&amp;gt; 9 0.22 1 [Fair] 2 [E] 4 [VS2] &lt;/span>
+&lt;span class="c1">#&amp;gt; 10 0.23 3 [Very Good] 5 [H] 5 [VS1] &lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 53,930 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>These features allow you to read in datasets that would otherwise not fit in memory, and should substantially improve performance when you only need a few rows or columns from a large file.&lt;/p>
+&lt;p>This release includes a number of other bug fixes and small improvements, see the
+&lt;a href="https://haven.tidyverse.org/news/index.html" target="_blank" rel="noopener">changelog&lt;/a> for a complete list.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to everyone who helped out with this release:
+&lt;a href="https://github.com/aaronrudkin" target="_blank" rel="noopener">@aaronrudkin&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/ccccfys" target="_blank" rel="noopener">@ccccfys&lt;/a>,
+&lt;a href="https://github.com/courtiol" target="_blank" rel="noopener">@courtiol&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/Hadsga" target="_blank" rel="noopener">@Hadsga&lt;/a>,
+&lt;a href="https://github.com/jeremy17-Endo" target="_blank" rel="noopener">@jeremy17-Endo&lt;/a>,
+&lt;a href="https://github.com/KyleHaynes" target="_blank" rel="noopener">@KyleHaynes&lt;/a>,
+&lt;a href="https://github.com/lguangyu" target="_blank" rel="noopener">@lguangyu&lt;/a>,
+&lt;a href="https://github.com/mihagazvoda" target="_blank" rel="noopener">@mihagazvoda&lt;/a>,
+&lt;a href="https://github.com/mikmart" target="_blank" rel="noopener">@mikmart&lt;/a>,
+&lt;a href="https://github.com/MokeEire" target="_blank" rel="noopener">@MokeEire&lt;/a>,
+&lt;a href="https://github.com/npaszty" target="_blank" rel="noopener">@npaszty&lt;/a>,
+&lt;a href="https://github.com/pvanheus" target="_blank" rel="noopener">@pvanheus&lt;/a>,
+&lt;a href="https://github.com/RaymondBalise" target="_blank" rel="noopener">@RaymondBalise&lt;/a>,
+&lt;a href="https://github.com/sclewis23" target="_blank" rel="noopener">@sclewis23&lt;/a>,
+&lt;a href="https://github.com/shubham1637" target="_blank" rel="noopener">@shubham1637&lt;/a>,
+&lt;a href="https://github.com/sigbertklinke" target="_blank" rel="noopener">@sigbertklinke&lt;/a>,
+&lt;a href="https://github.com/steffen-stell" target="_blank" rel="noopener">@steffen-stell&lt;/a>, and
+&lt;a href="https://github.com/ttrodrigz" target="_blank" rel="noopener">@ttrodrigz&lt;/a>.&lt;/p></description></item><item><title>haven 2.1.0</title><link>https://www.tidyverse.org/blog/2019/02/haven-2-1-0/</link><pubDate>Tue, 19 Feb 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/02/haven-2-1-0/</guid><description>&lt;p>We&amp;rsquo;re delighted to announce that
+&lt;a href="https://haven.tidyverse.org/" target="_blank" rel="noopener">haven 2.1.0&lt;/a> is now on CRAN. haven enables R to read and write various data formats used by other statistical packages by wrapping the
+&lt;a href="https://github.com/WizardMac/ReadStat" target="_blank" rel="noopener">ReadStat&lt;/a> C library written by
+&lt;a href="https://www.evanmiller.org/" target="_blank" rel="noopener">Evan Miller&lt;/a>. For a full account of updates in this release, see the
+&lt;a href="https://haven.tidyverse.org/news/index.html" target="_blank" rel="noopener">Changelog&lt;/a>.&lt;/p>
+&lt;h2 id="improved-labelling">Improved labelling
+&lt;a href="#improved-labelling">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Both
+&lt;a href="https://haven.tidyverse.org/reference/labelled.html" target="_blank" rel="noopener">&lt;code>labelled()&lt;/code>&lt;/a> and
+&lt;a href="https://haven.tidyverse.org/reference/labelled_spss.html" target="_blank" rel="noopener">&lt;code>labelled_spss()&lt;/code>&lt;/a> now allow &lt;code>NULL&lt;/code> labels. This makes both classes more flexible, allowing you to use them for their other attributes.&lt;code>labelled()&lt;/code> also now tests that value labels are unique.&lt;/p>
+&lt;p>&lt;code>labelled&lt;/code> objects now get pretty printing that shows the labels and &lt;code>NA&lt;/code> values when inside of a &lt;code>tbl_df&lt;/code>. You can turn this behaviour off by using &lt;code>option(haven.show_pillar_labels = FALSE)&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">tibble&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">s&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">haven&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">labelled&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">10&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">labels&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;A&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;B&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">10&lt;/span>&lt;span class="p">)))&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 2 x 1&lt;/span>
+&lt;span class="c1">#&amp;gt; s&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl+lbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 1 [A]&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 10 [B]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="minor-improvements-and-fixes">Minor improvements and fixes
+&lt;a href="#minor-improvements-and-fixes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This release is updated to the latest version of Evan Miller&amp;rsquo;s
+&lt;a href="https://github.com/WizardMac/ReadStat" target="_blank" rel="noopener">ReadStat&lt;/a>, which includes the following changes:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://haven.tidyverse.org/reference/read_spss.html" target="_blank" rel="noopener">&lt;code>read_por()&lt;/code>&lt;/a> can now read files from SPSS 25.&lt;/li>
+&lt;li>
+&lt;a href="https://haven.tidyverse.org/reference/read_spss.html" target="_blank" rel="noopener">&lt;code>read_por()&lt;/code>&lt;/a> uses base-10 instead of base-30 for the exponent.&lt;/li>
+&lt;li>
+&lt;a href="https://haven.tidyverse.org/reference/read_sas.html" target="_blank" rel="noopener">&lt;code>read_sas()&lt;/code>&lt;/a> can read zero-column files.&lt;/li>
+&lt;li>
+&lt;a href="https://haven.tidyverse.org/reference/read_spss.html" target="_blank" rel="noopener">&lt;code>read_sav()&lt;/code>&lt;/a> now reads long strings, and has greater memory limit, allowing it to read more labels.&lt;/li>
+&lt;li>
+&lt;a href="https://haven.tidyverse.org/reference/read_spss.html" target="_blank" rel="noopener">&lt;code>read_spss()&lt;/code>&lt;/a> reads long variable labels.&lt;/li>
+&lt;li>
+&lt;a href="https://haven.tidyverse.org/reference/read_spss.html" target="_blank" rel="noopener">&lt;code>write_sav()&lt;/code>&lt;/a> no longer creates incorrect column names when &amp;gt;10k columns.&lt;/li>
+&lt;li>
+&lt;a href="https://haven.tidyverse.org/reference/read_spss.html" target="_blank" rel="noopener">&lt;code>write_sav()&lt;/code>&lt;/a> no longer crashes when writing long label names.&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thank you to Evan Miller, as well as
+&lt;a href="https://github.com/armenic" target="_blank" rel="noopener">@armenic&lt;/a>,
+&lt;a href="https://github.com/beckerbenj" target="_blank" rel="noopener">@beckerbenj&lt;/a>,
+&lt;a href="https://github.com/caayala" target="_blank" rel="noopener">@caayala&lt;/a>,
+&lt;a href="https://github.com/gergness" target="_blank" rel="noopener">@gergness&lt;/a>,
+&lt;a href="https://github.com/jeffeaton" target="_blank" rel="noopener">@jeffeaton&lt;/a>,
+&lt;a href="https://github.com/philstraforelli" target="_blank" rel="noopener">@philstraforelli&lt;/a>,
+&lt;a href="https://github.com/thays42" target="_blank" rel="noopener">@thays42&lt;/a>, and
+&lt;a href="https://github.com/visseho" target="_blank" rel="noopener">@visseho&lt;/a> for their contributions to this release.&lt;/p></description></item><item><title>haven 2.0.0</title><link>https://www.tidyverse.org/blog/2019/01/haven-2-0-0/</link><pubDate>Wed, 02 Jan 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/01/haven-2-0-0/</guid><description>
+&lt;p>We’re pleased to announce that &lt;a href="https://haven.tidyverse.org/">haven 2.0.0&lt;/a> is now on CRAN. haven enables R to read and write various data formats used by other statistical packages by wrapping the &lt;a href="https://github.com/WizardMac/ReadStat">ReadStat&lt;/a> C library written by &lt;a href="http://www.evanmiller.org/">Evan Miller&lt;/a>. As always, you can find a detailed account of all the changes in this release in the &lt;a href="https://haven.tidyverse.org/news/index.html#haven-2-0-0">Changelog&lt;/a>.&lt;/p>
+&lt;div id="breaking-changes" class="section level2">
+&lt;h2>Breaking changes&lt;/h2>
+&lt;p>The biggest change is that &lt;a href="https://haven.tidyverse.org/reference/labelled.html">&lt;code>labelled()&lt;/code>&lt;/a> and &lt;a href="https://haven.tidyverse.org/reference/labelled_spss.html">&lt;code>labelled_spss()&lt;/code>&lt;/a> now produce objects with class “haven_labelled” and “haven_labelled_spss”. This resolves a &lt;a href="https://github.com/tidyverse/haven/issues/329">problematic clash&lt;/a> with the labelled class defined by &lt;a href="http://www.fharrell.com/">Frank Harrell&lt;/a>’s &lt;a href="https://cran.r-project.org/web/packages/Hmisc/index.html">Hmisc&lt;/a> package.&lt;/p>
+&lt;p>Given Hmisc has been around much longer than haven (Hmisc’s oldest source &lt;a href="https://cran.r-project.org/src/contrib/Archive/Hmisc/">archive on CRAN&lt;/a> is from 2003), it makes sense that haven should be the one to make the change. This will require some changes to packages that use haven, but shouldn’t affect user code.&lt;/p>
+&lt;pre class="r">&lt;code>x1 &amp;lt;- haven::labelled(c(1, 1, 2), c(Grunt = 1, Sgt = 2),
+label = &amp;quot;Army status&amp;quot;)
+class(x1)
+#&amp;gt; [1] &amp;quot;haven_labelled&amp;quot;&lt;/code>&lt;/pre>
+&lt;pre class="r">&lt;code>x2 &amp;lt;- haven::labelled_spss(1:10, c(Good = 1, Bad = 8), na_range = c(9, Inf),
+label = &amp;quot;Quality rating&amp;quot;)
+class(x2)
+#&amp;gt; [1] &amp;quot;haven_labelled_spss&amp;quot; &amp;quot;haven_labelled&amp;quot;&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="minor-improvements" class="section level2">
+&lt;h2>Minor improvements&lt;/h2>
+&lt;p>&lt;code>labelled()&lt;/code> and &lt;code>labelled_spss()&lt;/code> now support adding the label attribute to the resulting object (as seen in the code above). The label is a short, human-readable description of the object, and is now also used when printing, and can be easily removed using the new &lt;a href="https://haven.tidyverse.org/reference/zap_label.html">&lt;code>zap_label()&lt;/code>&lt;/a> function.&lt;/p>
+&lt;pre class="r">&lt;code>x1
+#&amp;gt; &amp;lt;Labelled double&amp;gt;: Army status
+#&amp;gt; [1] 1 1 2
+#&amp;gt;
+#&amp;gt; Labels:
+#&amp;gt; value label
+#&amp;gt; 1 Grunt
+#&amp;gt; 2 Sgt
+zap_labels(x1)
+#&amp;gt; [1] 1 1 2
+#&amp;gt; attr(,&amp;quot;label&amp;quot;)
+#&amp;gt; [1] &amp;quot;Army status&amp;quot;&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="acknowledgements" class="section level2">
+&lt;h2>Acknowledgements&lt;/h2>
+&lt;p>A special thanks to &lt;a href="https://github.com/huftis">Karl Ove Hufthammer&lt;/a> for implementing &lt;code>zap_label()&lt;/code>, as well as to the 30 others who contributed to this release: &lt;a href="https://github.com/ajdamico">@ajdamico&lt;/a>, &lt;a href="https://github.com/alexeyknorre">@alexeyknorre&lt;/a>, &lt;a href="https://github.com/batpigandme">@batpigandme&lt;/a>, &lt;a href="https://github.com/beckerbenj">@beckerbenj&lt;/a>, &lt;a href="https://github.com/caayala">@caayala&lt;/a>, &lt;a href="https://github.com/Crismoc">@Crismoc&lt;/a>, &lt;a href="https://github.com/dar143">@dar143&lt;/a>, &lt;a href="https://github.com/davidc92">@davidc92&lt;/a>, &lt;a href="https://github.com/elbersb">@elbersb&lt;/a>, &lt;a href="https://github.com/gergness">@gergness&lt;/a>, &lt;a href="https://github.com/hadley">@hadley&lt;/a>, &lt;a href="https://github.com/helge-baumann">@helge-baumann&lt;/a>, &lt;a href="https://github.com/HughParsonage">@HughParsonage&lt;/a>, &lt;a href="https://github.com/iadli100">@iadli100&lt;/a>, &lt;a href="https://github.com/JanMarvin">@JanMarvin&lt;/a>, &lt;a href="https://github.com/jeffeaton">@jeffeaton&lt;/a>, &lt;a href="https://github.com/jimhester">@jimhester&lt;/a>, &lt;a href="https://github.com/jmetzel">@jmetzel&lt;/a>, &lt;a href="https://github.com/larmarange">@larmarange&lt;/a>, &lt;a href="https://github.com/lemzwerg">@lemzwerg&lt;/a>, &lt;a href="https://github.com/Majid-Eismann">@Majid-Eismann&lt;/a>, &lt;a href="https://github.com/nealrichardson">@nealrichardson&lt;/a>, &lt;a href="https://github.com/oscardssmith">@oscardssmith&lt;/a>, &lt;a href="https://github.com/philstraforelli">@philstraforelli&lt;/a>, &lt;a href="https://github.com/reyntjesr">@reyntjesr&lt;/a>, &lt;a href="https://github.com/rubenarslan">@rubenarslan&lt;/a>, &lt;a href="https://github.com/sjkiss">@sjkiss&lt;/a>, &lt;a href="https://github.com/visseho">@visseho&lt;/a>, &lt;a href="https://github.com/zkamvar">@zkamvar&lt;/a>, and &lt;a href="https://github.com/zross">@zross&lt;/a>.&lt;/p>
+&lt;/div></description></item><item><title>haven 1.1.2</title><link>https://www.tidyverse.org/blog/2018/06/haven-1-1-2/</link><pubDate>Thu, 28 Jun 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/06/haven-1-1-2/</guid><description>
+&lt;p>We are very pleased to announce the release of
+&lt;a href="https://haven.tidyverse.org/">haven&lt;/a> 1.1.2. haven allows R to read and write various data formats used by other statistical packages: SAS, SPSS, and STATA. Below, we highlight a few of the updates and fixes. For a complete list of
+changes, please see the &lt;a href="https://github.com/tidyverse/haven/blob/master/NEWS.md">release notes&lt;/a>.&lt;/p>
+&lt;p>This version has improved handling for non-ASCII characters. haven can now
+read and write non-ASCII paths in R 3.5, and &lt;code>write_dta()&lt;/code> now allows non-ASCII
+variable labels for Stata versions 14 and above.&lt;/p>
+&lt;p>&lt;code>read_sav()&lt;/code> now accepts &lt;code>.zsav&lt;/code> files; &lt;code>.zsav&lt;/code> files can be written with &lt;code>write_sav()&lt;/code> by setting &lt;code>compress = TRUE&lt;/code>.&lt;/p>
+&lt;p>This release also incorporates updates from Evan Miller’s &lt;a href="https://github.com/WizardMac/ReadStat">ReadStat&lt;/a> C library, including the
+ability to read and write Stata 15 files.&lt;/p>
+&lt;div id="acknowledgements" class="section level2">
+&lt;h2>Acknowledgements&lt;/h2>
+&lt;p>Thank you to the 173 people who contributed issues, pull requests, and comments: &lt;a href="https://github.com/adeldaoud">@adeldaoud&lt;/a>, &lt;a href="https://github.com/afleishman">@afleishman&lt;/a>, &lt;a href="https://github.com/aftollefsen">@aftollefsen&lt;/a>, &lt;a href="https://github.com/aghaynes">@aghaynes&lt;/a>, &lt;a href="https://github.com/AHoerner">@AHoerner&lt;/a>, &lt;a href="https://github.com/ajdamico">@ajdamico&lt;/a>, &lt;a href="https://github.com/ajmazurie">@ajmazurie&lt;/a>, &lt;a href="https://github.com/akitepowell">@akitepowell&lt;/a>, &lt;a href="https://github.com/alawami">@alawami&lt;/a>, &lt;a href="https://github.com/alimanager">@alimanager&lt;/a>, &lt;a href="https://github.com/allitnils">@allitnils&lt;/a>, &lt;a href="https://github.com/AmyMikhail">@AmyMikhail&lt;/a>, &lt;a href="https://github.com/andrewheiss">@andrewheiss&lt;/a>, &lt;a href="https://github.com/anhqle">@anhqle&lt;/a>, &lt;a href="https://github.com/annennenne">@annennenne&lt;/a>, &lt;a href="https://github.com/anoopxaviour">@anoopxaviour&lt;/a>, &lt;a href="https://github.com/aszalucha">@aszalucha&lt;/a>, &lt;a href="https://github.com/austensen">@austensen&lt;/a>, &lt;a href="https://github.com/avallecam">@avallecam&lt;/a>, &lt;a href="https://github.com/awmercer">@awmercer&lt;/a>, &lt;a href="https://github.com/bamonroe">@bamonroe&lt;/a>, &lt;a href="https://github.com/batpigandme">@batpigandme&lt;/a>, &lt;a href="https://github.com/beamgau">@beamgau&lt;/a>, &lt;a href="https://github.com/beew">@beew&lt;/a>, &lt;a href="https://github.com/behrman">@behrman&lt;/a>, &lt;a href="https://github.com/BERENZ">@BERENZ&lt;/a>, &lt;a href="https://github.com/bethatkinson">@bethatkinson&lt;/a>, &lt;a href="https://github.com/billdenney">@billdenney&lt;/a>, &lt;a href="https://github.com/BobMuenchen">@BobMuenchen&lt;/a>, &lt;a href="https://github.com/BobTheScientist">@BobTheScientist&lt;/a>, &lt;a href="https://github.com/brianstamper">@brianstamper&lt;/a>, &lt;a href="https://github.com/BurninLeo">@BurninLeo&lt;/a>, &lt;a href="https://github.com/byandell">@byandell&lt;/a>, &lt;a href="https://github.com/carlganz">@carlganz&lt;/a>, &lt;a href="https://github.com/christophergandrud">@christophergandrud&lt;/a>, &lt;a href="https://github.com/cimentadaj">@cimentadaj&lt;/a>, &lt;a href="https://github.com/connorp">@connorp&lt;/a>, &lt;a href="https://github.com/crsh">@crsh&lt;/a>, &lt;a href="https://github.com/d4ff">@d4ff&lt;/a>, &lt;a href="https://github.com/dalewsteele">@dalewsteele&lt;/a>, &lt;a href="https://github.com/danhalligan">@danhalligan&lt;/a>, &lt;a href="https://github.com/davidjones-spartan">@davidjones-spartan&lt;/a>, &lt;a href="https://github.com/dbcuervo">@dbcuervo&lt;/a>, &lt;a href="https://github.com/dcava">@dcava&lt;/a>, &lt;a href="https://github.com/dchiu911">@dchiu911&lt;/a>, &lt;a href="https://github.com/Deleetdk">@Deleetdk&lt;/a>, &lt;a href="https://github.com/dennisfisher">@dennisfisher&lt;/a>, &lt;a href="https://github.com/dgromer">@dgromer&lt;/a>, &lt;a href="https://github.com/diogocp">@diogocp&lt;/a>, &lt;a href="https://github.com/DiogoFerrari">@DiogoFerrari&lt;/a>, &lt;a href="https://github.com/DominikMueller64">@DominikMueller64&lt;/a>, &lt;a href="https://github.com/donlelek">@donlelek&lt;/a>, &lt;a href="https://github.com/dramage1">@dramage1&lt;/a>, &lt;a href="https://github.com/drkamarul">@drkamarul&lt;/a>, &lt;a href="https://github.com/dsself">@dsself&lt;/a>, &lt;a href="https://github.com/dusadrian">@dusadrian&lt;/a>, &lt;a href="https://github.com/eborbath">@eborbath&lt;/a>, &lt;a href="https://github.com/ecortens">@ecortens&lt;/a>, &lt;a href="https://github.com/eddelbuettel">@eddelbuettel&lt;/a>, &lt;a href="https://github.com/ekstroem">@ekstroem&lt;/a>, &lt;a href="https://github.com/Enrico-Palazzo">@Enrico-Palazzo&lt;/a>, &lt;a href="https://github.com/evanmiller">@evanmiller&lt;/a>, &lt;a href="https://github.com/ewenharrison">@ewenharrison&lt;/a>, &lt;a href="https://github.com/eXcuvator">@eXcuvator&lt;/a>, &lt;a href="https://github.com/fhollenbach">@fhollenbach&lt;/a>, &lt;a href="https://github.com/filipwastberg">@filipwastberg&lt;/a>, &lt;a href="https://github.com/flaneuse">@flaneuse&lt;/a>, &lt;a href="https://github.com/fmerhout">@fmerhout&lt;/a>, &lt;a href="https://github.com/frankcsliu">@frankcsliu&lt;/a>, &lt;a href="https://github.com/g3o2">@g3o2&lt;/a>, &lt;a href="https://github.com/gabrakadabra">@gabrakadabra&lt;/a>, &lt;a href="https://github.com/gbiele">@gbiele&lt;/a>, &lt;a href="https://github.com/GeoBer">@GeoBer&lt;/a>, &lt;a href="https://github.com/gergness">@gergness&lt;/a>, &lt;a href="https://github.com/ghost">@ghost&lt;/a>, &lt;a href="https://github.com/gitrman">@gitrman&lt;/a>, &lt;a href="https://github.com/gorcha">@gorcha&lt;/a>, &lt;a href="https://github.com/h2appy">@h2appy&lt;/a>, &lt;a href="https://github.com/hadley">@hadley&lt;/a>, &lt;a href="https://github.com/HanjoStudy">@HanjoStudy&lt;/a>, &lt;a href="https://github.com/harrysouthworth">@harrysouthworth&lt;/a>, &lt;a href="https://github.com/huashan">@huashan&lt;/a>, &lt;a href="https://github.com/huftis">@huftis&lt;/a>, &lt;a href="https://github.com/imanuelcostigan">@imanuelcostigan&lt;/a>, &lt;a href="https://github.com/itsdalmo">@itsdalmo&lt;/a>, &lt;a href="https://github.com/izahn">@izahn&lt;/a>, &lt;a href="https://github.com/jandraor">@jandraor&lt;/a>, &lt;a href="https://github.com/JanMarvin">@JanMarvin&lt;/a>, &lt;a href="https://github.com/jaohar">@jaohar&lt;/a>, &lt;a href="https://github.com/jdjohn215">@jdjohn215&lt;/a>, &lt;a href="https://github.com/jemus42">@jemus42&lt;/a>, &lt;a href="https://github.com/jeremiahsb">@jeremiahsb&lt;/a>, &lt;a href="https://github.com/Jiang-Li">@Jiang-Li&lt;/a>, &lt;a href="https://github.com/jjchern">@jjchern&lt;/a>, &lt;a href="https://github.com/JKPeck">@JKPeck&lt;/a>, &lt;a href="https://github.com/jlegewie">@jlegewie&lt;/a>, &lt;a href="https://github.com/jllipatz">@jllipatz&lt;/a>, &lt;a href="https://github.com/jmurray1022">@jmurray1022&lt;/a>, &lt;a href="https://github.com/johngoldin">@johngoldin&lt;/a>, &lt;a href="https://github.com/jon-mellon">@jon-mellon&lt;/a>, &lt;a href="https://github.com/joshash">@joshash&lt;/a>, &lt;a href="https://github.com/jtchittenden">@jtchittenden&lt;/a>, &lt;a href="https://github.com/karldw">@karldw&lt;/a>, &lt;a href="https://github.com/kendonB">@kendonB&lt;/a>, &lt;a href="https://github.com/kkumari1">@kkumari1&lt;/a>, &lt;a href="https://github.com/krlmlr">@krlmlr&lt;/a>, &lt;a href="https://github.com/kuriwaki">@kuriwaki&lt;/a>, &lt;a href="https://github.com/kwenzig">@kwenzig&lt;/a>, &lt;a href="https://github.com/larmarange">@larmarange&lt;/a>, &lt;a href="https://github.com/leeper">@leeper&lt;/a>, &lt;a href="https://github.com/lepennec">@lepennec&lt;/a>, &lt;a href="https://github.com/lionel-">@lionel-&lt;/a>, &lt;a href="https://github.com/lucasmation">@lucasmation&lt;/a>, &lt;a href="https://github.com/m-dinardo">@m-dinardo&lt;/a>, &lt;a href="https://github.com/m-sostero">@m-sostero&lt;/a>, &lt;a href="https://github.com/marciz">@marciz&lt;/a>, &lt;a href="https://github.com/mariev">@mariev&lt;/a>, &lt;a href="https://github.com/mariusbarth">@mariusbarth&lt;/a>, &lt;a href="https://github.com/markriseley">@markriseley&lt;/a>, &lt;a href="https://github.com/mbojan">@mbojan&lt;/a>, &lt;a href="https://github.com/methodds">@methodds&lt;/a>, &lt;a href="https://github.com/mfansler">@mfansler&lt;/a>, &lt;a href="https://github.com/MichaelChirico">@MichaelChirico&lt;/a>, &lt;a href="https://github.com/michaelwhammer">@michaelwhammer&lt;/a>, &lt;a href="https://github.com/mikmart">@mikmart&lt;/a>, &lt;a href="https://github.com/mlaviolet">@mlaviolet&lt;/a>, &lt;a href="https://github.com/ncdingari">@ncdingari&lt;/a>, &lt;a href="https://github.com/nickbloom">@nickbloom&lt;/a>, &lt;a href="https://github.com/NilsEnevoldsen">@NilsEnevoldsen&lt;/a>, &lt;a href="https://github.com/njanetos">@njanetos&lt;/a>, &lt;a href="https://github.com/NoahMarconi">@NoahMarconi&lt;/a>, &lt;a href="https://github.com/nunsuch123">@nunsuch123&lt;/a>, &lt;a href="https://github.com/otoomet">@otoomet&lt;/a>, &lt;a href="https://github.com/pkq">@pkq&lt;/a>, &lt;a href="https://github.com/Plebejer">@Plebejer&lt;/a>, &lt;a href="https://github.com/prashantj">@prashantj&lt;/a>, &lt;a href="https://github.com/protogeezer">@protogeezer&lt;/a>, &lt;a href="https://github.com/rbirkelbach">@rbirkelbach&lt;/a>, &lt;a href="https://github.com/reikoch">@reikoch&lt;/a>, &lt;a href="https://github.com/rgayler">@rgayler&lt;/a>, &lt;a href="https://github.com/Rnngmk">@Rnngmk&lt;/a>, &lt;a href="https://github.com/robkar">@robkar&lt;/a>, &lt;a href="https://github.com/rogerjdeangelis">@rogerjdeangelis&lt;/a>, &lt;a href="https://github.com/rpruim">@rpruim&lt;/a>, &lt;a href="https://github.com/rubenarslan">@rubenarslan&lt;/a>, &lt;a href="https://github.com/salim-b">@salim-b&lt;/a>, &lt;a href="https://github.com/sargdavid">@sargdavid&lt;/a>, &lt;a href="https://github.com/sasutils">@sasutils&lt;/a>, &lt;a href="https://github.com/sfirke">@sfirke&lt;/a>, &lt;a href="https://github.com/sjkiss">@sjkiss&lt;/a>, &lt;a href="https://github.com/sjpierce">@sjpierce&lt;/a>, &lt;a href="https://github.com/sjPlot">@sjPlot&lt;/a>, &lt;a href="https://github.com/skanskan">@skanskan&lt;/a>, &lt;a href="https://github.com/statsccpr">@statsccpr&lt;/a>, &lt;a href="https://github.com/stefanmr">@stefanmr&lt;/a>, &lt;a href="https://github.com/steveniorfa">@steveniorfa&lt;/a>, &lt;a href="https://github.com/strengejacke">@strengejacke&lt;/a>, &lt;a href="https://github.com/stupersyn">@stupersyn&lt;/a>, &lt;a href="https://github.com/the-knife">@the-knife&lt;/a>, &lt;a href="https://github.com/thomasjwood">@thomasjwood&lt;/a>, &lt;a href="https://github.com/tidyx">@tidyx&lt;/a>, &lt;a href="https://github.com/tklebel">@tklebel&lt;/a>, &lt;a href="https://github.com/TUFFERST">@TUFFERST&lt;/a>, &lt;a href="https://github.com/tzoltak">@tzoltak&lt;/a>, &lt;a href="https://github.com/vate01">@vate01&lt;/a>, &lt;a href="https://github.com/vinhdizzo">@vinhdizzo&lt;/a>, &lt;a href="https://github.com/wbuchanan">@wbuchanan&lt;/a>, &lt;a href="https://github.com/wds15">@wds15&lt;/a>, &lt;a href="https://github.com/wepelham3">@wepelham3&lt;/a>, &lt;a href="https://github.com/withr">@withr&lt;/a>, &lt;a href="https://github.com/xinluwang">@xinluwang&lt;/a>, &lt;a href="https://github.com/yimingli">@yimingli&lt;/a>, and &lt;a href="https://github.com/yonicd">@yonicd&lt;/a>.&lt;/p>
+&lt;/div></description></item></channel></rss>

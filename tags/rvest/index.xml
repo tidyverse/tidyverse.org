@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>rvest | Tidyverse</title><link>https://www.tidyverse.org/tags/rvest/</link><atom:link href="https://www.tidyverse.org/tags/rvest/index.xml" rel="self" type="application/rss+xml"/><description>rvest</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 10 Mar 2021 00:00:00 +0000</lastBuildDate><item><title>rvest 1.0.0</title><link>https://www.tidyverse.org/blog/2021/03/rvest-1-0-0/</link><pubDate>Wed, 10 Mar 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/03/rvest-1-0-0/</guid><description>&lt;p>I&amp;rsquo;m tickled pink to announce the release of
+&lt;a href="https://rvest.tidyverse.org" target="_blank" rel="noopener">rvest&lt;/a> 1.0.0. rvest is designed to make it easy to scrape (i.e. harvest) data from HTML web pages.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"rvest"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This release includes two major improvements that make it easier to extract text and tables. I also took this opportunity to tidy up the interface to be better match the tidyverse standards that have emerged since rvest was created in 2012. This is a major release that marks rvest as
+&lt;a href="https://lifecycle.r-lib.org/articles/stages.html#stable" target="_blank" rel="noopener">stable&lt;/a>. That means we promise to avoid breaking changes as much as possible, and where they are needed, we will provided a significant deprecation cycle.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://github.com/tidyverse/rvest/releases/tag/v1.0.0" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://rvest.tidyverse.org/'>rvest&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="new-features">New features
+&lt;a href="#new-features">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>It&amp;rsquo;s been a while since I took a good look at rvest, and the GitHub issues suggested that there were two sources of long-standing frustration with rvest:
+&lt;a href="https://rvest.tidyverse.org/reference/html_text.html" target="_blank" rel="noopener">&lt;code>html_text()&lt;/code>&lt;/a> and
+&lt;a href="https://rvest.tidyverse.org/reference/html_table.html" target="_blank" rel="noopener">&lt;code>html_table()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>
+&lt;a href="https://rvest.tidyverse.org/reference/html_text.html" target="_blank" rel="noopener">&lt;code>html_text()&lt;/code>&lt;/a> was a source of frustration because it extracts raw text from underlying HTML. It ignores HTML&amp;rsquo;s line breaks (i.e. &lt;code>&amp;lt;br&amp;gt;&lt;/code>) but preserves non-significant whitespace, making it a pain to use:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>html&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rvest.tidyverse.org/reference/minimal_html.html'>minimal_html&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+&lt;span class='s'>"&amp;lt;p&amp;gt;
+This is a paragraph.
+This another sentence.&amp;lt;br&amp;gt;This should start on a new line
+&amp;lt;/p&amp;gt;"&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>html&lt;/span> &lt;span class='o'>%&amp;gt;%&lt;/span> &lt;span class='nf'>&lt;a href='https://rvest.tidyverse.org/reference/html_text.html'>html_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>%&amp;gt;%&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/writeLines.html'>writeLines&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; This is a paragraph.&lt;/span>
+&lt;span class='c'>#&amp;gt; This another sentence.This should start on a new line&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The new
+&lt;a href="https://rvest.tidyverse.org/reference/html_text.html" target="_blank" rel="noopener">&lt;code>html_text2()&lt;/code>&lt;/a> is inspired by Javascript&amp;rsquo;s &lt;code>innerText()&lt;/code> function and uses a handful of heuristics to generate more useful output:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>html&lt;/span> &lt;span class='o'>%&amp;gt;%&lt;/span> &lt;span class='nf'>&lt;a href='https://rvest.tidyverse.org/reference/html_text.html'>html_text2&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>%&amp;gt;%&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/writeLines.html'>writeLines&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; This is a paragraph. This another sentence.&lt;/span>
+&lt;span class='c'>#&amp;gt; This should start on a new line&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>
+&lt;a href="https://rvest.tidyverse.org/reference/html_table.html" target="_blank" rel="noopener">&lt;code>html_table()&lt;/code>&lt;/a> was frustrating because it failed on many tables that used row or column spans. I&amp;rsquo;ve now re-written it from scratch, closely following the algorithm that browsers use. This means that there are far fewer tables for which it fails to produce useful output, and I have deprecated the &lt;code>fill&lt;/code> argument because it&amp;rsquo;s no longer needed.&lt;/p>
+&lt;p>Here&amp;rsquo;s a little example with row span, column span, and a missing cell:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>html&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rvest.tidyverse.org/reference/minimal_html.html'>minimal_html&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"&amp;lt;table&amp;gt;
+&amp;lt;tr&amp;gt;&amp;lt;th&amp;gt;A&amp;lt;/th&amp;gt;&amp;lt;th&amp;gt;B&amp;lt;/th&amp;gt;&amp;lt;th&amp;gt;C&amp;lt;/th&amp;gt;&amp;lt;/tr&amp;gt;
+&amp;lt;tr&amp;gt;&amp;lt;td colspan='2' rowspan='2'&amp;gt;1&amp;lt;/td&amp;gt;&amp;lt;td&amp;gt;2&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;
+&amp;lt;tr&amp;gt;&amp;lt;td rowspan='2'&amp;gt;3&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;
+&amp;lt;tr&amp;gt;&amp;lt;td&amp;gt;4&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;
+&amp;lt;/table&amp;gt;"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>html&lt;/span> &lt;span class='o'>%&amp;gt;%&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rvest.tidyverse.org/reference/html_element.html'>html_element&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"table"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>%&amp;gt;%&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rvest.tidyverse.org/reference/html_table.html'>html_table&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 3 x 3&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>A&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>B&lt;/span>&lt;span> &lt;/span>&lt;span style='font-weight: bold;'>C&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span>&lt;span> 1 1 2&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span>&lt;span> 1 1 3&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span>&lt;span> 4 &lt;/span>&lt;span style='color: #BB0000;'>NA&lt;/span>&lt;span> 3&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>
+&lt;a href="https://rvest.tidyverse.org/reference/html_table.html" target="_blank" rel="noopener">&lt;code>html_table()&lt;/code>&lt;/a> now returns a tibble rather than a data frame (to be more compatible with the rest of the tidyverse), and its performance has been considerably improved (10x for the
+&lt;a href="https://github.com/tidyverse/rvest/issues/237" target="_blank" rel="noopener">motivating example&lt;/a>). It also gains new &lt;code>na.strings&lt;/code> and &lt;code>convert&lt;/code> arguments to better control how &lt;code>NA&lt;/code>s and strings are processed. See the docs for more details.&lt;/p>
+&lt;p>While it&amp;rsquo;s not a major feature, its worth noting that rvest is now much smaller (~100 Kb vs ~1 Mb) thanks to a rewrite of &lt;code>vignette(&amp;quot;rvest&amp;quot;)&lt;/code> and making the
+&lt;a href="https://rvest.tidyverse.org/articles/articles/selectorgadget.html" target="_blank" rel="noopener">SelectorGadget article&lt;/a> web-only.&lt;/p>
+&lt;h2 id="api-changes">API changes
+&lt;a href="#api-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Since this is the 1.0.0 release, I included a large number of API changes to make rvest more compatible with current tidyverse conventions. Older functions have been deprecated, so existing code will continue to work (albeit with a few new warnings).&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>rvest now imports xml2 rather than depending on it. This is cleaner because it avoids attaching all the xml2 functions that you&amp;rsquo;re probably not going to use. To reduce the change of breakages, rvest re-exports xml2 functions
+&lt;a href="http://xml2.r-lib.org/reference/read_xml.html" target="_blank" rel="noopener">&lt;code>read_html()&lt;/code>&lt;/a> and
+&lt;a href="http://xml2.r-lib.org/reference/url_absolute.html" target="_blank" rel="noopener">&lt;code>url_absolute()&lt;/code>&lt;/a>; if you use other functions, your code will now need an explicit
+&lt;a href="https://xml2.r-lib.org/" target="_blank" rel="noopener">&lt;code>library(xml2)&lt;/code>&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://rvest.tidyverse.org/reference/html_form.html" target="_blank" rel="noopener">&lt;code>html_form()&lt;/code>&lt;/a> now returns an object with class &lt;code>rvest_form&lt;/code>. Fields within a form now have class &lt;code>rvest_field&lt;/code>, instead of a variety of classes that were lacking the &lt;code>rvest_&lt;/code> prefix. All functions for working with forms have a common &lt;code>html_form_&lt;/code> prefix, e.g. 
+&lt;a href="https://rvest.tidyverse.org/reference/rename.html" target="_blank" rel="noopener">&lt;code>set_values()&lt;/code>&lt;/a> became
+&lt;a href="https://rvest.tidyverse.org/reference/html_form.html" target="_blank" rel="noopener">&lt;code>html_form_set()&lt;/code>&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://rvest.tidyverse.org/reference/rename.html" target="_blank" rel="noopener">&lt;code>html_node()&lt;/code>&lt;/a> and
+&lt;a href="https://rvest.tidyverse.org/reference/rename.html" target="_blank" rel="noopener">&lt;code>html_nodes()&lt;/code>&lt;/a> have been superseded in favor of
+&lt;a href="https://rvest.tidyverse.org/reference/html_element.html" target="_blank" rel="noopener">&lt;code>html_element()&lt;/code>&lt;/a> and
+&lt;a href="https://rvest.tidyverse.org/reference/html_element.html" target="_blank" rel="noopener">&lt;code>html_elements()&lt;/code>&lt;/a> since they (almost) always return elements, not nodes. This vocabulary will better match what you&amp;rsquo;re likely to see when learning about HTML.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://rvest.tidyverse.org/reference/rename.html" target="_blank" rel="noopener">&lt;code>html_session()&lt;/code>&lt;/a> is now
+&lt;a href="https://rvest.tidyverse.org/reference/session.html" target="_blank" rel="noopener">&lt;code>session()&lt;/code>&lt;/a> and returns an object of class &lt;code>rvest_session&lt;/code>. All functions that work with session objects now have a common &lt;code>session_&lt;/code> prefix.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Long deprecated &lt;code>html()&lt;/code>, &lt;code>html_tag()&lt;/code>, &lt;code>xml()&lt;/code> functions have been removed.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://rvest.tidyverse.org/reference/minimal_html.html" target="_blank" rel="noopener">&lt;code>minimal_html()&lt;/code>&lt;/a> (which doesn&amp;rsquo;t appear to be used by any other package) has had its arguments flipped to make it more intuitive.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://rvest.tidyverse.org/reference/html_encoding_guess.html" target="_blank" rel="noopener">&lt;code>guess_encoding()&lt;/code>&lt;/a> has been renamed to
+&lt;a href="https://rvest.tidyverse.org/reference/html_encoding_guess.html" target="_blank" rel="noopener">&lt;code>html_encoding_guess()&lt;/code>&lt;/a> to avoid a clash with &lt;code>stringr::guess_encoding()&lt;/code>.
+&lt;a href="https://rvest.tidyverse.org/reference/repair_encoding.html" target="_blank" rel="noopener">&lt;code>repair_encoding()&lt;/code>&lt;/a> was deprecated because it doesn&amp;rsquo;t appear to have ever worked.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>pluck()&lt;/code> is no longer exported to avoid a clash with
+&lt;a href="https://purrr.tidyverse.org/reference/pluck.html" target="_blank" rel="noopener">&lt;code>purrr::pluck()&lt;/code>&lt;/a>; if you need it use
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>purrr::map_chr()&lt;/code>&lt;/a> and friends instead.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://rvest.tidyverse.org/reference/rename.html" target="_blank" rel="noopener">&lt;code>xml_tag()&lt;/code>&lt;/a>,
+&lt;a href="https://rvest.tidyverse.org/reference/rename.html" target="_blank" rel="noopener">&lt;code>xml_node()&lt;/code>&lt;/a>, and
+&lt;a href="https://rvest.tidyverse.org/reference/rename.html" target="_blank" rel="noopener">&lt;code>xml_nodes()&lt;/code>&lt;/a> have been formally deprecated in favour of their &lt;code>html_&lt;/code> equivalents.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all the folks who helped make this release possible through their issues, comments, and pull requests 😄&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/13kay" target="_blank" rel="noopener">@13kay&lt;/a>,
+&lt;a href="https://github.com/adam52" target="_blank" rel="noopener">@adam52&lt;/a>,
+&lt;a href="https://github.com/AgnieszkaTomczyk" target="_blank" rel="noopener">@AgnieszkaTomczyk&lt;/a>,
+&lt;a href="https://github.com/ahaseemkunjucl" target="_blank" rel="noopener">@ahaseemkunjucl&lt;/a>,
+&lt;a href="https://github.com/akshaynagpal" target="_blank" rel="noopener">@akshaynagpal&lt;/a>,
+&lt;a href="https://github.com/AlanMex1990" target="_blank" rel="noopener">@AlanMex1990&lt;/a>,
+&lt;a href="https://github.com/alex23lemm" target="_blank" rel="noopener">@alex23lemm&lt;/a>,
+&lt;a href="https://github.com/amjiuzi" target="_blank" rel="noopener">@amjiuzi&lt;/a>,
+&lt;a href="https://github.com/antoine-lizee" target="_blank" rel="noopener">@antoine-lizee&lt;/a>,
+&lt;a href="https://github.com/arilamstein" target="_blank" rel="noopener">@arilamstein&lt;/a>,
+&lt;a href="https://github.com/artemklevtsov" target="_blank" rel="noopener">@artemklevtsov&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/bbrewington" target="_blank" rel="noopener">@bbrewington&lt;/a>,
+&lt;a href="https://github.com/bedantaguru" target="_blank" rel="noopener">@bedantaguru&lt;/a>,
+&lt;a href="https://github.com/bramtayl" target="_blank" rel="noopener">@bramtayl&lt;/a>,
+&lt;a href="https://github.com/brshallo" target="_blank" rel="noopener">@brshallo&lt;/a>,
+&lt;a href="https://github.com/charleswg" target="_blank" rel="noopener">@charleswg&lt;/a>,
+&lt;a href="https://github.com/christopherhastings" target="_blank" rel="noopener">@christopherhastings&lt;/a>,
+&lt;a href="https://github.com/chuchu89" target="_blank" rel="noopener">@chuchu89&lt;/a>,
+&lt;a href="https://github.com/conjugateprior" target="_blank" rel="noopener">@conjugateprior&lt;/a>,
+&lt;a href="https://github.com/cpsievert" target="_blank" rel="noopener">@cpsievert&lt;/a>,
+&lt;a href="https://github.com/craigcitro" target="_blank" rel="noopener">@craigcitro&lt;/a>,
+&lt;a href="https://github.com/cranknasty" target="_blank" rel="noopener">@cranknasty&lt;/a>,
+&lt;a href="https://github.com/cungbac" target="_blank" rel="noopener">@cungbac&lt;/a>,
+&lt;a href="https://github.com/curtisalexander" target="_blank" rel="noopener">@curtisalexander&lt;/a>,
+&lt;a href="https://github.com/cwickham" target="_blank" rel="noopener">@cwickham&lt;/a>,
+&lt;a href="https://github.com/data-steve" target="_blank" rel="noopener">@data-steve&lt;/a>,
+&lt;a href="https://github.com/dbuijs" target="_blank" rel="noopener">@dbuijs&lt;/a>,
+&lt;a href="https://github.com/Deleetdk" target="_blank" rel="noopener">@Deleetdk&lt;/a>,
+&lt;a href="https://github.com/dholstius" target="_blank" rel="noopener">@dholstius&lt;/a>,
+&lt;a href="https://github.com/DiegoKoz" target="_blank" rel="noopener">@DiegoKoz&lt;/a>,
+&lt;a href="https://github.com/dmi3kno" target="_blank" rel="noopener">@dmi3kno&lt;/a>,
+&lt;a href="https://github.com/dpprdan" target="_blank" rel="noopener">@dpprdan&lt;/a>,
+&lt;a href="https://github.com/englianhu" target="_blank" rel="noopener">@englianhu&lt;/a>,
+&lt;a href="https://github.com/etabeta78" target="_blank" rel="noopener">@etabeta78&lt;/a>,
+&lt;a href="https://github.com/ethanbsmith" target="_blank" rel="noopener">@ethanbsmith&lt;/a>,
+&lt;a href="https://github.com/flpezet" target="_blank" rel="noopener">@flpezet&lt;/a>,
+&lt;a href="https://github.com/garrettgman" target="_blank" rel="noopener">@garrettgman&lt;/a>,
+&lt;a href="https://github.com/georgevbsantiago" target="_blank" rel="noopener">@georgevbsantiago&lt;/a>,
+&lt;a href="https://github.com/geotheory" target="_blank" rel="noopener">@geotheory&lt;/a>,
+&lt;a href="https://github.com/ghost" target="_blank" rel="noopener">@ghost&lt;/a>,
+&lt;a href="https://github.com/gokceneraslan" target="_blank" rel="noopener">@gokceneraslan&lt;/a>,
+&lt;a href="https://github.com/gunawebs" target="_blank" rel="noopener">@gunawebs&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/happyshows" target="_blank" rel="noopener">@happyshows&lt;/a>,
+&lt;a href="https://github.com/hauj12123" target="_blank" rel="noopener">@hauj12123&lt;/a>,
+&lt;a href="https://github.com/HBossier" target="_blank" rel="noopener">@HBossier&lt;/a>,
+&lt;a href="https://github.com/hemans" target="_blank" rel="noopener">@hemans&lt;/a>,
+&lt;a href="https://github.com/higgi13425" target="_blank" rel="noopener">@higgi13425&lt;/a>,
+&lt;a href="https://github.com/himanshudhingra" target="_blank" rel="noopener">@himanshudhingra&lt;/a>,
+&lt;a href="https://github.com/hsancen" target="_blank" rel="noopener">@hsancen&lt;/a>,
+&lt;a href="https://github.com/ignotus0001" target="_blank" rel="noopener">@ignotus0001&lt;/a>,
+&lt;a href="https://github.com/ilarischeinin" target="_blank" rel="noopener">@ilarischeinin&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/iProcrastinate" target="_blank" rel="noopener">@iProcrastinate&lt;/a>,
+&lt;a href="https://github.com/jaanos" target="_blank" rel="noopener">@jaanos&lt;/a>,
+&lt;a href="https://github.com/JackWilb" target="_blank" rel="noopener">@JackWilb&lt;/a>,
+&lt;a href="https://github.com/JakeRuss" target="_blank" rel="noopener">@JakeRuss&lt;/a>,
+&lt;a href="https://github.com/jamjaemin" target="_blank" rel="noopener">@jamjaemin&lt;/a>,
+&lt;a href="https://github.com/javrucebo" target="_blank" rel="noopener">@javrucebo&lt;/a>,
+&lt;a href="https://github.com/jeffisabelle" target="_blank" rel="noopener">@jeffisabelle&lt;/a>,
+&lt;a href="https://github.com/jeroen" target="_blank" rel="noopener">@jeroen&lt;/a>,
+&lt;a href="https://github.com/jeroenjanssens" target="_blank" rel="noopener">@jeroenjanssens&lt;/a>,
+&lt;a href="https://github.com/jgilfillan" target="_blank" rel="noopener">@jgilfillan&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jjchern" target="_blank" rel="noopener">@jjchern&lt;/a>,
+&lt;a href="https://github.com/jl5000" target="_blank" rel="noopener">@jl5000&lt;/a>,
+&lt;a href="https://github.com/jlewis91" target="_blank" rel="noopener">@jlewis91&lt;/a>,
+&lt;a href="https://github.com/jmgirard" target="_blank" rel="noopener">@jmgirard&lt;/a>,
+&lt;a href="https://github.com/johncollins" target="_blank" rel="noopener">@johncollins&lt;/a>,
+&lt;a href="https://github.com/JohnMount" target="_blank" rel="noopener">@JohnMount&lt;/a>,
+&lt;a href="https://github.com/jonathan-g" target="_blank" rel="noopener">@jonathan-g&lt;/a>,
+&lt;a href="https://github.com/Jonathanyni" target="_blank" rel="noopener">@Jonathanyni&lt;/a>,
+&lt;a href="https://github.com/joranE" target="_blank" rel="noopener">@joranE&lt;/a>,
+&lt;a href="https://github.com/joshualeond" target="_blank" rel="noopener">@joshualeond&lt;/a>,
+&lt;a href="https://github.com/jpmarindiaz" target="_blank" rel="noopener">@jpmarindiaz&lt;/a>,
+&lt;a href="https://github.com/jrnold" target="_blank" rel="noopener">@jrnold&lt;/a>,
+&lt;a href="https://github.com/jrosen48" target="_blank" rel="noopener">@jrosen48&lt;/a>,
+&lt;a href="https://github.com/juba" target="_blank" rel="noopener">@juba&lt;/a>,
+&lt;a href="https://github.com/jubjubbc" target="_blank" rel="noopener">@jubjubbc&lt;/a>,
+&lt;a href="https://github.com/jullybobble" target="_blank" rel="noopener">@jullybobble&lt;/a>,
+&lt;a href="https://github.com/kendonB" target="_blank" rel="noopener">@kendonB&lt;/a>,
+&lt;a href="https://github.com/kevin199011" target="_blank" rel="noopener">@kevin199011&lt;/a>,
+&lt;a href="https://github.com/kevinrue" target="_blank" rel="noopener">@kevinrue&lt;/a>,
+&lt;a href="https://github.com/kiernann" target="_blank" rel="noopener">@kiernann&lt;/a>,
+&lt;a href="https://github.com/kjschaudt" target="_blank" rel="noopener">@kjschaudt&lt;/a>,
+&lt;a href="https://github.com/ktaylora" target="_blank" rel="noopener">@ktaylora&lt;/a>,
+&lt;a href="https://github.com/ktmud" target="_blank" rel="noopener">@ktmud&lt;/a>,
+&lt;a href="https://github.com/kurtis14" target="_blank" rel="noopener">@kurtis14&lt;/a>,
+&lt;a href="https://github.com/leoluyi" target="_blank" rel="noopener">@leoluyi&lt;/a>,
+&lt;a href="https://github.com/LeslieTse" target="_blank" rel="noopener">@LeslieTse&lt;/a>,
+&lt;a href="https://github.com/lifan0127" target="_blank" rel="noopener">@lifan0127&lt;/a>,
+&lt;a href="https://github.com/litao1105" target="_blank" rel="noopener">@litao1105&lt;/a>,
+&lt;a href="https://github.com/magic-lantern" target="_blank" rel="noopener">@magic-lantern&lt;/a>,
+&lt;a href="https://github.com/MarcinKosinski" target="_blank" rel="noopener">@MarcinKosinski&lt;/a>,
+&lt;a href="https://github.com/markdanese" target="_blank" rel="noopener">@markdanese&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/mikegros" target="_blank" rel="noopener">@mikegros&lt;/a>,
+&lt;a href="https://github.com/mikemc" target="_blank" rel="noopener">@mikemc&lt;/a>,
+&lt;a href="https://github.com/MislavSag" target="_blank" rel="noopener">@MislavSag&lt;/a>,
+&lt;a href="https://github.com/mitchelloharawild" target="_blank" rel="noopener">@mitchelloharawild&lt;/a>,
+&lt;a href="https://github.com/mobcdi" target="_blank" rel="noopener">@mobcdi&lt;/a>,
+&lt;a href="https://github.com/Monduiz" target="_blank" rel="noopener">@Monduiz&lt;/a>,
+&lt;a href="https://github.com/moodymudskipper" target="_blank" rel="noopener">@moodymudskipper&lt;/a>,
+&lt;a href="https://github.com/mrchypark" target="_blank" rel="noopener">@mrchypark&lt;/a>,
+&lt;a href="https://github.com/MrFlick" target="_blank" rel="noopener">@MrFlick&lt;/a>,
+&lt;a href="https://github.com/msberends" target="_blank" rel="noopener">@msberends&lt;/a>,
+&lt;a href="https://github.com/msgoussi" target="_blank" rel="noopener">@msgoussi&lt;/a>,
+&lt;a href="https://github.com/myliserta" target="_blank" rel="noopener">@myliserta&lt;/a>,
+&lt;a href="https://github.com/mzorgdrager" target="_blank" rel="noopener">@mzorgdrager&lt;/a>,
+&lt;a href="https://github.com/nalimilan" target="_blank" rel="noopener">@nalimilan&lt;/a>,
+&lt;a href="https://github.com/neilfws" target="_blank" rel="noopener">@neilfws&lt;/a>,
+&lt;a href="https://github.com/NicolasRuth" target="_blank" rel="noopener">@NicolasRuth&lt;/a>,
+&lt;a href="https://github.com/nitishgupta4291" target="_blank" rel="noopener">@nitishgupta4291&lt;/a>,
+&lt;a href="https://github.com/noamross" target="_blank" rel="noopener">@noamross&lt;/a>,
+&lt;a href="https://github.com/np2201" target="_blank" rel="noopener">@np2201&lt;/a>,
+&lt;a href="https://github.com/npjc" target="_blank" rel="noopener">@npjc&lt;/a>,
+&lt;a href="https://github.com/oguzhanogreden" target="_blank" rel="noopener">@oguzhanogreden&lt;/a>,
+&lt;a href="https://github.com/OmarGonD" target="_blank" rel="noopener">@OmarGonD&lt;/a>,
+&lt;a href="https://github.com/oNIenSis" target="_blank" rel="noopener">@oNIenSis&lt;/a>,
+&lt;a href="https://github.com/oriolmirosa" target="_blank" rel="noopener">@oriolmirosa&lt;/a>,
+&lt;a href="https://github.com/Osc2wall" target="_blank" rel="noopener">@Osc2wall&lt;/a>,
+&lt;a href="https://github.com/petermeissner" target="_blank" rel="noopener">@petermeissner&lt;/a>,
+&lt;a href="https://github.com/petrbouchal" target="_blank" rel="noopener">@petrbouchal&lt;/a>,
+&lt;a href="https://github.com/PritishDsouza" target="_blank" rel="noopener">@PritishDsouza&lt;/a>,
+&lt;a href="https://github.com/PriyaShaji" target="_blank" rel="noopener">@PriyaShaji&lt;/a>,
+&lt;a href="https://github.com/pssguy" target="_blank" rel="noopener">@pssguy&lt;/a>,
+&lt;a href="https://github.com/qpmnguyen" target="_blank" rel="noopener">@qpmnguyen&lt;/a>,
+&lt;a href="https://github.com/r2evans" target="_blank" rel="noopener">@r2evans&lt;/a>,
+&lt;a href="https://github.com/rafaminos" target="_blank" rel="noopener">@rafaminos&lt;/a>,
+&lt;a href="https://github.com/ramnathv" target="_blank" rel="noopener">@ramnathv&lt;/a>,
+&lt;a href="https://github.com/renkun-ken" target="_blank" rel="noopener">@renkun-ken&lt;/a>,
+&lt;a href="https://github.com/rentrop" target="_blank" rel="noopener">@rentrop&lt;/a>,
+&lt;a href="https://github.com/richierocks" target="_blank" rel="noopener">@richierocks&lt;/a>,
+&lt;a href="https://github.com/rjpat" target="_blank" rel="noopener">@rjpat&lt;/a>,
+&lt;a href="https://github.com/romainfrancois" target="_blank" rel="noopener">@romainfrancois&lt;/a>,
+&lt;a href="https://github.com/rpalsaxena" target="_blank" rel="noopener">@rpalsaxena&lt;/a>,
+&lt;a href="https://github.com/salauer" target="_blank" rel="noopener">@salauer&lt;/a>,
+&lt;a href="https://github.com/SamoPP" target="_blank" rel="noopener">@SamoPP&lt;/a>,
+&lt;a href="https://github.com/san1289" target="_blank" rel="noopener">@san1289&lt;/a>,
+&lt;a href="https://github.com/sco-lo-digital" target="_blank" rel="noopener">@sco-lo-digital&lt;/a>,
+&lt;a href="https://github.com/seasmith" target="_blank" rel="noopener">@seasmith&lt;/a>,
+&lt;a href="https://github.com/sfirke" target="_blank" rel="noopener">@sfirke&lt;/a>,
+&lt;a href="https://github.com/sillasgonzaga" target="_blank" rel="noopener">@sillasgonzaga&lt;/a>,
+&lt;a href="https://github.com/slowkow" target="_blank" rel="noopener">@slowkow&lt;/a>,
+&lt;a href="https://github.com/smach" target="_blank" rel="noopener">@smach&lt;/a>,
+&lt;a href="https://github.com/smbache" target="_blank" rel="noopener">@smbache&lt;/a>,
+&lt;a href="https://github.com/stenevang" target="_blank" rel="noopener">@stenevang&lt;/a>,
+&lt;a href="https://github.com/StephaneKazmierczak" target="_blank" rel="noopener">@StephaneKazmierczak&lt;/a>,
+&lt;a href="https://github.com/stevecondylios" target="_blank" rel="noopener">@stevecondylios&lt;/a>,
+&lt;a href="https://github.com/swiftsam" target="_blank" rel="noopener">@swiftsam&lt;/a>,
+&lt;a href="https://github.com/swishderzy" target="_blank" rel="noopener">@swishderzy&lt;/a>,
+&lt;a href="https://github.com/targeteer" target="_blank" rel="noopener">@targeteer&lt;/a>,
+&lt;a href="https://github.com/tbates" target="_blank" rel="noopener">@tbates&lt;/a>,
+&lt;a href="https://github.com/The-Janitor" target="_blank" rel="noopener">@The-Janitor&lt;/a>,
+&lt;a href="https://github.com/thomasd2" target="_blank" rel="noopener">@thomasd2&lt;/a>,
+&lt;a href="https://github.com/tomasbarcellos" target="_blank" rel="noopener">@tomasbarcellos&lt;/a>,
+&lt;a href="https://github.com/TyGu1" target="_blank" rel="noopener">@TyGu1&lt;/a>,
+&lt;a href="https://github.com/wbuchanan" target="_blank" rel="noopener">@wbuchanan&lt;/a>,
+&lt;a href="https://github.com/WHardyPL" target="_blank" rel="noopener">@WHardyPL&lt;/a>,
+&lt;a href="https://github.com/WilDoane" target="_blank" rel="noopener">@WilDoane&lt;/a>,
+&lt;a href="https://github.com/wldnjs" target="_blank" rel="noopener">@wldnjs&lt;/a>,
+&lt;a href="https://github.com/yogesh1612" target="_blank" rel="noopener">@yogesh1612&lt;/a>,
+&lt;a href="https://github.com/yrochat" target="_blank" rel="noopener">@yrochat&lt;/a>,
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>, and
+&lt;a href="https://github.com/zheguzai100" target="_blank" rel="noopener">@zheguzai100&lt;/a>.&lt;/p></description></item></channel></rss>

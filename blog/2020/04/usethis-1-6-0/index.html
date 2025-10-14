@@ -1,0 +1,170 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>usethis 1.6.0</title><meta property="og:title" content="usethis 1.6.0"><meta property="og:description" content="We&rsquo;re happy to announce that usethis 1.6.0 is now available on CRAN. usethis is a package that facilitates interactive workflows for R project creation and development. It&rsquo;s mostly focussed on easing day-to-day package development, but many of its functions are also useful for non-package projects. Install usethis with:
+install.packages(&#34;usethis&#34;) This blog post discusses three sets of improvements to usethis:
+  New helpers for using GitHub Actions for continuous integration. If you&rsquo;re an R package developer who uses GitHub, we recommend moving away from Travis and AppVeyor in favour of GitHub Actions."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2020/04/usethis-1-6-0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="usethis 1.6.0 - Tidyverse"><meta property="description" content><meta property="og:description" content><meta property="og:image" content="https://www.tidyverse.org/blog/2020/04/usethis-1-6-0/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2020/04/usethis-1-6-0/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>usethis 1.6.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2020/04/usethis-1-6-0/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/R4WCbazrD1g>Rock'n Roll Monkey</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2020/04/11</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/devtools/>devtools</a>,
+<a href=/tags/usethis/>usethis</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Hadley Wickham</p><div class=article-content><p>We&rsquo;re happy to announce that
+<a href=https://usethis.r-lib.org target=_blank rel=noopener>usethis</a> 1.6.0 is now available on CRAN. usethis is a package that facilitates interactive workflows for R project creation and development. It&rsquo;s mostly focussed on easing day-to-day package development, but many of its functions are also useful for non-package projects. Install usethis with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>install.packages</span><span class=p>(</span><span class=s>&#34;usethis&#34;</span><span class=p>)</span>
+</code></pre></div><p>This blog post discusses three sets of improvements to usethis:</p><ul><li><p>New helpers for using GitHub Actions for continuous integration. If you&rsquo;re an
+R package developer who uses GitHub, we recommend moving away from Travis and
+AppVeyor in favour of GitHub Actions.</p></li><li><p>We&rsquo;ve made a number of small tweaks to <code>create_package()</code> in order to reduce
+inessential friction in the initial startup phase of a package.</p></li><li><p>We&rsquo;ve continued to polish our tools for contributing to other people&rsquo;s
+packages through GitHub pull requests.</p></li></ul><p>This release also includes a handful of new functions (my favourite is
+<a href=https://usethis.r-lib.org/reference/rename_files.html target=_blank rel=noopener><code>rename_file()</code></a>), many bug fixes, and lots of small improvements. We&rsquo;re slowly grinding down the rough edges, so usethis just works in more cases, and when it fails, it&rsquo;s more likely to give you error messages that help you quickly figure out the problem. As usual, you can find detailed notes about all these changes in the
+<a href=https://usethis.r-lib.org/news/index.html target=_blank rel=noopener>change log</a>.</p><h2 id=github-actions>GitHub Actions
+<a href=#github-actions><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><a href=https://github.com/features/actions target=_blank rel=noopener>GitHub Actions</a> is a continuous integration service that allows you to automatically run code whenever you push to GitHub. If you&rsquo;re developing a package this allows you to automate tasks like:</p><ul><li>Run <code>R CMD check</code> on multiple platforms (Linux, Windows, and Mac) and
+different versions of R (e.g., devel, release, oldrel).</li><li>Record the code coverage of your unit tests.</li><li>Re-build your
+<a href=https://pkgdown.r-lib.org/ target=_blank rel=noopener>pkgdown</a> website.</li></ul><p>Outside of a package, you can also use GitHub Actions to rebuild
+<a href=https://github.com/r-lib/actions/blob/master/examples/blogdown.yaml target=_blank rel=noopener>blogdown</a> and
+<a href=https://github.com/r-lib/actions/blob/master/examples/bookdown.yaml target=_blank rel=noopener>bookdown</a> sites, or regularly re-knit <code>.Rmd</code> files.</p><p>Each GitHub Actions <em>workflow</em> is described in a yaml file stored in the <code>.github/workflows</code> directory of your repository. usethis v1.6.0 introduces new helper functions to create these files:</p><ul><li><p><a href=https://github.com/r-lib/actions/blob/master/examples/check-standard.yaml target=_blank rel=noopener><code>use_github_action("check-standard")</code></a> runs <code>R CMD check</code> on the latest
+R release on Linux, Windows, and macOS, and R-devel on macOS. This ensures
+that your package works on all major operating systems, and alerts you to
+any potential problems in the next version of R.</p></li><li><p><a href=https://github.com/r-lib/actions/blob/master/examples/test-coverage.yaml target=_blank rel=noopener><code>use_github_action("test-coverage")</code></a>
+uses
+<a href=http://covr.r-lib.org/ target=_blank rel=noopener>covr</a> to measure the test coverage of your package
+and publishes it to <a href=http://codecov.io/>http://codecov.io/</a>.</p></li><li><p><a href=https://github.com/r-lib/actions/blob/master/examples/pkgdown.yaml target=_blank rel=noopener><code>use_github_action("pkgdown")</code></a>
+uses
+<a href=https://pkgdown.r-lib.org/ target=_blank rel=noopener>pkgdown</a> to build your package website and
+publishes it to the <code>gh-pages</code> branch.</p></li></ul><p>You can see examples of other workflows at <a href=https://github.com/r-lib/actions/tree/master/examples>https://github.com/r-lib/actions/tree/master/examples</a>. The files in this directory are templates that you can easily copy into your package by running <code>use_github_action("name")</code>. We encourage you to look at the <code>.yaml</code> files that these functions create and customise them to meet your needs.</p><p>Compared to Travis-CI, GitHub Actions:</p><ul><li><p>Provides more resources, i.e. 6 hour build times and 20 concurrent builds
+instead of 50 minute build times and ~5 concurrent builds.</p></li><li><p>Has more complete support for building on Windows and macOS and a more
+natural way of using Docker containers.</p></li><li><p>Doesn&rsquo;t require any extra authentication because all code is run on GitHub.</p></li><li><p>Is considerably easier to customise to provide workflows that we haven&rsquo;t
+made easy.</p></li></ul><p>You can learn more by reading
+<a href=https://ropenscilabs.github.io/actions_sandbox/ target=_blank rel=noopener><em>Github Actions with R</em></a>, by Chris Brown, Murray Cadzow, Paula A Martinez, Rhydwyn McGuire, David Neuzerling, David Wilkinson, and Saras Windecker, or watching Jim Hester&rsquo;s
+<a href=https://resources.rstudio.com/rstudio-conf-2020/azure-pipelines-and-github-actions-jim-hester target=_blank rel=noopener>rstudio::conf(2020) presentation</a>.</p><h2 id=creating-packages>Creating packages
+<a href=#creating-packages><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Based on our experience teaching package development, we&rsquo;ve made a few changes to how <code>create_package()</code> sets up a new package. The biggest difference is that we now assume that you&rsquo;re going to use roxygen2<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup> (although you can opt out with <code>roxygen = FALSE</code>), reducing some inconsistencies in development behaviours before and after your first run of <code>devtools::document()</code>:</p><ul><li><p>We automatically add a <code>RoxygenNote</code> field to the <code>DESCRIPTION</code>. This is a
+subtle change that ensures <code>devtools::check()</code> re-documents your package even
+when you haven&rsquo;t yet run <code>devtools::document()</code>.</p></li><li><p>The default <code>NAMESPACE</code> no longer exports anything. This means that you
+must always use <code>@export</code> if you want functions to be available to the
+end-user.</p></li></ul><p>We made a couple of small changes to ease other minor frustrations:</p><ul><li><p><code>use_rstudio()</code> now sets the <code>LineEndingConversion</code> to <code>Posix</code> so that
+packages edited with RStudio always use LF line endings, regardless of
+platform. This reduces spurious changes when multiple people collaborate
+on the same package.</p></li><li><p>The <code>usethis.description</code> option now lets you set <code>Authors@R = person()</code>
+directly. That is, you can make an actual call to <code>person()</code> as opposed
+to writing a <em>string</em> that, when evaluated as code, returns a <code>person()</code>.
+This makes it less aggravating to detect and correct any mistakes. For
+example, in my <code>.Rprofile</code> I used to have:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>options</span><span class=p>(</span><span class=n>usethis.description</span> <span class=o>=</span> <span class=nf>list</span><span class=p>(</span>
+  <span class=n>`Authors@R`</span> <span class=o>=</span> <span class=s>&#39;person(&#34;Hadley&#34;, &#34;Wickham&#34;, , &#34;hadley@rstudio.com&#34;, role = c(&#34;aut&#34;, &#34;cre&#34;))&#39;</span>
+<span class=p>))</span>
+</code></pre></div><p>And now I have:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>options</span><span class=p>(</span><span class=n>usethis.description</span> <span class=o>=</span> <span class=nf>list</span><span class=p>(</span>
+  <span class=n>`Authors@R`</span> <span class=o>=</span> <span class=n>utils</span><span class=o>::</span><span class=nf>person</span><span class=p>(</span>
+    <span class=s>&#34;Hadley&#34;</span><span class=p>,</span> <span class=s>&#34;Wickham&#34;</span><span class=p>,</span> <span class=p>,</span> <span class=s>&#34;hadley@rstudio.com&#34;</span><span class=p>,</span>
+    <span class=n>role</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=s>&#34;aut&#34;</span><span class=p>,</span> <span class=s>&#34;cre&#34;</span><span class=p>)</span>
+  <span class=p>)</span>
+<span class=p>))</span>
+</code></pre></div><p>As you can see from the syntax highlighting, it&rsquo;s now much easier to see if
+you&rsquo;ve got all the quotes and commas in the right place. When you do this in
+<code>.Rprofile</code>, note that you <strong>must</strong> call it as <code>utils::person()</code>.</p></li></ul><h2 id=contributing-to-packages-via-github-pull-requests>Contributing to packages via GitHub pull requests
+<a href=#contributing-to-packages-via-github-pull-requests><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Based on our experiences at
+<a href=https://www.tidyverse.org/blog/2019/11/tidyverse-dev-day-2020/ target=_blank rel=noopener>tidyverse developer day</a>, we&rsquo;ve tweaked the behaviour of usethis to ensure that new files have the same line ending as the rest of the project. We&rsquo;ve also continued to polish our family of pull request helpers to work in more real-world situations. And, thanks to
+<a href=http://www2.stat.duke.edu/~mc301/ target=_blank rel=noopener>Mine Cetinkaya-Rundel</a>, we now have an article that
+<a href=https://usethis.r-lib.org/articles/articles/pr-functions.html target=_blank rel=noopener>explains the overall workflow</a>.</p><h2 id=thank-you>Thank you!
+<a href=#thank-you><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>A big thanks to all 103 contributors who helped make this release happen via their contributions on GitHub.
+<a href=https://github.com/aaronpeikert target=_blank rel=noopener>@aaronpeikert</a>,
+<a href=https://github.com/adelmofilho target=_blank rel=noopener>@adelmofilho</a>,
+<a href=https://github.com/Ahobert target=_blank rel=noopener>@Ahobert</a>,
+<a href=https://github.com/alandipert target=_blank rel=noopener>@alandipert</a>,
+<a href=https://github.com/andrie target=_blank rel=noopener>@andrie</a>,
+<a href=https://github.com/angela-li target=_blank rel=noopener>@angela-li</a>,
+<a href=https://github.com/antoine-sachet target=_blank rel=noopener>@antoine-sachet</a>,
+<a href=https://github.com/aosmith16 target=_blank rel=noopener>@aosmith16</a>,
+<a href=https://github.com/atusy target=_blank rel=noopener>@atusy</a>,
+<a href=https://github.com/avalcarcel9 target=_blank rel=noopener>@avalcarcel9</a>,
+<a href=https://github.com/barryrowlingson target=_blank rel=noopener>@barryrowlingson</a>,
+<a href=https://github.com/batpigandme target=_blank rel=noopener>@batpigandme</a>,
+<a href=https://github.com/boshek target=_blank rel=noopener>@boshek</a>,
+<a href=https://github.com/cderv target=_blank rel=noopener>@cderv</a>,
+<a href=https://github.com/Cervangirard target=_blank rel=noopener>@Cervangirard</a>,
+<a href=https://github.com/chsafouane target=_blank rel=noopener>@chsafouane</a>,
+<a href=https://github.com/coatless target=_blank rel=noopener>@coatless</a>,
+<a href=https://github.com/ColinFay target=_blank rel=noopener>@ColinFay</a>,
+<a href=https://github.com/CorradoLanera target=_blank rel=noopener>@CorradoLanera</a>,
+<a href=https://github.com/csgillespie target=_blank rel=noopener>@csgillespie</a>,
+<a href=https://github.com/cstepper target=_blank rel=noopener>@cstepper</a>,
+<a href=https://github.com/davechilders target=_blank rel=noopener>@davechilders</a>,
+<a href=https://github.com/davidchall target=_blank rel=noopener>@davidchall</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/dchiu911 target=_blank rel=noopener>@dchiu911</a>,
+<a href=https://github.com/dragosmg target=_blank rel=noopener>@dragosmg</a>,
+<a href=https://github.com/edgararuiz target=_blank rel=noopener>@edgararuiz</a>,
+<a href=https://github.com/erindb target=_blank rel=noopener>@erindb</a>,
+<a href=https://github.com/espinielli target=_blank rel=noopener>@espinielli</a>,
+<a href=https://github.com/fabian-s target=_blank rel=noopener>@fabian-s</a>,
+<a href=https://github.com/fermumen target=_blank rel=noopener>@fermumen</a>,
+<a href=https://github.com/florianm target=_blank rel=noopener>@florianm</a>,
+<a href=https://github.com/fmichonneau target=_blank rel=noopener>@fmichonneau</a>,
+<a href=https://github.com/friep target=_blank rel=noopener>@friep</a>,
+<a href=https://github.com/gaborcsardi target=_blank rel=noopener>@gaborcsardi</a>,
+<a href=https://github.com/GegznaV target=_blank rel=noopener>@GegznaV</a>,
+<a href=https://github.com/GregorDeCillia target=_blank rel=noopener>@GregorDeCillia</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/igordot target=_blank rel=noopener>@igordot</a>,
+<a href=https://github.com/ijlyttle target=_blank rel=noopener>@ijlyttle</a>,
+<a href=https://github.com/IndrajeetPatil target=_blank rel=noopener>@IndrajeetPatil</a>,
+<a href=https://github.com/irenetlv target=_blank rel=noopener>@irenetlv</a>,
+<a href=https://github.com/isteves target=_blank rel=noopener>@isteves</a>,
+<a href=https://github.com/jdblischak target=_blank rel=noopener>@jdblischak</a>,
+<a href=https://github.com/jennybc target=_blank rel=noopener>@jennybc</a>,
+<a href=https://github.com/jimhester target=_blank rel=noopener>@jimhester</a>,
+<a href=https://github.com/jimmyg3g target=_blank rel=noopener>@jimmyg3g</a>,
+<a href=https://github.com/jmgirard target=_blank rel=noopener>@jmgirard</a>,
+<a href=https://github.com/JohnCoene target=_blank rel=noopener>@JohnCoene</a>,
+<a href=https://github.com/jplecavalier target=_blank rel=noopener>@jplecavalier</a>,
+<a href=https://github.com/jpritikin target=_blank rel=noopener>@jpritikin</a>,
+<a href=https://github.com/jrosen48 target=_blank rel=noopener>@jrosen48</a>,
+<a href=https://github.com/jules32 target=_blank rel=noopener>@jules32</a>,
+<a href=https://github.com/jzadra target=_blank rel=noopener>@jzadra</a>,
+<a href=https://github.com/karawoo target=_blank rel=noopener>@karawoo</a>,
+<a href=https://github.com/kevinushey target=_blank rel=noopener>@kevinushey</a>,
+<a href=https://github.com/kiernann target=_blank rel=noopener>@kiernann</a>,
+<a href=https://github.com/krlmlr target=_blank rel=noopener>@krlmlr</a>,
+<a href=https://github.com/lettucehead target=_blank rel=noopener>@lettucehead</a>,
+<a href=https://github.com/leungi target=_blank rel=noopener>@leungi</a>,
+<a href=https://github.com/lionel- target=_blank rel=noopener>@lionel-</a>,
+<a href=https://github.com/llrs target=_blank rel=noopener>@llrs</a>,
+<a href=https://github.com/lorenzwalthert target=_blank rel=noopener>@lorenzwalthert</a>,
+<a href=https://github.com/maelle target=_blank rel=noopener>@maelle</a>,
+<a href=https://github.com/MagdyLaban target=_blank rel=noopener>@MagdyLaban</a>,
+<a href=https://github.com/malcolmbarrett target=_blank rel=noopener>@malcolmbarrett</a>,
+<a href=https://github.com/Maschette target=_blank rel=noopener>@Maschette</a>,
+<a href=https://github.com/matthijsvanderloos target=_blank rel=noopener>@matthijsvanderloos</a>,
+<a href=https://github.com/maurolepore target=_blank rel=noopener>@maurolepore</a>,
+<a href=https://github.com/maxheld83 target=_blank rel=noopener>@maxheld83</a>,
+<a href=https://github.com/MichaelChirico target=_blank rel=noopener>@MichaelChirico</a>,
+<a href=https://github.com/mikmart target=_blank rel=noopener>@mikmart</a>,
+<a href=https://github.com/MilesMcBain target=_blank rel=noopener>@MilesMcBain</a>,
+<a href=https://github.com/mine-cetinkaya-rundel target=_blank rel=noopener>@mine-cetinkaya-rundel</a>,
+<a href=https://github.com/mitchelloharawild target=_blank rel=noopener>@mitchelloharawild</a>,
+<a href=https://github.com/muschellij2 target=_blank rel=noopener>@muschellij2</a>,
+<a href=https://github.com/nandriychuk target=_blank rel=noopener>@nandriychuk</a>,
+<a href=https://github.com/njtierney target=_blank rel=noopener>@njtierney</a>,
+<a href=https://github.com/noamross target=_blank rel=noopener>@noamross</a>,
+<a href=https://github.com/okhoma target=_blank rel=noopener>@okhoma</a>,
+<a href=https://github.com/overdodactyl target=_blank rel=noopener>@overdodactyl</a>,
+<a href=https://github.com/pachamaltese target=_blank rel=noopener>@pachamaltese</a>,
+<a href=https://github.com/pat-s target=_blank rel=noopener>@pat-s</a>,
+<a href=https://github.com/perezp44 target=_blank rel=noopener>@perezp44</a>,
+<a href=https://github.com/petrbouchal target=_blank rel=noopener>@petrbouchal</a>,
+<a href=https://github.com/phargarten2 target=_blank rel=noopener>@phargarten2</a>,
+<a href=https://github.com/pieterjanvc target=_blank rel=noopener>@pieterjanvc</a>,
+<a href=https://github.com/ramiromagno target=_blank rel=noopener>@ramiromagno</a>,
+<a href=https://github.com/riccardoporreca target=_blank rel=noopener>@riccardoporreca</a>,
+<a href=https://github.com/rich-iannone target=_blank rel=noopener>@rich-iannone</a>,
+<a href=https://github.com/Robinlovelace target=_blank rel=noopener>@Robinlovelace</a>,
+<a href=https://github.com/romainfrancois target=_blank rel=noopener>@romainfrancois</a>,
+<a href=https://github.com/rossellhayes target=_blank rel=noopener>@rossellhayes</a>,
+<a href=https://github.com/rundel target=_blank rel=noopener>@rundel</a>,
+<a href=https://github.com/ryapric target=_blank rel=noopener>@ryapric</a>,
+<a href=https://github.com/slyrus target=_blank rel=noopener>@slyrus</a>,
+<a href=https://github.com/smingerson target=_blank rel=noopener>@smingerson</a>,
+<a href=https://github.com/smwindecker target=_blank rel=noopener>@smwindecker</a>,
+<a href=https://github.com/strboul target=_blank rel=noopener>@strboul</a>,
+<a href=https://github.com/timtrice target=_blank rel=noopener>@timtrice</a>,
+<a href=https://github.com/TylerGrantSmith target=_blank rel=noopener>@TylerGrantSmith</a>,
+<a href=https://github.com/VincentGuyader target=_blank rel=noopener>@VincentGuyader</a>, and
+<a href=https://github.com/wch target=_blank rel=noopener>@wch</a>.</p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>This seems like a reasonable assumption given that ~80% of new CRAN packages use roxygen2. <a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#github-actions>GitHub Actions</a></li><li><a href=#creating-packages>Creating packages</a></li><li><a href=#contributing-to-packages-via-github-pull-requests>Contributing to packages via GitHub pull requests</a></li><li><a href=#thank-you>Thank you!</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

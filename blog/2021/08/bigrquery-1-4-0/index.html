@@ -1,0 +1,162 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>bigrquery 1.4.0</title><meta property="og:title" content="bigrquery 1.4.0"><meta property="og:description" content="bigrquery 1.4.0 fixes a bug in `bq_table_download()`."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2021/08/bigrquery-1-4-0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="bigrquery 1.4.0 - Tidyverse"><meta property="description" content="bigrquery 1.4.0 fixes a bug in `bq_table_download()`."><meta property="og:description" content="bigrquery 1.4.0 fixes a bug in `bq_table_download()`."><meta property="og:image" content="https://www.tidyverse.org/blog/2021/08/bigrquery-1-4-0/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2021/08/bigrquery-1-4-0/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>bigrquery 1.4.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2021/08/bigrquery-1-4-0/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/uzw4MvfG5ps>Henry & Co.</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2021/08/04</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/dbplyr/>dbplyr</a>,
+<a href=/tags/bigrquery/>bigrquery</a>,
+<a href=/tags/gargle/>gargle</a>,
+<a href=/tags/databases/>databases</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Jenny Bryan</p><div class=article-content><p>We&rsquo;re gratified to announce the release of
+<a href=https://bigrquery.r-dbi.org target=_blank rel=noopener>bigrquery</a> 1.4.0. bigrquery makes it easy to work with data stored in
+<a href=https://developers.google.com/bigquery/ target=_blank rel=noopener>Google BigQuery</a>, a hosted database for big data.</p><p>You can install bigrquery from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span><span class=o>(</span><span class=s>"bigrquery"</span><span class=o>)</span></code></pre></div><p>This release is mostly to fix a bug in
+<a href=https://bigrquery.r-dbi.org/reference/bq_table_download.html target=_blank rel=noopener><code>bq_table_download()</code></a>. We&rsquo;re also bumping the required version of the gargle package (<a href=https://gargle.r-lib.org>https://gargle.r-lib.org</a>), which handles everything around auth.</p><p>You can see a full list of changes in the
+<a href=https://bigrquery.r-dbi.org/news/index.html target=_blank rel=noopener>release notes</a>.</p><h2 id=bq_table_download-bug-fix><code>bq_table_download()</code> bug fix
+<a href=#bq_table_download-bug-fix><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><a href=https://bigrquery.r-dbi.org/reference/bq_table_download.html target=_blank rel=noopener><code>bq_table_download()</code></a> is a good way to bring small-to-medium data out of BigQuery and into R, in the form of a tibble.</p><p>Under the hood,
+<a href=https://bigrquery.r-dbi.org/reference/bq_table_download.html target=_blank rel=noopener><code>bq_table_download()</code></a> retrieves the data in chunks, using several simultaneous connections to BigQuery servers, then parses and reassembles it. The use of concurrent requests has a substantial performance benefit, which we think is absolutely worth it. We ask for these chunks in terms of specific rows, but if the server determines the response will be too large, it sends fewer-than-expected rows (plus a token that can be used to pick up where things left off).</p><p>The bug is that
+<a href=https://bigrquery.r-dbi.org/reference/bq_table_download.html target=_blank rel=noopener><code>bq_table_download()</code></a> previously did not account for this and silently returned a tibble with the requested shape but, potentially, with lots of missing data. Many users and datasets are unaffected, because all chunks are received in their entirety. But the problem has been seen with datasets with many columns and where data complexity and sparsity mean that different slices of rows have a very different memory footprint.</p><p><a href=https://bigrquery.r-dbi.org/reference/bq_table_download.html target=_blank rel=noopener><code>bq_table_download()</code></a> has been heavily refactored to make this phenomenon much less likely and to detect it when it happens:</p><ul><li>The default value of <code>page_size</code> is no longer fixed and, instead, is determined empirically. Users are strongly recommended to let bigrquery select <code>page_size</code> automatically, unless there&rsquo;s a specific reason to do otherwise.</li><li>If one of our so-called chunks does not fit on a BigQuery page,
+<a href=https://bigrquery.r-dbi.org/reference/bq_table_download.html target=_blank rel=noopener><code>bq_table_download()</code></a> now throws an error with some advice about <code>page_size</code>.</li><li>The <code>max_results</code> argument has been deprecated in favor of <code>n_max</code>, which better reflects what we actually do with this number and is consistent with the <code>n_max</code> argument elsewhere, e.g.,
+<a href=https://readr.tidyverse.org/reference/read_delim.html target=_blank rel=noopener><code>readr::read_csv()</code></a>.</li></ul><p>Here&rsquo;s a look at the new and improved
+<a href=https://bigrquery.r-dbi.org/reference/bq_table_download.html target=_blank rel=noopener><code>bq_table_download()</code></a>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://bigrquery.r-dbi.org>bigrquery</a></span><span class=o>)</span>
+
+<span class=nv>dat</span> <span class=o>&lt;-</span> <span class=nf><a href=https://bigrquery.r-dbi.org/reference/bq_table_download.html>bq_table_download</a></span><span class=o>(</span>
+  <span class=s>"bigquery-public-data.chicago_taxi_trips.taxi_trips"</span>,
+  n_max <span class=o>=</span> <span class=m>100000</span>,
+  bigint <span class=o>=</span> <span class=s>"integer64"</span>
+<span class=o>)</span>
+<span class=c>#&gt; Downloading first chunk of data.</span>
+<span class=c>#&gt; Received 29,221 rows in the first chunk.</span>
+<span class=c>#&gt; Downloading the remaining 70,779 rows in 4 chunks of (up to) 21,915 rows.</span>
+
+<span class=nf><a href=https://rdrr.io/r/utils/head.html>tail</a></span><span class=o>(</span><span class=nv>dat</span><span class=o>)</span>
+<span class=c>#&gt; # A tibble: 6 x 23</span>
+<span class=c>#&gt;   unique_key    taxi_id     trip_start_timesta… trip_end_timestamp  trip_seconds</span>
+<span class=c>#&gt;   &lt;chr&gt;         &lt;chr&gt;       &lt;dttm&gt;              &lt;dttm&gt;                   &lt;int64&gt;</span>
+<span class=c>#&gt; 1 1ad3f7df79d3… 0caf3d04eb… 2013-12-27 12:45:00 2013-12-27 13:00:00          840</span>
+<span class=c>#&gt; 2 3c982851afee… d7f7e8e4b0… 2014-01-25 19:45:00 2014-01-25 20:00:00          720</span>
+<span class=c>#&gt; 3 da7428c5329e… 46e168456e… 2014-01-06 17:45:00 2014-01-06 18:00:00          540</span>
+<span class=c>#&gt; 4 b0bb177ea839… 8d1222551a… 2014-01-08 11:45:00 2014-01-08 12:00:00          540</span>
+<span class=c>#&gt; 5 eee61e8e6c6d… ac39a2b21a… 2014-01-07 20:45:00 2014-01-07 21:00:00          540</span>
+<span class=c>#&gt; 6 4cc0ba56e6de… 25c1126afa… 2013-12-16 22:45:00 2013-12-16 22:45:00          420</span>
+<span class=c>#&gt; # … with 18 more variables: trip_miles &lt;dbl&gt;, pickup_census_tract &lt;int64&gt;,</span>
+<span class=c>#&gt; #   dropoff_census_tract &lt;int64&gt;, pickup_community_area &lt;int64&gt;,</span>
+<span class=c>#&gt; #   dropoff_community_area &lt;int64&gt;, fare &lt;dbl&gt;, tips &lt;dbl&gt;, tolls &lt;dbl&gt;,</span>
+<span class=c>#&gt; #   extras &lt;dbl&gt;, trip_total &lt;dbl&gt;, payment_type &lt;chr&gt;, company &lt;chr&gt;,</span>
+<span class=c>#&gt; #   pickup_latitude &lt;dbl&gt;, pickup_longitude &lt;dbl&gt;, pickup_location &lt;chr&gt;,</span>
+<span class=c>#&gt; #   dropoff_latitude &lt;dbl&gt;, dropoff_longitude &lt;dbl&gt;, dropoff_location &lt;chr&gt;</span></code></pre></div><h2 id=auth-updates>Auth updates
+<a href=#auth-updates><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>If you are generally fairly passive about bigrquery auth, then you should just sit back and let things happen organically during usage. If you&rsquo;ve used bigrquery before, you can expect to see some messages about cleaning and relocating the token cache when you first use v1.4.0. You can also expect to re-authenticate yourself with Google and re-authorize the &ldquo;Tidyverse API Packages&rdquo; to work with your files. This is all due to changes in gargle.</p><p>If your usage requires you to be more proactive about auth, read the
+<a href=https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/ target=_blank rel=noopener>blog post for gargle&rsquo;s recent v1.2.0 release</a>. A key point is that we have rolled the built-in OAuth client, which is why those relying on it will need to re-auth.</p><p><strong>If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call</strong> that you should be using your own OAuth client or, quite possibly, an entirely different method of auth. Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.</p><p>gargle v1.2.0 offers support for a new method of auth that is especially relevant to bigrquery users: <em>workload identity federation</em>. This is a new (as of April 2021) keyless authentication mechanism offered by Google. Identity federation allows applications running on a non-Google Cloud platform, such as AWS, to access Google Cloud resources without using a conventional service account token, eliminating the security problem posed by long-lived, powerful service account credential files. Basically, instead of storing sensitive information in a file that must be managed with great care, the necessary secrets are obtained on-the-fly and exchanged for short-lived tokens, with very granular control over what actions are allowed. There is a cost, of course, which is that this auth method requires substantial configuration on both the GCP and AWS sides.</p><p>See the
+<a href=https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/ target=_blank rel=noopener>gargle v1.2.0 blog post</a> and the docs for
+<a href=https://gargle.r-lib.org/reference/credentials_external_account.html target=_blank rel=noopener><code>gargle::credentials_external_account()</code></a> to learn more.</p><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>We&rsquo;d like to thank everyone who has furthered the development of bigrquery, since the last major release (v1.0.0), through their contributions in issues and pull requests:</p><p><a href=https://github.com/414theodore target=_blank rel=noopener>@414theodore</a>,
+<a href=https://github.com/abalter target=_blank rel=noopener>@abalter</a>,
+<a href=https://github.com/acvelozo target=_blank rel=noopener>@acvelozo</a>,
+<a href=https://github.com/adhi-r target=_blank rel=noopener>@adhi-r</a>,
+<a href=https://github.com/afalcioni target=_blank rel=noopener>@afalcioni</a>,
+<a href=https://github.com/ahmohamed target=_blank rel=noopener>@ahmohamed</a>,
+<a href=https://github.com/ajhindle target=_blank rel=noopener>@ajhindle</a>,
+<a href=https://github.com/AlekseyBuzmakov target=_blank rel=noopener>@AlekseyBuzmakov</a>,
+<a href=https://github.com/analyse9823 target=_blank rel=noopener>@analyse9823</a>,
+<a href=https://github.com/andirey target=_blank rel=noopener>@andirey</a>,
+<a href=https://github.com/ArbenKqiku target=_blank rel=noopener>@ArbenKqiku</a>,
+<a href=https://github.com/arvhug target=_blank rel=noopener>@arvhug</a>,
+<a href=https://github.com/batpigandme target=_blank rel=noopener>@batpigandme</a>,
+<a href=https://github.com/bbrewington target=_blank rel=noopener>@bbrewington</a>,
+<a href=https://github.com/bhargavimoorthyrao target=_blank rel=noopener>@bhargavimoorthyrao</a>,
+<a href=https://github.com/btrx-sreddy target=_blank rel=noopener>@btrx-sreddy</a>,
+<a href=https://github.com/byapparov target=_blank rel=noopener>@byapparov</a>,
+<a href=https://github.com/carbocation target=_blank rel=noopener>@carbocation</a>,
+<a href=https://github.com/CartWill target=_blank rel=noopener>@CartWill</a>,
+<a href=https://github.com/chrisherold target=_blank rel=noopener>@chrisherold</a>,
+<a href=https://github.com/ChrisJohnsonUMG target=_blank rel=noopener>@ChrisJohnsonUMG</a>,
+<a href=https://github.com/cpcgoogle target=_blank rel=noopener>@cpcgoogle</a>,
+<a href=https://github.com/danny-molamola target=_blank rel=noopener>@danny-molamola</a>,
+<a href=https://github.com/deflaux target=_blank rel=noopener>@deflaux</a>,
+<a href=https://github.com/dmoimpact target=_blank rel=noopener>@dmoimpact</a>,
+<a href=https://github.com/downloaderfan target=_blank rel=noopener>@downloaderfan</a>,
+<a href=https://github.com/dsolito target=_blank rel=noopener>@dsolito</a>,
+<a href=https://github.com/dujm target=_blank rel=noopener>@dujm</a>,
+<a href=https://github.com/eamcvey target=_blank rel=noopener>@eamcvey</a>,
+<a href=https://github.com/eddelbuettel target=_blank rel=noopener>@eddelbuettel</a>,
+<a href=https://github.com/edgararuiz-zz target=_blank rel=noopener>@edgararuiz-zz</a>,
+<a href=https://github.com/eduardodrc target=_blank rel=noopener>@eduardodrc</a>,
+<a href=https://github.com/evandropp10 target=_blank rel=noopener>@evandropp10</a>,
+<a href=https://github.com/everron target=_blank rel=noopener>@everron</a>,
+<a href=https://github.com/geotheory target=_blank rel=noopener>@geotheory</a>,
+<a href=https://github.com/gikis1 target=_blank rel=noopener>@gikis1</a>,
+<a href=https://github.com/gjuggler target=_blank rel=noopener>@gjuggler</a>,
+<a href=https://github.com/gkmuralimech target=_blank rel=noopener>@gkmuralimech</a>,
+<a href=https://github.com/grantmcdermott target=_blank rel=noopener>@grantmcdermott</a>,
+<a href=https://github.com/guillaumed90 target=_blank rel=noopener>@guillaumed90</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/HarlanH target=_blank rel=noopener>@HarlanH</a>,
+<a href=https://github.com/hlynurhallgrims target=_blank rel=noopener>@hlynurhallgrims</a>,
+<a href=https://github.com/htappen target=_blank rel=noopener>@htappen</a>,
+<a href=https://github.com/Iuiu1234 target=_blank rel=noopener>@Iuiu1234</a>,
+<a href=https://github.com/izzetagoren target=_blank rel=noopener>@izzetagoren</a>,
+<a href=https://github.com/j450h1 target=_blank rel=noopener>@j450h1</a>,
+<a href=https://github.com/janejuenyang target=_blank rel=noopener>@janejuenyang</a>,
+<a href=https://github.com/jayBana target=_blank rel=noopener>@jayBana</a>,
+<a href=https://github.com/jberninger target=_blank rel=noopener>@jberninger</a>,
+<a href=https://github.com/jcheng5 target=_blank rel=noopener>@jcheng5</a>,
+<a href=https://github.com/jennybc target=_blank rel=noopener>@jennybc</a>,
+<a href=https://github.com/jimmyg3g target=_blank rel=noopener>@jimmyg3g</a>,
+<a href=https://github.com/joetortorelli target=_blank rel=noopener>@joetortorelli</a>,
+<a href=https://github.com/jordanwebb10 target=_blank rel=noopener>@jordanwebb10</a>,
+<a href=https://github.com/jpryda target=_blank rel=noopener>@jpryda</a>,
+<a href=https://github.com/jrecasens target=_blank rel=noopener>@jrecasens</a>,
+<a href=https://github.com/Ka2wei target=_blank rel=noopener>@Ka2wei</a>,
+<a href=https://github.com/KarimZaoui target=_blank rel=noopener>@KarimZaoui</a>,
+<a href=https://github.com/kesnalawrence target=_blank rel=noopener>@kesnalawrence</a>,
+<a href=https://github.com/kevinwang09 target=_blank rel=noopener>@kevinwang09</a>,
+<a href=https://github.com/kkmann target=_blank rel=noopener>@kkmann</a>,
+<a href=https://github.com/krlmlr target=_blank rel=noopener>@krlmlr</a>,
+<a href=https://github.com/Kvit target=_blank rel=noopener>@Kvit</a>,
+<a href=https://github.com/ldanai target=_blank rel=noopener>@ldanai</a>,
+<a href=https://github.com/leemc-data-ed target=_blank rel=noopener>@leemc-data-ed</a>,
+<a href=https://github.com/LukasWallrich target=_blank rel=noopener>@LukasWallrich</a>,
+<a href=https://github.com/maelle target=_blank rel=noopener>@maelle</a>,
+<a href=https://github.com/mapinas target=_blank rel=noopener>@mapinas</a>,
+<a href=https://github.com/mauricioita target=_blank rel=noopener>@mauricioita</a>,
+<a href=https://github.com/meystingray target=_blank rel=noopener>@meystingray</a>,
+<a href=https://github.com/meztez target=_blank rel=noopener>@meztez</a>,
+<a href=https://github.com/mr2dark target=_blank rel=noopener>@mr2dark</a>,
+<a href=https://github.com/mwilson19 target=_blank rel=noopener>@mwilson19</a>,
+<a href=https://github.com/paleolimbot target=_blank rel=noopener>@paleolimbot</a>,
+<a href=https://github.com/paulsendavidjay target=_blank rel=noopener>@paulsendavidjay</a>,
+<a href=https://github.com/philbrierley target=_blank rel=noopener>@philbrierley</a>,
+<a href=https://github.com/ras44 target=_blank rel=noopener>@ras44</a>,
+<a href=https://github.com/rasmusab target=_blank rel=noopener>@rasmusab</a>,
+<a href=https://github.com/reliscu target=_blank rel=noopener>@reliscu</a>,
+<a href=https://github.com/riccardopinosio target=_blank rel=noopener>@riccardopinosio</a>,
+<a href=https://github.com/Saikri5hna target=_blank rel=noopener>@Saikri5hna</a>,
+<a href=https://github.com/samudzi target=_blank rel=noopener>@samudzi</a>,
+<a href=https://github.com/santic113 target=_blank rel=noopener>@santic113</a>,
+<a href=https://github.com/saptarshiguha target=_blank rel=noopener>@saptarshiguha</a>,
+<a href=https://github.com/Schumzy target=_blank rel=noopener>@Schumzy</a>,
+<a href=https://github.com/SeagleLiu target=_blank rel=noopener>@SeagleLiu</a>,
+<a href=https://github.com/selcukakbas target=_blank rel=noopener>@selcukakbas</a>,
+<a href=https://github.com/selesnow target=_blank rel=noopener>@selesnow</a>,
+<a href=https://github.com/siroros target=_blank rel=noopener>@siroros</a>,
+<a href=https://github.com/skydavis435 target=_blank rel=noopener>@skydavis435</a>,
+<a href=https://github.com/spgarbet target=_blank rel=noopener>@spgarbet</a>,
+<a href=https://github.com/spiddy69 target=_blank rel=noopener>@spiddy69</a>,
+<a href=https://github.com/srkpratap target=_blank rel=noopener>@srkpratap</a>,
+<a href=https://github.com/stelsemeyer target=_blank rel=noopener>@stelsemeyer</a>,
+<a href=https://github.com/stevecondylios target=_blank rel=noopener>@stevecondylios</a>,
+<a href=https://github.com/svmakarovv target=_blank rel=noopener>@svmakarovv</a>,
+<a href=https://github.com/tchaithonov target=_blank rel=noopener>@tchaithonov</a>,
+<a href=https://github.com/tdsmith target=_blank rel=noopener>@tdsmith</a>,
+<a href=https://github.com/theclue target=_blank rel=noopener>@theclue</a>,
+<a href=https://github.com/tinoater target=_blank rel=noopener>@tinoater</a>,
+<a href=https://github.com/valentas-kurauskas target=_blank rel=noopener>@valentas-kurauskas</a>,
+<a href=https://github.com/valentinumbach target=_blank rel=noopener>@valentinumbach</a>,
+<a href=https://github.com/victorz-ca target=_blank rel=noopener>@victorz-ca</a>,
+<a href=https://github.com/warnes target=_blank rel=noopener>@warnes</a>,
+<a href=https://github.com/YuanyuanZhang1986 target=_blank rel=noopener>@YuanyuanZhang1986</a>,
+<a href=https://github.com/zacdav target=_blank rel=noopener>@zacdav</a>,
+<a href=https://github.com/ZainRizvi target=_blank rel=noopener>@ZainRizvi</a>,
+<a href=https://github.com/zerobytes target=_blank rel=noopener>@zerobytes</a>, and
+<a href=https://github.com/zoews target=_blank rel=noopener>@zoews</a>.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#bq_table_download-bug-fix><code>bq_table_download()</code> bug fix</a></li><li><a href=#auth-updates>Auth updates</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

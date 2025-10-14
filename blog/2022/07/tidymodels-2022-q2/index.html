@@ -1,0 +1,423 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>Q2 2022 tidymodels digest</title><meta property="og:title" content="Q2 2022 tidymodels digest"><meta property="og:description" content="Q2 marks the end of the season of case weights, with 25 new releases."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2022/07/tidymodels-2022-q2/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="Q2 2022 tidymodels digest - Tidyverse"><meta property="description" content="Q2 marks the end of the season of case weights, with 25 new releases."><meta property="og:description" content="Q2 marks the end of the season of case weights, with 25 new releases."><meta property="og:image" content="https://www.tidyverse.org/blog/2022/07/tidymodels-2022-q2/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2022/07/tidymodels-2022-q2/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>Q2 2022 tidymodels digest</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2022/07/tidymodels-2022-q2/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/BBR_zigEmyQ>Samuel Girven</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2022/07/19</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/recipes/>recipes</a>,
+<a href=/tags/tidymodels/>tidymodels</a>,
+<a href=/tags/parsnip/>parsnip</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Emil Hvitfeldt</p><div class=article-content><p>The
+<a href=https://www.tidymodels.org/ target=_blank rel=noopener>tidymodels</a> framework is a collection of R packages for modeling and machine learning using tidyverse principles.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://tidymodels.tidymodels.org>tidymodels</a></span><span class=o>)</span>
+<span class=c>#&gt; ── <span style=font-weight:700>Attaching packages</span> ────────────────────────────────────── tidymodels 1.0.0 ──</span>
+<span class=c>#&gt; <span style=color:#0b0>✔</span> <span style=color:#00b>broom       </span> 1.0.0     <span style=color:#0b0>✔</span> <span style=color:#00b>recipes     </span> 1.0.1</span>
+<span class=c>#&gt; <span style=color:#0b0>✔</span> <span style=color:#00b>dials       </span> 1.0.0     <span style=color:#0b0>✔</span> <span style=color:#00b>rsample     </span> 1.0.0</span>
+<span class=c>#&gt; <span style=color:#0b0>✔</span> <span style=color:#00b>dplyr       </span> 1.0.9     <span style=color:#0b0>✔</span> <span style=color:#00b>tibble      </span> 3.1.7</span>
+<span class=c>#&gt; <span style=color:#0b0>✔</span> <span style=color:#00b>ggplot2     </span> 3.3.6     <span style=color:#0b0>✔</span> <span style=color:#00b>tidyr       </span> 1.2.0</span>
+<span class=c>#&gt; <span style=color:#0b0>✔</span> <span style=color:#00b>infer       </span> 1.0.2     <span style=color:#0b0>✔</span> <span style=color:#00b>tune        </span> 1.0.0</span>
+<span class=c>#&gt; <span style=color:#0b0>✔</span> <span style=color:#00b>modeldata   </span> 1.0.0     <span style=color:#0b0>✔</span> <span style=color:#00b>workflows   </span> 1.0.0</span>
+<span class=c>#&gt; <span style=color:#0b0>✔</span> <span style=color:#00b>parsnip     </span> 1.0.0     <span style=color:#0b0>✔</span> <span style=color:#00b>workflowsets</span> 1.0.0</span>
+<span class=c>#&gt; <span style=color:#0b0>✔</span> <span style=color:#00b>purrr       </span> 0.3.4     <span style=color:#0b0>✔</span> <span style=color:#00b>yardstick   </span> 1.0.0</span>
+<span class=c>#&gt; ── <span style=font-weight:700>Conflicts</span> ───────────────────────────────────────── tidymodels_conflicts() ──</span>
+<span class=c>#&gt; <span style=color:#b00>✖</span> <span style=color:#00b>purrr</span>::<span style=color:#0b0>discard()</span> masks <span style=color:#00b>scales</span>::discard()</span>
+<span class=c>#&gt; <span style=color:#b00>✖</span> <span style=color:#00b>dplyr</span>::<span style=color:#0b0>filter()</span>  masks <span style=color:#00b>stats</span>::filter()</span>
+<span class=c>#&gt; <span style=color:#b00>✖</span> <span style=color:#00b>dplyr</span>::<span style=color:#0b0>lag()</span>     masks <span style=color:#00b>stats</span>::lag()</span>
+<span class=c>#&gt; <span style=color:#b00>✖</span> <span style=color:#00b>recipes</span>::<span style=color:#0b0>step()</span>  masks <span style=color:#00b>stats</span>::step()</span>
+<span class=c>#&gt; <span style=color:#00b>•</span> Search for functions across packages at <span style=color:#0b0>https://www.tidymodels.org/find/</span></span></code></pre></div><p>Since the beginning of last year, we have been publishing
+<a href=https://www.tidyverse.org/categories/roundup/ target=_blank rel=noopener>quarterly updates</a> here on the tidyverse blog summarizing what&rsquo;s new in the tidymodels ecosystem. The purpose of these regular posts is to share useful new features and any updates you may have missed. You can check out the
+<a href=https://www.tidyverse.org/tags/tidymodels/ target=_blank rel=noopener><code>tidymodels</code> tag</a> to find all tidymodels blog posts here, including our roundup posts as well as those that are more focused, like these from the past month or so:</p><ul><li><a href=https://www.tidyverse.org/blog/2022/06/spatialsample-0-2-0/ target=_blank rel=noopener>spatialsample</a></li><li><a href=https://www.tidyverse.org/blog/2022/05/recipes-update-05-20222/ target=_blank rel=noopener>recipes and its extension packages</a></li><li><a href=https://www.tidyverse.org/blog/2022/06/bonsai-0-1-0/ target=_blank rel=noopener>bonsai</a></li></ul><p>Since
+<a href=https://www.tidyverse.org/blog/2022/04/tidymodels-2022-q1/ target=_blank rel=noopener>our last roundup post</a>, there have been CRAN releases of 25 tidymodels packages. You can install these updates from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span>
+  <span class=s>"rsample"</span>, <span class=s>"spatialsample"</span>, <span class=s>"parsnip"</span>, <span class=s>"baguette"</span>, <span class=s>"multilevelmod"</span>, <span class=s>"discrim"</span>,
+  <span class=s>"plsmod"</span>, <span class=s>"poissonreg"</span>, <span class=s>"rules"</span>, <span class=s>"recipes"</span>, <span class=s>"embed"</span>, <span class=s>"themis"</span>, <span class=s>"textrecipes"</span>,
+  <span class=s>"workflows"</span>, <span class=s>"workflowsets"</span>, <span class=s>"tune"</span>, <span class=s>"yardstick"</span>, <span class=s>"broom"</span>, <span class=s>"dials"</span>, <span class=s>"butcher"</span>,
+  <span class=s>"hardhat"</span>, <span class=s>"infer"</span>, <span class=s>"stacks"</span>, <span class=s>"tidyposterior"</span>, <span class=s>"tidypredict"</span>
+<span class=o>)</span><span class=o>)</span></code></pre></div><ul><li><a href=https://baguette.tidymodels.org/news/index.html#baguette-100 target=_blank rel=noopener>baguette</a></li><li><a href=https://broom.tidymodels.org/news/index.html#broom-080 target=_blank rel=noopener>broom</a></li><li><a href=https://butcher.tidymodels.org/news/index.html#butcher-020 target=_blank rel=noopener>butcher</a></li><li><a href=https://dials.tidymodels.org/news/index.html#dials-100 target=_blank rel=noopener>dials</a></li><li><a href=https://discrim.tidymodels.org/news/index.html#discrim-100 target=_blank rel=noopener>discrim</a></li><li><a href=https://embed.tidymodels.org/news/index.html#embed-100 target=_blank rel=noopener>embed</a></li><li><a href=https://hardhat.tidymodels.org/news/index.html#hardhat-120 target=_blank rel=noopener>hardhat</a></li><li><a href=https://infer.tidymodels.org/news/index.html#infer-v102 target=_blank rel=noopener>infer</a></li><li><a href=https://modeldata.tidymodels.org/news/index.html#modeldata-100 target=_blank rel=noopener>modeldata</a></li><li><a href=https://multilevelmod.tidymodels.org/news/index.html#multilevelmod-100 target=_blank rel=noopener>multilevelmod</a></li><li><a href=https://parsnip.tidymodels.org/news/index.html#parsnip-100 target=_blank rel=noopener>parsnip</a></li><li><a href=https://poissonreg.tidymodels.org/news/index.html#poissonreg-100 target=_blank rel=noopener>poissonreg</a></li><li><a href=https://recipes.tidymodels.org/news/index.html#recipes-101 target=_blank rel=noopener>recipes</a></li><li><a href=https://rsample.tidymodels.org/news/index.html#rsample-100 target=_blank rel=noopener>rsample</a></li><li><a href=https://rules.tidymodels.org/news/index.html#rules-100 target=_blank rel=noopener>rules</a></li><li><a href=https://spatialsample.tidymodels.org/news/index.html#spatialsample-020 target=_blank rel=noopener>spatialsample</a></li><li><a href=https://stacks.tidymodels.org/news/index.html#stacks-023 target=_blank rel=noopener>stacks</a></li><li><a href=https://textrecipes.tidymodels.org/news/index.html#textrecipes-100 target=_blank rel=noopener>textrecipes</a></li><li><a href=https://themis.tidymodels.org/news/index.html#themis-100 target=_blank rel=noopener>themis</a></li><li><a href=https://tidymodels.tidymodels.org/news/index.html#tidymodels-100 target=_blank rel=noopener>tidymodels</a></li><li><a href=https://tidyposterior.tidymodels.org/news/index.html#tidyposterior-100 target=_blank rel=noopener>tidyposterior</a></li><li><a href=https://tidypredict.tidymodels.org/news/index.html#tidypredict-049 target=_blank rel=noopener>tidypredict</a></li><li><a href=https://tune.tidymodels.org/news/index.html#tune-100 target=_blank rel=noopener>tune</a></li><li><a href=https://workflows.tidymodels.org/news/index.html#workflows-100 target=_blank rel=noopener>workflows</a></li><li><a href=https://workflowsets.tidymodels.org/news/index.html#workflowsets-100 target=_blank rel=noopener>workflowsets</a></li><li><a href=https://yardstick.tidymodels.org/news/index.html#yardstick-100 target=_blank rel=noopener>yardstick</a></li></ul><p>The <code>NEWS</code> files are linked here for each package; you&rsquo;ll notice that there are a lot! We know it may be bothersome to keep up with all these changes, so we want to draw your attention to our recent blog posts above and also highlight a few more useful updates in today&rsquo;s blog post.</p><p>We are confident that we have created a good foundation with our implementation across many of our packages and we are using this as an opportunity to bump the packages versions to 1.0.0.</p><h2 id=case-weights>Case weights
+<a href=#case-weights><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Much of the work we have been doing so far this year has been related to case weights. For a more detailed account of the deliberations see this earlier post about the
+<a href=https://www.tidyverse.org/blog/2022/05/case-weights/ target=_blank rel=noopener>use of case weights with tidymodels</a>.</p><p>A full worked example can be found in the
+<a href=tidyverse.org/blog/2022/05/case-weights/#tidymodels-syntax>previous blog post</a> and on
+<a href=https://www.tidymodels.org/learn/work/case-weights/ target=_blank rel=noopener>the tidymodels site</a>.</p><p>As an example let&rsquo;s go over how case weights are used within tidymodels. We start by simulating a data set using <code>sim_classification()</code>, this data set is going to be unbalanced and we will be using importance weights to give more weight to the minority class. In tidymodels you can use <code>importance_weights()</code> or <code>frequency_weights()</code> to denote what type of weight you are working with. Setting the type of weight should be the first thing you do.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/base/Random.html>set.seed</a></span><span class=o>(</span><span class=m>1</span><span class=o>)</span>
+<span class=nv>training_sim</span> <span class=o>&lt;-</span> <span class=nf>sim_classification</span><span class=o>(</span><span class=m>5000</span>, intercept <span class=o>=</span> <span class=o>-</span><span class=m>25</span><span class=o>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>mutate</span><span class=o>(</span>
+    case_wts <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/ifelse.html>ifelse</a></span><span class=o>(</span><span class=nv>class</span> <span class=o>==</span> <span class=s>"class_1"</span>, <span class=m>60</span>, <span class=m>1</span><span class=o>)</span>,
+    case_wts <span class=o>=</span> <span class=nf>importance_weights</span><span class=o>(</span><span class=nv>case_wts</span><span class=o>)</span>
+  <span class=o>)</span>
+
+<span class=nv>training_sim</span> <span class=o>%&gt;%</span>
+  <span class=nf>relocate</span><span class=o>(</span><span class=nv>case_wts</span>, .after <span class=o>=</span> <span class=nv>class</span><span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 5,000 × 17</span></span>
+<span class=c>#&gt;    class    case_wts two_factor_1 two_factor_2 non_linear_1 non_linear_2</span>
+<span class=c>#&gt;    <span style=color:#555;font-style:italic>&lt;fct&gt;</span>   <span style=color:#555;font-style:italic>&lt;imp_wts&gt;</span>        <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>        <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>        <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>        <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555> 1</span> class_2         1       0.092<span style=text-decoration:underline>4</span>       -<span style=color:#b00>1.70</span>       -<span style=color:#b00>0.579</span>         0.201</span>
+<span class=c>#&gt; <span style=color:#555> 2</span> class_2         1      -<span style=color:#b00>0.136</span>         0.608      -<span style=color:#b00>0.770</span>         0.114</span>
+<span class=c>#&gt; <span style=color:#555> 3</span> class_2         1      -<span style=color:#b00>0.080</span><span style=color:#b00;text-decoration:underline>6</span>       -<span style=color:#b00>2.07</span>       -<span style=color:#b00>0.709</span>         0.272</span>
+<span class=c>#&gt; <span style=color:#555> 4</span> class_2         1       1.35          2.75       -<span style=color:#b00>0.380</span>         0.785</span>
+<span class=c>#&gt; <span style=color:#555> 5</span> class_2         1      -<span style=color:#b00>0.238</span>         1.08       -<span style=color:#b00>0.700</span>         0.638</span>
+<span class=c>#&gt; <span style=color:#555> 6</span> class_2         1      -<span style=color:#b00>0.322</span>        -<span style=color:#b00>1.79</span>        0.053<span style=text-decoration:underline>4</span>        0.470</span>
+<span class=c>#&gt; <span style=color:#555> 7</span> class_2         1       1.35         -<span style=color:#b00>0.102</span>      -<span style=color:#b00>0.764</span>         0.827</span>
+<span class=c>#&gt; <span style=color:#555> 8</span> class_2         1       0.595         1.30       -<span style=color:#b00>0.045</span><span style=color:#b00;text-decoration:underline>4</span>        0.493</span>
+<span class=c>#&gt; <span style=color:#555> 9</span> class_2         1       0.563         0.916      -<span style=color:#b00>0.383</span>         0.775</span>
+<span class=c>#&gt; <span style=color:#555>10</span> class_2         1      -<span style=color:#b00>0.327</span>        -<span style=color:#b00>0.457</span>      -<span style=color:#b00>0.390</span>         0.704</span>
+<span class=c>#&gt; <span style=color:#555># … with 4,990 more rows, and 11 more variables: non_linear_3 &lt;dbl&gt;,</span></span>
+<span class=c>#&gt; <span style=color:#555>#   linear_01 &lt;dbl&gt;, linear_02 &lt;dbl&gt;, linear_03 &lt;dbl&gt;, linear_04 &lt;dbl&gt;,</span></span>
+<span class=c>#&gt; <span style=color:#555>#   linear_05 &lt;dbl&gt;, linear_06 &lt;dbl&gt;, linear_07 &lt;dbl&gt;, linear_08 &lt;dbl&gt;,</span></span>
+<span class=c>#&gt; <span style=color:#555>#   linear_09 &lt;dbl&gt;, linear_10 &lt;dbl&gt;</span></span></code></pre></div><p>Now that we have the data we can the resamples we want. We assigned weights before creating the resamples so that information is being carried into the resamples. The weights are not used in the creation of the resamples.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/base/Random.html>set.seed</a></span><span class=o>(</span><span class=m>2</span><span class=o>)</span>
+<span class=nv>sim_folds</span> <span class=o>&lt;-</span> <span class=nf>vfold_cv</span><span class=o>(</span><span class=nv>training_sim</span>, strata <span class=o>=</span> <span class=nv>class</span><span class=o>)</span></code></pre></div><p>When creating the model specification we don&rsquo;t need to do anything special, as parsnip will apply case weights when there is support for it. If you are unsure if a model supports case weights you can consult the documentation or the <code>show_model_info()</code> function, like so: <code>show_model_info("logistic_reg")</code>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>lr_spec</span> <span class=o>&lt;-</span> 
+  <span class=nf>logistic_reg</span><span class=o>(</span>penalty <span class=o>=</span> <span class=nf>tune</span><span class=o>(</span><span class=o>)</span>, mixture <span class=o>=</span> <span class=m>1</span><span class=o>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>set_engine</span><span class=o>(</span><span class=s>"glmnet"</span><span class=o>)</span></code></pre></div><p>Next, we will set up a recipe for preprocessing</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>sim_rec</span> <span class=o>&lt;-</span> 
+  <span class=nf>recipe</span><span class=o>(</span><span class=nv>class</span> <span class=o>~</span> <span class=nv>.</span>, data <span class=o>=</span> <span class=nv>training_sim</span><span class=o>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>step_ns</span><span class=o>(</span><span class=nf>starts_with</span><span class=o>(</span><span class=s>"non_linear"</span><span class=o>)</span>, deg_free <span class=o>=</span> <span class=m>10</span><span class=o>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>step_normalize</span><span class=o>(</span><span class=nf>all_numeric_predictors</span><span class=o>(</span><span class=o>)</span><span class=o>)</span>
+  
+<span class=nv>sim_rec</span>
+<span class=c>#&gt; Recipe</span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt; Inputs:</span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt;          role #variables</span>
+<span class=c>#&gt;  case_weights          1</span>
+<span class=c>#&gt;       outcome          1</span>
+<span class=c>#&gt;     predictor         15</span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt; Operations:</span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt; Natural splines on starts_with("non_linear")</span>
+<span class=c>#&gt; Centering and scaling for all_numeric_predictors()</span></code></pre></div><p>The recipe automatically detects the case weights even though they are captured by the dot on the right-hand side of the formula. The recipe automatically sets its role and will error if that column is changed in any way.</p><p>As mentioned above, any unsupervised steps are unaffected by importance weights so neither <code>step_ns()</code> or <code>step_normalize()</code> use the weights in their calculations.</p><p>When using case weights, we would like to encourage users to keep their model and preprocessing tool within a workflow. The workflows package now has an add_case_weights() function to help here:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>lr_wflow</span> <span class=o>&lt;-</span> 
+  <span class=nf>workflow</span><span class=o>(</span><span class=o>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>add_model</span><span class=o>(</span><span class=nv>lr_spec</span><span class=o>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>add_recipe</span><span class=o>(</span><span class=nv>sim_rec</span><span class=o>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>add_case_weights</span><span class=o>(</span><span class=nv>case_wts</span><span class=o>)</span>
+<span class=nv>lr_wflow</span>
+<span class=c>#&gt; ══ Workflow ════════════════════════════════════════════════════════════════════</span>
+<span class=c>#&gt; <span style=font-style:italic>Preprocessor:</span> Recipe</span>
+<span class=c>#&gt; <span style=font-style:italic>Model:</span> logistic_reg()</span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt; ── Preprocessor ────────────────────────────────────────────────────────────────</span>
+<span class=c>#&gt; 2 Recipe Steps</span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt; • step_ns()</span>
+<span class=c>#&gt; • step_normalize()</span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt; ── Case Weights ────────────────────────────────────────────────────────────────</span>
+<span class=c>#&gt; case_wts</span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt; ── Model ───────────────────────────────────────────────────────────────────────</span>
+<span class=c>#&gt; Logistic Regression Model Specification (classification)</span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt; Main Arguments:</span>
+<span class=c>#&gt;   penalty = tune()</span>
+<span class=c>#&gt;   mixture = 1</span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt; Computational engine: glmnet</span></code></pre></div><p>And that is all you need to use case weights, the remaining functions from the tune and yardstick package know how to deal with case weights depending on the type of weight.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>cls_metrics</span> <span class=o>&lt;-</span> <span class=nf>metric_set</span><span class=o>(</span><span class=nv>sensitivity</span>, <span class=nv>specificity</span><span class=o>)</span>
+
+<span class=nv>grid</span> <span class=o>&lt;-</span> <span class=nf>tibble</span><span class=o>(</span>penalty <span class=o>=</span> <span class=m>10</span><span class=o>^</span><span class=nf><a href=https://rdrr.io/r/base/seq.html>seq</a></span><span class=o>(</span><span class=o>-</span><span class=m>3</span>, <span class=m>0</span>, length.out <span class=o>=</span> <span class=m>20</span><span class=o>)</span><span class=o>)</span>
+
+<span class=nf><a href=https://rdrr.io/r/base/Random.html>set.seed</a></span><span class=o>(</span><span class=m>3</span><span class=o>)</span>
+<span class=nv>lr_res</span> <span class=o>&lt;-</span> 
+  <span class=nv>lr_wflow</span> <span class=o>%&gt;%</span> 
+  <span class=nf>tune_grid</span><span class=o>(</span>resamples <span class=o>=</span> <span class=nv>sim_folds</span>, grid <span class=o>=</span> <span class=nv>grid</span>, metrics <span class=o>=</span> <span class=nv>cls_metrics</span><span class=o>)</span>
+
+<span class=nf>autoplot</span><span class=o>(</span><span class=nv>lr_res</span><span class=o>)</span>
+</code></pre><p><img src=figs/unnamed-chunk-8-1.png width=700px style=display:block;margin:auto></p></div><h2 id=non-standard-roles-in-recipes>Non-standard roles in recipes
+<a href=#non-standard-roles-in-recipes><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The recipes package use the idea of roles to determine how and when the different variables are used. The main roles are <code>"outcome"</code>, <code>"predictor"</code>, and now <code>"case_weights"</code>. You are also able to change the roles of these variables using <code>add_role()</code> and <code>update_role()</code>.</p><p>With a recent addition of case weights as another type of standard role, we have made recipes more robust. It now checks that all columns in the <code>data</code> supplied to <code>recipe()</code> are also present in the <code>new_data</code> supplied to <code>bake()</code>. An exception is made for columns with roles of either <code>"outcome"</code> or <code>"case_weights"</code> because these are typically not required at <code>bake()</code> time.</p><p>This change for stricter checking of roles will mean that you might need to make some small changes to your code if you are using non-standard roles.</p><p>Let&rsquo;s look at the <code>tate_text</code> data set as an example:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/utils/data.html>data</a></span><span class=o>(</span><span class=s>"tate_text"</span><span class=o>)</span>
+<span class=nf>glimpse</span><span class=o>(</span><span class=nv>tate_text</span><span class=o>)</span>
+<span class=c>#&gt; Rows: 4,284</span>
+<span class=c>#&gt; Columns: 5</span>
+<span class=c>#&gt; $ id     <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> 21926, 20472, 20474, 20473, 20513, 21389, 121187, 19455, 20938,…</span>
+<span class=c>#&gt; $ artist <span style=color:#555;font-style:italic>&lt;fct&gt;</span> "Absalon", "Auerbach, Frank", "Auerbach, Frank", "Auerbach, Fra…</span>
+<span class=c>#&gt; $ title  <span style=color:#555;font-style:italic>&lt;chr&gt;</span> "Proposals for a Habitat", "Michael", "Geoffrey", "Jake", "To t…</span>
+<span class=c>#&gt; $ medium <span style=color:#555;font-style:italic>&lt;fct&gt;</span> "Video, monitor or projection, colour and sound (stereo)", "Etc…</span>
+<span class=c>#&gt; $ year   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> 1990, 1990, 1990, 1990, 1990, 1990, 1990, 1990, 1990, 1990, 199…</span></code></pre></div><p>This data set includes an <code>id</code> variable that shouldn&rsquo;t have any predictive power and a <code>title</code> variable that we want to ignore for now. We can let the recipe know that we don&rsquo;t want it to treat <code>id</code> and <code>title</code> as predictors by giving them a different role which we will call <code>"id"</code> here:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>tate_rec</span> <span class=o>&lt;-</span> <span class=nf>recipe</span><span class=o>(</span><span class=nv>year</span> <span class=o>~</span> <span class=nv>.</span>, data <span class=o>=</span> <span class=nv>tate_text</span><span class=o>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>update_role</span><span class=o>(</span><span class=nv>id</span>, <span class=nv>title</span>, new_role <span class=o>=</span> <span class=s>"id"</span><span class=o>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>step_dummy_extract</span><span class=o>(</span><span class=nv>artist</span>, <span class=nv>medium</span>, sep <span class=o>=</span> <span class=s>", "</span><span class=o>)</span>
+
+<span class=nv>tate_rec_prepped</span> <span class=o>&lt;-</span> <span class=nf>prep</span><span class=o>(</span><span class=nv>tate_rec</span><span class=o>)</span></code></pre></div><p>This will now error when we try to apply the recipe to new data that contains only our predictors:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>new_painting</span> <span class=o>&lt;-</span> <span class=nf>tibble</span><span class=o>(</span>
+  artist <span class=o>=</span> <span class=s>"Hamilton, Richard"</span>,
+  medium <span class=o>=</span> <span class=s>"Letterpress on paper"</span> 
+<span class=o>)</span>
+
+<span class=nf>bake</span><span class=o>(</span><span class=nv>tate_rec_prepped</span>, <span class=nv>new_painting</span><span class=o>)</span>
+<span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `bake()`:</span></span>
+<span class=c>#&gt; <span style=color:#bb0>!</span> The following required columns are missing from `new_data`: "id", "title".</span>
+<span class=c>#&gt; <span style=color:#00b>ℹ</span> These columns have one of the following roles, which are required at `bake()` time: "id".</span>
+<span class=c>#&gt; <span style=color:#00b>ℹ</span> If these roles are not required at `bake()` time, use `update_role_requirements(role = "your_role", bake = FALSE)`.</span></code></pre></div><p>It complains because the recipe is expecting the <code>id</code> and <code>title</code> variables to be in the data set passed to <code>bake()</code>. We can use
+<a href=https://recipes.tidymodels.org/reference/update_role_requirements.html target=_blank rel=noopener>update_role_requirements()</a> to tell the recipe that variables of role <code>"id"</code> are not required when baking and we are good to go!</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>tate_rec</span> <span class=o>&lt;-</span> <span class=nf>recipe</span><span class=o>(</span><span class=nv>year</span> <span class=o>~</span> <span class=nv>.</span>, data <span class=o>=</span> <span class=nv>tate_text</span><span class=o>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>update_role</span><span class=o>(</span><span class=nv>id</span>, <span class=nv>title</span>, new_role <span class=o>=</span> <span class=s>"id"</span><span class=o>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>update_role_requirements</span><span class=o>(</span>role <span class=o>=</span> <span class=s>"id"</span>, bake <span class=o>=</span> <span class=kc>FALSE</span><span class=o>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>step_dummy_extract</span><span class=o>(</span><span class=nv>artist</span>, <span class=nv>medium</span>, sep <span class=o>=</span> <span class=s>", "</span><span class=o>)</span>
+
+<span class=nv>tate_rec_prepped</span> <span class=o>&lt;-</span> <span class=nf>prep</span><span class=o>(</span><span class=nv>tate_rec</span><span class=o>)</span>
+
+<span class=nf>bake</span><span class=o>(</span><span class=nv>tate_rec_prepped</span>, <span class=nv>new_painting</span><span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 1 × 2,675</span></span>
+<span class=c>#&gt;   artist_Abigail artist_Abraham artist_Absalon artist_Abts artist_Achill</span>
+<span class=c>#&gt;            <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>          <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>          <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>       <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>         <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span>              0              0              0           0             0</span>
+<span class=c>#&gt; <span style=color:#555># … with 2,670 more variables: artist_Ackroyd &lt;dbl&gt;, artist_Adam &lt;dbl&gt;,</span></span>
+<span class=c>#&gt; <span style=color:#555>#   artist_Agnes &lt;dbl&gt;, artist_Ahtila &lt;dbl&gt;, artist_Ai &lt;dbl&gt;,</span></span>
+<span class=c>#&gt; <span style=color:#555>#   artist_Akram &lt;dbl&gt;, artist_Aksel &lt;dbl&gt;, artist_Al &lt;dbl&gt;,</span></span>
+<span class=c>#&gt; <span style=color:#555>#   artist_Al.Ani &lt;dbl&gt;, artist_Alan &lt;dbl&gt;, artist_Albert &lt;dbl&gt;,</span></span>
+<span class=c>#&gt; <span style=color:#555>#   artist_Aleksandra &lt;dbl&gt;, artist_Alex &lt;dbl&gt;, artist_Alexander &lt;dbl&gt;,</span></span>
+<span class=c>#&gt; <span style=color:#555>#   artist_Alexandre.da &lt;dbl&gt;, artist_Alfredo &lt;dbl&gt;, artist_Alice &lt;dbl&gt;,</span></span>
+<span class=c>#&gt; <span style=color:#555>#   artist_Alimpiev &lt;dbl&gt;, artist_Alison &lt;dbl&gt;, artist_Allen &lt;dbl&gt;, …</span></span></code></pre></div><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><ul><li><p>applicable
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/marlycormar target=_blank rel=noopener>@marlycormar</a>,
+<a href=https://github.com/mikemahoney218 target=_blank rel=noopener>@mikemahoney218</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>.</p></li><li><p>baguette:
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>.</p></li><li><p>bonsai:
+<a href=https://github.com/bwilkowski target=_blank rel=noopener>@bwilkowski</a>,
+<a href=https://github.com/joeycouse target=_blank rel=noopener>@joeycouse</a>,
+<a href=https://github.com/pinogl target=_blank rel=noopener>@pinogl</a>,
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>.</p></li><li><p>broom:
+<a href=https://github.com/behrman target=_blank rel=noopener>@behrman</a>,
+<a href=https://github.com/corybrunson target=_blank rel=noopener>@corybrunson</a>,
+<a href=https://github.com/fschaffner target=_blank rel=noopener>@fschaffner</a>,
+<a href=https://github.com/gjones1219 target=_blank rel=noopener>@gjones1219</a>,
+<a href=https://github.com/grantmcdermott target=_blank rel=noopener>@grantmcdermott</a>,
+<a href=https://github.com/mfansler target=_blank rel=noopener>@mfansler</a>,
+<a href=https://github.com/michaeltopper1 target=_blank rel=noopener>@michaeltopper1</a>,
+<a href=https://github.com/ray-p144 target=_blank rel=noopener>@ray-p144</a>,
+<a href=https://github.com/RichardJActon target=_blank rel=noopener>@RichardJActon</a>,
+<a href=https://github.com/russHyde target=_blank rel=noopener>@russHyde</a>,
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>,
+<a href=https://github.com/tappek target=_blank rel=noopener>@tappek</a>,
+<a href=https://github.com/Timelessprod target=_blank rel=noopener>@Timelessprod</a>, and
+<a href=https://github.com/vincentarelbundock target=_blank rel=noopener>@vincentarelbundock</a>.</p></li><li><p>butcher:
+<a href=https://github.com/cregouby target=_blank rel=noopener>@cregouby</a>,
+<a href=https://github.com/davidkane9 target=_blank rel=noopener>@davidkane9</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>, and
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>.</p></li><li><p>censored:
+<a href=https://github.com/bcjaeger target=_blank rel=noopener>@bcjaeger</a>,
+<a href=https://github.com/brunocarlin target=_blank rel=noopener>@brunocarlin</a>,
+<a href=https://github.com/erikvona target=_blank rel=noopener>@erikvona</a>,
+<a href=https://github.com/gvelasq target=_blank rel=noopener>@gvelasq</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/mikemahoney218 target=_blank rel=noopener>@mikemahoney218</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>.</p></li><li><p>corrr:
+<a href=https://github.com/astamm target=_blank rel=noopener>@astamm</a>,
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/john-s-f target=_blank rel=noopener>@john-s-f</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>, and
+<a href=https://github.com/thisisdaryn target=_blank rel=noopener>@thisisdaryn</a>.</p></li><li><p>dials:
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/franzbischoff target=_blank rel=noopener>@franzbischoff</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/mikemahoney218 target=_blank rel=noopener>@mikemahoney218</a>,
+<a href=https://github.com/py9mrg target=_blank rel=noopener>@py9mrg</a>,
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>.</p></li><li><p>discrim:
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/jmarshallnz target=_blank rel=noopener>@jmarshallnz</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>.</p></li><li><p>embed:
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/exsell-jc target=_blank rel=noopener>@exsell-jc</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/mkhansa target=_blank rel=noopener>@mkhansa</a>,
+<a href=https://github.com/talegari target=_blank rel=noopener>@talegari</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>.</p></li><li><p>hardhat:
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/jonthegeek target=_blank rel=noopener>@jonthegeek</a>,
+<a href=https://github.com/mdancho84 target=_blank rel=noopener>@mdancho84</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>.</p></li><li><p>infer:
+<a href=https://github.com/gdbassett target=_blank rel=noopener>@gdbassett</a>,
+<a href=https://github.com/liubao210 target=_blank rel=noopener>@liubao210</a>,
+<a href=https://github.com/nipnipj target=_blank rel=noopener>@nipnipj</a>, and
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>.</p></li><li><p>modeldata:
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/jbkunst target=_blank rel=noopener>@jbkunst</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>.</p></li><li><p>multilevelmod:
+<a href=https://github.com/a-difabio target=_blank rel=noopener>@a-difabio</a>,
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/sitendug target=_blank rel=noopener>@sitendug</a>,
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>, and
+<a href=https://github.com/YiweiZhu target=_blank rel=noopener>@YiweiZhu</a>.</p></li><li><p>parsnip:
+<a href=https://github.com/bappa10085 target=_blank rel=noopener>@bappa10085</a>,
+<a href=https://github.com/brunocarlin target=_blank rel=noopener>@brunocarlin</a>,
+<a href=https://github.com/cb12991 target=_blank rel=noopener>@cb12991</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/deschen1 target=_blank rel=noopener>@deschen1</a>,
+<a href=https://github.com/edgararuiz target=_blank rel=noopener>@edgararuiz</a>,
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/emmamendelsohn target=_blank rel=noopener>@emmamendelsohn</a>,
+<a href=https://github.com/exsell-jc target=_blank rel=noopener>@exsell-jc</a>,
+<a href=https://github.com/fdeoliveirag target=_blank rel=noopener>@fdeoliveirag</a>,
+<a href=https://github.com/gundalav target=_blank rel=noopener>@gundalav</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/jmarshallnz target=_blank rel=noopener>@jmarshallnz</a>,
+<a href=https://github.com/joeycouse target=_blank rel=noopener>@joeycouse</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/Npaffen target=_blank rel=noopener>@Npaffen</a>,
+<a href=https://github.com/oj713 target=_blank rel=noopener>@oj713</a>,
+<a href=https://github.com/pmags target=_blank rel=noopener>@pmags</a>,
+<a href=https://github.com/PursuitOfDataScience target=_blank rel=noopener>@PursuitOfDataScience</a>,
+<a href=https://github.com/qiushiyan target=_blank rel=noopener>@qiushiyan</a>,
+<a href=https://github.com/salim-b target=_blank rel=noopener>@salim-b</a>,
+<a href=https://github.com/shosaco target=_blank rel=noopener>@shosaco</a>,
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>,
+<a href=https://github.com/tolliam target=_blank rel=noopener>@tolliam</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>.</p></li><li><p>plsmod:
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>.</p></li><li><p>poissonreg:
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>.</p></li><li><p>recipes:
+<a href=https://github.com/abichat target=_blank rel=noopener>@abichat</a>,
+<a href=https://github.com/albertiniufu target=_blank rel=noopener>@albertiniufu</a>,
+<a href=https://github.com/AndrewKostandy target=_blank rel=noopener>@AndrewKostandy</a>,
+<a href=https://github.com/aridf target=_blank rel=noopener>@aridf</a>,
+<a href=https://github.com/brunocarlin target=_blank rel=noopener>@brunocarlin</a>,
+<a href=https://github.com/cb12991 target=_blank rel=noopener>@cb12991</a>,
+<a href=https://github.com/conorjudge target=_blank rel=noopener>@conorjudge</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/duccioa target=_blank rel=noopener>@duccioa</a>,
+<a href=https://github.com/edgararuiz target=_blank rel=noopener>@edgararuiz</a>,
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/exsell-jc target=_blank rel=noopener>@exsell-jc</a>,
+<a href=https://github.com/gundalav target=_blank rel=noopener>@gundalav</a>,
+<a href=https://github.com/hsbadr target=_blank rel=noopener>@hsbadr</a>,
+<a href=https://github.com/jkennel target=_blank rel=noopener>@jkennel</a>,
+<a href=https://github.com/joeycouse target=_blank rel=noopener>@joeycouse</a>,
+<a href=https://github.com/joranE target=_blank rel=noopener>@joranE</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/kendonB target=_blank rel=noopener>@kendonB</a>,
+<a href=https://github.com/krzjoa target=_blank rel=noopener>@krzjoa</a>,
+<a href=https://github.com/madprogramer target=_blank rel=noopener>@madprogramer</a>,
+<a href=https://github.com/mdporter target=_blank rel=noopener>@mdporter</a>,
+<a href=https://github.com/mdsteiner target=_blank rel=noopener>@mdsteiner</a>,
+<a href=https://github.com/nipnipj target=_blank rel=noopener>@nipnipj</a>,
+<a href=https://github.com/PursuitOfDataScience target=_blank rel=noopener>@PursuitOfDataScience</a>,
+<a href=https://github.com/r2evans target=_blank rel=noopener>@r2evans</a>,
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>,
+<a href=https://github.com/szymonkusak target=_blank rel=noopener>@szymonkusak</a>,
+<a href=https://github.com/themichjam target=_blank rel=noopener>@themichjam</a>,
+<a href=https://github.com/tmastny target=_blank rel=noopener>@tmastny</a>,
+<a href=https://github.com/tomazweiss target=_blank rel=noopener>@tomazweiss</a>,
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>,
+<a href=https://github.com/TylerGrantSmith target=_blank rel=noopener>@TylerGrantSmith</a>, and
+<a href=https://github.com/zenggyu target=_blank rel=noopener>@zenggyu</a>.</p></li><li><p>rsample:
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/dfalbel target=_blank rel=noopener>@dfalbel</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/mattwarkentin target=_blank rel=noopener>@mattwarkentin</a>,
+<a href=https://github.com/mdporter target=_blank rel=noopener>@mdporter</a>,
+<a href=https://github.com/mikemahoney218 target=_blank rel=noopener>@mikemahoney218</a>,
+<a href=https://github.com/pgoodling-usgs target=_blank rel=noopener>@pgoodling-usgs</a>,
+<a href=https://github.com/sametsoekel target=_blank rel=noopener>@sametsoekel</a>,
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>, and
+<a href=https://github.com/wkdavis target=_blank rel=noopener>@wkdavis</a>.</p></li><li><p>rules:
+<a href=https://github.com/DesmondChoy target=_blank rel=noopener>@DesmondChoy</a>,
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>,
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>, and
+<a href=https://github.com/wdkeyzer target=_blank rel=noopener>@wdkeyzer</a>.</p></li><li><p>shinymodels:
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>, and
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>.</p></li><li><p>spatialsample:
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/mikemahoney218 target=_blank rel=noopener>@mikemahoney218</a>,
+<a href=https://github.com/MxNl target=_blank rel=noopener>@MxNl</a>,
+<a href=https://github.com/nipnipj target=_blank rel=noopener>@nipnipj</a>, and
+<a href=https://github.com/PathosEthosLogos target=_blank rel=noopener>@PathosEthosLogos</a>.</p></li><li><p>stacks:
+<a href=https://github.com/amcmahon17 target=_blank rel=noopener>@amcmahon17</a>,
+<a href=https://github.com/domijan target=_blank rel=noopener>@domijan</a>,
+<a href=https://github.com/Jeffrothschild target=_blank rel=noopener>@Jeffrothschild</a>,
+<a href=https://github.com/mcavs target=_blank rel=noopener>@mcavs</a>,
+<a href=https://github.com/mvt-oviedo target=_blank rel=noopener>@mvt-oviedo</a>,
+<a href=https://github.com/osorensen target=_blank rel=noopener>@osorensen</a>,
+<a href=https://github.com/py9mrg target=_blank rel=noopener>@py9mrg</a>,
+<a href=https://github.com/rcannood target=_blank rel=noopener>@rcannood</a>,
+<a href=https://github.com/Saarialho target=_blank rel=noopener>@Saarialho</a>,
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>, and
+<a href=https://github.com/williamshell target=_blank rel=noopener>@williamshell</a>.</p></li><li><p>textrecipes:
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/NLDataScientist target=_blank rel=noopener>@NLDataScientist</a>,
+<a href=https://github.com/PursuitOfDataScience target=_blank rel=noopener>@PursuitOfDataScience</a>, and
+<a href=https://github.com/raj-hubber target=_blank rel=noopener>@raj-hubber</a>.</p></li><li><p>themis:
+<a href=https://github.com/coforfe target=_blank rel=noopener>@coforfe</a>, and
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>.</p></li><li><p>tidymodels:
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/EngrStudent target=_blank rel=noopener>@EngrStudent</a>,
+<a href=https://github.com/exsell-jc target=_blank rel=noopener>@exsell-jc</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/kcarnold target=_blank rel=noopener>@kcarnold</a>,
+<a href=https://github.com/scottlyden target=_blank rel=noopener>@scottlyden</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>.</p></li><li><p>tidyposterior:
+<a href=https://github.com/jmgirard target=_blank rel=noopener>@jmgirard</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/mikemahoney218 target=_blank rel=noopener>@mikemahoney218</a>,
+<a href=https://github.com/mone27 target=_blank rel=noopener>@mone27</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>.</p></li><li><p>tidypredict:
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/mgirlich target=_blank rel=noopener>@mgirlich</a>,
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>.</p></li><li><p>tune:
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/dax44 target=_blank rel=noopener>@dax44</a>,
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/felxcon target=_blank rel=noopener>@felxcon</a>,
+<a href=https://github.com/franzbischoff target=_blank rel=noopener>@franzbischoff</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/joeycouse target=_blank rel=noopener>@joeycouse</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/mattwarkentin target=_blank rel=noopener>@mattwarkentin</a>,
+<a href=https://github.com/mdancho84 target=_blank rel=noopener>@mdancho84</a>,
+<a href=https://github.com/mikemahoney218 target=_blank rel=noopener>@mikemahoney218</a>,
+<a href=https://github.com/munoztd0 target=_blank rel=noopener>@munoztd0</a>,
+<a href=https://github.com/nikhilpathiyil target=_blank rel=noopener>@nikhilpathiyil</a>,
+<a href=https://github.com/pgoodling-usgs target=_blank rel=noopener>@pgoodling-usgs</a>,
+<a href=https://github.com/py9mrg target=_blank rel=noopener>@py9mrg</a>,
+<a href=https://github.com/qiushiyan target=_blank rel=noopener>@qiushiyan</a>,
+<a href=https://github.com/siegfried target=_blank rel=noopener>@siegfried</a>,
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>,
+<a href=https://github.com/thegargiulian target=_blank rel=noopener>@thegargiulian</a>,
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>,
+<a href=https://github.com/williamshell target=_blank rel=noopener>@williamshell</a>, and
+<a href=https://github.com/wtbxsjy target=_blank rel=noopener>@wtbxsjy</a>.</p></li><li><p>usemodels:
+<a href=https://github.com/aloes2512 target=_blank rel=noopener>@aloes2512</a>,
+<a href=https://github.com/amcmahon17 target=_blank rel=noopener>@amcmahon17</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>, and
+<a href=https://github.com/larry77 target=_blank rel=noopener>@larry77</a>.</p></li><li><p>workflows:
+<a href=https://github.com/CarstenLange target=_blank rel=noopener>@CarstenLange</a>,
+<a href=https://github.com/dajmcdon target=_blank rel=noopener>@dajmcdon</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/nipnipj target=_blank rel=noopener>@nipnipj</a>,
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>,
+<a href=https://github.com/themichjam target=_blank rel=noopener>@themichjam</a>, and
+<a href=https://github.com/TylerGrantSmith target=_blank rel=noopener>@TylerGrantSmith</a>.</p></li><li><p>workflowsets:
+<a href=https://github.com/a-difabio target=_blank rel=noopener>@a-difabio</a>,
+<a href=https://github.com/BorisDelange target=_blank rel=noopener>@BorisDelange</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>,
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>,
+<a href=https://github.com/wdefreitas target=_blank rel=noopener>@wdefreitas</a>, and
+<a href=https://github.com/yonicd target=_blank rel=noopener>@yonicd</a>.</p></li><li><p>yardstick:
+<a href=https://github.com/1lliter8 target=_blank rel=noopener>@1lliter8</a>,
+<a href=https://github.com/amcmahon17 target=_blank rel=noopener>@amcmahon17</a>,
+<a href=https://github.com/brshallo target=_blank rel=noopener>@brshallo</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/gsverhoeven target=_blank rel=noopener>@gsverhoeven</a>,
+<a href=https://github.com/mikemahoney218 target=_blank rel=noopener>@mikemahoney218</a>,
+<a href=https://github.com/parsifal9 target=_blank rel=noopener>@parsifal9</a>, and
+<a href=https://github.com/sametsoekel target=_blank rel=noopener>@sametsoekel</a>.</p></li></ul></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#case-weights>Case weights</a></li><li><a href=#non-standard-roles-in-recipes>Non-standard roles in recipes</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

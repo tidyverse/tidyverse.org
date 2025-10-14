@@ -1,0 +1,800 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>googledrive | Tidyverse</title><link>https://www.tidyverse.org/tags/googledrive/</link><atom:link href="https://www.tidyverse.org/tags/googledrive/index.xml" rel="self" type="application/rss+xml"/><description>googledrive</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 08 Jul 2021 00:00:00 +0000</lastBuildDate><item><title>googledrive 2.0.0</title><link>https://www.tidyverse.org/blog/2021/07/googledrive-2-0-0/</link><pubDate>Thu, 08 Jul 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/07/googledrive-2-0-0/</guid><description>&lt;p>We&amp;rsquo;re jazzed to announce the release of googledrive 2.0.0 (&lt;a href="https://googledrive.tidyverse.org">https://googledrive.tidyverse.org&lt;/a>).&lt;/p>
+&lt;p>googledrive wraps the
+&lt;a href="https://developers.google.com/drive/" target="_blank" rel="noopener">Drive REST API v3&lt;/a>. The most common file operations are implemented in high-level functions designed for ease of use. You can find, list, create, trash, delete, rename, move, copy, browse, download, read, share, and publish Drive files, including those on shared drives.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"googledrive"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Version 2.0.0 is mostly motivated by the need to react to changes to Google Drive and in the Drive API itself. We&amp;rsquo;re also bumping the required version of the gargle package (&lt;a href="https://gargle.r-lib.org">https://gargle.r-lib.org&lt;/a>), which handles everything around auth.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://googledrive.tidyverse.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="auth-updates">Auth updates
+&lt;a href="#auth-updates">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If you are generally fairly passive about googledrive auth, then you should just sit back and let things happen organically during usage. If you&amp;rsquo;ve used googledrive before, you can expect to see some messages about cleaning and relocating the token cache when you first use v2.0.0. You can also expect to re-authenticate yourself with Google and re-authorize the &amp;ldquo;Tidyverse API Packages&amp;rdquo; to work with your files. This is all due to changes in gargle.&lt;/p>
+&lt;p>If your usage requires you to be more proactive about auth, read the
+&lt;a href="https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/" target="_blank" rel="noopener">blog post for gargle&amp;rsquo;s recent v1.2.0 release&lt;/a>. A key point is that we have rolled the built-in OAuth client, which is why those relying on it will need to re-auth.&lt;/p>
+&lt;p>&lt;strong>If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call&lt;/strong> that you should be using your own OAuth client or, quite possibly, an entirely different method of auth. Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.&lt;/p>
+&lt;h2 id="team-drives-are-dead-long-live-shared-drives">Team Drives are dead! Long live shared drives!
+&lt;a href="#team-drives-are-dead-long-live-shared-drives">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Google Drive has rebranded Team Drives as &lt;strong>shared drives&lt;/strong>. While anyone can have a &lt;strong>My Drive&lt;/strong>, shared drives are only available for Google Workspace (previously known as G Suite). This generally means a Google account you have through your employer or school, as opposed to a personal one. Shared drives and the files within are owned by a team or organization, as opposed to an individual.&lt;/p>
+&lt;p>The transition from Team Drives to shared drives appears to be more about vocabulary than changes in behaviour. Inside googledrive, this required some housekeeping work, but users won&amp;rsquo;t notice much other than the obvious changes to function and argument names.&lt;/p>
+&lt;p>All &lt;code>team_drive_*()&lt;/code> functions have been deprecated, in favor of their &lt;code>shared_drive_*()&lt;/code> successors. Likewise, any &lt;code>team_drive&lt;/code> argument has been deprecated, in favor of a new &lt;code>shared_drive&lt;/code> argument. The terms used to describe search collections have also changed slightly, with &lt;code>&amp;quot;allDrives&amp;quot;&lt;/code> replacing &lt;code>&amp;quot;all&amp;quot;&lt;/code>. This applies to the &lt;code>corpus&lt;/code> argument of
+&lt;a href="https://googledrive.tidyverse.org/reference/drive_find.html" target="_blank" rel="noopener">&lt;code>drive_find()&lt;/code>&lt;/a> and
+&lt;a href="https://googledrive.tidyverse.org/reference/drive_get.html" target="_blank" rel="noopener">&lt;code>drive_get()&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="single-parenting-and-shortcuts">Single parenting and shortcuts
+&lt;a href="#single-parenting-and-shortcuts">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>As of 2020-09-30, Drive no longer allows a file to be placed in multiple folders, which, frankly, is a big relief! Going forward, every file will have exactly 1 parent folder. In many cases that parent is just the top-level or root folder of your &amp;ldquo;My Drive&amp;rdquo; or of a shared drive.&lt;/p>
+&lt;p>This change has been accompanied by the introduction of file &lt;strong>shortcuts&lt;/strong>, which function much like symbolic or &amp;ldquo;soft&amp;rdquo; links. Shortcuts are the new way to make a file appear to be in more than one place. A shortcut is a special type of Drive file, characterized by the &lt;code>application/vnd.google-apps.shortcut&lt;/code> MIME type.&lt;/p>
+&lt;p>You can make a shortcut to any Drive file, including to a Drive folder, with
+&lt;a href="https://googledrive.tidyverse.org/reference/shortcut_create.html" target="_blank" rel="noopener">&lt;code>shortcut_create()&lt;/code>&lt;/a>. Here we also use
+&lt;a href="https://googledrive.tidyverse.org/reference/drive_examples.html" target="_blank" rel="noopener">&lt;code>drive_example_remote()&lt;/code>&lt;/a> to access one of our new persistent, world-readable example files.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googledrive.tidyverse.org'>googledrive&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'># Target one of the official example files&lt;/span>
+&lt;span class='o'>(&lt;/span>&lt;span class='nv'>src_file&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_examples.html'>drive_example_remote&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"chicken.csv"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; # A dribble: 1 x 3&lt;/span>
+&lt;span class='c'>#&amp;gt; name id drive_resource &lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;drv_id&amp;gt; &amp;lt;list&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; 1 chicken.csv 1VOh6wWbRfuQLxbLg87o58vxJt95SIiZ7 &amp;lt;named list [37]&amp;gt;&lt;/span>
+&lt;span class='nv'>sc&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>src_file&lt;/span> &lt;span class='o'>&lt;a href='https://googledrive.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/shortcut_create.html'>shortcut_create&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>name &lt;span class='o'>=&lt;/span> &lt;span class='s'>"chicken_sheet_shortcut"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; Created Drive file:&lt;/span>
+&lt;span class='c'>#&amp;gt; • 'chicken_sheet_shortcut' &amp;lt;id: 1YAPexlK3b3o7Mk-xadahXMYbMGLvScea&amp;gt;&lt;/span>
+&lt;span class='c'>#&amp;gt; With MIME type:&lt;/span>
+&lt;span class='c'>#&amp;gt; • 'application/vnd.google-apps.shortcut'&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Use
+&lt;a href="https://googledrive.tidyverse.org/reference/shortcut_resolve.html" target="_blank" rel="noopener">&lt;code>shortcut_resolve()&lt;/code>&lt;/a> to dereference a shortcut, i.e. resolve it to its target file id. Here we also demonstrate the new
+&lt;a href="https://googledrive.tidyverse.org/reference/drive_read_string.html" target="_blank" rel="noopener">&lt;code>drive_read_string()&lt;/code>&lt;/a> function that is handy for reading file content directly into R.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>sc&lt;/span> &lt;span class='o'>&lt;a href='https://googledrive.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/shortcut_resolve.html'>shortcut_resolve&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://googledrive.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_read_string.html'>drive_read_string&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://googledrive.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>readr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://readr.tidyverse.org/reference/read_delim.html'>read_csv&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ℹ Resolved 1 shortcut found in 1 file:&lt;/span>
+&lt;span class='c'>#&amp;gt; • 'chicken_sheet_shortcut' &amp;lt;id: 1YAPexlK3b3o7Mk-xadahXMYbMGLvScea&amp;gt; -&amp;gt;&lt;/span>
+&lt;span class='c'>#&amp;gt; 'chicken.csv' &amp;lt;id: 1VOh6wWbRfuQLxbLg87o58vxJt95SIiZ7&amp;gt;&lt;/span>
+&lt;span class='c'>#&amp;gt; No encoding supplied: defaulting to UTF-8.&lt;/span>
+&lt;span class='c'>#&amp;gt; # A tibble: 5 x 4&lt;/span>
+&lt;span class='c'>#&amp;gt; chicken breed sex motto &lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; 1 Foghorn Leghorn Leghorn roost… That's a joke, ah say, that's a joke,…&lt;/span>
+&lt;span class='c'>#&amp;gt; 2 Chicken Little unknown hen The sky is falling! &lt;/span>
+&lt;span class='c'>#&amp;gt; 3 Ginger Rhode Island… hen Listen. We'll either die free chicken…&lt;/span>
+&lt;span class='c'>#&amp;gt; 4 Camilla the Chick… Chantecler hen Bawk, buck, ba-gawk. &lt;/span>
+&lt;span class='c'>#&amp;gt; 5 Ernie The Giant C… Brahma roost… Put Captain Solo in the cargo hold.&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>If you just want to see whether a file is a shortcut, use &lt;code>drive_reveal(dat, &amp;quot;mime_type&amp;quot;)&lt;/code> to add a MIME type column to any &lt;code>dribble&lt;/code>.&lt;/p>
+&lt;p>Drive has been migrating existing files to the one-parent state, i.e., &amp;ldquo;single parenting&amp;rdquo; them. Drive selects the most suitable parent folder to keep, &amp;ldquo;based on the hierarchy&amp;rsquo;s properties&amp;rdquo;, and replaces any other parent-child relationships with a shortcut.&lt;/p>
+&lt;p>If you often refer to Drive files by their &lt;strong>filepath&lt;/strong> (or name), as opposed to by file id, look in the release notes for more
+&lt;a href="https://googledrive.tidyverse.org/news/index.html#single-parenting-and-shortcuts" target="_blank" rel="noopener">about how shortcuts are handled within googledrive&lt;/a>.&lt;/p>
+&lt;h2 id="making-googledrive-shut-up">Making googledrive shut up
+&lt;a href="#making-googledrive-shut-up">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>&lt;code>googledrive_quiet&lt;/code> is a new option to suppress informational messages from googledrive. Unless it&amp;rsquo;s explicitly set to &lt;code>TRUE&lt;/code>, the default is to message.
+&lt;a href="https://googledrive.tidyverse.org/reference/googledrive-configuration.html" target="_blank" rel="noopener">&lt;code>local_drive_quiet()&lt;/code>&lt;/a> and
+&lt;a href="https://googledrive.tidyverse.org/reference/googledrive-configuration.html" target="_blank" rel="noopener">&lt;code>with_drive_quiet()&lt;/code>&lt;/a> are
+&lt;a href="https://withr.r-lib.org" target="_blank" rel="noopener">withr-style&lt;/a> convenience helpers for setting &lt;code>googledrive_quiet = TRUE&lt;/code> for some limited scope.&lt;/p>
+&lt;p>As a result, the &lt;code>verbose&lt;/code> argument of all googledrive functions is deprecated and will be removed in a future release. In the current release, &lt;code>verbose = FALSE&lt;/code> is still honored, but generates a warning.&lt;/p>
+&lt;h2 id="everything-else">Everything else
+&lt;a href="#everything-else">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Remember that the
+&lt;a href="https://googledrive.tidyverse.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a> offer more information.&lt;/p>
+&lt;p>Here are a few more changes in v2.0.0:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>The user interface has gotten more stylish, thanks to the cli package (&lt;a href="https://cli.r-lib.org">https://cli.r-lib.org&lt;/a>). All informational messages, warnings, and errors are now emitted via cli, which uses rlang&amp;rsquo;s condition functions under-the-hood.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>We now share a variety of world-readable, persistent example files on Drive, for use in examples and documentation. These remote example files complement the local example files that were already included in googledrive. Access with
+&lt;a href="https://googledrive.tidyverse.org/reference/drive_examples.html" target="_blank" rel="noopener">&lt;code>drive_examples_remote()&lt;/code>&lt;/a> and friends.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://googledrive.tidyverse.org/reference/drive_read_string.html" target="_blank" rel="noopener">&lt;code>drive_read_string()&lt;/code>&lt;/a> and
+&lt;a href="https://googledrive.tidyverse.org/reference/drive_read_string.html" target="_blank" rel="noopener">&lt;code>drive_read_raw()&lt;/code>&lt;/a> are new functions that read the content of a Drive file directly into R.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The &lt;code>dribble&lt;/code> and &lt;code>drive_id&lt;/code> classes are implemented using a more modern and effective approach from the vctrs package (&lt;a href="https://vctrs.r-lib.org">https://vctrs.r-lib.org&lt;/a>).&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank everyone who has furthered the development of googledrive, since the last major release (v1.0.0), through their contributions in issues and pull requests:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/andrie" target="_blank" rel="noopener">@andrie&lt;/a>,
+&lt;a href="https://github.com/Arf9999" target="_blank" rel="noopener">@Arf9999&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/ben519" target="_blank" rel="noopener">@ben519&lt;/a>,
+&lt;a href="https://github.com/bllittle" target="_blank" rel="noopener">@bllittle&lt;/a>,
+&lt;a href="https://github.com/bschilder" target="_blank" rel="noopener">@bschilder&lt;/a>,
+&lt;a href="https://github.com/bshor" target="_blank" rel="noopener">@bshor&lt;/a>,
+&lt;a href="https://github.com/christopherkn" target="_blank" rel="noopener">@christopherkn&lt;/a>,
+&lt;a href="https://github.com/claytonperry" target="_blank" rel="noopener">@claytonperry&lt;/a>,
+&lt;a href="https://github.com/cmchuter" target="_blank" rel="noopener">@cmchuter&lt;/a>,
+&lt;a href="https://github.com/ctgrubb" target="_blank" rel="noopener">@ctgrubb&lt;/a>,
+&lt;a href="https://github.com/DataStrategist" target="_blank" rel="noopener">@DataStrategist&lt;/a>,
+&lt;a href="https://github.com/DavidGarciaEstaun" target="_blank" rel="noopener">@DavidGarciaEstaun&lt;/a>,
+&lt;a href="https://github.com/Diego-MX" target="_blank" rel="noopener">@Diego-MX&lt;/a>,
+&lt;a href="https://github.com/dollarvora" target="_blank" rel="noopener">@dollarvora&lt;/a>,
+&lt;a href="https://github.com/douglascm" target="_blank" rel="noopener">@douglascm&lt;/a>,
+&lt;a href="https://github.com/drwilkins" target="_blank" rel="noopener">@drwilkins&lt;/a>,
+&lt;a href="https://github.com/enricodata" target="_blank" rel="noopener">@enricodata&lt;/a>,
+&lt;a href="https://github.com/FedericoTrifoglio" target="_blank" rel="noopener">@FedericoTrifoglio&lt;/a>,
+&lt;a href="https://github.com/griswomw" target="_blank" rel="noopener">@griswomw&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hideaki" target="_blank" rel="noopener">@hideaki&lt;/a>,
+&lt;a href="https://github.com/ian-adams" target="_blank" rel="noopener">@ian-adams&lt;/a>,
+&lt;a href="https://github.com/jcheng5" target="_blank" rel="noopener">@jcheng5&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/JMKelleher" target="_blank" rel="noopener">@JMKelleher&lt;/a>,
+&lt;a href="https://github.com/jobdiogenes" target="_blank" rel="noopener">@jobdiogenes&lt;/a>,
+&lt;a href="https://github.com/kongdd" target="_blank" rel="noopener">@kongdd&lt;/a>,
+&lt;a href="https://github.com/kpmainali" target="_blank" rel="noopener">@kpmainali&lt;/a>,
+&lt;a href="https://github.com/mehrnoushmalek" target="_blank" rel="noopener">@mehrnoushmalek&lt;/a>,
+&lt;a href="https://github.com/MichaelTD83" target="_blank" rel="noopener">@MichaelTD83&lt;/a>,
+&lt;a href="https://github.com/mitchelloharawild" target="_blank" rel="noopener">@mitchelloharawild&lt;/a>,
+&lt;a href="https://github.com/muschellij2" target="_blank" rel="noopener">@muschellij2&lt;/a>,
+&lt;a href="https://github.com/paulvern" target="_blank" rel="noopener">@paulvern&lt;/a>,
+&lt;a href="https://github.com/pseudorational" target="_blank" rel="noopener">@pseudorational&lt;/a>,
+&lt;a href="https://github.com/robertoromor" target="_blank" rel="noopener">@robertoromor&lt;/a>,
+&lt;a href="https://github.com/shahab3476" target="_blank" rel="noopener">@shahab3476&lt;/a>,
+&lt;a href="https://github.com/smingerson" target="_blank" rel="noopener">@smingerson&lt;/a>,
+&lt;a href="https://github.com/spocks" target="_blank" rel="noopener">@spocks&lt;/a>,
+&lt;a href="https://github.com/tklebel" target="_blank" rel="noopener">@tklebel&lt;/a>,
+&lt;a href="https://github.com/tpbarrette" target="_blank" rel="noopener">@tpbarrette&lt;/a>,
+&lt;a href="https://github.com/viquiff92" target="_blank" rel="noopener">@viquiff92&lt;/a>,
+&lt;a href="https://github.com/vnijs" target="_blank" rel="noopener">@vnijs&lt;/a>,
+&lt;a href="https://github.com/voremargot" target="_blank" rel="noopener">@voremargot&lt;/a>,
+&lt;a href="https://github.com/wilvancleve" target="_blank" rel="noopener">@wilvancleve&lt;/a>,
+&lt;a href="https://github.com/wuc66" target="_blank" rel="noopener">@wuc66&lt;/a>, and
+&lt;a href="https://github.com/xgirouxb" target="_blank" rel="noopener">@xgirouxb&lt;/a>.&lt;/p></description></item><item><title>gargle 1.2.0</title><link>https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/</link><pubDate>Sun, 04 Jul 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/</guid><description>&lt;p>We&amp;rsquo;re psyched to announce the release of
+&lt;a href="https://gargle.r-lib.org" target="_blank" rel="noopener">gargle&lt;/a> 1.2.0. gargle is meant to take some of the pain out of working with Google APIs and is mostly aimed at the &lt;em>maintainers&lt;/em> of R packages that call Google APIs.&lt;/p>
+&lt;p>Packages that use gargle internally include
+&lt;a href="https://bigrquery.r-dbi.org" target="_blank" rel="noopener">bigrquery&lt;/a>,
+&lt;a href="https://gmailr.r-lib.org" target="_blank" rel="noopener">gmailr&lt;/a>,
+&lt;a href="https://code.markedmondson.me/googleAuthR/" target="_blank" rel="noopener">googleAuthR&lt;/a>,
+&lt;a href="https://googledrive.tidyverse.org" target="_blank" rel="noopener">googledrive&lt;/a>, and
+&lt;a href="https://googlesheets4.tidyverse.org" target="_blank" rel="noopener">googlesheets4&lt;/a>. As a conservative lower bound, gargle facilitates more than 1.5 million requests per day and over 50 million requests per month. Users of these packages, especially those who take an interest in the details around auth, may want to read on.&lt;/p>
+&lt;p>You can install gargle from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"gargle"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>I last blogged about gargle in
+&lt;a href="https://www.tidyverse.org/blog/2019/08/gargle-hello-world/" target="_blank" rel="noopener">August 2019, around the release of v0.3.1&lt;/a>. There have been several releases since then and this post highlights important changes across all of them.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://gargle.r-lib.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="stewarding-the-cache-of-user-tokens">Stewarding the cache of user tokens
+&lt;a href="#stewarding-the-cache-of-user-tokens">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Users who &amp;ldquo;just go with the flow&amp;rdquo; generally find themselves doing the
+&lt;a href="https://medium.com/typeforms-engineering-blog/the-beginners-guide-to-oauth-dancing-4b8f3666de10" target="_blank" rel="noopener">OAuth Dance&lt;/a> in the browser:&lt;/p>
+&lt;div class="highlight">
+&lt;div class="figure" style="text-align: center">
+&lt;p>&lt;img src="oauth-dance-web-flow.png" alt="Typical OAuth dance in the browser, when initiated from within R" width="100%" />&lt;/p>
+&lt;p class="caption">
+Typical OAuth dance in the browser, when initiated from within R
+&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;p>Upon success, you see this message in the browser:&lt;/p>
+&lt;pre>&lt;code>Authentication complete. Please close this page and return to R.
+&lt;/code>&lt;/pre>
+&lt;p>The dance concludes with gargle (or a wrapper package) in possession of a
+&lt;a href="https://developers.google.com/identity/protocols/oauth2#installed" target="_blank" rel="noopener">Google user token&lt;/a>. This credential usually comes with an access token, which is valid for about an hour, and a more persistent refresh token, which can be used to get new access tokens in the future. It is nice to store this refresh token somewhere, to reduce future friction for this user. We&amp;rsquo;ll refer to this &amp;ldquo;somewhere&amp;rdquo; as the &lt;em>OAuth token cache&lt;/em>. You can get a cache &amp;ldquo;situation report&amp;rdquo; with
+&lt;a href="https://gargle.r-lib.org/reference/gargle_oauth_sitrep.html" target="_blank" rel="noopener">&lt;code>gargle::gargle_oauth_sitrep()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>One of the original motivations for the gargle package was to depart from httr&amp;rsquo;s behaviour around token caching, which defaults to the current working directory.&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> By default, gargle caches user tokens centrally, at the user level, and their keys or labels also convey which Google identity is associated with each token. This reduces the chance of accidentally exposing tokens in projects that sync to remote servers (like DropBox or GitHub), increases the ability to reuse tokens across multiple R projects, and makes it easier to use multiple identities within a single project.&lt;/p>
+&lt;p>Various incremental improvements have been made around gargle&amp;rsquo;s token cache:&lt;/p>
+&lt;ul>
+&lt;li>The default cache location has moved, to better align with general conventions around where to cache user data. After upgrading gargle, don&amp;rsquo;t be surprised if you see some messages about cache relocation.&lt;/li>
+&lt;li>Token storage relies on serialized R objects and therefore is potentially sensitive to differences in R version and operating system between when a token is created and when it is (re)used. gargle is now able to recognize and cope with the most predictable and harmless effects of moving a token across time or space.&lt;/li>
+&lt;li>gargle is quite conservative about using cached tokens and likes to have explicit permission from the user. However, this is in tension with the desire to make things &amp;ldquo;just work&amp;rdquo;. Balancing these two goals is an ongoing effort:
+&lt;ul>
+&lt;li>
+&lt;p>In a non-interactive context, gargle will use a cached token, if it can find (at least) one, even if the user has not given explicit instructions. However, we complain noisily and urge the user to make their intent unambiguous in the code. This comes up, for example, when rendering an R Markdown document(&lt;code>.Rmd&lt;/code>).&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googledrive.tidyverse.org'>googledrive&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_find.html'>drive_find&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>n_max &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ℹ Suitable tokens found in the cache, associated with these emails:&lt;/span>
+&lt;span class='c'>#&amp;gt; • 'jane_personal@gmail.com'&lt;/span>
+&lt;span class='c'>#&amp;gt; • 'jane_work@example.com'&lt;/span>
+&lt;span class='c'>#&amp;gt; Defaulting to the first email.&lt;/span>
+&lt;span class='c'>#&amp;gt; ! Using an auto-discovered, cached token.&lt;/span>
+&lt;span class='c'>#&amp;gt; To suppress this message, modify your code or options to clearly consent to&lt;/span>
+&lt;span class='c'>#&amp;gt; the use of a cached token.&lt;/span>
+&lt;span class='c'>#&amp;gt; See gargle's "Non-interactive auth" vignette for more details:&lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;https://gargle.r-lib.org/articles/non-interactive-auth.html&amp;gt;&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>One of several ways to suppress this scolding is to specify an email:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googledrive.tidyverse.org'>googledrive&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_auth.html'>drive_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"jane_personal@gmail.com"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_find.html'>drive_find&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>n_max &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; # A tibble: 1 x 3&lt;/span>
+&lt;span class='c'>#&amp;gt; name id drive_resource &lt;/span>
+&lt;span class='c'>#&amp;gt; * &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;list&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; 1 useR2021-Instructions_for… 11T7_aYpSObAhUzjQU6EUCHmTFQ2s0wXK… &amp;lt;named list [32…&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>You can now identify the token you want to use with a domain-only glob-like pattern. This makes it possible to successfully execute code like this, non-interactively, on the machines of both &lt;code>alice@example.com&lt;/code> and &lt;code>bob@example.com&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googledrive.tidyverse.org'>googledrive&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'># googledrive uses gargle for auth&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_auth.html'>drive_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>email &lt;span class='o'>=&lt;/span> &lt;span class='s'>"*@example.com"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="rolling-the-built-in-oauth-client">Rolling the built-in OAuth client
+&lt;a href="#rolling-the-built-in-oauth-client">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>User tokens created with gargle are the result of
+&lt;a href="#stewarding-the-cache-of-user-tokens">the OAuth Dance mentioned above&lt;/a>, involving three parties: the user, Google, and an OAuth client (id and secret). Each user or application potentially needs to set up their own OAuth client, in order to execute this flow.&lt;/p>
+&lt;p>A small set of packages maintained by the tidyverse team make use of a shared, built-in OAuth client, which helps new users get started quickly, without the need to create their own client in order to do &amp;ldquo;Hello, World!&amp;quot;. Only these specific packages are allowed to use this client and these packages do so according to a specific
+&lt;a href="https://www.tidyverse.org/google_privacy_policy/" target="_blank" rel="noopener">privacy policy&lt;/a>. The &amp;ldquo;Tidyverse API Packages&amp;rdquo; are
+&lt;a href="https://bigrquery.r-dbi.org/" target="_blank" rel="noopener">bigrquery&lt;/a>,
+&lt;a href="https://googledrive.tidyverse.org/" target="_blank" rel="noopener">googledrive&lt;/a>, and
+&lt;a href="https://googlesheets4.tidyverse.org/" target="_blank" rel="noopener">googlesheets4&lt;/a>.&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>&lt;/p>
+&lt;p>As of gargle v1.0.0, released in March 2021, we have rolled the &amp;ldquo;Tidyverse API Packages&amp;rdquo; client, i.e. we are using a new one. Although we have not yet disabled the previous client, users should be prepared for it to stop working at any time. We use nicknames to keep track of the built-in client; the new one is known as &amp;ldquo;tidyverse-clio&amp;rdquo;, which is replacing the older &amp;ldquo;tidyverse-calliope&amp;rdquo;. You might see these nicknames in the output of
+&lt;a href="https://gargle.r-lib.org/reference/gargle_oauth_sitrep.html" target="_blank" rel="noopener">&lt;code>gargle::gargle_oauth_sitrep()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>We anticipate disabling the older &amp;ldquo;tidyverse-calliope&amp;rdquo; client no later than December 31, 2021. If a specific reason arises before then, we could disable it even sooner. This will also be announced in a future, dedicated blog post.&lt;/p>
+&lt;p>When gargle encounters a token created with the old built-in client, the token is deleted from the cache. So don&amp;rsquo;t be surprised if you see some messages about cleaning out (and relocating) the cache, after you upgrade gargle.&lt;/p>
+&lt;p>You can expect to do the interactive OAuth dance to obtain new credentials, with the new client, stored in the new token cache, approximately once per wrapper package / API. The consequence of credential rolling are also covered here:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://gargle.r-lib.org/articles/troubleshooting.html#credential-rolling">https://gargle.r-lib.org/articles/troubleshooting.html#credential-rolling&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call&lt;/strong> that you should be using your own OAuth client or, quite possibly, an entirely different method of auth. Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.&lt;/p>
+&lt;p>As always, these articles explain how to take more control of auth:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://gargle.r-lib.org/articles/get-api-credentials.html">https://gargle.r-lib.org/articles/get-api-credentials.html&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://gargle.r-lib.org/articles/non-interactive-auth.html">https://gargle.r-lib.org/articles/non-interactive-auth.html&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="workload-identity-federation">Workload identity federation
+&lt;a href="#workload-identity-federation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Workload identity federation is a new (as of April 2021) keyless authentication mechanism offered by Google. This allows applications running on a non-Google Cloud platform, such as AWS, to access Google Cloud resources without using a conventional service account token, eliminating the security problem posed by long-lived, powerful service account credential files. Basically, instead of storing sensitive information in a file that must be managed with great care, the necessary secrets are obtained on-the-fly and exchanged for short-lived tokens, with very granular control over what actions are allowed. There is a cost, of course, which is that this auth method requires substantial configuration on both the GCP and AWS sides.&lt;/p>
+&lt;p>&lt;code>credentials_external_account()&lt;/code> is a new function that implements workload identity federation. &lt;code>credentials_external_account()&lt;/code> has been inserted into the default registry of credential-fetchers tried by &lt;code>token_fetch()&lt;/code>, which makes it automatically available in packages that use gargle for auth, such as bigrquery. &lt;code>credentials_app_default()&lt;/code> recognizes the JSON configuration for an external account and passes such a call along to &lt;code>credentials_external_account()&lt;/code>. This means that, when placed in one of the locations searched by the Application Default Credential strategy, an external account configuration file will be automatically discovered.&lt;/p>
+&lt;p>This new feature is still experimental and currently only supports AWS. This blog post provides a good high-level introduction to workload identity federation:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://cloud.google.com/blog/products/identity-security/enable-keyless-access-to-gcp-with-workload-identity-federation" target="_blank" rel="noopener">Keyless API authentication&amp;mdash;Better cloud security through workload identity federation, no service account keys necessary&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="out-of-bound-auth">Out of bound auth
+&lt;a href="#out-of-bound-auth">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The
+&lt;a href="#stewarding-the-cache-of-user-tokens">browser-based OAuth dance described above&lt;/a> is, ironically, not fully available when you are using R inside a web browser, as is the case for RStudio Workbench, Server, and Cloud. When working on these platforms, you need to use the &lt;strong>&amp;ldquo;out of bound&amp;rdquo; (oob)&lt;/strong> auth flow. After authenticating yourself and confirming permissions, a token is made available for you to copy and paste into R.&lt;/p>
+&lt;div class="highlight">
+&lt;div class="figure" style="text-align: center">
+&lt;p>&lt;img src="oauth-dance-oob-copy-paste.png" alt="A Google Sign in process ending with &amp;quot;Please copy this code, switch to your application and paste it there&amp;quot;" width="40%" />&lt;/p>
+&lt;p class="caption">
+A Google Sign in process ending with "Please copy this code, switch to your application and paste it there"
+&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;p>Back in R, you will paste this code at the prompt and then be on your merry way:&lt;/p>
+&lt;pre>&lt;code>Enter authorization code:
+&lt;/code>&lt;/pre>
+&lt;p>gargle-using wrapper packages generally expose an argument to request oob auth, e.g.:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>googledrive&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_auth.html'>drive_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>...&lt;/span>, use_oob &lt;span class='o'>=&lt;/span> &lt;span class='nf'>gargle&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://gargle.r-lib.org/reference/gargle_options.html'>gargle_oob_default&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The problem is, lots of folks who need oob auth have never even heard of oob auth! And, therefore, they don&amp;rsquo;t know to request it. This reality is something we can, and now do, anticipate.&lt;/p>
+&lt;p>Instead of possibly failing with an inscrutable error,
+&lt;a href="https://gargle.r-lib.org/reference/gargle_options.html" target="_blank" rel="noopener">&lt;code>gargle::gargle_oob_default()&lt;/code>&lt;/a> has gotten smarter about figuring out whether oob is needed:&lt;/p>
+&lt;ul>
+&lt;li>We now (try to) detect if we&amp;rsquo;re running on RStudio Workbench, Server, or Cloud and, if so, &lt;code>gargle_oob_default()&lt;/code> returns &lt;code>TRUE&lt;/code> unconditionally.&lt;/li>
+&lt;li>We honor the &lt;code>&amp;quot;httr_oob_default&amp;quot;&lt;/code> option, when set, if the option &lt;code>&amp;quot;gargle_oob_default&amp;quot;&lt;/code> is unset. Previously, we only consulted the gargle option, but it makes sense to honor httr&amp;rsquo;s as well.&lt;/li>
+&lt;/ul>
+&lt;h3 id="suggesting-httpuv">Suggesting httpuv
+&lt;a href="#suggesting-httpuv">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The slick in-browser OAuth flow described at the start of the post &amp;ndash; i.e., the nicer &lt;em>alternative&lt;/em> to oob auth &amp;ndash; requires the httpuv package. Sometimes users who could enjoy this flow don&amp;rsquo;t have httpuv installed and end up with the clunky oob auth flow, for no good reason. This is a shame, as the experience is definitely inferior.&lt;/p>
+&lt;p>We&amp;rsquo;ve taken a few measures to encourage these folks to install httpuv and enjoy a happier auth life:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Previously, httpuv was only indirectly suggested by gargle, via httr. gargle now lists httpuv in its own &lt;code>Suggests&lt;/code> field.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>We encourage the installation of httpuv in interactive sessions, if we&amp;rsquo;re about to initiate oob auth, when it seems like we don&amp;rsquo;t have to.&lt;/p>
+&lt;pre>&lt;code>The httpuv package enables a nicer Google auth experience, in many cases.
+It doesn't seem to be installed.
+Would you like to install it now?
+1: Yes
+2: No
+Selection:
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="user-interface">User interface
+&lt;a href="#user-interface">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The user interface has gotten more stylish, thanks to the cli package (&lt;a href="https://cli.r-lib.org">https://cli.r-lib.org&lt;/a>). This applies to informational messages, as well as to errors.&lt;/p>
+&lt;p>All errors thrown by gargle now route through
+&lt;a href="https://rlang.r-lib.org/reference/abort.html" target="_blank" rel="noopener">&lt;code>rlang::abort()&lt;/code>&lt;/a>, providing better access to the backtrace and error data. These errors have, at the very least, the &lt;code>gargle_error&lt;/code> class and may also have additional subclasses.&lt;/p>
+&lt;h3 id="verbosity">Verbosity
+&lt;a href="#verbosity">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Since gargle is not a user-facing package, it has very little to say and only emits messages that end users &lt;em>really&lt;/em> need to see. But sometimes it is useful to get more information about gargle&amp;rsquo;s activities, especially when trying to figure out why &lt;code>token_fetch()&lt;/code> isn&amp;rsquo;t working the way you expect. In the past, we used the &lt;code>&amp;quot;gargle_quiet&amp;quot;&lt;/code> option for this, which could be &lt;code>TRUE&lt;/code> or &lt;code>FALSE&lt;/code>.&lt;/p>
+&lt;p>The previous on/off switch has been deprecated in favor of the new &lt;code>&amp;quot;gargle_verbosity&amp;quot;&lt;/code> option, which has three levels:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>&amp;quot;debug&amp;quot;&lt;/code> is equivalent to the previous &lt;code>gargle_quiet = FALSE&lt;/code>. Use for debugging and troubleshooting.&lt;/li>
+&lt;li>&lt;code>&amp;quot;info&amp;quot;&lt;/code> (the default) is basically equivalent to the previous &lt;code>gargle_quiet = TRUE&lt;/code>.&lt;/li>
+&lt;li>&lt;code>&amp;quot;silent&amp;quot;&lt;/code> can be used to suppress all gargle messages. It has no previous equivalent.&lt;/li>
+&lt;/ul>
+&lt;p>There are a couple of helpers around verbosity:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>gargle_verbosity()&lt;/code> reports the current verbosity level.&lt;/li>
+&lt;li>&lt;code>with_gargle_verbosity()&lt;/code> and &lt;code>local_gargle_verbosity()&lt;/code> are
+&lt;a href="https://withr.r-lib.org" target="_blank" rel="noopener">withr-style&lt;/a> functions that temporarily modify the verbosity level.&lt;/li>
+&lt;/ul>
+&lt;h2 id="retries">Retries
+&lt;a href="#retries">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>gargle offers some Google-specific support for forming requests and handling responses, in addition to and separate from auth.&lt;/p>
+&lt;p>Not all wrapper packages use this functionality, but &lt;em>googlesheets4 does&lt;/em>. The
+&lt;a href="https://developers.google.com/sheets/api/reference/limits" target="_blank" rel="noopener">usage limits for the Sheets API&lt;/a> are low enough that regular folks run up against them fairly often. This aggravation is somewhat specific to Sheets, i.e. we don&amp;rsquo;t see similar pain with the Drive and BigQuery APIs, which have much more generous limits. When you hit the Sheets &amp;ldquo;per user&amp;rdquo; or &amp;ldquo;per project&amp;rdquo; limit, requests fail with the error code &lt;code>429 RESOURCE_EXHAUSTED&lt;/code>.&lt;/p>
+&lt;p>Sidebar: As of July 2021, there is a limit of &amp;ldquo;500 requests per 100 seconds per project&amp;rdquo;. In the case of a user token, the &amp;ldquo;project&amp;rdquo; refers to the GCP project that owns the OAuth client. Everyone who uses the built-in &amp;ldquo;Tidyverse API Packages&amp;rdquo; OAuth client is sharing this &amp;ldquo;per project&amp;rdquo; quota! If you&amp;rsquo;re hitting &amp;ldquo;per project&amp;rdquo; limits regularly and it upsets your workflow, the universe is telling you that it&amp;rsquo;s time to configure your own OAuth client or use a different method of auth. End of sidebar.&lt;/p>
+&lt;p>
+&lt;a href="https://gargle.r-lib.org/reference/request_retry.html" target="_blank" rel="noopener">&lt;code>gargle::request_retry()&lt;/code>&lt;/a> is a drop-in substitute for
+&lt;a href="https://gargle.r-lib.org/reference/request_make.html" target="_blank" rel="noopener">&lt;code>gargle::request_make()&lt;/code>&lt;/a> that uses (modified) exponential backoff to retry requests that fail with error &lt;code>429&lt;/code>. &lt;code>request_retry()&lt;/code> even has some special knowledge about Sheets-specific limits and, in some cases, will wait 100 seconds for the user&amp;rsquo;s quota to reset.&lt;/p>
+&lt;p>The development version of googlesheets4 already uses &lt;code>request_retry()&lt;/code>, which will be released to CRAN soon.&lt;/p>
+&lt;p>&lt;code>request_retry()&lt;/code> will support error codes beyond &lt;code>429&lt;/code> in the next gargle release.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank everyone who has furthered the development of gargle, from v0.3.1 to v1.2.0, through their contributions in issues and pull requests:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/acroz" target="_blank" rel="noopener">@acroz&lt;/a>,
+&lt;a href="https://github.com/akgold" target="_blank" rel="noopener">@akgold&lt;/a>,
+&lt;a href="https://github.com/alanfalcaothe" target="_blank" rel="noopener">@alanfalcaothe&lt;/a>,
+&lt;a href="https://github.com/atreibs" target="_blank" rel="noopener">@atreibs&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/biol75" target="_blank" rel="noopener">@biol75&lt;/a>,
+&lt;a href="https://github.com/btrx-sreddy" target="_blank" rel="noopener">@btrx-sreddy&lt;/a>,
+&lt;a href="https://github.com/craigcitro" target="_blank" rel="noopener">@craigcitro&lt;/a>,
+&lt;a href="https://github.com/domsle" target="_blank" rel="noopener">@domsle&lt;/a>,
+&lt;a href="https://github.com/ekarsten" target="_blank" rel="noopener">@ekarsten&lt;/a>,
+&lt;a href="https://github.com/EricGoldsmith" target="_blank" rel="noopener">@EricGoldsmith&lt;/a>,
+&lt;a href="https://github.com/FedericoTrifoglio" target="_blank" rel="noopener">@FedericoTrifoglio&lt;/a>,
+&lt;a href="https://github.com/irfanalidv" target="_blank" rel="noopener">@irfanalidv&lt;/a>,
+&lt;a href="https://github.com/jayBana" target="_blank" rel="noopener">@jayBana&lt;/a>,
+&lt;a href="https://github.com/jcheng5" target="_blank" rel="noopener">@jcheng5&lt;/a>,
+&lt;a href="https://github.com/jdtrat" target="_blank" rel="noopener">@jdtrat&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/MarkEdmondson1234" target="_blank" rel="noopener">@MarkEdmondson1234&lt;/a>,
+&lt;a href="https://github.com/michaelquinn32" target="_blank" rel="noopener">@michaelquinn32&lt;/a>,
+&lt;a href="https://github.com/muschellij2" target="_blank" rel="noopener">@muschellij2&lt;/a>,
+&lt;a href="https://github.com/ogola89" target="_blank" rel="noopener">@ogola89&lt;/a>,
+&lt;a href="https://github.com/Ozan147" target="_blank" rel="noopener">@Ozan147&lt;/a>,
+&lt;a href="https://github.com/petrbouchal" target="_blank" rel="noopener">@petrbouchal&lt;/a>,
+&lt;a href="https://github.com/pofl" target="_blank" rel="noopener">@pofl&lt;/a>,
+&lt;a href="https://github.com/py9mrg" target="_blank" rel="noopener">@py9mrg&lt;/a>,
+&lt;a href="https://github.com/rensa" target="_blank" rel="noopener">@rensa&lt;/a>,
+&lt;a href="https://github.com/samterfa" target="_blank" rel="noopener">@samterfa&lt;/a>,
+&lt;a href="https://github.com/selesnow" target="_blank" rel="noopener">@selesnow&lt;/a>,
+&lt;a href="https://github.com/tareefk" target="_blank" rel="noopener">@tareefk&lt;/a>,
+&lt;a href="https://github.com/tstratopoulos" target="_blank" rel="noopener">@tstratopoulos&lt;/a>, and
+&lt;a href="https://github.com/vimota" target="_blank" rel="noopener">@vimota&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>The successor to httr is under development and, like gargle, it will also cache user tokens at the user level: &lt;a href="https://httr2.r-lib.org">https://httr2.r-lib.org&lt;/a>. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>gmailr is not included here, because the Gmail scopes are so sensitive that anyone wishing to work with Gmail programmatically really must set up their own OAuth client. &lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>googledrive v1.0.0</title><link>https://www.tidyverse.org/blog/2019/08/googledrive-1-0-0/</link><pubDate>Tue, 20 Aug 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/08/googledrive-1-0-0/</guid><description>
+&lt;h2 id="introduction">Introduction
+&lt;a href="#introduction">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;re jazzed to announce the release of googledrive v1.0.0 (&lt;a href="https://googledrive.tidyverse.org">https://googledrive.tidyverse.org&lt;/a>).&lt;/p>
+&lt;p>googledrive wraps the
+&lt;a href="https://developers.google.com/drive/" target="_blank" rel="noopener">Drive REST API v3&lt;/a>. The most common file operations are implemented in high-level functions designed for ease of use. You can find, list, create, trash, delete, rename, move, copy, browse, download, share and publish Drive files, including those on Team Drives.&lt;/p>
+&lt;p>Install googledrive with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;googledrive&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The release of version 1.0.0 marks two events:&lt;/p>
+&lt;ul>
+&lt;li>The overall design of googledrive has survived ~2 years on CRAN, with very little need for change. The interface and feature set are fairly stable. googledrive facilitated around 7 million requests to the Drive API in the past month. But also &amp;hellip;&lt;/li>
+&lt;li>There are changes in the auth interface that are not backwards compatible.&lt;/li>
+&lt;/ul>
+&lt;p>There is also new functionality that makes it less likely you&amp;rsquo;ll create multiple files with the same name, without actually meaning to.&lt;/p>
+&lt;h2 id="auth-from-gargle">Auth from gargle
+&lt;a href="#auth-from-gargle">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>googledrive&amp;rsquo;s auth functionality now comes from the
+&lt;a href="https://gargle.r-lib.org" target="_blank" rel="noopener">gargle package&lt;/a>, which provides R infrastructure to work with Google APIs, in general. We&amp;rsquo;ve just
+&lt;a href="https://www.tidyverse.org/articles/2019/08/gargle-hello-world/" target="_blank" rel="noopener">blogged about gargle&amp;rsquo;s initial release&lt;/a>, so check out that post for more details.&lt;/p>
+&lt;p>We&amp;rsquo;re adopting gargle for auth in several other packages, such as
+&lt;a href="https://bigrquery.r-dbi.org" target="_blank" rel="noopener">bigrquery&lt;/a> (&amp;gt;= v1.2.0),
+&lt;a href="https://gmailr.r-lib.org" target="_blank" rel="noopener">gmailr&lt;/a> (&amp;gt;= v1.0.0 &lt;em>coming soon to CRAN&lt;/em>), and
+&lt;a href="https://googlesheets4.tidyverse.org" target="_blank" rel="noopener">googlesheets4&lt;/a> (currently GitHub-only, successor of googlesheets). This makes new token flows available in these packages, such as
+&lt;a href="https://www.jhanley.com/google-cloud-application-default-credentials/" target="_blank" rel="noopener">Application Default Credentials&lt;/a>, and makes auth less idiosyncratic.&lt;/p>
+&lt;h3 id="auth-changes-the-typical-user-will-notice">Auth changes the typical user will notice
+&lt;a href="#auth-changes-the-typical-user-will-notice">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>If you&amp;rsquo;ve always let googledrive guide you through auth, here is the one change you will notice:&lt;/p>
+&lt;blockquote>
+&lt;p>OAuth2 tokens are now cached at the user level, by default, instead of in &lt;code>.httr-oauth&lt;/code> in the current project. We will ask if it&amp;rsquo;s OK to create a new folder to hold your OAuth tokens. We recommend that you delete any vestigial &lt;code>.httr-oauth&lt;/code> files lying around your googledrive projects and re-authorize googledrive, i.e. get a new token, stored in the new way.&lt;/p>
+&lt;/blockquote>
+&lt;p>The new strategy makes it harder to accidentally push your tokens to the cloud, easier to use multiple Google identities, and easier to share tokens across projects and packages.&lt;/p>
+&lt;p>Overall, googledrive has gotten more careful about getting your permission to use a cached token. See the gargle vignette
+&lt;a href="https://gargle.r-lib.org/articles/non-interactive-auth.html" target="_blank" rel="noopener">Non-interactive auth&lt;/a> to learn how to prevent attempts to interact with you, especially the section
+&lt;a href="https://gargle.r-lib.org/articles/non-interactive-auth.html#i-just-want-my--rmd-to-render" target="_blank" rel="noopener">&amp;ldquo;I just want my &lt;code>.Rmd&lt;/code> to render&amp;rdquo;&lt;/a>.&lt;/p>
+&lt;p>googledrive also uses a new OAuth &amp;ldquo;app&amp;rdquo;, owned by a verified Google Cloud Project entitled &amp;ldquo;Tidyverse API Packages&amp;rdquo;, which is the project name you will see on the OAuth consent screen. See our new
+&lt;a href="https://www.tidyverse.org/google_privacy_policy/" target="_blank" rel="noopener">Privacy Policy&lt;/a> for details.&lt;/p>
+&lt;p>For more advanced users who call &lt;code>drive_auth()&lt;/code> directly or who configure auth settings, such as their own OAuth app or API key, see the
+&lt;a href="https://googledrive.tidyverse.org/news/index.html#googledrive-1-0-0" target="_blank" rel="noopener">changelog&lt;/a> for more details.&lt;/p>
+&lt;h2 id="preventing-name-clashes">Preventing name clashes
+&lt;a href="#preventing-name-clashes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Google Drive doesn&amp;rsquo;t impose a 1-to-1 relationship between files and filepaths, the way your local file system does. Therefore, when working via the Drive API (instead of in the browser), it&amp;rsquo;s fairly easy to create multiple Drive files with the same name or filepath, without actually meaning to. This is perfectly valid on Drive, which identifies file by ID, but can be confusing and undesirable for humans. Very few people actually want this:&lt;/p>
+&lt;p>&lt;img src="https://www.tidyverse.org/images/googledrive/je-suis-unique.png" width="60%" />&lt;/p>
+&lt;p>googledrive v1.0.0 offers some new ways to prevent writing more than one file to the same filepath.&lt;/p>
+&lt;p>All functions that create a new item or rename/move an existing item have gained an &lt;code>overwrite&lt;/code> argument:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>drive_create()&lt;/code> &lt;em>this function is new in v1.0.0&lt;/em>&lt;/li>
+&lt;li>&lt;code>drive_cp()&lt;/code>&lt;/li>
+&lt;li>&lt;code>drive_mkdir()&lt;/code>&lt;/li>
+&lt;li>&lt;code>drive_mv()&lt;/code>&lt;/li>
+&lt;li>&lt;code>drive_rename()&lt;/code>&lt;/li>
+&lt;li>&lt;code>drive_upload()&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>The default of &lt;code>overwrite = NA&lt;/code> corresponds to the existing behaviour, which does not consider pre-existing files at all. &lt;code>overwrite = TRUE&lt;/code> requests to move a pre-existing file at the target filepath to the trash, prior to creating the new item. If 2 or more files are found, an error is thrown, because it&amp;rsquo;s not clear which one(s) to trash. &lt;code>overwrite = FALSE&lt;/code> means the new item will only be created if there is no pre-existing file at that filepath. Existence checks based on filepath (or name) can be expensive. This is why the default is &lt;code>overwrite = NA&lt;/code>, in addition to backwards compatibility.&lt;/p>
+&lt;p>&lt;code>drive_put()&lt;/code> is a new convenience wrapper that figures out whether to call &lt;code>drive_upload()&lt;/code> or &lt;code>drive_update()&lt;/code>.&lt;/p>
+&lt;p>Sometimes you have a file you will repeatedly send to Drive, i.e. the first time you run an analysis, you create the file and, when you re-run it, you update the file. Previously this was hard to express with googledrive.&lt;/p>
+&lt;p>&lt;code>drive_put()&lt;/code> is useful here and refers to the HTTP verb &lt;code>PUT&lt;/code>: create the thing if it doesn&amp;rsquo;t exist or, if it does, replace its contents. A good explanation of &lt;code>PUT&lt;/code> is
+&lt;a href="https://medium.com/backticks-tildes/restful-api-design-put-vs-patch-4a061aa3ed0b" target="_blank" rel="noopener">RESTful API Design — PUT vs PATCH&lt;/a>.&lt;/p>
+&lt;p>In pseudo-code, here&amp;rsquo;s the basic idea of &lt;code>drive_put()&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">target_filepath&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="o">&amp;lt;&lt;/span>&lt;span class="n">determined&lt;/span> &lt;span class="n">from&lt;/span> &lt;span class="n">arguments&lt;/span> &lt;span class="n">`path`&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">`name`&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">and&lt;/span> &lt;span class="n">`media`&lt;/span>&lt;span class="o">&amp;gt;&lt;/span>
+&lt;span class="n">hits&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="o">&amp;lt;&lt;/span>&lt;span class="n">get&lt;/span> &lt;span class="n">all&lt;/span> &lt;span class="n">Drive&lt;/span> &lt;span class="n">files&lt;/span> &lt;span class="n">at&lt;/span> &lt;span class="n">target_filepath&lt;/span>&lt;span class="o">&amp;gt;&lt;/span>
+&lt;span class="nf">if &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">no&lt;/span> &lt;span class="n">hits&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nf">drive_upload&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">media&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">path&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">type&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">...&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">verbose&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">}&lt;/span> &lt;span class="n">else&lt;/span> &lt;span class="nf">if &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">exactly&lt;/span> &lt;span class="m">1&lt;/span> &lt;span class="n">hit&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nf">drive_update&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hit&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">media&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">...&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">verbose&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">}&lt;/span> &lt;span class="n">else&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">ERROR&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="shared-workflows">Shared workflows
+&lt;a href="#shared-workflows">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The shared use of gargle allows us to create centralized articles for several workflows that can be tricky for useRs:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://gargle.r-lib.org/articles/non-interactive-auth.html" target="_blank" rel="noopener">Non-interactive auth&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://gargle.r-lib.org/articles/auth-from-web.html" target="_blank" rel="noopener">Auth when using R in the browser&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://gargle.r-lib.org/articles/articles/managing-tokens-securely.html" target="_blank" rel="noopener">Managing tokens securely&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://gargle.r-lib.org/articles/get-api-credentials.html" target="_blank" rel="noopener">How to get your own API credentials&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="thanks">Thanks!
+&lt;a href="#thanks">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thank you to the &lt;strong>41&lt;/strong> people who contributed issues, code, and comments to this release:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/abeburnett" target="_blank" rel="noopener">@abeburnett&lt;/a>,
+&lt;a href="https://github.com/admahood" target="_blank" rel="noopener">@admahood&lt;/a>,
+&lt;a href="https://github.com/alexpghayes" target="_blank" rel="noopener">@alexpghayes&lt;/a>,
+&lt;a href="https://github.com/arendsee" target="_blank" rel="noopener">@arendsee&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/benmarwick" target="_blank" rel="noopener">@benmarwick&lt;/a>,
+&lt;a href="https://github.com/Chanajit" target="_blank" rel="noopener">@Chanajit&lt;/a>,
+&lt;a href="https://github.com/cowlumbus" target="_blank" rel="noopener">@cowlumbus&lt;/a>,
+&lt;a href="https://github.com/ctlamb" target="_blank" rel="noopener">@ctlamb&lt;/a>,
+&lt;a href="https://github.com/DavidGarciaEstaun" target="_blank" rel="noopener">@DavidGarciaEstaun&lt;/a>,
+&lt;a href="https://github.com/dgplaco" target="_blank" rel="noopener">@dgplaco&lt;/a>,
+&lt;a href="https://github.com/Diego-MX" target="_blank" rel="noopener">@Diego-MX&lt;/a>,
+&lt;a href="https://github.com/dsdaveh" target="_blank" rel="noopener">@dsdaveh&lt;/a>,
+&lt;a href="https://github.com/eeenilsson" target="_blank" rel="noopener">@eeenilsson&lt;/a>,
+&lt;a href="https://github.com/efh0888" target="_blank" rel="noopener">@efh0888&lt;/a>,
+&lt;a href="https://github.com/giocomai" target="_blank" rel="noopener">@giocomai&lt;/a>,
+&lt;a href="https://github.com/grabear" target="_blank" rel="noopener">@grabear&lt;/a>,
+&lt;a href="https://github.com/hwsamuel" target="_blank" rel="noopener">@hwsamuel&lt;/a>,
+&lt;a href="https://github.com/ianmcook" target="_blank" rel="noopener">@ianmcook&lt;/a>,
+&lt;a href="https://github.com/jarodmeng" target="_blank" rel="noopener">@jarodmeng&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/lohancock" target="_blank" rel="noopener">@lohancock&lt;/a>,
+&lt;a href="https://github.com/lotard" target="_blank" rel="noopener">@lotard&lt;/a>,
+&lt;a href="https://github.com/LucyMcGowan" target="_blank" rel="noopener">@LucyMcGowan&lt;/a>,
+&lt;a href="https://github.com/lukaskawerau" target="_blank" rel="noopener">@lukaskawerau&lt;/a>,
+&lt;a href="https://github.com/MariaMetriplica" target="_blank" rel="noopener">@MariaMetriplica&lt;/a>,
+&lt;a href="https://github.com/Martin-Jung" target="_blank" rel="noopener">@Martin-Jung&lt;/a>,
+&lt;a href="https://github.com/medewitt" target="_blank" rel="noopener">@medewitt&lt;/a>,
+&lt;a href="https://github.com/njudd" target="_blank" rel="noopener">@njudd&lt;/a>,
+&lt;a href="https://github.com/philmikejones" target="_blank" rel="noopener">@philmikejones&lt;/a>,
+&lt;a href="https://github.com/prokulski" target="_blank" rel="noopener">@prokulski&lt;/a>,
+&lt;a href="https://github.com/RNA-Ninja" target="_blank" rel="noopener">@RNA-Ninja&lt;/a>,
+&lt;a href="https://github.com/romunov" target="_blank" rel="noopener">@romunov&lt;/a>,
+&lt;a href="https://github.com/sanjmeh" target="_blank" rel="noopener">@sanjmeh&lt;/a>,
+&lt;a href="https://github.com/Serenthia" target="_blank" rel="noopener">@Serenthia&lt;/a>,
+&lt;a href="https://github.com/shawzhifei" target="_blank" rel="noopener">@shawzhifei&lt;/a>,
+&lt;a href="https://github.com/stapial" target="_blank" rel="noopener">@stapial&lt;/a>,
+&lt;a href="https://github.com/svenhalvorson" target="_blank" rel="noopener">@svenhalvorson&lt;/a>,
+&lt;a href="https://github.com/tarunparmar" target="_blank" rel="noopener">@tarunparmar&lt;/a>, and
+&lt;a href="https://github.com/tsmith64" target="_blank" rel="noopener">@tsmith64&lt;/a>&lt;/p></description></item><item><title>👩‍💻🚙👯: My googledrive internship</title><link>https://www.tidyverse.org/blog/2017/09/lucy-internship/</link><pubDate>Fri, 08 Sep 2017 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2017/09/lucy-internship/</guid><description>&lt;p>&lt;em>Over the past several months I have been working with Jenny Bryan on the googledrive package. I wanted to share a bit about the process and some things I learned along the way. While brainstorming this post, I went back through my GitHub commits to remind myself of the journey - it turns out they do a rather good job of showing the scope of this!&lt;/em>&lt;/p>
+&lt;h2 id="_day-to-day_-br-img-src--imageslucy-internship01_firstpng-width--400-img">&lt;em>Day to day&lt;/em> &lt;br> &lt;img src = "/images/lucy-internship/01_first.png" width = "400"> &lt;/img>
+&lt;a href="#_day-to-day_-br-img-src--imageslucy-internship01_firstpng-width--400-img">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The googledrive 📦 looked measurably different on this
+&lt;a href="https://github.com/tidyverse/googledrive/tree/ef8a410f8e74080670ff3145a330cdaa100472a8" target="_blank" rel="noopener">first day&lt;/a>. I think this gives some really good insight into the iterative process of package design as well as how much I absorbed from Jenny along the way. In these early days, I was beavering away, building some small wrappers for Drive endpoints, spending most of my time getting to know the
+&lt;a href="https://developers.google.com/drive/v3/web/about-sdk" target="_blank" rel="noopener">Drive documentation&lt;/a> and celebrating small victories.&lt;/p>
+&lt;div style="text-align: center;">
+&lt;div style="display: inline-block; text-align: left">
+&lt;img src = "/images/lucy-internship/02_upload.png" width = "300"> &lt;/img>&lt;br>_Small victory 1: The ability to upload files to Drive_.
+&lt;p>&lt;img src = "/images/lucy-internship/03_delete.png" width = "300"> &lt;/img>&lt;br> &lt;em>Small victory 2: The ability to delete files on Drive&lt;/em>.&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/br>
+&lt;p>My day to day back in April seems so foreign to the workflow Jenny and I have now established, but those first few weeks were incredibly useful for getting me steeped in all things Google Drive. Our process eventually converged to:&lt;/p>
+&lt;p>👩🏻‍💻👩🏼‍💻 Video chatting once a week to set priorities / discuss design decisions.&lt;br>
+✍️🙊 Documenting all problems as GitHub issues to resolve.&lt;br>
+👷‍♀️👀 Submitting all changes via PRs for review.&lt;/p>
+&lt;p>The PR review process was quite new to me, but SO integral to the success of this package. Here is an
+&lt;a href="https://github.com/tidyverse/googledrive/pull/13" target="_blank" rel="noopener">example&lt;/a> of what this can look like. Our first PR with review consisted of 49 commits and 66 comments 😱. The GitHub review process allowed Jenny to comment line by line on my code, gently pushing me towards better coding conventions and style. This process really helped me to absorb all things &amp;ldquo;tidyverse&amp;rdquo; in a systematic way.&lt;/p>
+&lt;h2 id="_absorbing-all-things-tidyverse_-br-img-src--imageslucy-internship03_markdown-docspng-width--400img">&lt;em>Absorbing all things &amp;ldquo;tidyverse&amp;rdquo;&lt;/em> &lt;br> &lt;img src = "/images/lucy-internship/03_markdown-docs.png" width = "400">&lt;/img>
+&lt;a href="#_absorbing-all-things-tidyverse_-br-img-src--imageslucy-internship03_markdown-docspng-width--400img">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;center>
+&lt;blockquote class="twitter-tweet" data-lang="en">&lt;p lang="en" dir="ltr">🌞 musing: learning a new coding style is like putting on freshly washed jeans; a struggle, but once I get it I&amp;#39;m like that looks GOOD 💃 &lt;a href="https://t.co/5QcEwEcI23">pic.twitter.com/5QcEwEcI23&lt;/a>&lt;/p>&amp;mdash; Lucy 🌻 (@LucyStats) &lt;a href="https://twitter.com/LucyStats/status/873587893754843136">June 10, 2017&lt;/a>&lt;/blockquote> &lt;script async src="//platform.twitter.com/widgets.js" charset="utf-8">&lt;/script>
+&lt;/center>
+&lt;p>The tidyverse has an
+&lt;a href="http://style.tidyverse.org" target="_blank" rel="noopener">R Style Guide&lt;/a>. My first pass at incorporating the style was switching my roxygen documentation to
+&lt;a href="https://github.com/klutometis/roxygen/blob/master/vignettes/markdown.Rmd" target="_blank" rel="noopener">markdown&lt;/a> (this can be enabled by adding &lt;code>Roxygen: list(markdown = TRUE)&lt;/code> to the &lt;code>DESCRIPTION&lt;/code> file, or if you already have documentation and you&amp;rsquo;d like to convert it to markdown automagically ✨, check out the
+&lt;a href="https://github.com/r-lib/roxygen2md" target="_blank" rel="noopener">roxygen2md&lt;/a> 📦). This is an example of something I didn&amp;rsquo;t even know existed prior to this project. Other pieces I absorbed include:&lt;/p>
+&lt;div style="text-align: center;">
+&lt;div style="display: inline-block; text-align: left">
+&lt;img src = "/images/lucy-internship/04_travis.png" width = "300"> &lt;/img>&lt;br> _Absorption example 1: Recommendations for continuous integration._
+&lt;p>&lt;img src = "/images/lucy-internship/05_test.png" width = "300"> &lt;/img>&lt;br> &lt;em>Absorption example 2: Learning sensible ways to test.&lt;/em>&lt;/p>
+&lt;p>&lt;img src = "/images/lucy-internship/06_clean-up.png" width = "300"> &lt;/img>&lt;br>
+&lt;em>Absorption example 3: Cleaning up my code.&lt;/em>&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;/br>
+&lt;p>I made GREAT use of
+&lt;a href="https://github.com/jimhester/lintr" target="_blank" rel="noopener">lintr&lt;/a> 🛀 until the coding conventions became second nature to me. Even still, I cannot overstate the immense utility of coding alongside Jenny. I found myself slowly adapting her excellent coding principles and style simply from seeing her suggestions and reviewing her commits. She gently nudged me towards much prettier &amp;amp; more useful code!&lt;/p>
+&lt;h2 id="_flexing-my-programming-muscles_-br-img-src--imageslucy-internship08_s3-methodspng-width--400img">&lt;em>Flexing my programming muscles&lt;/em> &lt;br> &lt;img src = "/images/lucy-internship/08_s3-methods.png" width = "400">&lt;/img>
+&lt;a href="#_flexing-my-programming-muscles_-br-img-src--imageslucy-internship08_s3-methodspng-width--400img">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Finally, this experience allowed me to dive into 🏊 things I otherwise may not have been exposed to. Some things that were new to me include:&lt;/p>
+&lt;p>🙃 Writing S3 methods.&lt;br>
+🙆🏻 Writing tests for an API-calling package.&lt;br>
+💅 Working with / writing in an established coding style.&lt;/p>
+&lt;p>I am so grateful for the opportunity to learn these concepts in such a welcoming environment, and am certainly committed to passing any knowledge I have gained from this experience to anyone and everyone!&lt;/p>
+&lt;h2 id="_an-ode-to-jenny-bryan_">&lt;em>An ode to Jenny Bryan&lt;/em>
+&lt;a href="#_an-ode-to-jenny-bryan_">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>I&amp;rsquo;d like to wrap up by expressing my immense gratitude to Jenny 👯. This experience was SO excellent due to her rockstar coding abilities, impeccable teaching skills, and of course her unwavering patience. And so I&amp;rsquo;d like to end with a haiku:&lt;/p>
+&lt;p>Thank you, tidyverse.&lt;br>
+You&amp;rsquo;ve given me a leg up!&lt;br>
+Checkout googledrive!&lt;/p></description></item><item><title>googledrive initial release</title><link>https://www.tidyverse.org/blog/2017/08/googledrive-initial-release/</link><pubDate>Tue, 29 Aug 2017 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2017/08/googledrive-initial-release/</guid><description>&lt;p>We are tickled pink to announce the initial CRAN release of the
+&lt;a href="http://googledrive.tidyverse.org" target="_blank" rel="noopener">googledrive package&lt;/a>. This is a collaboration between Jenny Bryan and tidyverse intern,
+&lt;a href="http://lucymcgowan.com/" target="_blank" rel="noopener">Lucy D&amp;rsquo;Agostino McGowan&lt;/a> (blog post on that coming soon!).&lt;/p>
+&lt;p>googledrive wraps the
+&lt;a href="https://developers.google.com/drive/v3/web/about-sdk" target="_blank" rel="noopener">Drive REST API v3&lt;/a>. The most common file operations are implemented in high-level functions designed for ease of use. You can find, list, create, trash, delete, rename, move, copy, browse, download, share and publish Drive files, including those on Team Drives.&lt;/p>
+&lt;p>Install googledrive with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;googledrive&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The auth flow should &amp;ldquo;just work&amp;rdquo; for most people, especially for early and interactive use. For more advanced usage, functions are available that give the user much more control, i.e. to support non-interactive and remote usage. A low-level interface, used internally, is also exposed for those who wish to program around the Drive API.&lt;/p>
+&lt;h2 id="first-use">First use
+&lt;a href="#first-use">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>You can see and filter your files, similar to the experience at &lt;a href="https://drive.google.com/">https://drive.google.com/&lt;/a>, with &lt;code>drive_find()&lt;/code>. Expect to be taken to the browser here, in order to authorize googledrive to act on your behalf. We limit &lt;code>drive_find()&lt;/code> to 10 files and just a few file types for brevity.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">googledrive&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">drive_find&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">n_max&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">10&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;spreadsheet&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;jpg&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;pdf&amp;#34;&lt;/span>&lt;span class="p">)))&lt;/span>
+&lt;span class="c1">#&amp;gt; Auto-refreshing stale OAuth token.&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 10 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; name&lt;/span>
+&lt;span class="c1">#&amp;gt; * &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 chicken.jpg&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 README-mirrors.csv&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 README-mirrors.csv&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 logo.jpg&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 sheet-xyz&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 logo.jpg&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 test2&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 foo_pdf-TEST-drive-publish&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 foo_sheet-TEST-drive-publish&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 export-mime-type-defaults.csv&lt;/span>
+&lt;span class="c1">#&amp;gt; # ... with 2 more variables: id &amp;lt;chr&amp;gt;, drive_resource &amp;lt;list&amp;gt;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>googledrive holds Drive file info in a
+&lt;a href="http://googledrive.tidyverse.org/reference/dribble.html" target="_blank" rel="noopener">dribble&lt;/a>, a &amp;ldquo;Drive tibble&amp;rdquo;. This allows us to provide human-readable file names, packaged with API-friendly file ids and other useful metadata in the &lt;code>drive_resource&lt;/code> list-column. Each row represents a Drive file.&lt;/p>
+&lt;p>&lt;code>drive_reveal()&lt;/code> adds extra information to the dribble by excavating interesting metadata out of &lt;code>drive_resource&lt;/code> or by making additional API calls.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">x&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">drive_reveal&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;permissions&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">drive_reveal&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;mime_type&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 10 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; name mime_type&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 chicken.jpg image/jpeg&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 README-mirrors.csv application/vnd.google-apps.spreadsheet&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 README-mirrors.csv application/vnd.google-apps.spreadsheet&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 logo.jpg image/jpeg&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 sheet-xyz application/vnd.google-apps.spreadsheet&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 logo.jpg image/jpeg&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 test2 application/vnd.google-apps.spreadsheet&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 foo_pdf-TEST-drive-publish application/pdf&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 foo_sheet-TEST-drive-publish application/vnd.google-apps.spreadsheet&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 export-mime-type-defaults.csv application/vnd.google-apps.spreadsheet&lt;/span>
+&lt;span class="c1">#&amp;gt; # ... with 4 more variables: shared &amp;lt;lgl&amp;gt;, id &amp;lt;chr&amp;gt;,&lt;/span>
+&lt;span class="c1">#&amp;gt; # drive_resource &amp;lt;list&amp;gt;, permissions_resource &amp;lt;list&amp;gt;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Since files are stored in a specialized tibble, you can use your usual tidyverse workflows to manipulate this data frame.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">x&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mime_type&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s">&amp;#34;image/jpeg&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">id&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">drive_resource&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 3 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; name id drive_resource&lt;/span>
+&lt;span class="c1">#&amp;gt; * &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;list&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 chicken.jpg 0B0Gh-SuuA2nTbEhtYnIzcFNfX3M &amp;lt;list [39]&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 logo.jpg 0B0Gh-SuuA2nTLVE0VGZQVU40Z0U &amp;lt;list [38]&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 logo.jpg 0B0Gh-SuuA2nTZjlpQmlVTm9BcVU &amp;lt;list [38]&amp;gt;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="test-drive-and-cleanup">Test drive and cleanup
+&lt;a href="#test-drive-and-cleanup">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;ll quickly show off a few basic file operations and then clean up. This example also demonstrates the file conversion features available when importing into and exporting out of native Google file types.&lt;/p>
+&lt;p>First, we make a new folder. Then we make a new Drive file (a Google Sheet) by uploading a local file (csv). A few example files ship with googledrive and &lt;code>drive_example()&lt;/code> is just a convenience function to get the local path on any system.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">folder&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">drive_mkdir&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;blog-folder&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Folder created:&lt;/span>
+&lt;span class="c1">#&amp;gt; * blog-folder&lt;/span>
+&lt;span class="n">chicken_sheet&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">drive_example&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;chicken.csv&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">drive_upload&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">path&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;blog-folder/blog-chicken-sheet&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;spreadsheet&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Local file:&lt;/span>
+&lt;span class="c1">#&amp;gt; * /Users/jenny/resources/R/library/googledrive/extdata/chicken.csv&lt;/span>
+&lt;span class="c1">#&amp;gt; uploaded into Drive file:&lt;/span>
+&lt;span class="c1">#&amp;gt; * blog-chicken-sheet: 1qGE2yLpe4qN-wZCMCl1t5ml-0acGW-xEPZ2l6PMHd7o&lt;/span>
+&lt;span class="c1">#&amp;gt; with MIME type:&lt;/span>
+&lt;span class="c1">#&amp;gt; * application/vnd.google-apps.spreadsheet&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Let&amp;rsquo;s list the contents of the folder and reveal file path to confirm the new file exists and has been placed in the target folder.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">drive_ls&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">folder&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">drive_reveal&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;path&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 4&lt;/span>
+&lt;span class="c1">#&amp;gt; name path&lt;/span>
+&lt;span class="c1">#&amp;gt; * &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 blog-chicken-sheet ~/blog-folder/blog-chicken-sheet&lt;/span>
+&lt;span class="c1">#&amp;gt; # ... with 2 more variables: id &amp;lt;chr&amp;gt;, drive_resource &amp;lt;list&amp;gt;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Here we rename the file and download it to a local file. Since we are downloading from a Google Sheet, we must convert to a more conventional file type, such as csv or, the default, an Excel workbook.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">chicken_sheet&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">drive_rename&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;blog-famous-chickens&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">drive_download&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; File renamed:&lt;/span>
+&lt;span class="c1">#&amp;gt; * blog-chicken-sheet -&amp;gt; blog-famous-chickens&lt;/span>
+&lt;span class="c1">#&amp;gt; File downloaded:&lt;/span>
+&lt;span class="c1">#&amp;gt; * blog-famous-chickens&lt;/span>
+&lt;span class="c1">#&amp;gt; Saved locally as:&lt;/span>
+&lt;span class="c1">#&amp;gt; * blog-famous-chickens.xlsx&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Finally, we clean up by deleting the local spreadsheet, as well as the folder we created on Drive.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">file.remove&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;blog-famous-chickens.xlsx&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] TRUE&lt;/span>
+&lt;span class="nf">drive_rm&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">folder&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Files deleted:&lt;/span>
+&lt;span class="c1">#&amp;gt; * blog-folder: 0B0Gh-SuuA2nTMTl0cjIwZThQRzg&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>We look forward to hearing how this package is useful to you. Feel free to chime in on
+&lt;a href="https://github.com/tidyverse/googledrive/issues" target="_blank" rel="noopener">GitHub issues&lt;/a> to discuss how googledrive can best support your workflows.&lt;/p>
+&lt;p>Learn more about googledrive at:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="http://googledrive.tidyverse.org">http://googledrive.tidyverse.org&lt;/a>&lt;/li>
+&lt;/ul></description></item></channel></rss>

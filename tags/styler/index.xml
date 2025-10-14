@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>styler | Tidyverse</title><link>https://www.tidyverse.org/tags/styler/</link><atom:link href="https://www.tidyverse.org/tags/styler/index.xml" rel="self" type="application/rss+xml"/><description>styler</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 04 Nov 2019 00:00:00 +0000</lastBuildDate><item><title>styler 1.2.0</title><link>https://www.tidyverse.org/blog/2019/11/styler-1-2-0/</link><pubDate>Mon, 04 Nov 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/11/styler-1-2-0/</guid><description>&lt;p>We are pleased to announce that
+&lt;a href="https://styler.r-lib.org" target="_blank" rel="noopener">styler&lt;/a> 1.2.0 is now available on CRAN. The
+&lt;a href="https://www.tidyverse.org/articles/2017/12/styler-1.0.0/" target="_blank" rel="noopener">initial version of styler&lt;/a>
+was released in December 2017. Since then,
+five new versions were released, and styler was improved substantially, but many
+improvements were related to special cases or even edge cases. These are all
+contained in the
+&lt;a href="https://styler.r-lib.org/news/index.html" target="_blank" rel="noopener">change log&lt;/a>. Here,
+we want to focus on a few changes since version 1.0.0 that we believe are the
+most relevant. You can install the latest stable version from CRAN with
+&lt;code>install.packages(&amp;quot;styler&amp;quot;)&lt;/code>. Let&amp;rsquo;s get started:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">styler&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="alignment-detection">Alignment detection
+&lt;a href="#alignment-detection">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>styler can finally detect aligned code and keep it aligned! For example, the
+following code won&amp;rsquo;t be modified by styler:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">call&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">some_arg&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">123&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">more&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;x&amp;#34;&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>We&amp;rsquo;ve tried to make this as intuitive as possible, but have a look at
+&lt;a href="https://styler.r-lib.org/articles/detect-alignment.html" target="_blank" rel="noopener">dedicated vignette&lt;/a>
+when you are dealing with more complicated calls than the one above.
+Note that the detection currently only works inside &lt;em>function calls&lt;/em>, so styler will not
+recognize the below as aligned.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="m">2&lt;/span>
+&lt;span class="n">x2&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">f&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>and turn it into&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="m">2&lt;/span>
+&lt;span class="n">x2&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">f&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>unless you also use &lt;code>strict = FALSE&lt;/code>.^[E.g. &lt;code>styler::style_text(..., strict = FALSE)&lt;/code>, but note that this also has other effects on styling that you might not
+want.]&lt;/p>
+&lt;h2 id="rlangs-">rlang&amp;rsquo;s {{
+&lt;a href="#rlangs-">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>In
+&lt;a href="https://www.tidyverse.org/articles/2019/06/rlang-0-4-0/" target="_blank" rel="noopener">rlang 0.4.0&lt;/a> a new
+interpolation operator was introduced: &lt;code>{{&lt;/code> (read curly curly). Because &lt;code>styler &amp;lt; 1.2.0&lt;/code> understood these as regular curly braces, you ended up with&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">call&lt;/span>&lt;span class="p">({&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="n">x&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">})&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>when styling &lt;code>call({{x}})&lt;/code>, which is nonsense. Now styler yields &lt;code>call({{ x }})&lt;/code>.&lt;/p>
+&lt;h2 id="addins">Addins
+&lt;a href="#addins">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The &lt;em>Style active file&lt;/em> addin now remembers the cursor position and the details
+of styling can be specified as an R option:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">options&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">styler.addins_style_transformer&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;styler::tidyverse_style(scope = &amp;#39;spaces&amp;#39;)&amp;#34;&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can also set the value of this option interactively with the &lt;em>set style&lt;/em>
+addin (not persistent over sessions). For details, see &lt;code>help(&amp;quot;styler_addins&amp;quot;, &amp;quot;styler&amp;quot;)&lt;/code>
+and &lt;code>help(&amp;quot;tidyverse_style&amp;quot;, &amp;quot;styler&amp;quot;)&lt;/code>.&lt;/p>
+&lt;p>The customization of the styling does not affect the command-line API
+(&lt;code>styler::style_text()&lt;/code> and friends). We are not sure how users could best
+customize styling, but you can track our progress on that in
+&lt;a href="https://github.com/r-lib/styler/issues/319" target="_blank" rel="noopener">r-lib/styler#319&lt;/a>.&lt;/p>
+&lt;p>You can also set the environment variable &lt;code>save_after_styling&lt;/code> to
+&lt;code>TRUE&lt;/code>, if you are tired of saving the file after styling it with the addin.&lt;/p>
+&lt;h2 id="braces-in-function-calls">Braces in function calls
+&lt;a href="#braces-in-function-calls">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>&lt;code>tryCatch()&lt;/code> expressions often look like this:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">tryCatch&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="nf">exp&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">},&lt;/span>
+&lt;span class="n">error&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">x&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Prior to version 1.2.0, styler would return this odd formatting:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">tryCatch&lt;/span>&lt;span class="p">({&lt;/span>
+&lt;span class="nf">exp&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">},&lt;/span>
+&lt;span class="n">error&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">x&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now, the line is broken before the opening curly brace in function calls, except
+if there is only one brace expression and it&amp;rsquo;s the last in the function call.
+The typical use case is &lt;code>testthat::test_that(...)&lt;/code>, i.e. the following code
+won&amp;rsquo;t be modified:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">test_that&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;some condition holds&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nf">some_code&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="p">})&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="other-changes">Other changes
+&lt;a href="#other-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>
+&lt;p>styler depends on tibble &amp;gt;= 1.4.2 and runs 2x as fast as initially.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>styler can style roxygen code examples in the source code of
+packages.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>styler can style &lt;code>.Rnw&lt;/code> files.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The print method for the output of &lt;code>style_text()&lt;/code> returns
+syntax-highlighted code by default, controllable via the option
+&lt;code>styler.colored_print.vertical&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="adaption-of-styler">Adaption of styler
+&lt;a href="#adaption-of-styler">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to highlight that styler integrates with various other tools you might
+be using:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>As a git pre-commit hook. Two standard calls from the R console, and you are
+all set. We are convinced that this is the preferred way of using styler to
+ensure all your files are consistently formatted. Check out the
+&lt;a href="https://lorenzwalthert.github.io/precommit/" target="_blank" rel="noopener">precommit&lt;/a> package that also
+implements many other useful hooks.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>usethis::use_tidy_style()&lt;/code> styles your project according to the tidyverse
+style guide.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>knitr::knitr()&lt;/code> and friends recognize the R code chunk option &lt;code>tidy = &amp;quot;styler&amp;quot;&lt;/code> for &lt;code>.Rnw&lt;/code> and &lt;code>.Rmd&lt;/code> files to pretty-print code.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>reprex::reprex(..., style = TRUE)&lt;/code> to prettify reprex code before printing.
+To permanently use &lt;code>style = TRUE&lt;/code> without specifying it every time, you can
+add the following line to your &lt;code>.Rprofile&lt;/code> (e.g. via
+&lt;code>usethis::edit_r_profile()&lt;/code>): &lt;code>options(reprex.styler = TRUE)&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>There are plugins for
+&lt;a href="https://github.com/lassik/emacs-format-all-the-code" target="_blank" rel="noopener">Emacs&lt;/a> and
+&lt;a href="https://github.com/dense-analysis/ale/blob/master/doc/ale-r.txt" target="_blank" rel="noopener">VIM&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="outlook">Outlook
+&lt;a href="#outlook">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We have some cool new features in the pipeline such as
+&lt;a href="https://github.com/r-lib/styler/pull/538" target="_blank" rel="noopener">caching&lt;/a> for faster styling, and
+&lt;a href="https://github.com/r-lib/styler/pull/560" target="_blank" rel="noopener">making styler ignore some lines&lt;/a>,
+which you can try out by installing from the respective branches. Feedback welcome.&lt;/p>
+&lt;h2 id="acknowledgments">Acknowledgments
+&lt;a href="#acknowledgments">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We are grateful to all of the people who contributed not just code, but also
+issues and comments over the last two years:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/aaronrudkin" target="_blank" rel="noopener">@aaronrudkin&lt;/a>,
+&lt;a href="https://github.com/aedobbyn" target="_blank" rel="noopener">@aedobbyn&lt;/a>,
+&lt;a href="https://github.com/ArthurPERE" target="_blank" rel="noopener">@ArthurPERE&lt;/a>,
+&lt;a href="https://github.com/Banana1530" target="_blank" rel="noopener">@Banana1530&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/Bio7" target="_blank" rel="noopener">@Bio7&lt;/a>,
+&lt;a href="https://github.com/ClaytonJY" target="_blank" rel="noopener">@ClaytonJY&lt;/a>,
+&lt;a href="https://github.com/courtiol" target="_blank" rel="noopener">@courtiol&lt;/a>,
+&lt;a href="https://github.com/crew102" target="_blank" rel="noopener">@crew102&lt;/a>,
+&lt;a href="https://github.com/cpsievert" target="_blank" rel="noopener">@cpsievert&lt;/a>,
+&lt;a href="https://github.com/dchiu911" target="_blank" rel="noopener">@dchiu911&lt;/a>,
+&lt;a href="https://github.com/devSJR" target="_blank" rel="noopener">@devSJR&lt;/a>,
+&lt;a href="https://github.com/dirkschumacher" target="_blank" rel="noopener">@dirkschumacher&lt;/a>,
+&lt;a href="https://github.com/ellessenne" target="_blank" rel="noopener">@ellessenne&lt;/a>,
+&lt;a href="https://github.com/Emiller88" target="_blank" rel="noopener">@Emiller88&lt;/a>,
+&lt;a href="https://github.com/fny" target="_blank" rel="noopener">@fny&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/Hasnep" target="_blank" rel="noopener">@Hasnep&lt;/a>,
+&lt;a href="https://github.com/igordot" target="_blank" rel="noopener">@igordot&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/jackwasey" target="_blank" rel="noopener">@jackwasey&lt;/a>,
+&lt;a href="https://github.com/jcrodriguez1989" target="_blank" rel="noopener">@jcrodriguez1989&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jjramsey" target="_blank" rel="noopener">@jjramsey&lt;/a>,
+&lt;a href="https://github.com/jkgrain" target="_blank" rel="noopener">@jkgrain&lt;/a>
+&lt;a href="https://github.com/jonmcalder" target="_blank" rel="noopener">@jonmcalder&lt;/a>,
+&lt;a href="https://github.com/joranE" target="_blank" rel="noopener">@joranE&lt;/a>,
+&lt;a href="https://github.com/kalibera" target="_blank" rel="noopener">@kalibera&lt;/a>,
+&lt;a href="https://github.com/katrinleinweber" target="_blank" rel="noopener">@katrinleinweber&lt;/a>,
+&lt;a href="https://github.com/kiranmaiganji" target="_blank" rel="noopener">@kiranmaiganji&lt;/a>,
+&lt;a href="https://github.com/krivit" target="_blank" rel="noopener">@krivit&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/llrs" target="_blank" rel="noopener">@llrs&lt;/a>,
+&lt;a href="https://github.com/lorenzwalthert" target="_blank" rel="noopener">@lorenzwalthert&lt;/a>,
+&lt;a href="https://github.com/lwjohnst86" target="_blank" rel="noopener">@lwjohnst86&lt;/a>,
+&lt;a href="https://github.com/martin-mfg" target="_blank" rel="noopener">@martin-mfg&lt;/a>,
+&lt;a href="https://github.com/maurolepore" target="_blank" rel="noopener">@maurolepore&lt;/a>,
+&lt;a href="https://github.com/michaelquinn32" target="_blank" rel="noopener">@michaelquinn32&lt;/a>,
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>,
+&lt;a href="https://github.com/Moohan" target="_blank" rel="noopener">@Moohan&lt;/a>,
+&lt;a href="https://github.com/msberends" target="_blank" rel="noopener">@msberends&lt;/a>,
+&lt;a href="https://github.com/NGaffney" target="_blank" rel="noopener">@NGaffney&lt;/a>,
+&lt;a href="https://github.com/nxskok" target="_blank" rel="noopener">@nxskok&lt;/a>,
+&lt;a href="https://github.com/oliverbeagley" target="_blank" rel="noopener">@oliverbeagley&lt;/a>,
+&lt;a href="https://github.com/pat-s" target="_blank" rel="noopener">@pat-s&lt;/a>,
+&lt;a href="https://github.com/ramnathv" target="_blank" rel="noopener">@ramnathv&lt;/a>,
+&lt;a href="https://github.com/raynamharris" target="_blank" rel="noopener">@raynamharris&lt;/a>,
+&lt;a href="https://github.com/reddy-ia" target="_blank" rel="noopener">@reddy-ia&lt;/a>,
+&lt;a href="https://github.com/riccardoporreca" target="_blank" rel="noopener">@riccardoporreca&lt;/a>,
+&lt;a href="https://github.com/rillig" target="_blank" rel="noopener">@rillig&lt;/a>,
+&lt;a href="https://github.com/rjake" target="_blank" rel="noopener">@rjake&lt;/a>,
+&lt;a href="https://github.com/Robinlovelace" target="_blank" rel="noopener">@Robinlovelace&lt;/a>,
+&lt;a href="https://github.com/RMHogervorst" target="_blank" rel="noopener">@RMHogervorst&lt;/a>,
+&lt;a href="https://github.com/rorynolan" target="_blank" rel="noopener">@rorynolan&lt;/a>,
+&lt;a href="https://github.com/russHyde" target="_blank" rel="noopener">@russHyde&lt;/a>,
+&lt;a href="https://github.com/samhinshaw" target="_blank" rel="noopener">@samhinshaw&lt;/a>,
+&lt;a href="https://github.com/skirmer" target="_blank" rel="noopener">@skirmer&lt;/a>,
+&lt;a href="https://github.com/thalesmello" target="_blank" rel="noopener">@thalesmello&lt;/a>,
+&lt;a href="https://github.com/tobiasgerstenberg" target="_blank" rel="noopener">@tobiasgerstenberg&lt;/a>,
+&lt;a href="https://github.com/tonytonov" target="_blank" rel="noopener">@tonytonov&lt;/a>,
+&lt;a href="https://github.com/tvatter" target="_blank" rel="noopener">@tvatter&lt;/a>,
+&lt;a href="https://github.com/vnijs" target="_blank" rel="noopener">@vnijs&lt;/a>,
+&lt;a href="https://github.com/wdearden" target="_blank" rel="noopener">@wdearden&lt;/a>,
+&lt;a href="https://github.com/wlandau" target="_blank" rel="noopener">@wlandau&lt;/a>,
+&lt;a href="https://github.com/wmayner" target="_blank" rel="noopener">@wmayner&lt;/a>,
+&lt;a href="https://github.com/yech1990" target="_blank" rel="noopener">@yech1990&lt;/a> and
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>.&lt;/p></description></item></channel></rss>

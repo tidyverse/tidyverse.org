@@ -1,0 +1,822 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>googlesheets4 | Tidyverse</title><link>https://www.tidyverse.org/tags/googlesheets4/</link><atom:link href="https://www.tidyverse.org/tags/googlesheets4/index.xml" rel="self" type="application/rss+xml"/><description>googlesheets4</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 26 Jul 2021 00:00:00 +0000</lastBuildDate><item><title>googlesheets4 1.0.0</title><link>https://www.tidyverse.org/blog/2021/07/googlesheets4-1-0-0/</link><pubDate>Mon, 26 Jul 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/07/googlesheets4-1-0-0/</guid><description>&lt;p>We&amp;rsquo;re over the moon to announce the release of googlesheets4, version 1.0.0 (&lt;a href="https://googlesheets4.tidyverse.org">https://googlesheets4.tidyverse.org&lt;/a>).&lt;/p>
+&lt;p>googlesheets4 is a package to work with Google Sheets from R. It wraps
+&lt;a href="https://developers.google.com/sheets/api/reference/rest" target="_blank" rel="noopener">v4 of the Sheets API&lt;/a>. googlesheets4 is focused on spreadsheet-y tasks that require a notion of worksheets, cells, and ranges, while the companion package
+&lt;a href="https://googledrive.tidyverse.org" target="_blank" rel="noopener">googledrive&lt;/a> handles more general file operations, such as renaming, sharing, or moving.&lt;/p>
+&lt;p>Install googlesheets4 from CRAN like so:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"googlesheets4"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Then attach it for use via:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googlesheets4.tidyverse.org'>googlesheets4&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The release of version 1.0.0 means googlesheets4 has graduated from being experimental to being stable, in terms of the
+&lt;a href="https://lifecycle.r-lib.org/articles/stages.html" target="_blank" rel="noopener">tidyverse lifecycle stages&lt;/a>. &lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>&lt;/p>
+&lt;p>Since we
+&lt;a href="https://www.tidyverse.org/blog/2020/05/googlesheets4-0-2-0/" target="_blank" rel="noopener">last blogged about it&lt;/a>, googlesheets4 has seen some &amp;ldquo;quality of life&amp;rdquo; improvements, but no earthshaking changes. The overall interface is more polished, we automatically retry requests that yield the dreaded &lt;code>429 RESOURCE_EXHAUSTED&lt;/code>, and there&amp;rsquo;s better handling of some empty cell edge cases. We&amp;rsquo;re also bumping the required version of the gargle package (&lt;a href="https://gargle.r-lib.org">https://gargle.r-lib.org&lt;/a>), which handles everything around auth.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://googlesheets4.tidyverse.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="auth-updates">Auth updates
+&lt;a href="#auth-updates">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If you are generally fairly passive about googlesheets4 auth, then you should just sit back and let things happen organically during usage. If you&amp;rsquo;ve used googlesheets4 before, you can expect to see some messages about cleaning and relocating the token cache when you first use v1.0.0. You can also expect to re-authenticate yourself with Google and re-authorize the &amp;ldquo;Tidyverse API Packages&amp;rdquo; to work with your files. This is all due to changes in gargle.&lt;/p>
+&lt;p>If your usage requires you to be more proactive about auth, read the
+&lt;a href="https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/" target="_blank" rel="noopener">blog post for gargle&amp;rsquo;s recent v1.2.0 release&lt;/a>. A key point is that we have rolled the built-in OAuth client, which is why those relying on it will need to re-auth.&lt;/p>
+&lt;p>&lt;strong>If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call&lt;/strong> that you should be using your own OAuth client or, quite possibly, an entirely different method of auth. Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.&lt;/p>
+&lt;p>If you often use googlesheets4 together with googledrive, remember that the article
+&lt;a href="https://googlesheets4.tidyverse.org/articles/articles/drive-and-sheets.html" target="_blank" rel="noopener">Using googlesheets4 with googledrive&lt;/a> gives some tips for how to coordinate auth.&lt;/p>
+&lt;h2 id="retries">Retries
+&lt;a href="#retries">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The Sheets API has
+&lt;a href="https://developers.google.com/sheets/api/reference/limits" target="_blank" rel="noopener">usage limits&lt;/a> that are low enough even regular folks bump up against them occasionally:&lt;/p>
+&lt;ul>
+&lt;li>100 requests per 100 seconds per user&lt;/li>
+&lt;li>500 requests per 100 seconds per project&lt;/li>
+&lt;/ul>
+&lt;p>When you hit one of these limits, your request fails with the error code &lt;code>429 RESOURCE_EXHAUSTED&lt;/code>. Thanks to a change in gargle, we now automatically retry such a request and, if it looks like you&amp;rsquo;ve exhausted your &lt;strong>user&lt;/strong> quota, that first wait is &amp;gt; 100 seconds (!!).&lt;/p>
+&lt;p>If this happens to you fairly often, you should contemplate whether your code relies on some self-defeating pattern, like hitting the Sheets API repeatedly in a tight loop. Here&amp;rsquo;s an example of bad vs. good googlesheets4 code:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>gapminder&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/gs4_examples.html'>gs4_example&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"gapminder"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>sp&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/sheet_properties.html'>sheet_properties&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>gapminder&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>(&lt;/span>&lt;span class='nv'>n&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>sp&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>grid_rows&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>sp&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>name&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='s'>"Africa"&lt;/span>&lt;span class='o'>]&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; [1] 625&lt;/span>
+&lt;span class='c'># this is BAD IDEA = reading individual cells in a loop&lt;/span>
+&lt;span class='kr'>for&lt;/span> &lt;span class='o'>(&lt;/span>&lt;span class='nv'>i&lt;/span> &lt;span class='kr'>in&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/seq.html'>seq_len&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>n&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>
+&lt;span class='nv'>gapminder&lt;/span> &lt;span class='o'>&lt;a href='https://googlesheets4.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/range_read.html'>range_read&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>sheet &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Africa"&lt;/span>, range &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sprintf.html'>sprintf&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"C%i"&lt;/span>, &lt;span class='nv'>i&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>&amp;#125;&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Reading from "gapminder".&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Range ''Africa'!C1'.&lt;/span>
+&lt;span class='c'>#&amp;gt; ...&lt;/span>
+&lt;span class='c'>#&amp;gt; x Request failed [429]. Retry 1 happens in 100.8 seconds ...&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Range ''Africa'!C28'.&lt;/span>
+&lt;span class='c'>#&amp;gt; ...&lt;/span>
+&lt;span class='c'>#&amp;gt; x Request failed [429]. Retry 1 happens in 100.4 seconds ...&lt;/span>
+&lt;span class='c'>#&amp;gt; x Request failed [429]. Retry 2 happens in 8.8 seconds ...&lt;/span>
+&lt;span class='c'>#&amp;gt; ...&lt;/span>
+&lt;span class='c'># this is a GOOD IDEA = reading all cells at once&lt;/span>
+&lt;span class='nv'>gapminder&lt;/span> &lt;span class='o'>&lt;a href='https://googlesheets4.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/range_read.html'>range_read&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>sheet &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Africa"&lt;/span>, range &lt;span class='o'>=&lt;/span> &lt;span class='s'>"C:C"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://googlesheets4.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/head.html'>head&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Reading from "gapminder".&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Range ''Africa'!C:C'.&lt;/span>
+&lt;span class='c'>#&amp;gt; # A tibble: 6 x 1&lt;/span>
+&lt;span class='c'>#&amp;gt; year&lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class='c'>#&amp;gt; 1 1952&lt;/span>
+&lt;span class='c'>#&amp;gt; 2 1957&lt;/span>
+&lt;span class='c'>#&amp;gt; 3 1962&lt;/span>
+&lt;span class='c'>#&amp;gt; 4 1967&lt;/span>
+&lt;span class='c'>#&amp;gt; 5 1972&lt;/span>
+&lt;span class='c'>#&amp;gt; 6 1977&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Lesson: work in bulk as much as possible, as opposed to making lots of little piecemeal requests.&lt;/p>
+&lt;p>What about the per project limit? If you are auth&amp;rsquo;ed as a regular user, using the built-in OAuth client, this project refers to the Tidyverse API Packages. Yes, that means you&amp;rsquo;re sharing project-level quota with all your fellow useRs who also auth&amp;rsquo;ed this way!&lt;/p>
+&lt;p>If you hit per project limits regularly and it upsets your workflow, the universe is telling you that it&amp;rsquo;s time to configure your own OAuth client or use an entirely different method of auth, such as a service account token. Read more in the gargle article
+&lt;a href="https://gargle.r-lib.org/articles/get-api-credentials.html" target="_blank" rel="noopener">How to get your own API credentials&lt;/a>.&lt;/p>
+&lt;p>Casual googlesheets4 users can go with the flow and accept that the occasional request will need an automatic retry. If you want to learn more, the functionality comes from
+&lt;a href="https://gargle.r-lib.org/reference/request_retry.html" target="_blank" rel="noopener">&lt;code>gargle::request_retry()&lt;/code>&lt;/a>. In the development version of gargle, we retry for an even larger set of error codes (408, 429, 500, 502, and 503). If that appeals to you and you&amp;rsquo;re willing to install a pre-release package, we&amp;rsquo;d love to hear how this works for you.&lt;/p>
+&lt;h2 id="user-interface">User interface
+&lt;a href="#user-interface">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The googlesheets4 user interface (UI) has gotten more stylish, thanks to the cli package (&lt;a href="https://cli.r-lib.org">https://cli.r-lib.org&lt;/a>). This applies to informational messages, as well as to errors.&lt;/p>
+&lt;p>The semantic UI encouraged by cli is a great fit for googlesheets4, where it&amp;rsquo;s useful to apply distinct inline styles for (spread)Sheet name, (work)sheet name, and cell range. Also bullets! Here is a fictional message that shows off some of these lovely things:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='c'>#&amp;gt; Hey, we're doing exciting things in the &lt;span style='color: #00BBBB;'>chicken_sheet&lt;/span>!&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> Did you know it has a worksheet called &lt;span style='color: #00BB00;'>chicken_scratch&lt;/span>?&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> Uh-oh, in range &lt;span style='color: #BBBB00;'>A1:D4&lt;/span>, some data appears to be encoded in the cell color :(&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>In a more technical vein, all errors thrown by googlesheets4 now route through
+&lt;a href="https://rlang.r-lib.org/reference/abort.html" target="_blank" rel="noopener">&lt;code>rlang::abort()&lt;/code>&lt;/a>. This has various benefits, including better access to the backtrace and error data. All errors thrown by googlesheets4 now bear the class &lt;code>&amp;quot;googlesheets4_error&amp;quot;&lt;/code>.&lt;/p>
+&lt;p>&lt;code>googlesheets4_quiet&lt;/code> is a new option to suppress informational messages from googlesheets4.
+&lt;a href="https://googlesheets4.tidyverse.org/reference/googlesheets4-configuration.html" target="_blank" rel="noopener">&lt;code>local_gs4_quiet()&lt;/code>&lt;/a> and
+&lt;a href="https://googlesheets4.tidyverse.org/reference/googlesheets4-configuration.html" target="_blank" rel="noopener">&lt;code>with_gs4_quiet()&lt;/code>&lt;/a> are
+&lt;a href="https://withr.r-lib.org" target="_blank" rel="noopener">withr-style&lt;/a> convenience helpers for setting &lt;code>googlesheets4_quiet = TRUE&lt;/code>.&lt;/p>
+&lt;h2 id="empty-cells">Empty cells
+&lt;a href="#empty-cells">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>It&amp;rsquo;s (not so) funny how much effort goes into handling the absence of data and googlesheets4 is no exception. We&amp;rsquo;ve made a few improvements to how we read or write nothing.&lt;/p>
+&lt;p>The &lt;code>na&lt;/code> argument of
+&lt;a href="https://googlesheets4.tidyverse.org/reference/range_read.html" target="_blank" rel="noopener">&lt;code>read_sheet()&lt;/code>&lt;/a> has become more capable and more consistent with readr. Specifically, &lt;code>na = character()&lt;/code> (or the general lack of &lt;code>&amp;quot;&amp;quot;&lt;/code> among the &lt;code>na&lt;/code> strings) results in cells with no data appearing as the empty string &lt;code>&amp;quot;&amp;quot;&lt;/code> within a character vector, as opposed to &lt;code>NA&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>dat&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/data.frame.html'>data.frame&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"one"&lt;/span>, &lt;span class='s'>""&lt;/span>, &lt;span class='s'>"three"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>ss&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/gs4_create.html'>gs4_create&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"blog-post-blanks"&lt;/span>, sheets &lt;span class='o'>=&lt;/span> &lt;span class='nv'>dat&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Creating new Sheet: "blog-post-blanks".&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/range_read.html'>read_sheet&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>ss&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Reading from "blog-post-blanks".&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Range 'dat'.&lt;/span>
+&lt;span class='c'>#&amp;gt; # A tibble: 3 x 1&lt;/span>
+&lt;span class='c'>#&amp;gt; x &lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class='c'>#&amp;gt; 1 one &lt;/span>
+&lt;span class='c'>#&amp;gt; 2 &amp;lt;NA&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; 3 three&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/range_read.html'>read_sheet&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>ss&lt;/span>, na &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/character.html'>character&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Reading from "blog-post-blanks".&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Range 'dat'.&lt;/span>
+&lt;span class='c'>#&amp;gt; # A tibble: 3 x 1&lt;/span>
+&lt;span class='c'>#&amp;gt; x &lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;chr&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; 1 "one" &lt;/span>
+&lt;span class='c'>#&amp;gt; 2 "" &lt;/span>
+&lt;span class='c'>#&amp;gt; 3 "three"&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Explicit &lt;code>NULL&lt;/code>s are also now written properly, i.e. as an empty cell. This can come up with list-columns. List-columns can easily creep in when working with Sheets edited by humans, who tend to create mixed columns by accident, i.e. mixing numbers and text.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank everyone who has helped to shape googlesheets4, since the release of v0.2.0, through their contributions in issues and pull requests:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/aaronmams" target="_blank" rel="noopener">@aaronmams&lt;/a>,
+&lt;a href="https://github.com/ajjitn" target="_blank" rel="noopener">@ajjitn&lt;/a>,
+&lt;a href="https://github.com/akgold" target="_blank" rel="noopener">@akgold&lt;/a>,
+&lt;a href="https://github.com/AvinaHunjan" target="_blank" rel="noopener">@AvinaHunjan&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/bwganblack" target="_blank" rel="noopener">@bwganblack&lt;/a>,
+&lt;a href="https://github.com/cmichaud92" target="_blank" rel="noopener">@cmichaud92&lt;/a>,
+&lt;a href="https://github.com/comicalequation" target="_blank" rel="noopener">@comicalequation&lt;/a>,
+&lt;a href="https://github.com/CorradoLanera" target="_blank" rel="noopener">@CorradoLanera&lt;/a>,
+&lt;a href="https://github.com/cpilat97" target="_blank" rel="noopener">@cpilat97&lt;/a>,
+&lt;a href="https://github.com/daattali" target="_blank" rel="noopener">@daattali&lt;/a>,
+&lt;a href="https://github.com/davidski" target="_blank" rel="noopener">@davidski&lt;/a>,
+&lt;a href="https://github.com/devu123" target="_blank" rel="noopener">@devu123&lt;/a>,
+&lt;a href="https://github.com/dgmdevelopment" target="_blank" rel="noopener">@dgmdevelopment&lt;/a>,
+&lt;a href="https://github.com/douglascm" target="_blank" rel="noopener">@douglascm&lt;/a>,
+&lt;a href="https://github.com/dulearnaux" target="_blank" rel="noopener">@dulearnaux&lt;/a>,
+&lt;a href="https://github.com/ericcrandall" target="_blank" rel="noopener">@ericcrandall&lt;/a>,
+&lt;a href="https://github.com/ericpgreen" target="_blank" rel="noopener">@ericpgreen&lt;/a>,
+&lt;a href="https://github.com/featherduino" target="_blank" rel="noopener">@featherduino&lt;/a>,
+&lt;a href="https://github.com/felixetorres" target="_blank" rel="noopener">@felixetorres&lt;/a>,
+&lt;a href="https://github.com/ferguskeatinge" target="_blank" rel="noopener">@ferguskeatinge&lt;/a>,
+&lt;a href="https://github.com/ghost" target="_blank" rel="noopener">@ghost&lt;/a>,
+&lt;a href="https://github.com/Helena-D" target="_blank" rel="noopener">@Helena-D&lt;/a>,
+&lt;a href="https://github.com/jasonboots" target="_blank" rel="noopener">@jasonboots&lt;/a>,
+&lt;a href="https://github.com/jcheng5" target="_blank" rel="noopener">@jcheng5&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/JimboMahoney" target="_blank" rel="noopener">@JimboMahoney&lt;/a>,
+&lt;a href="https://github.com/johnbde" target="_blank" rel="noopener">@johnbde&lt;/a>,
+&lt;a href="https://github.com/jpawlata" target="_blank" rel="noopener">@jpawlata&lt;/a>,
+&lt;a href="https://github.com/lpevzner" target="_blank" rel="noopener">@lpevzner&lt;/a>,
+&lt;a href="https://github.com/marcusbrito" target="_blank" rel="noopener">@marcusbrito&lt;/a>,
+&lt;a href="https://github.com/MateusMaiaDS" target="_blank" rel="noopener">@MateusMaiaDS&lt;/a>,
+&lt;a href="https://github.com/mathlete76" target="_blank" rel="noopener">@mathlete76&lt;/a>,
+&lt;a href="https://github.com/mattle24" target="_blank" rel="noopener">@mattle24&lt;/a>,
+&lt;a href="https://github.com/mikegunn" target="_blank" rel="noopener">@mikegunn&lt;/a>,
+&lt;a href="https://github.com/milamyslov" target="_blank" rel="noopener">@milamyslov&lt;/a>,
+&lt;a href="https://github.com/MonkmanMH" target="_blank" rel="noopener">@MonkmanMH&lt;/a>,
+&lt;a href="https://github.com/nicholailidow" target="_blank" rel="noopener">@nicholailidow&lt;/a>,
+&lt;a href="https://github.com/nikosbosse" target="_blank" rel="noopener">@nikosbosse&lt;/a>,
+&lt;a href="https://github.com/nilescbn" target="_blank" rel="noopener">@nilescbn&lt;/a>,
+&lt;a href="https://github.com/OmarGonD" target="_blank" rel="noopener">@OmarGonD&lt;/a>,
+&lt;a href="https://github.com/paulvern" target="_blank" rel="noopener">@paulvern&lt;/a>,
+&lt;a href="https://github.com/pschloss" target="_blank" rel="noopener">@pschloss&lt;/a>,
+&lt;a href="https://github.com/py9mrg" target="_blank" rel="noopener">@py9mrg&lt;/a>,
+&lt;a href="https://github.com/rhamo" target="_blank" rel="noopener">@rhamo&lt;/a>,
+&lt;a href="https://github.com/rhgof" target="_blank" rel="noopener">@rhgof&lt;/a>,
+&lt;a href="https://github.com/robitalec" target="_blank" rel="noopener">@robitalec&lt;/a>,
+&lt;a href="https://github.com/RussBowdrey" target="_blank" rel="noopener">@RussBowdrey&lt;/a>,
+&lt;a href="https://github.com/sacrevert" target="_blank" rel="noopener">@sacrevert&lt;/a>,
+&lt;a href="https://github.com/sanjmeh" target="_blank" rel="noopener">@sanjmeh&lt;/a>,
+&lt;a href="https://github.com/SebastianJHM" target="_blank" rel="noopener">@SebastianJHM&lt;/a>,
+&lt;a href="https://github.com/timothoms" target="_blank" rel="noopener">@timothoms&lt;/a>,
+&lt;a href="https://github.com/TMax66" target="_blank" rel="noopener">@TMax66&lt;/a>,
+&lt;a href="https://github.com/tomcardoso" target="_blank" rel="noopener">@tomcardoso&lt;/a>,
+&lt;a href="https://github.com/uhhiitsphilia" target="_blank" rel="noopener">@uhhiitsphilia&lt;/a>, and
+&lt;a href="https://github.com/YlanAllouche" target="_blank" rel="noopener">@YlanAllouche&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>The deprecated &lt;code>sheets_*()&lt;/code> functions have been removed, as promised in the warning they have been throwing for over a year. No functionality was lost: this is just the result of the function (re-)naming scheme adopted in googlesheets4 &amp;gt;= 0.2.0. This
+&lt;a href="https://googlesheets4.tidyverse.org/articles/articles/function-class-names.html#previous-use-of-sheets-prefix" target="_blank" rel="noopener">internal documentation&lt;/a> has a table that maps deprecated functions to their current counterparts. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>gargle 1.2.0</title><link>https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/</link><pubDate>Sun, 04 Jul 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/</guid><description>&lt;p>We&amp;rsquo;re psyched to announce the release of
+&lt;a href="https://gargle.r-lib.org" target="_blank" rel="noopener">gargle&lt;/a> 1.2.0. gargle is meant to take some of the pain out of working with Google APIs and is mostly aimed at the &lt;em>maintainers&lt;/em> of R packages that call Google APIs.&lt;/p>
+&lt;p>Packages that use gargle internally include
+&lt;a href="https://bigrquery.r-dbi.org" target="_blank" rel="noopener">bigrquery&lt;/a>,
+&lt;a href="https://gmailr.r-lib.org" target="_blank" rel="noopener">gmailr&lt;/a>,
+&lt;a href="https://code.markedmondson.me/googleAuthR/" target="_blank" rel="noopener">googleAuthR&lt;/a>,
+&lt;a href="https://googledrive.tidyverse.org" target="_blank" rel="noopener">googledrive&lt;/a>, and
+&lt;a href="https://googlesheets4.tidyverse.org" target="_blank" rel="noopener">googlesheets4&lt;/a>. As a conservative lower bound, gargle facilitates more than 1.5 million requests per day and over 50 million requests per month. Users of these packages, especially those who take an interest in the details around auth, may want to read on.&lt;/p>
+&lt;p>You can install gargle from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"gargle"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>I last blogged about gargle in
+&lt;a href="https://www.tidyverse.org/blog/2019/08/gargle-hello-world/" target="_blank" rel="noopener">August 2019, around the release of v0.3.1&lt;/a>. There have been several releases since then and this post highlights important changes across all of them.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://gargle.r-lib.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="stewarding-the-cache-of-user-tokens">Stewarding the cache of user tokens
+&lt;a href="#stewarding-the-cache-of-user-tokens">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Users who &amp;ldquo;just go with the flow&amp;rdquo; generally find themselves doing the
+&lt;a href="https://medium.com/typeforms-engineering-blog/the-beginners-guide-to-oauth-dancing-4b8f3666de10" target="_blank" rel="noopener">OAuth Dance&lt;/a> in the browser:&lt;/p>
+&lt;div class="highlight">
+&lt;div class="figure" style="text-align: center">
+&lt;p>&lt;img src="oauth-dance-web-flow.png" alt="Typical OAuth dance in the browser, when initiated from within R" width="100%" />&lt;/p>
+&lt;p class="caption">
+Typical OAuth dance in the browser, when initiated from within R
+&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;p>Upon success, you see this message in the browser:&lt;/p>
+&lt;pre>&lt;code>Authentication complete. Please close this page and return to R.
+&lt;/code>&lt;/pre>
+&lt;p>The dance concludes with gargle (or a wrapper package) in possession of a
+&lt;a href="https://developers.google.com/identity/protocols/oauth2#installed" target="_blank" rel="noopener">Google user token&lt;/a>. This credential usually comes with an access token, which is valid for about an hour, and a more persistent refresh token, which can be used to get new access tokens in the future. It is nice to store this refresh token somewhere, to reduce future friction for this user. We&amp;rsquo;ll refer to this &amp;ldquo;somewhere&amp;rdquo; as the &lt;em>OAuth token cache&lt;/em>. You can get a cache &amp;ldquo;situation report&amp;rdquo; with
+&lt;a href="https://gargle.r-lib.org/reference/gargle_oauth_sitrep.html" target="_blank" rel="noopener">&lt;code>gargle::gargle_oauth_sitrep()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>One of the original motivations for the gargle package was to depart from httr&amp;rsquo;s behaviour around token caching, which defaults to the current working directory.&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> By default, gargle caches user tokens centrally, at the user level, and their keys or labels also convey which Google identity is associated with each token. This reduces the chance of accidentally exposing tokens in projects that sync to remote servers (like DropBox or GitHub), increases the ability to reuse tokens across multiple R projects, and makes it easier to use multiple identities within a single project.&lt;/p>
+&lt;p>Various incremental improvements have been made around gargle&amp;rsquo;s token cache:&lt;/p>
+&lt;ul>
+&lt;li>The default cache location has moved, to better align with general conventions around where to cache user data. After upgrading gargle, don&amp;rsquo;t be surprised if you see some messages about cache relocation.&lt;/li>
+&lt;li>Token storage relies on serialized R objects and therefore is potentially sensitive to differences in R version and operating system between when a token is created and when it is (re)used. gargle is now able to recognize and cope with the most predictable and harmless effects of moving a token across time or space.&lt;/li>
+&lt;li>gargle is quite conservative about using cached tokens and likes to have explicit permission from the user. However, this is in tension with the desire to make things &amp;ldquo;just work&amp;rdquo;. Balancing these two goals is an ongoing effort:
+&lt;ul>
+&lt;li>
+&lt;p>In a non-interactive context, gargle will use a cached token, if it can find (at least) one, even if the user has not given explicit instructions. However, we complain noisily and urge the user to make their intent unambiguous in the code. This comes up, for example, when rendering an R Markdown document(&lt;code>.Rmd&lt;/code>).&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googledrive.tidyverse.org'>googledrive&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_find.html'>drive_find&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>n_max &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ℹ Suitable tokens found in the cache, associated with these emails:&lt;/span>
+&lt;span class='c'>#&amp;gt; • 'jane_personal@gmail.com'&lt;/span>
+&lt;span class='c'>#&amp;gt; • 'jane_work@example.com'&lt;/span>
+&lt;span class='c'>#&amp;gt; Defaulting to the first email.&lt;/span>
+&lt;span class='c'>#&amp;gt; ! Using an auto-discovered, cached token.&lt;/span>
+&lt;span class='c'>#&amp;gt; To suppress this message, modify your code or options to clearly consent to&lt;/span>
+&lt;span class='c'>#&amp;gt; the use of a cached token.&lt;/span>
+&lt;span class='c'>#&amp;gt; See gargle's "Non-interactive auth" vignette for more details:&lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;https://gargle.r-lib.org/articles/non-interactive-auth.html&amp;gt;&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>One of several ways to suppress this scolding is to specify an email:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googledrive.tidyverse.org'>googledrive&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_auth.html'>drive_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"jane_personal@gmail.com"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_find.html'>drive_find&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>n_max &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; # A tibble: 1 x 3&lt;/span>
+&lt;span class='c'>#&amp;gt; name id drive_resource &lt;/span>
+&lt;span class='c'>#&amp;gt; * &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;list&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; 1 useR2021-Instructions_for… 11T7_aYpSObAhUzjQU6EUCHmTFQ2s0wXK… &amp;lt;named list [32…&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>You can now identify the token you want to use with a domain-only glob-like pattern. This makes it possible to successfully execute code like this, non-interactively, on the machines of both &lt;code>alice@example.com&lt;/code> and &lt;code>bob@example.com&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googledrive.tidyverse.org'>googledrive&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'># googledrive uses gargle for auth&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_auth.html'>drive_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>email &lt;span class='o'>=&lt;/span> &lt;span class='s'>"*@example.com"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="rolling-the-built-in-oauth-client">Rolling the built-in OAuth client
+&lt;a href="#rolling-the-built-in-oauth-client">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>User tokens created with gargle are the result of
+&lt;a href="#stewarding-the-cache-of-user-tokens">the OAuth Dance mentioned above&lt;/a>, involving three parties: the user, Google, and an OAuth client (id and secret). Each user or application potentially needs to set up their own OAuth client, in order to execute this flow.&lt;/p>
+&lt;p>A small set of packages maintained by the tidyverse team make use of a shared, built-in OAuth client, which helps new users get started quickly, without the need to create their own client in order to do &amp;ldquo;Hello, World!&amp;quot;. Only these specific packages are allowed to use this client and these packages do so according to a specific
+&lt;a href="https://www.tidyverse.org/google_privacy_policy/" target="_blank" rel="noopener">privacy policy&lt;/a>. The &amp;ldquo;Tidyverse API Packages&amp;rdquo; are
+&lt;a href="https://bigrquery.r-dbi.org/" target="_blank" rel="noopener">bigrquery&lt;/a>,
+&lt;a href="https://googledrive.tidyverse.org/" target="_blank" rel="noopener">googledrive&lt;/a>, and
+&lt;a href="https://googlesheets4.tidyverse.org/" target="_blank" rel="noopener">googlesheets4&lt;/a>.&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>&lt;/p>
+&lt;p>As of gargle v1.0.0, released in March 2021, we have rolled the &amp;ldquo;Tidyverse API Packages&amp;rdquo; client, i.e. we are using a new one. Although we have not yet disabled the previous client, users should be prepared for it to stop working at any time. We use nicknames to keep track of the built-in client; the new one is known as &amp;ldquo;tidyverse-clio&amp;rdquo;, which is replacing the older &amp;ldquo;tidyverse-calliope&amp;rdquo;. You might see these nicknames in the output of
+&lt;a href="https://gargle.r-lib.org/reference/gargle_oauth_sitrep.html" target="_blank" rel="noopener">&lt;code>gargle::gargle_oauth_sitrep()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>We anticipate disabling the older &amp;ldquo;tidyverse-calliope&amp;rdquo; client no later than December 31, 2021. If a specific reason arises before then, we could disable it even sooner. This will also be announced in a future, dedicated blog post.&lt;/p>
+&lt;p>When gargle encounters a token created with the old built-in client, the token is deleted from the cache. So don&amp;rsquo;t be surprised if you see some messages about cleaning out (and relocating) the cache, after you upgrade gargle.&lt;/p>
+&lt;p>You can expect to do the interactive OAuth dance to obtain new credentials, with the new client, stored in the new token cache, approximately once per wrapper package / API. The consequence of credential rolling are also covered here:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://gargle.r-lib.org/articles/troubleshooting.html#credential-rolling">https://gargle.r-lib.org/articles/troubleshooting.html#credential-rolling&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call&lt;/strong> that you should be using your own OAuth client or, quite possibly, an entirely different method of auth. Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.&lt;/p>
+&lt;p>As always, these articles explain how to take more control of auth:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://gargle.r-lib.org/articles/get-api-credentials.html">https://gargle.r-lib.org/articles/get-api-credentials.html&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://gargle.r-lib.org/articles/non-interactive-auth.html">https://gargle.r-lib.org/articles/non-interactive-auth.html&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="workload-identity-federation">Workload identity federation
+&lt;a href="#workload-identity-federation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Workload identity federation is a new (as of April 2021) keyless authentication mechanism offered by Google. This allows applications running on a non-Google Cloud platform, such as AWS, to access Google Cloud resources without using a conventional service account token, eliminating the security problem posed by long-lived, powerful service account credential files. Basically, instead of storing sensitive information in a file that must be managed with great care, the necessary secrets are obtained on-the-fly and exchanged for short-lived tokens, with very granular control over what actions are allowed. There is a cost, of course, which is that this auth method requires substantial configuration on both the GCP and AWS sides.&lt;/p>
+&lt;p>&lt;code>credentials_external_account()&lt;/code> is a new function that implements workload identity federation. &lt;code>credentials_external_account()&lt;/code> has been inserted into the default registry of credential-fetchers tried by &lt;code>token_fetch()&lt;/code>, which makes it automatically available in packages that use gargle for auth, such as bigrquery. &lt;code>credentials_app_default()&lt;/code> recognizes the JSON configuration for an external account and passes such a call along to &lt;code>credentials_external_account()&lt;/code>. This means that, when placed in one of the locations searched by the Application Default Credential strategy, an external account configuration file will be automatically discovered.&lt;/p>
+&lt;p>This new feature is still experimental and currently only supports AWS. This blog post provides a good high-level introduction to workload identity federation:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://cloud.google.com/blog/products/identity-security/enable-keyless-access-to-gcp-with-workload-identity-federation" target="_blank" rel="noopener">Keyless API authentication&amp;mdash;Better cloud security through workload identity federation, no service account keys necessary&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="out-of-bound-auth">Out of bound auth
+&lt;a href="#out-of-bound-auth">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The
+&lt;a href="#stewarding-the-cache-of-user-tokens">browser-based OAuth dance described above&lt;/a> is, ironically, not fully available when you are using R inside a web browser, as is the case for RStudio Workbench, Server, and Cloud. When working on these platforms, you need to use the &lt;strong>&amp;ldquo;out of bound&amp;rdquo; (oob)&lt;/strong> auth flow. After authenticating yourself and confirming permissions, a token is made available for you to copy and paste into R.&lt;/p>
+&lt;div class="highlight">
+&lt;div class="figure" style="text-align: center">
+&lt;p>&lt;img src="oauth-dance-oob-copy-paste.png" alt="A Google Sign in process ending with &amp;quot;Please copy this code, switch to your application and paste it there&amp;quot;" width="40%" />&lt;/p>
+&lt;p class="caption">
+A Google Sign in process ending with "Please copy this code, switch to your application and paste it there"
+&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;p>Back in R, you will paste this code at the prompt and then be on your merry way:&lt;/p>
+&lt;pre>&lt;code>Enter authorization code:
+&lt;/code>&lt;/pre>
+&lt;p>gargle-using wrapper packages generally expose an argument to request oob auth, e.g.:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>googledrive&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_auth.html'>drive_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>...&lt;/span>, use_oob &lt;span class='o'>=&lt;/span> &lt;span class='nf'>gargle&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://gargle.r-lib.org/reference/gargle_options.html'>gargle_oob_default&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The problem is, lots of folks who need oob auth have never even heard of oob auth! And, therefore, they don&amp;rsquo;t know to request it. This reality is something we can, and now do, anticipate.&lt;/p>
+&lt;p>Instead of possibly failing with an inscrutable error,
+&lt;a href="https://gargle.r-lib.org/reference/gargle_options.html" target="_blank" rel="noopener">&lt;code>gargle::gargle_oob_default()&lt;/code>&lt;/a> has gotten smarter about figuring out whether oob is needed:&lt;/p>
+&lt;ul>
+&lt;li>We now (try to) detect if we&amp;rsquo;re running on RStudio Workbench, Server, or Cloud and, if so, &lt;code>gargle_oob_default()&lt;/code> returns &lt;code>TRUE&lt;/code> unconditionally.&lt;/li>
+&lt;li>We honor the &lt;code>&amp;quot;httr_oob_default&amp;quot;&lt;/code> option, when set, if the option &lt;code>&amp;quot;gargle_oob_default&amp;quot;&lt;/code> is unset. Previously, we only consulted the gargle option, but it makes sense to honor httr&amp;rsquo;s as well.&lt;/li>
+&lt;/ul>
+&lt;h3 id="suggesting-httpuv">Suggesting httpuv
+&lt;a href="#suggesting-httpuv">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The slick in-browser OAuth flow described at the start of the post &amp;ndash; i.e., the nicer &lt;em>alternative&lt;/em> to oob auth &amp;ndash; requires the httpuv package. Sometimes users who could enjoy this flow don&amp;rsquo;t have httpuv installed and end up with the clunky oob auth flow, for no good reason. This is a shame, as the experience is definitely inferior.&lt;/p>
+&lt;p>We&amp;rsquo;ve taken a few measures to encourage these folks to install httpuv and enjoy a happier auth life:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Previously, httpuv was only indirectly suggested by gargle, via httr. gargle now lists httpuv in its own &lt;code>Suggests&lt;/code> field.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>We encourage the installation of httpuv in interactive sessions, if we&amp;rsquo;re about to initiate oob auth, when it seems like we don&amp;rsquo;t have to.&lt;/p>
+&lt;pre>&lt;code>The httpuv package enables a nicer Google auth experience, in many cases.
+It doesn't seem to be installed.
+Would you like to install it now?
+1: Yes
+2: No
+Selection:
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="user-interface">User interface
+&lt;a href="#user-interface">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The user interface has gotten more stylish, thanks to the cli package (&lt;a href="https://cli.r-lib.org">https://cli.r-lib.org&lt;/a>). This applies to informational messages, as well as to errors.&lt;/p>
+&lt;p>All errors thrown by gargle now route through
+&lt;a href="https://rlang.r-lib.org/reference/abort.html" target="_blank" rel="noopener">&lt;code>rlang::abort()&lt;/code>&lt;/a>, providing better access to the backtrace and error data. These errors have, at the very least, the &lt;code>gargle_error&lt;/code> class and may also have additional subclasses.&lt;/p>
+&lt;h3 id="verbosity">Verbosity
+&lt;a href="#verbosity">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Since gargle is not a user-facing package, it has very little to say and only emits messages that end users &lt;em>really&lt;/em> need to see. But sometimes it is useful to get more information about gargle&amp;rsquo;s activities, especially when trying to figure out why &lt;code>token_fetch()&lt;/code> isn&amp;rsquo;t working the way you expect. In the past, we used the &lt;code>&amp;quot;gargle_quiet&amp;quot;&lt;/code> option for this, which could be &lt;code>TRUE&lt;/code> or &lt;code>FALSE&lt;/code>.&lt;/p>
+&lt;p>The previous on/off switch has been deprecated in favor of the new &lt;code>&amp;quot;gargle_verbosity&amp;quot;&lt;/code> option, which has three levels:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>&amp;quot;debug&amp;quot;&lt;/code> is equivalent to the previous &lt;code>gargle_quiet = FALSE&lt;/code>. Use for debugging and troubleshooting.&lt;/li>
+&lt;li>&lt;code>&amp;quot;info&amp;quot;&lt;/code> (the default) is basically equivalent to the previous &lt;code>gargle_quiet = TRUE&lt;/code>.&lt;/li>
+&lt;li>&lt;code>&amp;quot;silent&amp;quot;&lt;/code> can be used to suppress all gargle messages. It has no previous equivalent.&lt;/li>
+&lt;/ul>
+&lt;p>There are a couple of helpers around verbosity:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>gargle_verbosity()&lt;/code> reports the current verbosity level.&lt;/li>
+&lt;li>&lt;code>with_gargle_verbosity()&lt;/code> and &lt;code>local_gargle_verbosity()&lt;/code> are
+&lt;a href="https://withr.r-lib.org" target="_blank" rel="noopener">withr-style&lt;/a> functions that temporarily modify the verbosity level.&lt;/li>
+&lt;/ul>
+&lt;h2 id="retries">Retries
+&lt;a href="#retries">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>gargle offers some Google-specific support for forming requests and handling responses, in addition to and separate from auth.&lt;/p>
+&lt;p>Not all wrapper packages use this functionality, but &lt;em>googlesheets4 does&lt;/em>. The
+&lt;a href="https://developers.google.com/sheets/api/reference/limits" target="_blank" rel="noopener">usage limits for the Sheets API&lt;/a> are low enough that regular folks run up against them fairly often. This aggravation is somewhat specific to Sheets, i.e. we don&amp;rsquo;t see similar pain with the Drive and BigQuery APIs, which have much more generous limits. When you hit the Sheets &amp;ldquo;per user&amp;rdquo; or &amp;ldquo;per project&amp;rdquo; limit, requests fail with the error code &lt;code>429 RESOURCE_EXHAUSTED&lt;/code>.&lt;/p>
+&lt;p>Sidebar: As of July 2021, there is a limit of &amp;ldquo;500 requests per 100 seconds per project&amp;rdquo;. In the case of a user token, the &amp;ldquo;project&amp;rdquo; refers to the GCP project that owns the OAuth client. Everyone who uses the built-in &amp;ldquo;Tidyverse API Packages&amp;rdquo; OAuth client is sharing this &amp;ldquo;per project&amp;rdquo; quota! If you&amp;rsquo;re hitting &amp;ldquo;per project&amp;rdquo; limits regularly and it upsets your workflow, the universe is telling you that it&amp;rsquo;s time to configure your own OAuth client or use a different method of auth. End of sidebar.&lt;/p>
+&lt;p>
+&lt;a href="https://gargle.r-lib.org/reference/request_retry.html" target="_blank" rel="noopener">&lt;code>gargle::request_retry()&lt;/code>&lt;/a> is a drop-in substitute for
+&lt;a href="https://gargle.r-lib.org/reference/request_make.html" target="_blank" rel="noopener">&lt;code>gargle::request_make()&lt;/code>&lt;/a> that uses (modified) exponential backoff to retry requests that fail with error &lt;code>429&lt;/code>. &lt;code>request_retry()&lt;/code> even has some special knowledge about Sheets-specific limits and, in some cases, will wait 100 seconds for the user&amp;rsquo;s quota to reset.&lt;/p>
+&lt;p>The development version of googlesheets4 already uses &lt;code>request_retry()&lt;/code>, which will be released to CRAN soon.&lt;/p>
+&lt;p>&lt;code>request_retry()&lt;/code> will support error codes beyond &lt;code>429&lt;/code> in the next gargle release.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank everyone who has furthered the development of gargle, from v0.3.1 to v1.2.0, through their contributions in issues and pull requests:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/acroz" target="_blank" rel="noopener">@acroz&lt;/a>,
+&lt;a href="https://github.com/akgold" target="_blank" rel="noopener">@akgold&lt;/a>,
+&lt;a href="https://github.com/alanfalcaothe" target="_blank" rel="noopener">@alanfalcaothe&lt;/a>,
+&lt;a href="https://github.com/atreibs" target="_blank" rel="noopener">@atreibs&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/biol75" target="_blank" rel="noopener">@biol75&lt;/a>,
+&lt;a href="https://github.com/btrx-sreddy" target="_blank" rel="noopener">@btrx-sreddy&lt;/a>,
+&lt;a href="https://github.com/craigcitro" target="_blank" rel="noopener">@craigcitro&lt;/a>,
+&lt;a href="https://github.com/domsle" target="_blank" rel="noopener">@domsle&lt;/a>,
+&lt;a href="https://github.com/ekarsten" target="_blank" rel="noopener">@ekarsten&lt;/a>,
+&lt;a href="https://github.com/EricGoldsmith" target="_blank" rel="noopener">@EricGoldsmith&lt;/a>,
+&lt;a href="https://github.com/FedericoTrifoglio" target="_blank" rel="noopener">@FedericoTrifoglio&lt;/a>,
+&lt;a href="https://github.com/irfanalidv" target="_blank" rel="noopener">@irfanalidv&lt;/a>,
+&lt;a href="https://github.com/jayBana" target="_blank" rel="noopener">@jayBana&lt;/a>,
+&lt;a href="https://github.com/jcheng5" target="_blank" rel="noopener">@jcheng5&lt;/a>,
+&lt;a href="https://github.com/jdtrat" target="_blank" rel="noopener">@jdtrat&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/MarkEdmondson1234" target="_blank" rel="noopener">@MarkEdmondson1234&lt;/a>,
+&lt;a href="https://github.com/michaelquinn32" target="_blank" rel="noopener">@michaelquinn32&lt;/a>,
+&lt;a href="https://github.com/muschellij2" target="_blank" rel="noopener">@muschellij2&lt;/a>,
+&lt;a href="https://github.com/ogola89" target="_blank" rel="noopener">@ogola89&lt;/a>,
+&lt;a href="https://github.com/Ozan147" target="_blank" rel="noopener">@Ozan147&lt;/a>,
+&lt;a href="https://github.com/petrbouchal" target="_blank" rel="noopener">@petrbouchal&lt;/a>,
+&lt;a href="https://github.com/pofl" target="_blank" rel="noopener">@pofl&lt;/a>,
+&lt;a href="https://github.com/py9mrg" target="_blank" rel="noopener">@py9mrg&lt;/a>,
+&lt;a href="https://github.com/rensa" target="_blank" rel="noopener">@rensa&lt;/a>,
+&lt;a href="https://github.com/samterfa" target="_blank" rel="noopener">@samterfa&lt;/a>,
+&lt;a href="https://github.com/selesnow" target="_blank" rel="noopener">@selesnow&lt;/a>,
+&lt;a href="https://github.com/tareefk" target="_blank" rel="noopener">@tareefk&lt;/a>,
+&lt;a href="https://github.com/tstratopoulos" target="_blank" rel="noopener">@tstratopoulos&lt;/a>, and
+&lt;a href="https://github.com/vimota" target="_blank" rel="noopener">@vimota&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>The successor to httr is under development and, like gargle, it will also cache user tokens at the user level: &lt;a href="https://httr2.r-lib.org">https://httr2.r-lib.org&lt;/a>. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>gmailr is not included here, because the Gmail scopes are so sensitive that anyone wishing to work with Gmail programmatically really must set up their own OAuth client. &lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>googlesheets4 0.2.0</title><link>https://www.tidyverse.org/blog/2020/05/googlesheets4-0-2-0/</link><pubDate>Sun, 10 May 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/05/googlesheets4-0-2-0/</guid><description>&lt;p>We&amp;rsquo;re ecstatic to announce the release of googlesheets4 0.2.0 on CRAN:&lt;/p>
+&lt;p>
+&lt;a href="https://googlesheets4.tidyverse.org" target="_blank" rel="noopener">googlesheets4.tidyverse.org&lt;/a>&lt;/p>
+&lt;p>googlesheets4 is a package to work with Google Sheets from R. Although version 0.1.0 debuted on CRAN in late 2019, I&amp;rsquo;ve waited to blog about it until I considered googlesheet4 a replacement for an older package called googlesheets. That day is here! In particular, googlesheets 0.2.0 can create and edit Sheets.&lt;/p>
+&lt;p>Install googlesheets4 from CRAN like so:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;googlesheets4&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then attach it for use via:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">googlesheets4&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Below we give a brief overview of the basic read and write functionality of googlesheets4. The website has
+&lt;a href="https://googlesheets4.tidyverse.org/articles/index.html" target="_blank" rel="noopener">several articles&lt;/a> that document more advanced use and special topics, such as auth. As always, you can find detailed notes about all changes in the
+&lt;a href="https://googlesheets4.tidyverse.org/news/index.html" target="_blank" rel="noopener">change log&lt;/a>.&lt;/p>
+&lt;h2 id="googlesheets-is-dead-long-live-googlesheets4">googlesheets is dead! Long live googlesheets4!
+&lt;a href="#googlesheets-is-dead-long-live-googlesheets4">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>googlesheets4 is a reboot of an earlier package called googlesheets.&lt;/p>
+&lt;p>&lt;em>Why &lt;strong>4&lt;/strong>? Why googlesheets&lt;strong>4&lt;/strong>? Did I miss googlesheets1 through 3? No. The idea is to name the package after the corresponding version of the Sheets API. In hindsight, the original googlesheets should have been googlesheets&lt;strong>3&lt;/strong>.&lt;/em>&lt;/p>
+&lt;p>googlesheets4 wraps
+&lt;a href="https://developers.google.com/sheets" target="_blank" rel="noopener">v4 of the Sheets API&lt;/a>, whereas the original googlesheets wraps v3. The
+&lt;a href="https://developers.google.com/sheets/api/v3" target="_blank" rel="noopener">v3 API&lt;/a> has been deprecated for a long time. Its shut-off has been postponed several times, but its days are clearly numbered. Gradual shutdown of certain endpoints and scopes is already underway, with complete shutdown
+&lt;a href="https://cloud.google.com/blog/products/g-suite/migrate-your-apps-use-latest-sheets-api" target="_blank" rel="noopener">expected on September 30, 2020&lt;/a> at the time of writing. If you use googlesheets, you &lt;strong>must&lt;/strong> switch to googlesheets4 and the time is now.&lt;/p>
+&lt;p>Change is hard, but let&amp;rsquo;s focus on the positive:&lt;/p>
+&lt;ul>
+&lt;li>The v4 API has a better design, which makes it easier to wrap, which
+translates to a better user experience in client packages.&lt;/li>
+&lt;li>I have gotten a lot better at writing R packages. Some of the fiddly parts
+of the original googlesheets came from the awkward v3 API, but some of it
+came from me.&lt;/li>
+&lt;li>The gargle package (
+&lt;a href="https://gargle.r-lib.org" target="_blank" rel="noopener">gargle.r-lib.org&lt;/a>) provides
+infrastructure common to ~250 Google APIs, including Sheets, Drive, Gmail, and
+BigQuery. By using gargle for auth, we can provide a consistent auth
+experience across googlesheets4, googledrive, gmailr, and bigrquery.&lt;/li>
+&lt;li>The googledrive package (
+&lt;a href="https://googledrive.tidyverse.org" target="_blank" rel="noopener">googledrive.tidyverse.org&lt;/a>)
+provides a full-featured client for working with files on Google Drive, which
+allows googlesheets4 to focus on operations specific to spreadsheets. In the
+original googlesheets package, about half of the code and effort was actually
+related to Drive, not Sheets.&lt;/li>
+&lt;/ul>
+&lt;h2 id="read-a-sheet">Read a Sheet
+&lt;a href="#read-a-sheet">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Let&amp;rsquo;s say you&amp;rsquo;re staring at a Sheet&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> in the browser and you want to read it into R. Copy the URL to your clipboard and paste it into a call to &lt;code>read_sheet()&lt;/code> like this:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">read_sheet&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;https://docs.google.com/spreadsheets/d/1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY/edit#gid=780868077&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Reading from &amp;#34;gapminder&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; Range &amp;#34;Africa&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 624 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; country continent year lifeExp pop gdpPercap&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 Algeria Africa 1952 43.1 9279525 2449.&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 Algeria Africa 1957 45.7 10270856 3014.&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 Algeria Africa 1962 48.3 11000948 2551.&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 Algeria Africa 1967 51.4 12760499 3247.&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 Algeria Africa 1972 54.5 14760787 4183.&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 619 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;em>If you&amp;rsquo;re following along at home, you probably just got a prompt to log in with Google. That&amp;rsquo;s because, in general, you&amp;rsquo;ll want googlesheets4 to be able to do the same things you can do with Sheets in the browser. If you know you only want to read public Sheets, you can use &lt;code>gs4_deauth()&lt;/code> to tell googlesheets4 that it should not attempt auth.&lt;/em>&lt;/p>
+&lt;p>I&amp;rsquo;m reading from one of our public example Sheets &amp;mdash; specifically, a Sheet that holds Gapminder data. A browser URL is OK for quick-and-dirty work, but there are other ways to target a Sheet that are more robust and easier on the eyes.&lt;/p>
+&lt;p>You will often want to refer to your Sheets by ID or by name. For the public example Sheets, we offer convenience functions &lt;code>gs4_example()&lt;/code> and &lt;code>gs4_examples()&lt;/code> to get IDs based on name.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">gap_id&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">gs4_example&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;gapminder&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">class&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gap_id&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;sheets_id&amp;#34; &amp;#34;drive_id&amp;#34;&lt;/span>
+&lt;span class="nf">unclass&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gap_id&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; gapminder &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;#34;1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY&amp;#34;&lt;/span>
+&lt;span class="n">gap_id&lt;/span>
+&lt;span class="c1">#&amp;gt; Spreadsheet name: gapminder&lt;/span>
+&lt;span class="c1">#&amp;gt; ID: 1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY&lt;/span>
+&lt;span class="c1">#&amp;gt; Locale: en_US&lt;/span>
+&lt;span class="c1">#&amp;gt; Time zone: America/Los_Angeles&lt;/span>
+&lt;span class="c1">#&amp;gt; # of sheets: 5&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; (Sheet name): (Nominal extent in rows x columns)&lt;/span>
+&lt;span class="c1">#&amp;gt; Africa: 625 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; Americas: 301 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; Asia: 397 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; Europe: 361 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; Oceania: 25 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; (Named range): (A1 range) &lt;/span>
+&lt;span class="c1">#&amp;gt; canada: &amp;#39;Americas&amp;#39;!A38:F49&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The above demonstrates that printing a Sheet ID (literally, an instance of &lt;code>sheets_id&lt;/code>) reveals relevant metadata about the Sheet, such as its name and an overview of its worksheets and named ranges.&lt;/p>
+&lt;p>&lt;code>read_sheet()&lt;/code> is happy to accept a Sheet ID, instead of a URL. Such a Sheet ID might be an instance of &lt;code>sheets_id&lt;/code>, but you can also provide the ID as a string. Here we show piping a Sheet ID into &lt;code>read_sheet()&lt;/code> and we start to demonstrate other features, e.g. the use of a qualified A1-style &lt;code>range&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">gs4_example&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;gapminder&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">read_sheet&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">range&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;Asia!A:D&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Reading from &amp;#34;gapminder&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; Range &amp;#34;&amp;#39;Asia&amp;#39;!A:D&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 396 x 4&lt;/span>
+&lt;span class="c1">#&amp;gt; country continent year lifeExp&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 Afghanistan Asia 1952 28.8&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 Afghanistan Asia 1957 30.3&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 Afghanistan Asia 1962 32.0&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 Afghanistan Asia 1967 34.0&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 Afghanistan Asia 1972 36.1&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 391 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>But how do you get a Sheet ID for your &lt;em>own&lt;/em> Sheets? First, you can use &lt;code>as_sheets_id()&lt;/code> to extract the ID from various types of input, such as a browser URL. I use &lt;code>as.character()&lt;/code> here to suppress the default printing behaviour, so we can just stare at the plain string.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">as_sheets_id&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;https://docs.google.com/spreadsheets/d/1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY/edit#gid=780868077&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">as.character&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>We can also use googledrive&amp;rsquo;s ability to address Drive files by &lt;strong>name&lt;/strong>&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup> to help us identify the Sheet of interest. The account I&amp;rsquo;m logged in with owns a Sheet named &amp;ldquo;deaths&amp;rdquo; and &lt;code>googledrive::drive_get()&lt;/code> retrieves its metadata as a &lt;code>dribble&lt;/code> (&amp;ldquo;Drive tibble&amp;rdquo;). &lt;code>as_sheets_id()&lt;/code> is also happy to take a &lt;code>dribble&lt;/code> as input, but it must contain exactly 1 row, describing a Drive file that is also a Sheet.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">deaths_dribble&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">googledrive&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">drive_get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;deaths&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">deaths_dribble&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 4&lt;/span>
+&lt;span class="c1">#&amp;gt; name path id drive_resource &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;list&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 deaths ~/deaths 1VTJjWoP1nshbyxmL9JqXgdVsimaYty21LGxxs018H2Y &amp;lt;named list [35]&amp;gt;&lt;/span>
+&lt;span class="nf">as_sheets_id&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">deaths_dribble&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Spreadsheet name: deaths&lt;/span>
+&lt;span class="c1">#&amp;gt; ID: 1VTJjWoP1nshbyxmL9JqXgdVsimaYty21LGxxs018H2Y&lt;/span>
+&lt;span class="c1">#&amp;gt; Locale: en_US&lt;/span>
+&lt;span class="c1">#&amp;gt; Time zone: America/Los_Angeles&lt;/span>
+&lt;span class="c1">#&amp;gt; # of sheets: 2&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; (Sheet name): (Nominal extent in rows x columns)&lt;/span>
+&lt;span class="c1">#&amp;gt; arts: 1000 x 26&lt;/span>
+&lt;span class="c1">#&amp;gt; other: 1000 x 26&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; (Named range): (A1 range) &lt;/span>
+&lt;span class="c1">#&amp;gt; other_data: &amp;#39;other&amp;#39;!A5:F15&lt;/span>
+&lt;span class="c1">#&amp;gt; arts_data: &amp;#39;arts&amp;#39;!A5:F15&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>read_sheet()&lt;/code> also accepts a one-row &lt;code>dribble&lt;/code> as input. Here I also show the use of &lt;code>range&lt;/code> to target a &lt;em>named range&lt;/em> and specify some of the column types:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">deaths_dribble&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">read_sheet&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">range&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;arts_data&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">col_types&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;??i?DD&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Reading from &amp;#34;deaths&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; Range &amp;#34;arts_data&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 10 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; Name Profession Age `Has kids` `Date of birth` `Date of death`&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;int&amp;gt; &amp;lt;lgl&amp;gt; &amp;lt;date&amp;gt; &amp;lt;date&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 David Bowie musician 69 TRUE 1947-01-08 2016-01-10 &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 Carrie Fisher actor 60 TRUE 1956-10-21 2016-12-27 &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 Chuck Berry musician 90 TRUE 1926-10-18 2017-03-18 &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 Bill Paxton actor 61 TRUE 1955-05-17 2017-02-25 &lt;/span>
+&lt;span class="c1">#&amp;gt; 5 Prince musician 57 TRUE 1958-06-07 2016-04-21 &lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 5 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>read_sheet()&lt;/code> is the main &amp;ldquo;read&amp;rdquo; function of googlesheets4 and should remind you of other table-reading functions, like &lt;code>readr::read_csv()&lt;/code> and &lt;code>readxl::read_excel()&lt;/code>. It also goes by another name: &lt;code>range_read()&lt;/code>, which is the most correct name according to googlesheets4&amp;rsquo;s naming conventions. Either name is fine! It&amp;rsquo;s OK if you don&amp;rsquo;t care about this, I just want to give you a heads up. If you make extensive use of googlesheets4, you&amp;rsquo;ll notice there are 3 large families of functions, with the prefixes &lt;code>gs4_&lt;/code>, &lt;code>sheet_&lt;/code>, and &lt;code>range_&lt;/code>. The prefix conveys a function&amp;rsquo;s scope of operation.&lt;/p>
+&lt;p>Remember there are
+&lt;a href="https://googlesheets4.tidyverse.org/articles/index.html" target="_blank" rel="noopener">articles&lt;/a> that go into much more depth on reading Sheets, column types, and using googlesheets4 in concert with googledrive.&lt;/p>
+&lt;h2 id="write-and-modify-a-sheet">Write and modify a Sheet
+&lt;a href="#write-and-modify-a-sheet">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>I&amp;rsquo;ll go out in a blaze of glory, demonstrating just a few of the functions that can create and edit a Sheet.&lt;/p>
+&lt;p>First I create a new Sheet with &lt;code>gs4_create()&lt;/code> and send some initial data to two well-named worksheets:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">ss&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">gs4_create&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="s">&amp;#34;able-aardvark&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">sheets&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">flowers&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">head&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">iris&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">autos&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">head&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Creating new Sheet: &amp;#34;able-aardvark&amp;#34;&lt;/span>
+&lt;span class="n">ss&lt;/span>
+&lt;span class="c1">#&amp;gt; Spreadsheet name: able-aardvark&lt;/span>
+&lt;span class="c1">#&amp;gt; ID: 1OV9Mxf-NdTyB1ChmlVKEFy0e1AaPAJCahzcWBw1w3qQ&lt;/span>
+&lt;span class="c1">#&amp;gt; Locale: en_US&lt;/span>
+&lt;span class="c1">#&amp;gt; Time zone: Etc/GMT&lt;/span>
+&lt;span class="c1">#&amp;gt; # of sheets: 2&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; (Sheet name): (Nominal extent in rows x columns)&lt;/span>
+&lt;span class="c1">#&amp;gt; flowers: 7 x 5&lt;/span>
+&lt;span class="c1">#&amp;gt; autos: 7 x 11&lt;/span>
+&lt;span class="nf">read_sheet&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ss&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Reading from &amp;#34;able-aardvark&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; Range &amp;#34;flowers&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 6 x 5&lt;/span>
+&lt;span class="c1">#&amp;gt; Sepal.Length Sepal.Width Petal.Length Petal.Width Species&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 5.1 3.5 1.4 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 4.9 3 1.4 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 4.7 3.2 1.3 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 4.6 3.1 1.5 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 5 5 3.6 1.4 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 1 more row&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>If you&amp;rsquo;re following along at home, you can use &lt;code>gs4_browse()&lt;/code> to open a Sheet in your default web browser. This is especially helpful when you are developing code that writes to a Sheet.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">gs4_browse&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ss&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now I send a third data frame to an entirely new (work)sheet within this existing (spread)Sheet with &lt;code>write_sheet()&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">my_data&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">data.frame&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">numbers&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">6&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="kc">letters&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">letters&lt;/span>&lt;span class="n">[1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">6&lt;/span>&lt;span class="n">]&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="nf">write_sheet&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">my_data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">ss&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ss&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Writing to &amp;#34;able-aardvark&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; Writing to sheet &amp;#34;my_data&amp;#34;&lt;/span>
+&lt;span class="n">ss&lt;/span>
+&lt;span class="c1">#&amp;gt; Spreadsheet name: able-aardvark&lt;/span>
+&lt;span class="c1">#&amp;gt; ID: 1OV9Mxf-NdTyB1ChmlVKEFy0e1AaPAJCahzcWBw1w3qQ&lt;/span>
+&lt;span class="c1">#&amp;gt; Locale: en_US&lt;/span>
+&lt;span class="c1">#&amp;gt; Time zone: Etc/GMT&lt;/span>
+&lt;span class="c1">#&amp;gt; # of sheets: 3&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; (Sheet name): (Nominal extent in rows x columns)&lt;/span>
+&lt;span class="c1">#&amp;gt; flowers: 7 x 5&lt;/span>
+&lt;span class="c1">#&amp;gt; autos: 7 x 11&lt;/span>
+&lt;span class="c1">#&amp;gt; my_data: 7 x 2&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Let&amp;rsquo;s append a row to the bottom of &lt;code>my_data&lt;/code> and populate it with formulas that summarize the data in each column (hey, a sparkline!).&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">my_summaries&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">data.frame&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">gs4_formula&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#39;=SPARKLINE(A2:A7, {&amp;#34;color&amp;#34;, &amp;#34;blue&amp;#34;})&amp;#39;&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">gs4_formula&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#39;=JOIN(&amp;#34;-&amp;#34;, B2:B7)&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="n">ss&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">sheet_append&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">my_summaries&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">sheet&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;my_data&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Writing to &amp;#34;able-aardvark&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; Appending 1 row(s) to &amp;#34;my_data&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Notice that we did not have to specify which row to write the new values into. &lt;code>sheet_append()&lt;/code> uses an endpoint that knows how to add rows to the existing table of data. It&amp;rsquo;s true that we used some row knowledge in our formulas, but more often you will just be sending data. Also notice the use of &lt;code>gs4_formula()&lt;/code>. This is how you indicate that character data should be sent as Sheets formulas, as opposed to regular strings.&lt;/p>
+&lt;p>Let&amp;rsquo;s take one last glance at our creation.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">ss&lt;/span>
+&lt;span class="c1">#&amp;gt; Spreadsheet name: able-aardvark&lt;/span>
+&lt;span class="c1">#&amp;gt; ID: 1OV9Mxf-NdTyB1ChmlVKEFy0e1AaPAJCahzcWBw1w3qQ&lt;/span>
+&lt;span class="c1">#&amp;gt; Locale: en_US&lt;/span>
+&lt;span class="c1">#&amp;gt; Time zone: Etc/GMT&lt;/span>
+&lt;span class="c1">#&amp;gt; # of sheets: 3&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; (Sheet name): (Nominal extent in rows x columns)&lt;/span>
+&lt;span class="c1">#&amp;gt; flowers: 7 x 5&lt;/span>
+&lt;span class="c1">#&amp;gt; autos: 7 x 11&lt;/span>
+&lt;span class="c1">#&amp;gt; my_data: 8 x 2&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>In the browser, the &lt;code>my_data&lt;/code> sheet looks something like this at this point:&lt;/p>
+&lt;p>&lt;img src="append-formula-sparkline.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" width="40%" />&lt;/p>
+&lt;p>Finally, we clean up. Note that we (must) use googledrive for this. The Sheets API can create a Sheet, but alas it cannot delete one. For that (and most other &amp;ldquo;whole file&amp;rdquo; operations), we must use the Drive API, which is why googlesheets4 is designed to work &lt;em>with&lt;/em> googledrive.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">googledrive&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">drive_trash&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ss&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Files trashed:&lt;/span>
+&lt;span class="c1">#&amp;gt; * able-aardvark: 1OV9Mxf-NdTyB1ChmlVKEFy0e1AaPAJCahzcWBw1w3qQ&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Once again, the
+&lt;a href="https://googlesheets4.tidyverse.org/articles/index.html" target="_blank" rel="noopener">articles&lt;/a> provide much deeper coverage of topics like identifying and modifying Sheets.&lt;/p>
+&lt;h2 id="try-it-out">Try it out
+&lt;a href="#try-it-out">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The googlesheets4 package is marked as experimental, but it&amp;rsquo;s really somewhere between
+&lt;a href="https://www.tidyverse.org/lifecycle/#experimental" target="_blank" rel="noopener">experimental&lt;/a> and
+&lt;a href="https://www.tidyverse.org/lifecycle/#maturing" target="_blank" rel="noopener">maturing&lt;/a>. This is the first CRAN release that includes write and edit capability, so I want the flexibility to make some relatively quick, modest changes to the interface in response to user feedback. But such changes get more painful for everyone the longer we wait. Now is a great time to take googlesheets4 out for a test drive.&lt;/p>
+&lt;p>If you encounter ergonomic problems or spot tasks that were possible with googlesheets but are not yet possible with googlesheet4, please
+&lt;a href="https://github.com/tidyverse/googlesheets4/issues" target="_blank" rel="noopener">open an issue&lt;/a>.&lt;/p>
+&lt;h2 id="thank-you">Thank you!
+&lt;a href="#thank-you">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all 64 contributors who&amp;rsquo;ve helped to bring googlesheets4 to this point via their contributions on GitHub.
+&lt;a href="https://github.com/4marel" target="_blank" rel="noopener">@4marel&lt;/a>,
+&lt;a href="https://github.com/AaronGullickson" target="_blank" rel="noopener">@AaronGullickson&lt;/a>,
+&lt;a href="https://github.com/adisarid" target="_blank" rel="noopener">@adisarid&lt;/a>,
+&lt;a href="https://github.com/ahelgason" target="_blank" rel="noopener">@ahelgason&lt;/a>,
+&lt;a href="https://github.com/alex-steiner-next" target="_blank" rel="noopener">@alex-steiner-next&lt;/a>,
+&lt;a href="https://github.com/aljrico" target="_blank" rel="noopener">@aljrico&lt;/a>,
+&lt;a href="https://github.com/amir2cs" target="_blank" rel="noopener">@amir2cs&lt;/a>,
+&lt;a href="https://github.com/antoine-sachet" target="_blank" rel="noopener">@antoine-sachet&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/behrman" target="_blank" rel="noopener">@behrman&lt;/a>,
+&lt;a href="https://github.com/ben519" target="_blank" rel="noopener">@ben519&lt;/a>,
+&lt;a href="https://github.com/Biomiha" target="_blank" rel="noopener">@Biomiha&lt;/a>,
+&lt;a href="https://github.com/BriBecker" target="_blank" rel="noopener">@BriBecker&lt;/a>,
+&lt;a href="https://github.com/ceprdata" target="_blank" rel="noopener">@ceprdata&lt;/a>,
+&lt;a href="https://github.com/ChemiKyle" target="_blank" rel="noopener">@ChemiKyle&lt;/a>,
+&lt;a href="https://github.com/chrowe" target="_blank" rel="noopener">@chrowe&lt;/a>,
+&lt;a href="https://github.com/cneskey" target="_blank" rel="noopener">@cneskey&lt;/a>,
+&lt;a href="https://github.com/csnardi" target="_blank" rel="noopener">@csnardi&lt;/a>,
+&lt;a href="https://github.com/dan-reznik" target="_blank" rel="noopener">@dan-reznik&lt;/a>,
+&lt;a href="https://github.com/dcaley5005" target="_blank" rel="noopener">@dcaley5005&lt;/a>,
+&lt;a href="https://github.com/Flavjack" target="_blank" rel="noopener">@Flavjack&lt;/a>,
+&lt;a href="https://github.com/GitHubDoug" target="_blank" rel="noopener">@GitHubDoug&lt;/a>,
+&lt;a href="https://github.com/gloignon" target="_blank" rel="noopener">@gloignon&lt;/a>,
+&lt;a href="https://github.com/grwhumphries" target="_blank" rel="noopener">@grwhumphries&lt;/a>,
+&lt;a href="https://github.com/guhanrv" target="_blank" rel="noopener">@guhanrv&lt;/a>,
+&lt;a href="https://github.com/ianformanek" target="_blank" rel="noopener">@ianformanek&lt;/a>,
+&lt;a href="https://github.com/j-Rinehart" target="_blank" rel="noopener">@j-Rinehart&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jiaoshuo" target="_blank" rel="noopener">@jiaoshuo&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jjankowiak" target="_blank" rel="noopener">@jjankowiak&lt;/a>,
+&lt;a href="https://github.com/jpawlata" target="_blank" rel="noopener">@jpawlata&lt;/a>,
+&lt;a href="https://github.com/jperkel" target="_blank" rel="noopener">@jperkel&lt;/a>,
+&lt;a href="https://github.com/juliangilbey" target="_blank" rel="noopener">@juliangilbey&lt;/a>,
+&lt;a href="https://github.com/jzadra" target="_blank" rel="noopener">@jzadra&lt;/a>,
+&lt;a href="https://github.com/karawoo" target="_blank" rel="noopener">@karawoo&lt;/a>,
+&lt;a href="https://github.com/kaveh1000" target="_blank" rel="noopener">@kaveh1000&lt;/a>,
+&lt;a href="https://github.com/lucasmation" target="_blank" rel="noopener">@lucasmation&lt;/a>,
+&lt;a href="https://github.com/MarkEdmondson1234" target="_blank" rel="noopener">@MarkEdmondson1234&lt;/a>,
+&lt;a href="https://github.com/mikegunn" target="_blank" rel="noopener">@mikegunn&lt;/a>,
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>,
+&lt;a href="https://github.com/mitchelloharawild" target="_blank" rel="noopener">@mitchelloharawild&lt;/a>,
+&lt;a href="https://github.com/mlamias" target="_blank" rel="noopener">@mlamias&lt;/a>,
+&lt;a href="https://github.com/mountainMath" target="_blank" rel="noopener">@mountainMath&lt;/a>,
+&lt;a href="https://github.com/mssanjavickovic" target="_blank" rel="noopener">@mssanjavickovic&lt;/a>,
+&lt;a href="https://github.com/nacnudus" target="_blank" rel="noopener">@nacnudus&lt;/a>,
+&lt;a href="https://github.com/nathanhwangbo" target="_blank" rel="noopener">@nathanhwangbo&lt;/a>,
+&lt;a href="https://github.com/nicole-brewer" target="_blank" rel="noopener">@nicole-brewer&lt;/a>,
+&lt;a href="https://github.com/ogs22" target="_blank" rel="noopener">@ogs22&lt;/a>,
+&lt;a href="https://github.com/pachamaltese" target="_blank" rel="noopener">@pachamaltese&lt;/a>,
+&lt;a href="https://github.com/peeter-t2" target="_blank" rel="noopener">@peeter-t2&lt;/a>,
+&lt;a href="https://github.com/ramirobentes" target="_blank" rel="noopener">@ramirobentes&lt;/a>,
+&lt;a href="https://github.com/realauggieheschmeyer" target="_blank" rel="noopener">@realauggieheschmeyer&lt;/a>,
+&lt;a href="https://github.com/RSherwoodJr" target="_blank" rel="noopener">@RSherwoodJr&lt;/a>,
+&lt;a href="https://github.com/sam-watts" target="_blank" rel="noopener">@sam-watts&lt;/a>,
+&lt;a href="https://github.com/schmalte04" target="_blank" rel="noopener">@schmalte04&lt;/a>,
+&lt;a href="https://github.com/seanchrismurphy" target="_blank" rel="noopener">@seanchrismurphy&lt;/a>,
+&lt;a href="https://github.com/selesnow" target="_blank" rel="noopener">@selesnow&lt;/a>,
+&lt;a href="https://github.com/somnambWl" target="_blank" rel="noopener">@somnambWl&lt;/a>,
+&lt;a href="https://github.com/SridharJagannathan" target="_blank" rel="noopener">@SridharJagannathan&lt;/a>,
+&lt;a href="https://github.com/Tadge-Analytics" target="_blank" rel="noopener">@Tadge-Analytics&lt;/a>,
+&lt;a href="https://github.com/untergeekDE" target="_blank" rel="noopener">@untergeekDE&lt;/a>,
+&lt;a href="https://github.com/wildcat47" target="_blank" rel="noopener">@wildcat47&lt;/a>, and
+&lt;a href="https://github.com/yogat3ch" target="_blank" rel="noopener">@yogat3ch&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>It&amp;rsquo;s very easy to get confused about vocabulary when talking about spreadsheets and, especially, about Google Sheets. When we say capital-S &amp;ldquo;Sheet&amp;rdquo;, we mean a spreadsheet or (spread)Sheet, i.e. the Google equivalent of an Excel workbook or &lt;code>.xlsx&lt;/code> file. Indeed, the actual Sheets API uses the term &amp;ldquo;spreadsheet&amp;rdquo;. An individual &amp;ldquo;tab&amp;rdquo; inside a Sheet is a (work)sheet, i.e. small-s &amp;ldquo;sheet&amp;rdquo;. So one Sheet contains one or more sheets. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>Believe it or not, files on Drive don&amp;rsquo;t have to have a unique name. You can have multiple files named &amp;ldquo;foofy&amp;rdquo; on Drive, even in the same folder. In fact, historically, a file can also belong to multiple folders (although this is mercifully being phased out). The main takeaway is that your usual expectations about &amp;ldquo;a name or filepath identifies at most one file&amp;rdquo; and &amp;ldquo;a file is identified by exactly one name or filepath&amp;rdquo; don&amp;rsquo;t hold on Drive. &lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item></channel></rss>

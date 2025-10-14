@@ -1,0 +1,208 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>dbplyr 2.4.0</title><meta property="og:title" content="dbplyr 2.4.0"><meta property="og:description" content="dbplyr 2.4.0 brings improvements to SQL generation, better control over the generated SQL, some new translations, and a bunch of backend specific improvements."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2023/10/dbplyr-2-4-0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="dbplyr 2.4.0 - Tidyverse"><meta property="description" content="dbplyr 2.4.0 brings improvements to SQL generation, better control over the generated SQL, some new translations, and a bunch of backend specific improvements."><meta property="og:description" content="dbplyr 2.4.0 brings improvements to SQL generation, better control over the generated SQL, some new translations, and a bunch of backend specific improvements."><meta property="og:image" content="https://www.tidyverse.org/blog/2023/10/dbplyr-2-4-0/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2023/10/dbplyr-2-4-0/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>dbplyr 2.4.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2023/10/dbplyr-2-4-0/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/AJqaubLEaN4>Parker Hilton</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2023/10/26</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/dplyr/>dplyr</a>,
+<a href=/tags/dbplyr/>dbplyr</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Hadley Wickham</p><div class=article-content><p>We&rsquo;re chuffed to announce the release of
+<a href=http://dbplyr.tidyverse.org/ target=_blank rel=noopener>dbplyr</a> 2.4.0. dbplyr is a database backend for dplyr that allows you to use a remote database as if it was a collection of local data frames: you write ordinary dplyr code and dbplyr translates it to SQL for you.</p><p>You can install it from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span><span class=o>(</span><span class=s>"dbplyr"</span><span class=o>)</span></span></code></pre></div><p>This blog post will highlight some of the most important new features: eliminating subqueries when using multiple unions in a row, getting more control on the generated SQL, and a handful of new translations. As usual, release comes with a large number of improvements to translations for individual backends; see the full list in the
+<a href=https://github.com/tidyverse/dbplyr/releases/tag/v2.4.0 target=_blank rel=noopener>release notes</a></p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://dbplyr.tidyverse.org/>dbplyr</a></span><span class=o>)</span></span>
+<span><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://dplyr.tidyverse.org>dplyr</a></span>, warn.conflicts <span class=o>=</span> <span class=kc>FALSE</span><span class=o>)</span></span></code></pre></div><h2 id=sql-optimisation>SQL optimisation
+<a href=#sql-optimisation><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>dbplyr now produces fewer subqueries when combining tables with
+<a href=https://generics.r-lib.org/reference/setops.html target=_blank rel=noopener><code>union()</code></a> and
+<a href=https://dplyr.tidyverse.org/reference/setops.html target=_blank rel=noopener><code>union_all()</code></a> resulting in shorter, more readable, and, in some cases, faster SQL.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>lf1</span> <span class=o>&lt;-</span> <span class=nf><a href=https://dbplyr.tidyverse.org/reference/tbl_lazy.html>lazy_frame</a></span><span class=o>(</span>x <span class=o>=</span> <span class=m>1</span>, y <span class=o>=</span> <span class=s>"a"</span>, .name <span class=o>=</span> <span class=s>"lf1"</span><span class=o>)</span></span>
+<span><span class=nv>lf2</span> <span class=o>&lt;-</span> <span class=nf><a href=https://dbplyr.tidyverse.org/reference/tbl_lazy.html>lazy_frame</a></span><span class=o>(</span>x <span class=o>=</span> <span class=m>1</span>, y <span class=o>=</span> <span class=s>"b"</span>, .name <span class=o>=</span> <span class=s>"lf2"</span><span class=o>)</span></span>
+<span><span class=nv>lf3</span> <span class=o>&lt;-</span> <span class=nf><a href=https://dbplyr.tidyverse.org/reference/tbl_lazy.html>lazy_frame</a></span><span class=o>(</span>x <span class=o>=</span> <span class=m>1</span>, z <span class=o>=</span> <span class=s>"c"</span>, .name <span class=o>=</span> <span class=s>"lf3"</span><span class=o>)</span></span>
+<span></span>
+<span><span class=nv>lf1</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://generics.r-lib.org/reference/setops.html>union</a></span><span class=o>(</span><span class=nv>lf2</span><span class=o>)</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://generics.r-lib.org/reference/setops.html>union</a></span><span class=o>(</span><span class=nv>lf3</span><span class=o>)</span></span>
+<span><span class=c>#&gt; &lt;SQL&gt;</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>SELECT</span> `lf1`.*, NULL<span style=color:#00b> AS </span>`z`</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>FROM</span> `lf1`</span></span>
+<span><span class=c>#&gt; </span></span>
+<span><span class=c>#&gt; <span style=color:#00b>UNION</span></span></span>
+<span><span class=c>#&gt; </span></span>
+<span><span class=c>#&gt; <span style=color:#00b>SELECT</span> `lf2`.*, NULL<span style=color:#00b> AS </span>`z`</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>FROM</span> `lf2`</span></span>
+<span><span class=c>#&gt; </span></span>
+<span><span class=c>#&gt; <span style=color:#00b>UNION</span></span></span>
+<span><span class=c>#&gt; </span></span>
+<span><span class=c>#&gt; <span style=color:#00b>SELECT</span> `x`, NULL<span style=color:#00b> AS </span>`y`, `z`</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>FROM</span> `lf3`</span></span>
+<span></span></code></pre></div><p>(As usual in these blog posts, I&rsquo;m using
+<a href=https://dbplyr.tidyverse.org/reference/tbl_lazy.html target=_blank rel=noopener><code>lazy_frame()</code></a> to focus on the SQL generation, without having to set up a dummy database.)</p><p>Similarly, a <code>semi/anti_join()</code> on a filtered table now avoids a subquery:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>lf1</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/filter-joins.html>semi_join</a></span><span class=o>(</span><span class=nv>lf3</span> <span class=o>|&gt;</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/filter.html>filter</a></span><span class=o>(</span><span class=nv>z</span> <span class=o>==</span> <span class=s>"c"</span><span class=o>)</span>, <span class=nf><a href=https://dplyr.tidyverse.org/reference/join_by.html>join_by</a></span><span class=o>(</span><span class=nv>x</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; &lt;SQL&gt;</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>SELECT</span> `lf1`.*</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>FROM</span> `lf1`</span></span>
+<span><span class=c>#&gt; WHERE EXISTS (</span></span>
+<span><span class=c>#&gt;   <span style=color:#00b>SELECT 1 FROM</span> `lf3`</span></span>
+<span><span class=c>#&gt;   <span style=color:#00b>WHERE</span> (`lf1`.`x` = `lf3`.`x`)<span style=color:#00b> AND</span> (`lf3`.`z` = 'c')</span></span>
+<span><span class=c>#&gt; )</span></span>
+<span></span></code></pre></div><h2 id=sql-generation>SQL generation
+<a href=#sql-generation><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The new argument <code>sql_options</code> for
+<a href=https://dplyr.tidyverse.org/reference/explain.html target=_blank rel=noopener><code>show_query()</code></a> and
+<a href=https://dbplyr.tidyverse.org/reference/remote_name.html target=_blank rel=noopener><code>remote_query()</code></a> gives you more control on the generated SQL.</p><ul><li><p>By default dbplyr uses <code>*</code> to select all columns of a table, but with <code>use_star = FALSE</code> all columns are selected explicitly:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>lf3</span> <span class=o>&lt;-</span> <span class=nf><a href=https://dbplyr.tidyverse.org/reference/tbl_lazy.html>lazy_frame</a></span><span class=o>(</span>x <span class=o>=</span> <span class=m>1</span>, y <span class=o>=</span> <span class=m>2</span>, z <span class=o>=</span> <span class=m>3</span>, .name <span class=o>=</span> <span class=s>"lf3"</span><span class=o>)</span></span>
+<span><span class=nv>lf3</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/mutate.html>mutate</a></span><span class=o>(</span>a <span class=o>=</span> <span class=m>4</span><span class=o>)</span></span>
+<span><span class=c>#&gt; &lt;SQL&gt;</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>SELECT</span> `lf3`.*, 4.0<span style=color:#00b> AS </span>`a`</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>FROM</span> `lf3`</span></span>
+<span></span><span></span>
+<span><span class=nv>lf3</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/mutate.html>mutate</a></span><span class=o>(</span>a <span class=o>=</span> <span class=m>4</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/explain.html>show_query</a></span><span class=o>(</span>sql_options <span class=o>=</span> <span class=nf><a href=https://dbplyr.tidyverse.org/reference/sql_options.html>sql_options</a></span><span class=o>(</span>use_star <span class=o>=</span> <span class=kc>FALSE</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; &lt;SQL&gt;</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>SELECT</span> `x`, `y`, `z`, 4.0<span style=color:#00b> AS </span>`a`</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>FROM</span> `lf3`</span></span>
+<span></span></code></pre></div></li><li><p>If you prefer common table expressions (CTE) over subqueries use <code>cte = TRUE</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>nested_query</span> <span class=o>&lt;-</span> <span class=nv>lf3</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/mutate.html>mutate</a></span><span class=o>(</span>z <span class=o>=</span> <span class=nv>z</span> <span class=o>+</span> <span class=m>1</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/mutate-joins.html>left_join</a></span><span class=o>(</span><span class=nv>lf2</span>, by <span class=o>=</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/join_by.html>join_by</a></span><span class=o>(</span><span class=nv>x</span>, <span class=nv>y</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=nv>nested_query</span></span>
+<span><span class=c>#&gt; &lt;SQL&gt;</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>SELECT</span> `LHS`.*</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>FROM</span> (</span></span>
+<span><span class=c>#&gt;   <span style=color:#00b>SELECT</span> `x`, `y`, `z` + 1.0<span style=color:#00b> AS </span>`z`</span></span>
+<span><span class=c>#&gt;   <span style=color:#00b>FROM</span> `lf3`</span></span>
+<span><span class=c>#&gt; )<span style=color:#00b> AS </span>`LHS`</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>LEFT JOIN</span> `lf2`</span></span>
+<span><span class=c>#&gt;   <span style=color:#00b>ON</span> (`LHS`.`x` = `lf2`.`x`<span style=color:#00b> AND</span> `LHS`.`y` = `lf2`.`y`)</span></span>
+<span></span><span></span>
+<span><span class=nv>nested_query</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/explain.html>show_query</a></span><span class=o>(</span>sql_options <span class=o>=</span> <span class=nf><a href=https://dbplyr.tidyverse.org/reference/sql_options.html>sql_options</a></span><span class=o>(</span>cte <span class=o>=</span> <span class=kc>TRUE</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; &lt;SQL&gt;</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>WITH</span> `q01` <span style=color:#00b>AS</span> (</span></span>
+<span><span class=c>#&gt;   <span style=color:#00b>SELECT</span> `x`, `y`, `z` + 1.0<span style=color:#00b> AS </span>`z`</span></span>
+<span><span class=c>#&gt;   <span style=color:#00b>FROM</span> `lf3`</span></span>
+<span><span class=c>#&gt; )</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>SELECT</span> `LHS`.*</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>FROM</span> `q01`<span style=color:#00b> AS </span>`LHS`</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>LEFT JOIN</span> `lf2`</span></span>
+<span><span class=c>#&gt;   <span style=color:#00b>ON</span> (`LHS`.`x` = `lf2`.`x`<span style=color:#00b> AND</span> `LHS`.`y` = `lf2`.`y`)</span></span>
+<span></span></code></pre></div></li><li><p>And if you want that all columns in a join are qualified with the table name and not only the ambiguous ones use <code>qualify_all_columns = TRUE</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>qualify_columns</span> <span class=o>&lt;-</span> <span class=nv>lf2</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/mutate-joins.html>left_join</a></span><span class=o>(</span><span class=nv>lf3</span>, by <span class=o>=</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/join_by.html>join_by</a></span><span class=o>(</span><span class=nv>x</span>, <span class=nv>y</span><span class=o>)</span><span class=o>)</span></span>
+<span></span>
+<span><span class=nv>qualify_columns</span></span>
+<span><span class=c>#&gt; &lt;SQL&gt;</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>SELECT</span> `lf2`.*, `z`</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>FROM</span> `lf2`</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>LEFT JOIN</span> `lf3`</span></span>
+<span><span class=c>#&gt;   <span style=color:#00b>ON</span> (`lf2`.`x` = `lf3`.`x`<span style=color:#00b> AND</span> `lf2`.`y` = `lf3`.`y`)</span></span>
+<span></span><span></span>
+<span><span class=nv>qualify_columns</span> <span class=o>|&gt;</span> </span>
+<span>   <span class=nf><a href=https://dplyr.tidyverse.org/reference/explain.html>show_query</a></span><span class=o>(</span>sql_options <span class=o>=</span> <span class=nf><a href=https://dbplyr.tidyverse.org/reference/sql_options.html>sql_options</a></span><span class=o>(</span>qualify_all_columns <span class=o>=</span> <span class=kc>TRUE</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; &lt;SQL&gt;</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>SELECT</span> `lf2`.*, `lf3`.`z`<span style=color:#00b> AS </span>`z`</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>FROM</span> `lf2`</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>LEFT JOIN</span> `lf3`</span></span>
+<span><span class=c>#&gt;   <span style=color:#00b>ON</span> (`lf2`.`x` = `lf3`.`x`<span style=color:#00b> AND</span> `lf2`.`y` = `lf3`.`y`)</span></span>
+<span></span></code></pre></div></li></ul><h2 id=new-translations>New translations
+<a href=#new-translations><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><code>str_detect()</code>, <code>str_starts()</code> and <code>str_ends()</code> with fixed patterns are translated to <code>INSTR()</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>lf1</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/filter.html>filter</a></span><span class=o>(</span></span>
+<span>    <span class=nf>stringr</span><span class=nf>::</span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_detect.html>str_detect</a></span><span class=o>(</span><span class=nv>x</span>, <span class=nf>stringr</span><span class=nf>::</span><span class=nf><a href=https://stringr.tidyverse.org/reference/modifiers.html>fixed</a></span><span class=o>(</span><span class=s>"abc"</span><span class=o>)</span><span class=o>)</span>,</span>
+<span>    <span class=nf>stringr</span><span class=nf>::</span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_starts.html>str_starts</a></span><span class=o>(</span><span class=nv>x</span>, <span class=nf>stringr</span><span class=nf>::</span><span class=nf><a href=https://stringr.tidyverse.org/reference/modifiers.html>fixed</a></span><span class=o>(</span><span class=s>"a"</span><span class=o>)</span><span class=o>)</span></span>
+<span>  <span class=o>)</span></span>
+<span><span class=c>#&gt; &lt;SQL&gt;</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>SELECT</span> `lf1`.*</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>FROM</span> `lf1`</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>WHERE</span> (INSTR(`x`, 'abc') &gt; 0)<span style=color:#00b> AND</span> (INSTR(`x`, 'a') = 1)</span></span>
+<span></span></code></pre></div><p>And
+<a href=https://rdrr.io/r/base/nchar.html target=_blank rel=noopener><code>nzchar()</code></a> and
+<a href=https://rdrr.io/r/stats/Uniform.html target=_blank rel=noopener><code>runif()</code></a> are now translated to their SQL equivalents:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>lf1</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/filter.html>filter</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/nchar.html>nzchar</a></span><span class=o>(</span><span class=nv>x</span><span class=o>)</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/mutate.html>mutate</a></span><span class=o>(</span>z <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/stats/Uniform.html>runif</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; &lt;SQL&gt;</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>SELECT</span> `lf1`.*, RANDOM()<span style=color:#00b> AS </span>`z`</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>FROM</span> `lf1`</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>WHERE</span> (((`x` IS NULL) OR `x` != ''))</span></span>
+<span></span></code></pre></div><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The vast majority of this release (particularly the SQL optimisations) are from
+<a href=https://github.com/mgirlich target=_blank rel=noopener>Maximilian Girlich</a>; thanks so much for continued work on this package! And a big thanks go to the 84 other folks who helped out by filing issues and contributing code:
+<a href=https://github.com/abalter target=_blank rel=noopener>@abalter</a>,
+<a href=https://github.com/ablack3 target=_blank rel=noopener>@ablack3</a>,
+<a href=https://github.com/andreassoteriadesmoj target=_blank rel=noopener>@andreassoteriadesmoj</a>,
+<a href=https://github.com/apalacio9502 target=_blank rel=noopener>@apalacio9502</a>,
+<a href=https://github.com/avsdev-cw target=_blank rel=noopener>@avsdev-cw</a>,
+<a href=https://github.com/bairdj target=_blank rel=noopener>@bairdj</a>,
+<a href=https://github.com/bastistician target=_blank rel=noopener>@bastistician</a>,
+<a href=https://github.com/brownj31 target=_blank rel=noopener>@brownj31</a>,
+<a href=https://github.com/But2ene target=_blank rel=noopener>@But2ene</a>,
+<a href=https://github.com/carlganz target=_blank rel=noopener>@carlganz</a>,
+<a href=https://github.com/catalamarti target=_blank rel=noopener>@catalamarti</a>,
+<a href=https://github.com/CEH-SLU target=_blank rel=noopener>@CEH-SLU</a>,
+<a href=https://github.com/chriscardillo target=_blank rel=noopener>@chriscardillo</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/DaZaM82 target=_blank rel=noopener>@DaZaM82</a>,
+<a href=https://github.com/donour target=_blank rel=noopener>@donour</a>,
+<a href=https://github.com/edgararuiz target=_blank rel=noopener>@edgararuiz</a>,
+<a href=https://github.com/eduardszoecs target=_blank rel=noopener>@eduardszoecs</a>,
+<a href=https://github.com/eipi10 target=_blank rel=noopener>@eipi10</a>,
+<a href=https://github.com/ejneer target=_blank rel=noopener>@ejneer</a>,
+<a href=https://github.com/erikvona target=_blank rel=noopener>@erikvona</a>,
+<a href=https://github.com/fh-afrachioni target=_blank rel=noopener>@fh-afrachioni</a>,
+<a href=https://github.com/fh-mthomson target=_blank rel=noopener>@fh-mthomson</a>,
+<a href=https://github.com/gui-salome target=_blank rel=noopener>@gui-salome</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/halpo target=_blank rel=noopener>@halpo</a>,
+<a href=https://github.com/homer3018 target=_blank rel=noopener>@homer3018</a>,
+<a href=https://github.com/iangow target=_blank rel=noopener>@iangow</a>,
+<a href=https://github.com/jdlom target=_blank rel=noopener>@jdlom</a>,
+<a href=https://github.com/jennal-datacenter target=_blank rel=noopener>@jennal-datacenter</a>,
+<a href=https://github.com/JeremyPasco target=_blank rel=noopener>@JeremyPasco</a>,
+<a href=https://github.com/jiemakel target=_blank rel=noopener>@jiemakel</a>,
+<a href=https://github.com/jingydz target=_blank rel=noopener>@jingydz</a>,
+<a href=https://github.com/johnbaums target=_blank rel=noopener>@johnbaums</a>,
+<a href=https://github.com/joshseiv target=_blank rel=noopener>@joshseiv</a>,
+<a href=https://github.com/jrandall target=_blank rel=noopener>@jrandall</a>,
+<a href=https://github.com/khkk378 target=_blank rel=noopener>@khkk378</a>,
+<a href=https://github.com/kmishra9 target=_blank rel=noopener>@kmishra9</a>,
+<a href=https://github.com/kongdd target=_blank rel=noopener>@kongdd</a>,
+<a href=https://github.com/krlmlr target=_blank rel=noopener>@krlmlr</a>,
+<a href=https://github.com/krprasangdas target=_blank rel=noopener>@krprasangdas</a>,
+<a href=https://github.com/KRRLP-PL target=_blank rel=noopener>@KRRLP-PL</a>,
+<a href=https://github.com/lentinj target=_blank rel=noopener>@lentinj</a>,
+<a href=https://github.com/lgaborini target=_blank rel=noopener>@lgaborini</a>,
+<a href=https://github.com/lhabegger target=_blank rel=noopener>@lhabegger</a>,
+<a href=https://github.com/lorenzolightsgdwarf target=_blank rel=noopener>@lorenzolightsgdwarf</a>,
+<a href=https://github.com/lschneiderbauer target=_blank rel=noopener>@lschneiderbauer</a>,
+<a href=https://github.com/marianschmidt target=_blank rel=noopener>@marianschmidt</a>,
+<a href=https://github.com/matthewjnield target=_blank rel=noopener>@matthewjnield</a>,
+<a href=https://github.com/mgirlich target=_blank rel=noopener>@mgirlich</a>,
+<a href=https://github.com/MichaelChirico target=_blank rel=noopener>@MichaelChirico</a>,
+<a href=https://github.com/misea target=_blank rel=noopener>@misea</a>,
+<a href=https://github.com/mjbroerman target=_blank rel=noopener>@mjbroerman</a>,
+<a href=https://github.com/moodymudskipper target=_blank rel=noopener>@moodymudskipper</a>,
+<a href=https://github.com/multimeric target=_blank rel=noopener>@multimeric</a>,
+<a href=https://github.com/nannerhammix target=_blank rel=noopener>@nannerhammix</a>,
+<a href=https://github.com/nikolasharing target=_blank rel=noopener>@nikolasharing</a>,
+<a href=https://github.com/nviets target=_blank rel=noopener>@nviets</a>,
+<a href=https://github.com/nviraj target=_blank rel=noopener>@nviraj</a>,
+<a href=https://github.com/oobd target=_blank rel=noopener>@oobd</a>,
+<a href=https://github.com/pboesu target=_blank rel=noopener>@pboesu</a>,
+<a href=https://github.com/pepijn-devries target=_blank rel=noopener>@pepijn-devries</a>,
+<a href=https://github.com/rbcavanaugh target=_blank rel=noopener>@rbcavanaugh</a>,
+<a href=https://github.com/rcepka target=_blank rel=noopener>@rcepka</a>,
+<a href=https://github.com/robertkck target=_blank rel=noopener>@robertkck</a>,
+<a href=https://github.com/samssann target=_blank rel=noopener>@samssann</a>,
+<a href=https://github.com/SayfSaid target=_blank rel=noopener>@SayfSaid</a>,
+<a href=https://github.com/scottporter target=_blank rel=noopener>@scottporter</a>,
+<a href=https://github.com/shearerpmm target=_blank rel=noopener>@shearerpmm</a>,
+<a href=https://github.com/srikanthtist target=_blank rel=noopener>@srikanthtist</a>,
+<a href=https://github.com/stemangiola target=_blank rel=noopener>@stemangiola</a>,
+<a href=https://github.com/stephenashton-dhsc target=_blank rel=noopener>@stephenashton-dhsc</a>,
+<a href=https://github.com/stevepowell99 target=_blank rel=noopener>@stevepowell99</a>,
+<a href=https://github.com/TBlackmore target=_blank rel=noopener>@TBlackmore</a>,
+<a href=https://github.com/thomashulst target=_blank rel=noopener>@thomashulst</a>,
+<a href=https://github.com/thothal target=_blank rel=noopener>@thothal</a>,
+<a href=https://github.com/tilo-aok target=_blank rel=noopener>@tilo-aok</a>,
+<a href=https://github.com/tisseuil target=_blank rel=noopener>@tisseuil</a>,
+<a href=https://github.com/tonyk7440 target=_blank rel=noopener>@tonyk7440</a>,
+<a href=https://github.com/TSchiefer target=_blank rel=noopener>@TSchiefer</a>,
+<a href=https://github.com/Tsemharb target=_blank rel=noopener>@Tsemharb</a>,
+<a href=https://github.com/tuge98 target=_blank rel=noopener>@tuge98</a>,
+<a href=https://github.com/vadim-cherepanov target=_blank rel=noopener>@vadim-cherepanov</a>, and
+<a href=https://github.com/wdenton target=_blank rel=noopener>@wdenton</a>.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#sql-optimisation>SQL optimisation</a></li><li><a href=#sql-generation>SQL generation</a></li><li><a href=#new-translations>New translations</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

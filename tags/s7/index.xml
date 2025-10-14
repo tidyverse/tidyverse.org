@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>s7 | Tidyverse</title><link>https://www.tidyverse.org/tags/s7/</link><atom:link href="https://www.tidyverse.org/tags/s7/index.xml" rel="self" type="application/rss+xml"/><description>s7</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 07 Nov 2024 00:00:00 +0000</lastBuildDate><item><title>S7 0.2.0</title><link>https://www.tidyverse.org/blog/2024/11/s7-0-2-0/</link><pubDate>Thu, 07 Nov 2024 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2024/11/s7-0-2-0/</guid><description>&lt;!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [ ] Find photo &amp; update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re excited to announce that
+&lt;a href="https://rconsortium.github.io/S7/" target="_blank" rel="noopener">S7&lt;/a> v0.2.0 is now available on CRAN! S7 is a new object-oriented programming (OOP) system designed to supersede both S3 and S4. You might wonder why R needs a new OOP system when we already have two. The reason lies in the history of R&amp;rsquo;s OOP journey: S3 is a simple and effective system for single dispatch, while S4 adds formal class definitions and multiple dispatch, but at the cost of complexity. This has forced developers to choose between the simplicity of S3 and the sophistication of S4.&lt;/p>
+&lt;p>The goal of S7 is to unify the OOP landscape by building on S3&amp;rsquo;s existing dispatch system and incorporating the most useful features of S4 (along with some new ones), all with a simpler syntax. S7&amp;rsquo;s design and implementation have been a collaborative effort by a working group from the
+&lt;a href="https://www.r-consortium.org" target="_blank" rel="noopener">R Consortium&lt;/a>, including representatives from R-Core, Bioconductor, tidyverse/Posit, ROpenSci, and the wider R community. Since S7 builds on S3, it is fully compatible with existing S3-based code. It&amp;rsquo;s also been thoughtfully designed to work with S4, and as we learn more about the challenges of transitioning from S4 to S7, we&amp;rsquo;ll continue to add features to ease this process.&lt;/p>
+&lt;p>Our long-term goal is to include S7 in base R, but for now, you can install it from CRAN:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"S7"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="whats-new-in-the-second-release">What&amp;rsquo;s new in the second release
+&lt;a href="#whats-new-in-the-second-release">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The second release of S7 brings refinements and bug fixes. Highlights include:&lt;/p>
+&lt;ul>
+&lt;li>Support for lazy property defaults, making class setup more flexible.&lt;/li>
+&lt;li>Custom property setters now run on object initialization.&lt;/li>
+&lt;li>Significant speed improvements for setting and getting properties with &lt;code>@&lt;/code> and &lt;code>@&amp;lt;-&lt;/code>.&lt;/li>
+&lt;li>Expanded compatibility with base S3 classes.&lt;/li>
+&lt;li>
+&lt;a href="https://rconsortium.github.io/S7/reference/convert.html" target="_blank" rel="noopener">&lt;code>convert()&lt;/code>&lt;/a> now provides a default method for transforming a parent class into a subclass.&lt;/li>
+&lt;/ul>
+&lt;p>Additionally, there are numerous bug fixes and quality-of-life improvements, such as better error messages, improved support for base Ops methods, and compatibility improvements for using &lt;code>@&lt;/code> in R versions prior to 4.3. You can see a full list of changes in the
+&lt;a href="https://github.com/RConsortium/S7/blob/main/NEWS.md" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="who-should-use-s7">Who should use S7
+&lt;a href="#who-should-use-s7">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>S7 is a great fit for R users who like to try new things but don&amp;rsquo;t need to be the first. It&amp;rsquo;s already used in several CRAN packages, and the tidyverse team is applying it in new projects. While you may still run into a few issues, many early problems have been resolved.&lt;/p>
+&lt;h2 id="usage">Usage
+&lt;a href="#usage">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://rconsortium.github.io/S7/'>S7&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Let&amp;rsquo;s dive into the basics of S7. To learn more, check out the package vignettes, including a more detailed introduction in
+&lt;a href="https://rconsortium.github.io/S7/articles/S7.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;S7&amp;quot;)&lt;/code>&lt;/a>, and coverage of generics and methods in
+&lt;a href="https://rconsortium.github.io/S7/articles/generics-methods.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;generics-methods&amp;quot;)&lt;/code>&lt;/a>, and classes and objects in
+&lt;a href="https://rconsortium.github.io/S7/articles/classes-objects.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;classes-objects&amp;quot;)&lt;/code>&lt;/a>.&lt;/p>
+&lt;h3 id="classes-and-objects">Classes and objects
+&lt;a href="#classes-and-objects">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>S7 classes have formal definitions, specified by
+&lt;a href="https://rconsortium.github.io/S7/reference/new_class.html" target="_blank" rel="noopener">&lt;code>new_class()&lt;/code>&lt;/a>, which includes a list of properties and an optional validator. For example, the following code creates a &lt;code>Range&lt;/code> class with &lt;code>start&lt;/code> and &lt;code>end&lt;/code> properties, and a validator to ensure that &lt;code>start&lt;/code> is always less than &lt;code>end&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>Range&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rconsortium.github.io/S7/reference/new_class.html'>new_class&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Range"&lt;/span>,&lt;/span>
+&lt;span> properties &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/list.html'>list&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> start &lt;span class='o'>=&lt;/span> &lt;span class='nv'>class_double&lt;/span>,&lt;/span>
+&lt;span> end &lt;span class='o'>=&lt;/span> &lt;span class='nv'>class_double&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> validator &lt;span class='o'>=&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>self&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='kr'>if&lt;/span> &lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/length.html'>length&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>self&lt;/span>&lt;span class='o'>@&lt;/span>&lt;span class='nv'>start&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>!=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>"@start must be length 1"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>&amp;#125;&lt;/span> &lt;span class='kr'>else&lt;/span> &lt;span class='kr'>if&lt;/span> &lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/length.html'>length&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>self&lt;/span>&lt;span class='o'>@&lt;/span>&lt;span class='nv'>end&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>!=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>"@end must be length 1"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>&amp;#125;&lt;/span> &lt;span class='kr'>else&lt;/span> &lt;span class='kr'>if&lt;/span> &lt;span class='o'>(&lt;/span>&lt;span class='nv'>self&lt;/span>&lt;span class='o'>@&lt;/span>&lt;span class='nv'>end&lt;/span> &lt;span class='o'>&amp;lt;&lt;/span> &lt;span class='nv'>self&lt;/span>&lt;span class='o'>@&lt;/span>&lt;span class='nv'>start&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>"@end must be greater than or equal to @start"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>
+&lt;a href="https://rconsortium.github.io/S7/reference/new_class.html" target="_blank" rel="noopener">&lt;code>new_class()&lt;/code>&lt;/a> returns the class object, which also serves as the constructor to create instances of the class:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>x&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>Range&lt;/span>&lt;span class='o'>(&lt;/span>start &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>, end &lt;span class='o'>=&lt;/span> &lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>x&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;lt;Range&amp;gt;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; @ start: num 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; @ end : num 10&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h3 id="properties">Properties
+&lt;a href="#properties">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The data an object holds are called its &lt;strong>properties&lt;/strong>. Use &lt;code>@&lt;/code> to get and set properties:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>@&lt;/span>&lt;span class='nv'>start&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 1&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>@&lt;/span>&lt;span class='nv'>end&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='m'>20&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>x&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;lt;Range&amp;gt;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; @ start: num 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; @ end : num 20&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Properties are automatically validated against the type declared in
+&lt;a href="https://rconsortium.github.io/S7/reference/new_class.html" target="_blank" rel="noopener">&lt;code>new_class()&lt;/code>&lt;/a> (in this case, &lt;code>double&lt;/code>) and checked by the class &lt;strong>validator&lt;/strong>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>@&lt;/span>&lt;span class='nv'>end&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='s'>"x"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Error: &amp;lt;Range&amp;gt;@end must be &amp;lt;double&amp;gt;, not &amp;lt;character&amp;gt;&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>@&lt;/span>&lt;span class='nv'>end&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='o'>-&lt;/span>&lt;span class='m'>1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Error: &amp;lt;Range&amp;gt; object is invalid:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; - @end must be greater than or equal to @start&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h3 id="generics-and-methods">Generics and methods
+&lt;a href="#generics-and-methods">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Like S3 and S4, S7 uses &lt;strong>functional OOP&lt;/strong>, where methods belong to &lt;strong>generic&lt;/strong> functions, and method calls look like regular function calls: &lt;code>generic(object, arg2, arg3)&lt;/code>. A generic uses the types of its arguments to automatically pick the appropriate method implementation.&lt;/p>
+&lt;p>You can create a new generic with
+&lt;a href="https://rconsortium.github.io/S7/reference/new_generic.html" target="_blank" rel="noopener">&lt;code>new_generic()&lt;/code>&lt;/a>, specifying the arguments to dispatch on:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>inside&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rconsortium.github.io/S7/reference/new_generic.html'>new_generic&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"inside"&lt;/span>, &lt;span class='s'>"x"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>To define a method for a specific class, use &lt;code>method(generic, class) &amp;lt;- implementation&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rconsortium.github.io/S7/reference/method.html'>method&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>inside&lt;/span>, &lt;span class='nv'>Range&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>, &lt;span class='nv'>y&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>y&lt;/span> &lt;span class='o'>&amp;gt;=&lt;/span> &lt;span class='nv'>x&lt;/span>&lt;span class='o'>@&lt;/span>&lt;span class='nv'>start&lt;/span> &lt;span class='o'>&amp;amp;&lt;/span> &lt;span class='nv'>y&lt;/span> &lt;span class='o'>&amp;lt;=&lt;/span> &lt;span class='nv'>x&lt;/span>&lt;span class='o'>@&lt;/span>&lt;span class='nv'>end&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>inside&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>, &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0&lt;/span>, &lt;span class='m'>5&lt;/span>, &lt;span class='m'>10&lt;/span>, &lt;span class='m'>15&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] FALSE TRUE TRUE TRUE&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Printing the generic shows its methods:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>inside&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;lt;S7_generic&amp;gt; inside(x, ...) with 1 methods:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 1: method(inside, Range)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>And you can retrieve the method for a specific class:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rconsortium.github.io/S7/reference/method.html'>method&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>inside&lt;/span>, &lt;span class='nv'>Range&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;lt;S7_method&amp;gt; method(inside, Range)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; function (x, y) &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;#123;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; y &amp;gt;= x@start &amp;amp; y &amp;lt;= x@end&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="known-limitations">Known limitations
+&lt;a href="#known-limitations">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>While we are pleased with S7&amp;rsquo;s design, there are still some limitations:&lt;/p>
+&lt;ul>
+&lt;li>S7 objects can be serialized to disk (with
+&lt;a href="https://rdrr.io/r/base/readRDS.html" target="_blank" rel="noopener">&lt;code>saveRDS()&lt;/code>&lt;/a>), but the current implementation saves the entire class specification with each object. This may change in the future.&lt;/li>
+&lt;li>Support for implicit S3 classes &lt;code>&amp;quot;array&amp;quot;&lt;/code> and &lt;code>&amp;quot;matrix&amp;quot;&lt;/code> is still in development.&lt;/li>
+&lt;/ul>
+&lt;p>We expect the community will uncover more issues as S7 is more widely adopted. If you encounter any problems, please file an issue at &lt;a href="https://github.com/RConsortium/OOP-WG/issues">https://github.com/RConsortium/OOP-WG/issues&lt;/a>. We appreciate your feedback in helping us make S7 even better! 😃&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thank you to all people who have contributed issues, code, and comments to this release:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/calderonsamuel" target="_blank" rel="noopener">@calderonsamuel&lt;/a>,
+&lt;a href="https://github.com/Crosita" target="_blank" rel="noopener">@Crosita&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dipterix" target="_blank" rel="noopener">@dipterix&lt;/a>,
+&lt;a href="https://github.com/guslipkin" target="_blank" rel="noopener">@guslipkin&lt;/a>,
+&lt;a href="https://github.com/gvelasq" target="_blank" rel="noopener">@gvelasq&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/jeffkimbrel" target="_blank" rel="noopener">@jeffkimbrel&lt;/a>,
+&lt;a href="https://github.com/jl5000" target="_blank" rel="noopener">@jl5000&lt;/a>,
+&lt;a href="https://github.com/jmbarbone" target="_blank" rel="noopener">@jmbarbone&lt;/a>,
+&lt;a href="https://github.com/jmiahjones" target="_blank" rel="noopener">@jmiahjones&lt;/a>,
+&lt;a href="https://github.com/jonthegeek" target="_blank" rel="noopener">@jonthegeek&lt;/a>,
+&lt;a href="https://github.com/JosiahParry" target="_blank" rel="noopener">@JosiahParry&lt;/a>,
+&lt;a href="https://github.com/jtlandis" target="_blank" rel="noopener">@jtlandis&lt;/a>,
+&lt;a href="https://github.com/lawremi" target="_blank" rel="noopener">@lawremi&lt;/a>,
+&lt;a href="https://github.com/MarcellGranat" target="_blank" rel="noopener">@MarcellGranat&lt;/a>,
+&lt;a href="https://github.com/mikmart" target="_blank" rel="noopener">@mikmart&lt;/a>,
+&lt;a href="https://github.com/mmaechler" target="_blank" rel="noopener">@mmaechler&lt;/a>,
+&lt;a href="https://github.com/mynanshan" target="_blank" rel="noopener">@mynanshan&lt;/a>,
+&lt;a href="https://github.com/rikivillalba" target="_blank" rel="noopener">@rikivillalba&lt;/a>,
+&lt;a href="https://github.com/sjcowtan" target="_blank" rel="noopener">@sjcowtan&lt;/a>,
+&lt;a href="https://github.com/t-kalinowski" target="_blank" rel="noopener">@t-kalinowski&lt;/a>,
+&lt;a href="https://github.com/teunbrand" target="_blank" rel="noopener">@teunbrand&lt;/a>, and
+&lt;a href="https://github.com/waynelapierre" target="_blank" rel="noopener">@waynelapierre&lt;/a>.&lt;/p></description></item></channel></rss>

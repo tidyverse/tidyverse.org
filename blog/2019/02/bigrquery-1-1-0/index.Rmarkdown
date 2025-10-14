@@ -1,0 +1,44 @@
+---
+title: bigrquery 1.1.0
+author: Mara Averick
+date: '2019-02-15'
+slug: bigrquery-1-1-0
+description: > 
+  bigrquery 1.1.0 is now on CRAN.
+categories:
+  - package
+photo:
+  url: https://www.pexels.com/photo/green-and-red-abstract-painting-1070534/
+  author: Steve Johnson
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, 
+  comment = "#>"
+)
+```
+
+We're delighted to announce that [bigrquery](https://bigrquery.r-dbi.org/) 1.1.0 is now on CRAN. bigrquery makes it easy to work with data stored in [Google BigQuery](https://developers.google.com/bigquery/), a hosted database for big data. This is a minor release, with some improved type support, and SQL translation. For a complete list of updates, please see the [Changelog](https://bigrquery.r-dbi.org/news/index.html#bigrquery-1-1-0).
+
+## Improved type support
+
+[`bq_table_download()`](https://bigrquery.r-dbi.org/reference/bq_table_download.html) and the [`DBI::dbConnect`](https://www.rdocumentation.org/packages/DBI/versions/0.5-1/topics/dbConnect) method now have a `bigint` argument, which governs how BigQuery integer columns are imported into R. As before, the default will be `bigint = "integer"`. However, you can now set `bigint = "integer64"` to import BigQuery integer columns as `bit64::integer64` columns in R. This allows for values outside the range of integer (`-2147483647` to `2147483647`). Thanks to [Rasmus Bååth](https://github.com/rasmusab) for implementing these changes.
+
+`bq_table_download()` now treats `NUMERIC` columns in the same way as `FLOAT` columns.
+
+`bq_table_upload()` now works with date-time (`POSIXct`) variables. Unparseable date times return `NA`.
+
+## SQL translation
+
+* `as.character()` now translates to `SAFE_CAST(x AS STRING)`.  
+* `median()` now translates to `APPROX_QUANTILES(x, 2)[SAFE_ORDINAL(2)]`.  
+
+## Minor fixes
+
+* [`bq_job()`](https://bigrquery.r-dbi.org/reference/bq_refs.html) tracks location, so bigrquery now works painlessly with non-US/EU locations.
+
+## Acknowledgements
+
+Thank you to everyone who contributed to this release: [&#x0040;414theodore](https://github.com/414theodore), [&#x0040;ajh3000](https://github.com/ajh3000), [&#x0040;AlekseyBuzmakov](https://github.com/AlekseyBuzmakov), [&#x0040;batpigandme](https://github.com/batpigandme), [&#x0040;byapparov](https://github.com/byapparov), [&#x0040;ChrisJohnsonUMG](https://github.com/ChrisJohnsonUMG), [&#x0040;cpcgoogle](https://github.com/cpcgoogle), [&#x0040;dujm](https://github.com/dujm), [&#x0040;eddelbuettel](https://github.com/eddelbuettel), [&#x0040;edgararuiz](https://github.com/edgararuiz), [&#x0040;everron](https://github.com/everron), [&#x0040;guillaumed90](https://github.com/guillaumed90), [&#x0040;hadley](https://github.com/hadley), [&#x0040;Iuiu1234](https://github.com/Iuiu1234), [&#x0040;izzetagoren](https://github.com/izzetagoren), [&#x0040;j450h1](https://github.com/j450h1), [&#x0040;jberninger](https://github.com/jberninger), [&#x0040;jordanwebb10](https://github.com/jordanwebb10), [&#x0040;jrecasens](https://github.com/jrecasens), [&#x0040;KarimZaoui](https://github.com/KarimZaoui), [&#x0040;ldanai](https://github.com/ldanai), [&#x0040;paulsendavidjay](https://github.com/paulsendavidjay), [&#x0040;ras44](https://github.com/ras44), [&#x0040;rasmusab](https://github.com/rasmusab), [&#x0040;Saikri5hna](https://github.com/Saikri5hna), [&#x0040;selcukakbas](https://github.com/selcukakbas), [&#x0040;SergeiMakarovWeb](https://github.com/SergeiMakarovWeb), [&#x0040;skydavis435](https://github.com/skydavis435), [&#x0040;tdsmith](https://github.com/tdsmith), [&#x0040;tinoater](https://github.com/tinoater), [&#x0040;tortorellij1](https://github.com/tortorellij1), [&#x0040;valentinumbach](https://github.com/valentinumbach), and [&#x0040;zacdav](https://github.com/zacdav). 
+

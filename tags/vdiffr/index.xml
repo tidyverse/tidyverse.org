@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>vdiffr | Tidyverse</title><link>https://www.tidyverse.org/tags/vdiffr/</link><atom:link href="https://www.tidyverse.org/tags/vdiffr/index.xml" rel="self" type="application/rss+xml"/><description>vdiffr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 03 Jan 2019 00:00:00 +0000</lastBuildDate><item><title>vdiffr 0.3.0</title><link>https://www.tidyverse.org/blog/2019/01/vdiffr-0-3-0/</link><pubDate>Thu, 03 Jan 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/01/vdiffr-0-3-0/</guid><description>
+&lt;p>We’re thrilled to announce that &lt;a href="https://github.com/lionel-/vdiffr">vdiffr 0.3.0&lt;/a> is now on CRAN! vdiffr is a testthat extension that makes it easy to add visual unit tests for R plots. Testing visualisations is hard because it is difficult to integrate in an automated workflow. vdiffr achieves this by generating SVG renditions of your plot, storing them in the &lt;code>tests/fig&lt;/code> folder in your package, and comparing the SVGs when running the tests. If you’re developing a package for statistical graphics, you might be interested in adding vdiffr to your checking workflow.&lt;/p>
+&lt;p>This is the first publicly announced version of vdiffr because previous versions had issues with the comparison of SVGs across platforms, such as Travis or the CRAN machines. These problems should now be fixed. If you’re already a vdiffr user, please note that you will need to regenerate all your figures with the new SVG generation engine.&lt;/p>
+&lt;div id="create-visual-unit-tests" class="section level2">
+&lt;h2>Create visual unit tests&lt;/h2>
+&lt;p>&lt;code>expect_doppelganger()&lt;/code> is the main function you’ll be using to create visual unit tests. It accepts three types of input:&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>ggplot2 objects, which are specially integrated in vdiffr (see
+below).&lt;/p>&lt;/li>
+&lt;li>&lt;p>More generally, any object whose &lt;code>print()&lt;/code> method draws the object on the graphics device.&lt;/p>&lt;/li>
+&lt;li>&lt;p>Functions. Those will be called by vdiffr and should print the plot as side effect.&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;p>Here is an example of how to use it:&lt;/p>
+&lt;pre class="r">&lt;code>context(&amp;quot;Distributions&amp;quot;)
+test_that(&amp;quot;histograms draw correctly&amp;quot;, {
+hist_ggplot &amp;lt;- ggplot(mtcars, aes(disp)) + geom_histogram()
+vdiffr::expect_doppelganger(&amp;quot;ggplot2 histogram&amp;quot;, hist_ggplot)
+hist_base &amp;lt;- function() hist(mtcars$disp)
+vdiffr::expect_doppelganger(&amp;quot;Base graphics histogram&amp;quot;, hist_base)
+})&lt;/code>&lt;/pre>
+&lt;p>The first argument of &lt;code>expect_doppelganger()&lt;/code> is the plot title. It should be a description of what is being tested exactly by the plot. The title is also standardised (all special characters are converted to &lt;code>-&lt;/code>) and used as a filename to store the visual case. In addition, the current testthat context (here, “Distributions”) is used as directory for all figures generated in that context. The example above creates two visual tests whose whose saved SVG files live (once validated) in &lt;code>tests/figs/distributions/ggplot2-histogram.svg&lt;/code> and &lt;code>tests/figs/distributions/base-graphics-histogram.svg&lt;/code>.&lt;/p>
+&lt;p>vdiffr treats ggplot2 figures specially. First, it adds the figure title as &lt;code>ggtitle()&lt;/code> (if the plot does not already have one). This makes the test figure self-explanatory when you open the SVG file. Secondly, if the plot does not have a ggplot2 theme, a minimalistic testing theme is automatically applied to it. This theme will not be tweaked in future ggplot2 versions to ensure some stability to the visual unit tests.&lt;/p>
+&lt;/div>
+&lt;div id="manage-visual-tests-with-a-shiny-app" class="section level2">
+&lt;h2>Manage visual tests with a Shiny app&lt;/h2>
+&lt;p>New visual expectations must be validated first. To validate new figures, call &lt;code>vdiffr::manage_cases()&lt;/code> or use the RStudio Addin installed by vdiffr. This opens a Shiny app that you will use to
+validate the figures of new visual expectations.&lt;/p>
+&lt;p>Once the figures are validated, run &lt;code>devtools::test()&lt;/code> in the usual way to run the visual tests. If the figure generated during the test doesn’t match its recorded version, testthat fails (but not on CRAN, see next section).&lt;/p>
+&lt;p>When testthat reports that a visual comparison fails, open the Shiny app again. The app features several diffing widgets to help you compare the figures and detect why they don’t match. You can also revalidate the figure if the failure is the result of fixing a bug, adding a feature, or some other benign upstream change that caused a change in the appearance of your figure.&lt;/p>
+&lt;div class="figure">
+&lt;img src="https://raw.githubusercontent.com/lionel-/vdiffr/readme/rstudio-vdiffr.png" alt="vdiffr in RStudio" />
+&lt;p class="caption">vdiffr in RStudio&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;div id="testing-versus-monitoring" class="section level2">
+&lt;h2>Testing versus Monitoring&lt;/h2>
+&lt;p>When a figure doesn’t match its saved version, it is only reported as a failure under these circumstances:&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>When the &lt;code>NOT_CRAN&lt;/code> environment variable is set. Note that devtools sets this automatically when the tests are run interactively.&lt;/p>&lt;/li>
+&lt;li>&lt;p>On Travis, Appveyor, or any environment where the &lt;code>Sys.getenv(&amp;quot;CI&amp;quot;)&lt;/code> is set.&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;p>Otherwise, the failure is ignored. The motivation for this is that vdiffr is a monitoring tool and shouldn’t cause R CMD check failures on the CRAN machines.&lt;/p>
+&lt;p>This behaviour is motivated by the inherent fragility of visual comparisons. The exact way plots are rendered depends on a lot of upstream logic, such as the way margins are computed. vdiffr uses a special ggplot2 theme that should change very rarely, but there are just too many upstream factors that could cause breakages. In the end, visual testing is not an alternative to writing unit tests for the internal data transformations performed during the creation of your figure. It is more of a monitoring tool that allows you to quickly check how the appearance of your figures changes over time, and to manually assess whether changes reflect actual problems in your packages.&lt;/p>
+&lt;p>If you need to override the default vdiffr behaviour on CRAN (not recommended) or Travis (for example to run the tests in a particular builds but not others), set the &lt;code>VDIFFR_RUN_TESTS&lt;/code> environment variable to “true” or “false”.&lt;/p>
+&lt;/div></description></item></channel></rss>

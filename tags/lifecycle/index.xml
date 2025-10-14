@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>lifecycle | Tidyverse</title><link>https://www.tidyverse.org/tags/lifecycle/</link><atom:link href="https://www.tidyverse.org/tags/lifecycle/index.xml" rel="self" type="application/rss+xml"/><description>lifecycle</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 18 Oct 2022 00:00:00 +0000</lastBuildDate><item><title>tidyselect 1.2.0</title><link>https://www.tidyverse.org/blog/2022/10/tidyselect-1-2-0/</link><pubDate>Tue, 18 Oct 2022 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2022/10/tidyselect-1-2-0/</guid><description>&lt;!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [ ] Find photo &amp; update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>
+&lt;a href="https://tidyselect.r-lib.org/" target="_blank" rel="noopener">tidyselect&lt;/a> 1.2.0 hit CRAN last week and includes a few updates to the syntax of selections in tidyverse functions like &lt;code>dplyr::select(...)&lt;/code> and &lt;code>tidyr::pivot_longer(cols = )&lt;/code>.&lt;/p>
+&lt;p>tidyselect is a low-level package that provides the backend for selection contexts in tidyverse functions. A selection context is an argument like &lt;code>cols&lt;/code> in
+&lt;a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" target="_blank" rel="noopener">&lt;code>pivot_longer()&lt;/code>&lt;/a> or a set of arguments like &lt;code>...&lt;/code> in
+&lt;a href="https://dplyr.tidyverse.org/reference/select.html" target="_blank" rel="noopener">&lt;code>select()&lt;/code>&lt;/a> &lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>. In these special contexts, you can use a domain specific language that helps you create a selection of columns. For example, you can select multiple columns with
+&lt;a href="https://rdrr.io/r/base/c.html" target="_blank" rel="noopener">&lt;code>c()&lt;/code>&lt;/a>, a range of columns with &lt;code>:&lt;/code>, and complex matches with selection helpers such as
+&lt;a href="https://tidyselect.r-lib.org/reference/starts_with.html" target="_blank" rel="noopener">&lt;code>starts_with()&lt;/code>&lt;/a>. Under the hood, this selection syntax is interpreted and processed by the tidyselect package.&lt;/p>
+&lt;p>In this post, we&amp;rsquo;ll cover the most important
+&lt;a href="https://lifecycle.r-lib.org/articles/stages.html" target="_blank" rel="noopener">lifecycle changes&lt;/a> in the selection syntax that tidyverse users (package developers in particular) should know about. You can see a full list of changes in the
+&lt;a href="https://tidyselect.r-lib.org/news/index.html#tidyselect-120" target="_blank" rel="noopener">release notes&lt;/a>. We&amp;rsquo;ll start with a quick recap of what it means in practice for a feature to be deprecated or soft-deprecated.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://tidyverse.tidyverse.org'>tidyverse&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Note: With this release of tidyselect, some error messages will be suboptimal until dplyr 1.1.0 is released (planned in late October). We recommend waiting until then before updating tidyselect (though it&amp;rsquo;s not a big deal if you have already updated).&lt;/p>
+&lt;h2 id="about-soft-deprecation">About soft-deprecation
+&lt;a href="#about-soft-deprecation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Deprecation of features in tidyverse packages is handled by the lifecycle package. See &lt;a href="https://www.tidyverse.org/blog/2021/02/lifecycle-1-0-0/">https://www.tidyverse.org/blog/2021/02/lifecycle-1-0-0/&lt;/a> for an introduction.&lt;/p>
+&lt;p>The main feature of lifecycle is to distinguish between two stages of deprecation and two usage modes, direct and indirect.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>For script users, &lt;strong>direct usage&lt;/strong> is when you use a deprecated feature from the global environment. If the deprecated feature was used inside a package function that you are calling, it is considered &lt;strong>indirect usage&lt;/strong>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>For package developers, the distinction between direct and indirect usages is made by testthat in unit tests. If a function in your package calls the feature, it is considered direct usage. If that&amp;rsquo;s a function in another package that you are calling, it&amp;rsquo;s indirect usage.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>To sum up, direct usage is when your own code uses the deprecated feature, and indirect usage is when someone else&amp;rsquo;s code uses it. This distinction matters because it determines how verbose (and thus how annoying) the deprecation warnings are.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>For &lt;strong>soft-deprecation&lt;/strong>, indirect usage is always silent because we only want to alert people who are actually able to fix the problem.&lt;/p>
+&lt;p>Direct usage only generates one warning every 8 hours to avoid being too annoying during this transition period, so that you can continue to work with existing code, ignore the warnings, and update to the new patterns on your own time.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>For &lt;strong>deprecation&lt;/strong>, it&amp;rsquo;s now really time to update the code. Direct usage gives a warning every time so that deprecated features can no longer be ignored.&lt;/p>
+&lt;p>Indirect usage will now also warn, but only once every 8 hours since indirect users can&amp;rsquo;t fix the problem themselves. The warning message automatically picks up the package URL where the usage was detected so that you can easily report the deprecation to the relevant maintainers.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>lifecycle warnings are set up to helpfully inform you about upcoming changes while being as discreet as possible. All of the features deprecated in tidyselect in this blog post are in the &lt;strong>soft-deprecation&lt;/strong> stage, and will remain this way for at least one year.&lt;/p>
+&lt;h2 id="supplying-character-vectors-of-column-names-outside-of-all_of-and-any_of">Supplying character vectors of column names outside of &lt;code>all_of()&lt;/code> and &lt;code>any_of()&lt;/code>
+&lt;a href="#supplying-character-vectors-of-column-names-outside-of-all_of-and-any_of">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>To specify a column selection using a character vector of names, you normally use
+&lt;a href="https://tidyselect.r-lib.org/reference/all_of.html" target="_blank" rel="noopener">&lt;code>all_of()&lt;/code>&lt;/a> or
+&lt;a href="https://tidyselect.r-lib.org/reference/all_of.html" target="_blank" rel="noopener">&lt;code>any_of()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>vars&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"cyl"&lt;/span>, &lt;span class='s'>"am"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>mtcars&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/select.html'>select&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://tidyselect.r-lib.org/reference/all_of.html'>all_of&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>vars&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://pillar.r-lib.org/reference/glimpse.html'>glimpse&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Rows: 32&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Columns: 2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ cyl &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 6, 6, 4, 6, 8, 6, 8, 4, 4, 6, 6, 8, 8, 8, 8, 8, 8, 4, 4…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ am &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1…&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>
+&lt;a href="https://tidyselect.r-lib.org/reference/all_of.html" target="_blank" rel="noopener">&lt;code>all_of()&lt;/code>&lt;/a> is adamant that it &lt;em>must&lt;/em> select all of the requested columns:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>mtcars&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/select.html'>select&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://tidyselect.r-lib.org/reference/all_of.html'>all_of&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>letters&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00; font-weight: bold;'>Error&lt;/span>&lt;span style='font-weight: bold;'> in `select()`:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> In argument: `all_of(letters)`.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Caused by error in `all_of()`:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>!&lt;/span> Can't subset elements that don't exist.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> Elements `a`, `b`, `c`, `d`, `e`, etc. don't exist.&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>
+&lt;a href="https://tidyselect.r-lib.org/reference/all_of.html" target="_blank" rel="noopener">&lt;code>any_of()&lt;/code>&lt;/a> is more lenient and ignores any names that are not present in the data frame. In this case, it ends up selecting nothing:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>mtcars&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/select.html'>select&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://tidyselect.r-lib.org/reference/all_of.html'>any_of&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>letters&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; data frame with 0 columns and 32 rows&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Another feature of
+&lt;a href="https://tidyselect.r-lib.org/reference/all_of.html" target="_blank" rel="noopener">&lt;code>all_of()&lt;/code>&lt;/a> and
+&lt;a href="https://tidyselect.r-lib.org/reference/all_of.html" target="_blank" rel="noopener">&lt;code>any_of()&lt;/code>&lt;/a> is that they remove all ambiguity between variables in your environment like &lt;code>vars&lt;/code> or &lt;code>letters&lt;/code> (env-variables) and variables inside the data frame like &lt;code>cyl&lt;/code> or &lt;code>am&lt;/code> (data-variables). Let&amp;rsquo;s add &lt;code>vars&lt;/code> in the data frame to see what happens:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>my_data&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>mtcars&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>vars &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/context.html'>n&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>my_data&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/select.html'>select&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://tidyselect.r-lib.org/reference/all_of.html'>all_of&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>vars&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://pillar.r-lib.org/reference/glimpse.html'>glimpse&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Rows: 32&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Columns: 2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ cyl &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 6, 6, 4, 6, 8, 6, 8, 4, 4, 6, 6, 8, 8, 8, 8, 8, 8, 4, 4…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ am &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1…&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Because &lt;code>vars&lt;/code> was supplied to
+&lt;a href="https://tidyselect.r-lib.org/reference/all_of.html" target="_blank" rel="noopener">&lt;code>all_of()&lt;/code>&lt;/a>,
+&lt;a href="https://dplyr.tidyverse.org/reference/select.html" target="_blank" rel="noopener">&lt;code>select()&lt;/code>&lt;/a> will never confuse it with &lt;code>mtcars$vars&lt;/code>. In technical terms, there is no &lt;strong>data-masking&lt;/strong> within selection helpers like
+&lt;a href="https://tidyselect.r-lib.org/reference/all_of.html" target="_blank" rel="noopener">&lt;code>all_of()&lt;/code>&lt;/a>,
+&lt;a href="https://tidyselect.r-lib.org/reference/all_of.html" target="_blank" rel="noopener">&lt;code>any_of()&lt;/code>&lt;/a>, or even
+&lt;a href="https://tidyselect.r-lib.org/reference/starts_with.html" target="_blank" rel="noopener">&lt;code>starts_with()&lt;/code>&lt;/a>. It is safe to supply env-variables to these functions without worrying about data-masking ambiguity.&lt;/p>
+&lt;p>This is not the case however if you supply a character vector outside of
+&lt;a href="https://tidyselect.r-lib.org/reference/all_of.html" target="_blank" rel="noopener">&lt;code>all_of()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>my_data&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/select.html'>select&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>vars&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://pillar.r-lib.org/reference/glimpse.html'>glimpse&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Rows: 32&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Columns: 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ vars &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,…&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This is why we have decided to deprecate direct supply of character vectors in favour of using
+&lt;a href="https://tidyselect.r-lib.org/reference/all_of.html" target="_blank" rel="noopener">&lt;code>all_of()&lt;/code>&lt;/a> and
+&lt;a href="https://tidyselect.r-lib.org/reference/all_of.html" target="_blank" rel="noopener">&lt;code>any_of()&lt;/code>&lt;/a>. You will now get a soft-deprecation warning recommending to use
+&lt;a href="https://tidyselect.r-lib.org/reference/all_of.html" target="_blank" rel="noopener">&lt;code>all_of()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>mtcars&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/select.html'>select&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>vars&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://pillar.r-lib.org/reference/glimpse.html'>glimpse&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> Please use `all_of()` or `any_of()` instead.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; # Was:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; data %&amp;gt;% select(vars)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; # Now:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; data %&amp;gt;% select(all_of(vars))&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; See &amp;lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&amp;gt;.&lt;/span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; Rows: 32&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Columns: 2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ cyl &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 6, 6, 4, 6, 8, 6, 8, 4, 4, 6, 6, 8, 8, 8, 8, 8, 8, 4, 4…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ am &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1…&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="using-data-inside-selections">Using &lt;code>.data&lt;/code> inside selections
+&lt;a href="#using-data-inside-selections">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The &lt;code>.data&lt;/code> pronoun is a convenient way of programming with data-masking functions like
+&lt;a href="https://dplyr.tidyverse.org/reference/mutate.html" target="_blank" rel="noopener">&lt;code>mutate()&lt;/code>&lt;/a> and
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a>. It has two main functions:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>Retrieve a data frame column from a name stored in a variable with &lt;code>[[&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>var&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='s'>"am"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>mtcars&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/transmute.html'>transmute&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>am &lt;span class='o'>=&lt;/span> &lt;span class='nv'>.data&lt;/span>&lt;span class='o'>[[&lt;/span>&lt;span class='nv'>var&lt;/span>&lt;span class='o'>]&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://pillar.r-lib.org/reference/glimpse.html'>glimpse&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Rows: 32&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Columns: 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ am &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10…&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>For package developers, &lt;code>.data&lt;/code> is helpful to silence R CMD check notes about unknown variables. When the static analysis checker of R encounters an expression like &lt;code>mtcars |&amp;gt; mutate(am * 2)&lt;/code>, it has no way of knowing that &lt;code>am&lt;/code> is a data frame variable. Since it doesn&amp;rsquo;t see any variable &lt;code>am&lt;/code> in your environment, it emits a warning about a potential typo in the code.&lt;/p>
+&lt;p>The &lt;code>.data$col&lt;/code> pattern is used to work around this issue: &lt;code>mtcars |&amp;gt; mutate(.data$am * 2)&lt;/code> doesn&amp;rsquo;t produce any warnings.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;p>Whereas &lt;code>.data&lt;/code> is very useful in data-masking functions, its usage in selections is much more limited. As we have seen in the previous section, retrieving a variable from character vector should be done with
+&lt;a href="https://tidyselect.r-lib.org/reference/all_of.html" target="_blank" rel="noopener">&lt;code>all_of()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>var&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='s'>"am"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>mtcars&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/select.html'>select&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://tidyselect.r-lib.org/reference/all_of.html'>all_of&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>var&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://pillar.r-lib.org/reference/glimpse.html'>glimpse&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Rows: 32&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Columns: 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ am &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,…&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>And to avoid the R CMD check note about unknown variables, it is much cleaner to wrap the column name in quotes:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>mtcars&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/select.html'>select&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"am"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://pillar.r-lib.org/reference/glimpse.html'>glimpse&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Rows: 32&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Columns: 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ am &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,…&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Allowing the &lt;code>.data&lt;/code> pronoun in selection contexts also makes the distinction between tidy-selections and data-masking blurrier. And so we have decided to deprecate it in selections:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>var&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='s'>"am"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>mtcars&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/select.html'>select&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>.data&lt;/span>&lt;span class='o'>[[&lt;/span>&lt;span class='nv'>var&lt;/span>&lt;span class='o'>]&lt;/span>&lt;span class='o'>]&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/invisible.html'>invisible&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Warning: Use of .data in tidyselect expressions was deprecated in tidyselect 1.2.0.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> Please use `all_of(var)` (or `any_of(var)`) instead of `.data[[var]]`&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>mtcars&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/select.html'>select&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>.data&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>am&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/invisible.html'>invisible&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Warning: Use of .data in tidyselect expressions was deprecated in tidyselect 1.2.0.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> Please use `"am"` instead of `.data$am`&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This deprecation does not affect the use of &lt;code>.data&lt;/code> in data-masking contexts.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Many thanks to all contributors (issues and PRs) to this release!&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/alexpghayes" target="_blank" rel="noopener">@alexpghayes&lt;/a>,
+&lt;a href="https://github.com/angela-li" target="_blank" rel="noopener">@angela-li&lt;/a>,
+&lt;a href="https://github.com/apreshill" target="_blank" rel="noopener">@apreshill&lt;/a>,
+&lt;a href="https://github.com/arneschillert" target="_blank" rel="noopener">@arneschillert&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/behrman" target="_blank" rel="noopener">@behrman&lt;/a>,
+&lt;a href="https://github.com/bensoltoff" target="_blank" rel="noopener">@bensoltoff&lt;/a>,
+&lt;a href="https://github.com/braceandbracket" target="_blank" rel="noopener">@braceandbracket&lt;/a>,
+&lt;a href="https://github.com/brshallo" target="_blank" rel="noopener">@brshallo&lt;/a>,
+&lt;a href="https://github.com/bwalsh5" target="_blank" rel="noopener">@bwalsh5&lt;/a>,
+&lt;a href="https://github.com/carneybill" target="_blank" rel="noopener">@carneybill&lt;/a>,
+&lt;a href="https://github.com/ChrisDunleavy" target="_blank" rel="noopener">@ChrisDunleavy&lt;/a>,
+&lt;a href="https://github.com/ColinFay" target="_blank" rel="noopener">@ColinFay&lt;/a>,
+&lt;a href="https://github.com/courtiol" target="_blank" rel="noopener">@courtiol&lt;/a>,
+&lt;a href="https://github.com/csgillespie" target="_blank" rel="noopener">@csgillespie&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dgrtwo" target="_blank" rel="noopener">@dgrtwo&lt;/a>,
+&lt;a href="https://github.com/DivadNojnarg" target="_blank" rel="noopener">@DivadNojnarg&lt;/a>,
+&lt;a href="https://github.com/dpprdan" target="_blank" rel="noopener">@dpprdan&lt;/a>,
+&lt;a href="https://github.com/dpseidel" target="_blank" rel="noopener">@dpseidel&lt;/a>,
+&lt;a href="https://github.com/drmowinckels" target="_blank" rel="noopener">@drmowinckels&lt;/a>,
+&lt;a href="https://github.com/dylan-cooper" target="_blank" rel="noopener">@dylan-cooper&lt;/a>,
+&lt;a href="https://github.com/EconomiCurtis" target="_blank" rel="noopener">@EconomiCurtis&lt;/a>,
+&lt;a href="https://github.com/edgararuiz-zz" target="_blank" rel="noopener">@edgararuiz-zz&lt;/a>,
+&lt;a href="https://github.com/EdwinTh" target="_blank" rel="noopener">@EdwinTh&lt;/a>,
+&lt;a href="https://github.com/elben10" target="_blank" rel="noopener">@elben10&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/espinielli" target="_blank" rel="noopener">@espinielli&lt;/a>,
+&lt;a href="https://github.com/fenguoerbian" target="_blank" rel="noopener">@fenguoerbian&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">@gaborcsardi&lt;/a>,
+&lt;a href="https://github.com/giocomai" target="_blank" rel="noopener">@giocomai&lt;/a>,
+&lt;a href="https://github.com/gregrs-uk" target="_blank" rel="noopener">@gregrs-uk&lt;/a>,
+&lt;a href="https://github.com/gregswinehart" target="_blank" rel="noopener">@gregswinehart&lt;/a>,
+&lt;a href="https://github.com/gvelasq" target="_blank" rel="noopener">@gvelasq&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/hplieninger" target="_blank" rel="noopener">@hplieninger&lt;/a>,
+&lt;a href="https://github.com/ismayc" target="_blank" rel="noopener">@ismayc&lt;/a>,
+&lt;a href="https://github.com/jameslairdsmith" target="_blank" rel="noopener">@jameslairdsmith&lt;/a>,
+&lt;a href="https://github.com/jayhesselberth" target="_blank" rel="noopener">@jayhesselberth&lt;/a>,
+&lt;a href="https://github.com/jemus42" target="_blank" rel="noopener">@jemus42&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/justmytwospence" target="_blank" rel="noopener">@justmytwospence&lt;/a>,
+&lt;a href="https://github.com/karawoo" target="_blank" rel="noopener">@karawoo&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/leafyoung" target="_blank" rel="noopener">@leafyoung&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/lorenzwalthert" target="_blank" rel="noopener">@lorenzwalthert&lt;/a>,
+&lt;a href="https://github.com/LucyMcGowan" target="_blank" rel="noopener">@LucyMcGowan&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/markdly" target="_blank" rel="noopener">@markdly&lt;/a>,
+&lt;a href="https://github.com/martin-ueding" target="_blank" rel="noopener">@martin-ueding&lt;/a>,
+&lt;a href="https://github.com/maurolepore" target="_blank" rel="noopener">@maurolepore&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/mikemahoney218" target="_blank" rel="noopener">@mikemahoney218&lt;/a>,
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>,
+&lt;a href="https://github.com/mitchelloharawild" target="_blank" rel="noopener">@mitchelloharawild&lt;/a>,
+&lt;a href="https://github.com/pkq" target="_blank" rel="noopener">@pkq&lt;/a>,
+&lt;a href="https://github.com/PursuitOfDataScience" target="_blank" rel="noopener">@PursuitOfDataScience&lt;/a>,
+&lt;a href="https://github.com/rgerecke" target="_blank" rel="noopener">@rgerecke&lt;/a>,
+&lt;a href="https://github.com/richierocks" target="_blank" rel="noopener">@richierocks&lt;/a>,
+&lt;a href="https://github.com/Robinlovelace" target="_blank" rel="noopener">@Robinlovelace&lt;/a>,
+&lt;a href="https://github.com/robinsones" target="_blank" rel="noopener">@robinsones&lt;/a>,
+&lt;a href="https://github.com/romainfrancois" target="_blank" rel="noopener">@romainfrancois&lt;/a>,
+&lt;a href="https://github.com/rosseji" target="_blank" rel="noopener">@rosseji&lt;/a>,
+&lt;a href="https://github.com/rudeboybert" target="_blank" rel="noopener">@rudeboybert&lt;/a>,
+&lt;a href="https://github.com/saghirb" target="_blank" rel="noopener">@saghirb&lt;/a>,
+&lt;a href="https://github.com/sbearrows" target="_blank" rel="noopener">@sbearrows&lt;/a>,
+&lt;a href="https://github.com/sharlagelfand" target="_blank" rel="noopener">@sharlagelfand&lt;/a>,
+&lt;a href="https://github.com/simonpcouch" target="_blank" rel="noopener">@simonpcouch&lt;/a>,
+&lt;a href="https://github.com/stedy" target="_blank" rel="noopener">@stedy&lt;/a>,
+&lt;a href="https://github.com/stephlocke" target="_blank" rel="noopener">@stephlocke&lt;/a>,
+&lt;a href="https://github.com/stragu" target="_blank" rel="noopener">@stragu&lt;/a>,
+&lt;a href="https://github.com/sysilviakim" target="_blank" rel="noopener">@sysilviakim&lt;/a>,
+&lt;a href="https://github.com/thisisdaryn" target="_blank" rel="noopener">@thisisdaryn&lt;/a>,
+&lt;a href="https://github.com/thomasp85" target="_blank" rel="noopener">@thomasp85&lt;/a>,
+&lt;a href="https://github.com/thuettel" target="_blank" rel="noopener">@thuettel&lt;/a>,
+&lt;a href="https://github.com/tmstauss" target="_blank" rel="noopener">@tmstauss&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>,
+&lt;a href="https://github.com/tracykteal" target="_blank" rel="noopener">@tracykteal&lt;/a>,
+&lt;a href="https://github.com/tyluRp" target="_blank" rel="noopener">@tyluRp&lt;/a>,
+&lt;a href="https://github.com/vspinu" target="_blank" rel="noopener">@vspinu&lt;/a>,
+&lt;a href="https://github.com/warint" target="_blank" rel="noopener">@warint&lt;/a>,
+&lt;a href="https://github.com/wibeasley" target="_blank" rel="noopener">@wibeasley&lt;/a>,
+&lt;a href="https://github.com/yitao-li" target="_blank" rel="noopener">@yitao-li&lt;/a>, and
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>If you are wondering whether a particular argument supports selections, look in the function documentation. Arguments tagged with &lt;code>&amp;lt;tidy-select&amp;gt;&lt;/code> implement the selection dialect. By contrast, arguments tagged with &lt;code>&amp;lt;data-masking&amp;gt;&lt;/code> only allow to refer to data frame columns directly. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item></channel></rss>

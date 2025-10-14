@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>gmailr | Tidyverse</title><link>https://www.tidyverse.org/tags/gmailr/</link><atom:link href="https://www.tidyverse.org/tags/gmailr/index.xml" rel="self" type="application/rss+xml"/><description>gmailr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 29 Jun 2023 00:00:00 +0000</lastBuildDate><item><title>gmailr 2.0.0</title><link>https://www.tidyverse.org/blog/2023/06/gmailr-2-0-0/</link><pubDate>Thu, 29 Jun 2023 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2023/06/gmailr-2-0-0/</guid><description>&lt;p>We&amp;rsquo;re chuffed to announce the release of
+&lt;a href="https://gmailr.r-lib.org/" target="_blank" rel="noopener">gmailr&lt;/a> 2.0.0. gmailr exposes the
+&lt;a href="https://developers.google.com/gmail/api/guides" target="_blank" rel="noopener">Gmail API&lt;/a> from R.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"gmailr"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The main goal of version 2.0.0 is to improve the ergonomics around auth. There is less need for fussy code around configuring an OAuth client and it&amp;rsquo;s easier to use gmailr in a non-interactive or deployed setting. There is also a major advance in the process of replacing legacy functions with versions that have a &lt;code>gm_&lt;/code> prefix. The legacy functions still exist, but are now hard deprecated. Finally, gmailr no longer re-exports &lt;code>%&amp;gt;%&lt;/code>, the magrittr pipe, now that we have &lt;code>|&amp;gt;&lt;/code> in base R.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://github.com/r-lib/gmailr/releases/tag/v2.0.0" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://gmailr.r-lib.org'>gmailr&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Attaching package: 'gmailr'&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; The following object is masked from 'package:utils':&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; history&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; The following objects are masked from 'package:base':&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; body, date, labels, message&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>😬 &lt;em>Ouch! These name collisions are &lt;strong>exactly&lt;/strong> why gmailr added a universal &lt;code>gm_&lt;/code> prefix to all of its functions starting in v1.0.0. One day in the not-too-distant future we can remove the troublesome legacy functions.&lt;/em>&lt;/p>
+&lt;h2 id="oauth-client">OAuth client
+&lt;a href="#oauth-client">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The Gmail API is more challenging to wrap, in terms of auth, than the APIs for Sheets, Drive, or BigQuery. That&amp;rsquo;s because the scopes (think: &amp;ldquo;permissions&amp;rdquo;) needed for the Gmail API are
+&lt;a href="https://developers.google.com/gmail/api/auth/scopes#scopes" target="_blank" rel="noopener">regarded as extremely sensitive&lt;/a>, as well they should be. If a bad actor gains the ability to read and send email as you, that is considerably more damaging than them being able to modify your spreadsheets (which is also bad, to be sure, but considerably less bad). Email is particularly important, because most other services allow you to reset your password via email; if someone gets access to your email, they can quickly use that to access every other service you have a log in for.&lt;/p>
+&lt;p>The heightened security around the Gmail API means that a wrapper package like gmailr can&amp;rsquo;t make auth &amp;ldquo;just work&amp;rdquo; as easily we can in other packages, such as googledrive. In particular, R users who want to use gmailr absolutely must provide their own &lt;em>OAuth client&lt;/em>. In other packages, we can make this optional.&lt;/p>
+&lt;p>gmailr v2.0.0 includes new features and documentation to reduce the pain around the OAuth client as much as possible:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://gmailr.r-lib.org/articles/oauth-client.html" target="_blank" rel="noopener">Set up an OAuth client&lt;/a> is a new article with detailed instructions for creating and configuring an OAuth client. You might even say this provides an excruciating level of detail, but this process has proven to be tricky for many users.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>There is now a default location for the JSON file that represents the OAuth client. It&amp;rsquo;s the location returned by &lt;code>rappdirs::user_data_dir(&amp;quot;gmailr&amp;quot;)&lt;/code>. If you put the JSON file there, gmailr will find it automagically.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>rappdirs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://rappdirs.r-lib.org/reference/user_data_dir.html'>user_data_dir&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"gmailr"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/list.files.html'>list.files&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "client_secret_xxx-yyy.apps.googleusercontent.com.json"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/gmailr-configuration.html'>gm_default_oauth_client&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "/Users/jenny/Library/Application Support/gmailr/client_secret_xxx-yyy.apps.googleusercontent.com.json"&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>
+&lt;a href="https://gmailr.r-lib.org/reference/gmailr-configuration.html" target="_blank" rel="noopener">&lt;code>gm_default_oauth_client()&lt;/code>&lt;/a> is the new function that implements this new feature as well as pre-existing support for providing this path via an environment variable.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>If the OAuth client is configured for auto-discovery, it is no longer necessary to call
+&lt;a href="https://gmailr.r-lib.org/reference/gm_auth_configure.html" target="_blank" rel="noopener">&lt;code>gm_auth_configure()&lt;/code>&lt;/a> explicitly. That is taken care of internally, inside
+&lt;a href="https://gmailr.r-lib.org/reference/gm_auth.html" target="_blank" rel="noopener">&lt;code>gm_auth()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>> library(gmailr)
+>
+> # 😲 OMG no more need to call gm_auth_configure() here! 🎉
+>
+> gm_threads()
+The gmailr package is requesting access to your Google account.
+Enter '1' to start a new auth process or select a pre-authorized account.
+1: Send me to the browser for a new auth process.
+2: jenny@posit.co
+Selection: 2
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>Conversely, if you happen to be providing an explicit user or service account token, &lt;code>gm_auth(token =)&lt;/code> and &lt;code>gm_auth(path =, subject =)&lt;/code>&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> no longer error if the OAuth client is not configured.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="auth-in-a-deployed-or-other-non-interactive-setting">Auth in a deployed or other non-interactive setting
+&lt;a href="#auth-in-a-deployed-or-other-non-interactive-setting">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The Gmail API is primarily intended for use on behalf of a regular Google user account. The gmailr package is designed to guide an interactive R user through a process in which they authenticate themselves to Google and authorize Gmail activities initiated from R. This is sometimes referred to as the &amp;ldquo;OAuth dance&amp;rdquo;.&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>&lt;/p>
+&lt;p>But what about settings where there is no interactive user sitting around to do this dance, i.e. when gmailr-using code is deployed to a remote server or otherwise runs unattended? For most Google APIs, the standard advice is &amp;ldquo;use a service account&amp;rdquo;. But the Gmail API is special. To use a service account with the Gmail API basically requires that the service account has been delegated domain-wide authority. This is tricky for at least two reasons. First, this is only possible within a Google Workspace, i.e. it&amp;rsquo;s not available to personal Google accounts. Second, most Google Workspace admins will refuse to do this, for security reasons.&lt;/p>
+&lt;p>Therefore, if you want to deploy a data product that uses gmailr, it&amp;rsquo;s extremely likely that you really do need to use a user token. This workflow has gotten dramatically easier in gmailr v2.0.0:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://gmailr.r-lib.org/articles/deploy-a-token.html" target="_blank" rel="noopener">Deploy a token&lt;/a> is a new article describing how to capture a token interactively, then use it later, non-interactively.&lt;/li>
+&lt;li>
+&lt;a href="https://gmailr.r-lib.org/reference/gm_token_write.html" target="_blank" rel="noopener">&lt;code>gm_token_write()&lt;/code>&lt;/a> +
+&lt;a href="https://gmailr.r-lib.org/reference/gm_token_write.html" target="_blank" rel="noopener">&lt;code>gm_token_read()&lt;/code>&lt;/a> is a new matched pair of functions that facilitate writing an obfuscated token to disk then reloading that token in a deployed data product or in CI.&lt;/li>
+&lt;li>gmailr ships with
+&lt;a href="https://github.com/r-lib/gmailr/tree/main/inst/deployed-token-demo" target="_blank" rel="noopener">example code&lt;/a> that uses this technique in a small Shiny app that sends email from a specific user account. See the contents of &lt;code>system.file(&amp;quot;deployed-token-demo&amp;quot;, package = &amp;quot;gmailr&amp;quot;)&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;p>The heart of this approach is to first capture a token in an interactive session:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/gm_auth.html'>gm_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"user@example.com"&lt;/span>, cache &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'># interactive OAuth dance in the browser happens HERE&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/gm_token_write.html'>gm_token_write&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> path &lt;span class='o'>=&lt;/span> &lt;span class='s'>".secrets/gmailr-token.rds"&lt;/span>,&lt;/span>
+&lt;span> key &lt;span class='o'>=&lt;/span> &lt;span class='s'>"SUPER_SECRET_ENCRYPTION_KEY"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>then reload it in a subsequent non-interactive session:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/gm_auth.html'>gm_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>token &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/gm_token_write.html'>gm_token_read&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>".secrets/gmailr-token.rds"&lt;/span>,&lt;/span>
+&lt;span> key &lt;span class='o'>=&lt;/span> &lt;span class='s'>"SUPER_SECRET_ENCRYPTION_KEY"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="progress-on-the-great-renaming">Progress on The Great Renaming
+&lt;a href="#progress-on-the-great-renaming">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Unfortunately, there is considerable overlap between some obvious function names in an email-related package (e.g. &amp;ldquo;body&amp;rdquo;, &amp;ldquo;date&amp;rdquo;, &amp;ldquo;message&amp;rdquo;) and pre-existing functions in base R (e.g. 
+&lt;a href="https://gmailr.r-lib.org/reference/gmailr-deprecated.html" target="_blank" rel="noopener">&lt;code>body()&lt;/code>&lt;/a>,
+&lt;a href="https://gmailr.r-lib.org/reference/gmailr-deprecated.html" target="_blank" rel="noopener">&lt;code>date()&lt;/code>&lt;/a>,
+&lt;a href="https://gmailr.r-lib.org/reference/gmailr-deprecated.html" target="_blank" rel="noopener">&lt;code>message()&lt;/code>&lt;/a>). From very early on, gmailr exported several functions with regrettable name collisions, as evidenced at the beginning of this post when we called
+&lt;a href="https://gmailr.r-lib.org" target="_blank" rel="noopener">&lt;code>library(gmailr)&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>In version 1.0.0 (released 2019-08-30), the process of addressing this problem kicked off. At that time, gmailr adopted a universal &lt;code>gm_&lt;/code> prefix for its functions and soft deprecated the legacy functions. Here&amp;rsquo;s an indicative sample of the function replacements:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://gmailr.r-lib.org/reference/gmailr-deprecated.html" target="_blank" rel="noopener">&lt;code>body()&lt;/code>&lt;/a> ➡️
+&lt;a href="https://gmailr.r-lib.org/reference/gm_body.html" target="_blank" rel="noopener">&lt;code>gm_body()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://gmailr.r-lib.org/reference/gmailr-deprecated.html" target="_blank" rel="noopener">&lt;code>date()&lt;/code>&lt;/a> ➡️
+&lt;a href="https://gmailr.r-lib.org/reference/accessors.html" target="_blank" rel="noopener">&lt;code>gm_date()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://gmailr.r-lib.org/reference/gmailr-deprecated.html" target="_blank" rel="noopener">&lt;code>message()&lt;/code>&lt;/a> ➡️
+&lt;a href="https://gmailr.r-lib.org/reference/gm_message.html" target="_blank" rel="noopener">&lt;code>gm_message()&lt;/code>&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>In version 2.0.0, the legacy functions are hard deprecated and you should expect them to be removed in the next release of gmailr. I don&amp;rsquo;t expect there to be much (any?) surviving usage of these functions, but it&amp;rsquo;s definitely time to eliminate any remaining usage.&lt;/p>
+&lt;h2 id="use-the-native-pipe">Use the native pipe
+&lt;a href="#use-the-native-pipe">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>gmailr is designed to be very pipe friendly and it leads to very natural code that builds up a message from its parts:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>msg&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/gm_mime.html'>gm_mime&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/accessors.html'>gm_to&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"recipient@example.com"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/accessors.html'>gm_from&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"sender@example.com"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/accessors.html'>gm_subject&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Hello, world!"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/gm_mime.html'>gm_text_body&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"I come in peace."&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>gmailr predates the introduction of the native pipe, in R 4.1, and therefore, historically, it has re-exported &lt;code>%&amp;gt;%&lt;/code>, the magrittr pipe, for user convenience. The magrittr pipe also featured heavily in gmailr&amp;rsquo;s documentation.&lt;/p>
+&lt;p>In the v2.0.0 release, I&amp;rsquo;ve removed the magrittr dependency and now use the native pipe operator &lt;code>|&amp;gt;&lt;/code> in all documentation (gmailr never used the pipe internally). The purrr package pioneered this maneuver, within the tidyverse, and gmailr uses the same techniques to resolve the tension between the new usage of the base pipe and the tidyverse policy of supporting older R versions. You can learn more about the pipe transition in the blog post
+&lt;a href="https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/" target="_blank" rel="noopener">Differences between the base R and magrittr pipes&lt;/a>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thank you to all those who have contributed to gmailr since the v1.0.0 release:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/absuag" target="_blank" rel="noopener">@absuag&lt;/a>,
+&lt;a href="https://github.com/aeburger" target="_blank" rel="noopener">@aeburger&lt;/a>,
+&lt;a href="https://github.com/andresxmv" target="_blank" rel="noopener">@andresxmv&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/beib" target="_blank" rel="noopener">@beib&lt;/a>,
+&lt;a href="https://github.com/careercoachme" target="_blank" rel="noopener">@careercoachme&lt;/a>,
+&lt;a href="https://github.com/chuagh74" target="_blank" rel="noopener">@chuagh74&lt;/a>,
+&lt;a href="https://github.com/cstangor" target="_blank" rel="noopener">@cstangor&lt;/a>,
+&lt;a href="https://github.com/EeethB" target="_blank" rel="noopener">@EeethB&lt;/a>,
+&lt;a href="https://github.com/enricodata" target="_blank" rel="noopener">@enricodata&lt;/a>,
+&lt;a href="https://github.com/FJCC" target="_blank" rel="noopener">@FJCC&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/HadyShaaban" target="_blank" rel="noopener">@HadyShaaban&lt;/a>,
+&lt;a href="https://github.com/ismayc" target="_blank" rel="noopener">@ismayc&lt;/a>,
+&lt;a href="https://github.com/j450h1" target="_blank" rel="noopener">@j450h1&lt;/a>,
+&lt;a href="https://github.com/janebunr" target="_blank" rel="noopener">@janebunr&lt;/a>,
+&lt;a href="https://github.com/jcheng5" target="_blank" rel="noopener">@jcheng5&lt;/a>,
+&lt;a href="https://github.com/JeffreyCHoover" target="_blank" rel="noopener">@JeffreyCHoover&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jonmichael-caldwell" target="_blank" rel="noopener">@jonmichael-caldwell&lt;/a>,
+&lt;a href="https://github.com/jreid88" target="_blank" rel="noopener">@jreid88&lt;/a>,
+&lt;a href="https://github.com/Karlheinzniebuhr" target="_blank" rel="noopener">@Karlheinzniebuhr&lt;/a>,
+&lt;a href="https://github.com/kputschko" target="_blank" rel="noopener">@kputschko&lt;/a>,
+&lt;a href="https://github.com/KryeKuzhinieri" target="_blank" rel="noopener">@KryeKuzhinieri&lt;/a>,
+&lt;a href="https://github.com/laurenmarietta" target="_blank" rel="noopener">@laurenmarietta&lt;/a>,
+&lt;a href="https://github.com/lwjohnst86" target="_blank" rel="noopener">@lwjohnst86&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/majazaloznik" target="_blank" rel="noopener">@majazaloznik&lt;/a>,
+&lt;a href="https://github.com/maticabgd" target="_blank" rel="noopener">@maticabgd&lt;/a>,
+&lt;a href="https://github.com/MCOtto" target="_blank" rel="noopener">@MCOtto&lt;/a>,
+&lt;a href="https://github.com/meheszlev" target="_blank" rel="noopener">@meheszlev&lt;/a>,
+&lt;a href="https://github.com/Mr-Hadoop-Hotshot" target="_blank" rel="noopener">@Mr-Hadoop-Hotshot&lt;/a>,
+&lt;a href="https://github.com/Niekuba" target="_blank" rel="noopener">@Niekuba&lt;/a>,
+&lt;a href="https://github.com/norcalbiostat" target="_blank" rel="noopener">@norcalbiostat&lt;/a>,
+&lt;a href="https://github.com/Patrikios" target="_blank" rel="noopener">@Patrikios&lt;/a>,
+&lt;a href="https://github.com/pschloss" target="_blank" rel="noopener">@pschloss&lt;/a>,
+&lt;a href="https://github.com/pythiantech" target="_blank" rel="noopener">@pythiantech&lt;/a>,
+&lt;a href="https://github.com/randy3k" target="_blank" rel="noopener">@randy3k&lt;/a>,
+&lt;a href="https://github.com/ratnexa" target="_blank" rel="noopener">@ratnexa&lt;/a>,
+&lt;a href="https://github.com/sanjmeh" target="_blank" rel="noopener">@sanjmeh&lt;/a>,
+&lt;a href="https://github.com/sdisav" target="_blank" rel="noopener">@sdisav&lt;/a>,
+&lt;a href="https://github.com/sommerhd-royals" target="_blank" rel="noopener">@sommerhd-royals&lt;/a>,
+&lt;a href="https://github.com/statnmap" target="_blank" rel="noopener">@statnmap&lt;/a>,
+&lt;a href="https://github.com/tariuk" target="_blank" rel="noopener">@tariuk&lt;/a>,
+&lt;a href="https://github.com/tvroylandt" target="_blank" rel="noopener">@tvroylandt&lt;/a>,
+&lt;a href="https://github.com/vinaybugz" target="_blank" rel="noopener">@vinaybugz&lt;/a>, and
+&lt;a href="https://github.com/VincentGuyader" target="_blank" rel="noopener">@VincentGuyader&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>The &lt;code>subject&lt;/code> argument of
+&lt;a href="https://gmailr.r-lib.org/reference/gm_auth.html" target="_blank" rel="noopener">&lt;code>gm_auth()&lt;/code>&lt;/a> is also new and facilitates the use of a service account to impersonate a user. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>The full OAuth dance is not necessary in subsequent R sessions, though, by default gmailr is very conservative and asks for permission to use and refresh an existing token. This is, of course, configurable. &lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>gmailr v1.0.0</title><link>https://www.tidyverse.org/blog/2019/08/gmailr-1-0-0/</link><pubDate>Mon, 26 Aug 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/08/gmailr-1-0-0/</guid><description>
+&lt;h2 id="introduction">Introduction
+&lt;a href="#introduction">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>gmailr v1.0.0 (&lt;a href="https://gmailr.r-lib.org">https://gmailr.r-lib.org&lt;/a>) is now on CRAN!&lt;/p>
+&lt;p>gmailr wraps the
+&lt;a href="https://developers.google.com/gmail/" target="_blank" rel="noopener">Gmail REST API v3&lt;/a>. It provides a variety of funcitons to query your mailbox and create and send new email messages. You can retrieve, create and send emails and drafts, manage email labels, trash and untrash emails, and delete messages, drafts and threads.&lt;/p>
+&lt;p>The tidyverse team uses gmailr most often to send emails to the maintainers of packages which depend on our packages, to inform them when a new package release is imminent or if any of our changes require action on their part.&lt;/p>
+&lt;p>Install gmailr with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;gmailr&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The release of version 1.0.0 marks three events:&lt;/p>
+&lt;ul>
+&lt;li>There are changes in the auth interface that are not backwards compatible.&lt;/li>
+&lt;li>The built-in application has been removed.&lt;/li>
+&lt;li>The functions have all been prefixed with &lt;code>gm_()&lt;/code>, to avoid name conflicts with functions in other packages (including the base package).&lt;/li>
+&lt;/ul>
+&lt;p>There is also new functionality that make writing emails with non-ASCII characters more robust, and improved documentation. See the
+&lt;a href="http://gmailr.r-lib.org/news/index.html#gmailr-1-0-0" target="_blank" rel="noopener">changelog&lt;/a> for the full details on this release.&lt;/p>
+&lt;h2 id="auth-from-gargle">Auth from gargle
+&lt;a href="#auth-from-gargle">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>gmailr&amp;rsquo;s auth functionality now comes from the
+&lt;a href="https://gargle.r-lib.org" target="_blank" rel="noopener">gargle package&lt;/a>, which provides R infrastructure to work with Google APIs, in general. We&amp;rsquo;ve just
+&lt;a href="https://www.tidyverse.org/articles/2019/08/gargle-hello-world/" target="_blank" rel="noopener">blogged about gargle&amp;rsquo;s initial release&lt;/a>, so check out that post for more details.&lt;/p>
+&lt;p>We&amp;rsquo;re adopting gargle for auth in several other packages, such as
+&lt;a href="https://bigrquery.r-dbi.org" target="_blank" rel="noopener">bigrquery&lt;/a> (&amp;gt;= v1.2.0),
+&lt;a href="https://googledrive.r-lib.org" target="_blank" rel="noopener">googledrive&lt;/a> (&amp;gt;= v1.0.0), and
+&lt;a href="https://googlesheets4.tidyverse.org" target="_blank" rel="noopener">googlesheets4&lt;/a> (currently GitHub-only, successor of googlesheets). This makes new token flows available in these packages, such as
+&lt;a href="https://www.jhanley.com/google-cloud-application-default-credentials/" target="_blank" rel="noopener">Application Default Credentials&lt;/a>, and makes auth less idiosyncratic.&lt;/p>
+&lt;h3 id="auth-changes-the-typical-user-will-notice">Auth changes the typical user will notice
+&lt;a href="#auth-changes-the-typical-user-will-notice">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The functions used for authentication have changed. Use &lt;code>gm_auth_configure()&lt;/code> to configure your application and then &lt;code>gm_auth()&lt;/code> to actually authenticate your user with the application.&lt;/p>
+&lt;blockquote>
+&lt;p>OAuth2 tokens are now cached at the user level, by default, instead of in &lt;code>.httr-oauth&lt;/code> in the current project. We will ask if it&amp;rsquo;s OK to create a new folder to hold your OAuth tokens. We recommend that you delete any vestigial &lt;code>.httr-oauth&lt;/code> files lying around your gmailr projects and re-authorize gmailr, i.e. get a new token, stored in the new way.&lt;/p>
+&lt;/blockquote>
+&lt;p>The new strategy makes it harder to accidentally push your tokens to the cloud, easier to use multiple Google identities, and easier to share tokens across projects and packages.&lt;/p>
+&lt;p>Overall, gmailr has gotten more careful about getting your permission to use a cached token. See the gargle vignette
+&lt;a href="https://gargle.r-lib.org/articles/non-interactive-auth.html" target="_blank" rel="noopener">Non-interactive auth&lt;/a> to learn how to prevent attempts to interact with you, especially the section
+&lt;a href="https://gargle.r-lib.org/articles/non-interactive-auth.html#arrange-for-an-oauth-token-to-be-re-discovered" target="_blank" rel="noopener">&amp;ldquo;Arrange for an oauth token to be re-discovered&amp;rdquo;&lt;/a>.&lt;/p>
+&lt;p>gmailr also removes the built-in OAuth &amp;ldquo;app&amp;rdquo;. This was nessesary to comply with
+&lt;a href="https://developers.google.com/terms/api-services-user-data-policy#additional-requirements-for-specific-api-scopes" target="_blank" rel="noopener">stricter rules and enforcement&lt;/a> by google for Gmail API applications. It was not possible to comply with these rules and continue to have a default application embedded in gmailr. See the
+&lt;a href="http://gmailr.r-lib.org/#setup" target="_blank" rel="noopener">setup&lt;/a> section of the readme for how to create a new project and authenticate it with only a few steps. gmailr operates under the same
+&lt;a href="https://www.tidyverse.org/google_privacy_policy/" target="_blank" rel="noopener">Privacy Policy&lt;/a> as other tidyverse API packages, the most relevant bit for users is &amp;lsquo;The packages only communicate with Google APIs. No user data is shared with the owners of the Tidyverse API Packages, RStudio, or any other servers.&amp;rsquo;&lt;/p>
+&lt;h2 id="preventing-name-conflicts">Preventing name conflicts
+&lt;a href="#preventing-name-conflicts">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Historically functions in gmailr did not attempt to avoid conflicts, including common functions in the base package like &lt;code>body()&lt;/code> and &lt;code>message()&lt;/code>. It was assumed users would use namespaced calls, e.g. &lt;code>gmailr::body()&lt;/code> if there were issues. However this inadvertantly causes confusing errors for users. All of the functions are now prefixed with &lt;code>gm_()&lt;/code> to solve this conflict. This also increases function discoverability via auto-complete.&lt;/p>
+&lt;p>The un-exported function &lt;code>gmailr:::gm_convert_file()&lt;/code> converts existing scripts to use the new functions. Use &lt;code>gmailr:::gm_convert_file(list.files(pattern = &amp;quot;[.]R$&amp;quot;, recursive = TRUE))&lt;/code> to convert all of your R scripts in the current directory and below. (Be sure to inspect the changes manually!)&lt;/p>
+&lt;h2 id="shared-workflows">Shared workflows
+&lt;a href="#shared-workflows">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The shared use of gargle allows us to create centralized articles for several workflows that can be tricky for users:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://gargle.r-lib.org/articles/non-interactive-auth.html" target="_blank" rel="noopener">Non-interactive auth&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://gargle.r-lib.org/articles/auth-from-web.html" target="_blank" rel="noopener">Auth when using R in the browser&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://gargle.r-lib.org/articles/articles/managing-tokens-securely.html" target="_blank" rel="noopener">Managing tokens securely&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://gargle.r-lib.org/articles/get-api-credentials.html" target="_blank" rel="noopener">How to get your own API credentials&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="thanks">Thanks!
+&lt;a href="#thanks">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thanks to the 58 people who contributed issues, code, and comments to this release!&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/abhishek1608" target="_blank" rel="noopener">@abhishek1608&lt;/a>,
+&lt;a href="https://github.com/alansz" target="_blank" rel="noopener">@alansz&lt;/a>,
+&lt;a href="https://github.com/alkashef" target="_blank" rel="noopener">@alkashef&lt;/a>,
+&lt;a href="https://github.com/ascheinwald" target="_blank" rel="noopener">@ascheinwald&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/Btibert3" target="_blank" rel="noopener">@Btibert3&lt;/a>,
+&lt;a href="https://github.com/choisy" target="_blank" rel="noopener">@choisy&lt;/a>,
+&lt;a href="https://github.com/coatless" target="_blank" rel="noopener">@coatless&lt;/a>,
+&lt;a href="https://github.com/csalgads" target="_blank" rel="noopener">@csalgads&lt;/a>,
+&lt;a href="https://github.com/ctbrown" target="_blank" rel="noopener">@ctbrown&lt;/a>,
+&lt;a href="https://github.com/eluerken" target="_blank" rel="noopener">@eluerken&lt;/a>,
+&lt;a href="https://github.com/EricGoldsmith" target="_blank" rel="noopener">@EricGoldsmith&lt;/a>,
+&lt;a href="https://github.com/fiol92" target="_blank" rel="noopener">@fiol92&lt;/a>,
+&lt;a href="https://github.com/grepinsight" target="_blank" rel="noopener">@grepinsight&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/Hellengeremias" target="_blank" rel="noopener">@Hellengeremias&lt;/a>,
+&lt;a href="https://github.com/hopeful-coder" target="_blank" rel="noopener">@hopeful-coder&lt;/a>,
+&lt;a href="https://github.com/howard-gu" target="_blank" rel="noopener">@howard-gu&lt;/a>,
+&lt;a href="https://github.com/jamespmcguire" target="_blank" rel="noopener">@jamespmcguire&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jim0wheel" target="_blank" rel="noopener">@jim0wheel&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jlegewie" target="_blank" rel="noopener">@jlegewie&lt;/a>,
+&lt;a href="https://github.com/jnolis" target="_blank" rel="noopener">@jnolis&lt;/a>,
+&lt;a href="https://github.com/josibake" target="_blank" rel="noopener">@josibake&lt;/a>,
+&lt;a href="https://github.com/kazuya030" target="_blank" rel="noopener">@kazuya030&lt;/a>,
+&lt;a href="https://github.com/kevin-dyrland" target="_blank" rel="noopener">@kevin-dyrland&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/lawremi" target="_blank" rel="noopener">@lawremi&lt;/a>,
+&lt;a href="https://github.com/lmmx" target="_blank" rel="noopener">@lmmx&lt;/a>,
+&lt;a href="https://github.com/lwasser" target="_blank" rel="noopener">@lwasser&lt;/a>,
+&lt;a href="https://github.com/maaraaj" target="_blank" rel="noopener">@maaraaj&lt;/a>,
+&lt;a href="https://github.com/marco-vene" target="_blank" rel="noopener">@marco-vene&lt;/a>,
+&lt;a href="https://github.com/martijnvv" target="_blank" rel="noopener">@martijnvv&lt;/a>,
+&lt;a href="https://github.com/matt-negrin" target="_blank" rel="noopener">@matt-negrin&lt;/a>,
+&lt;a href="https://github.com/mattbaggott" target="_blank" rel="noopener">@mattbaggott&lt;/a>,
+&lt;a href="https://github.com/msgoussi" target="_blank" rel="noopener">@msgoussi&lt;/a>,
+&lt;a href="https://github.com/msrodrigues" target="_blank" rel="noopener">@msrodrigues&lt;/a>,
+&lt;a href="https://github.com/MST2803" target="_blank" rel="noopener">@MST2803&lt;/a>,
+&lt;a href="https://github.com/nicocriscuolo" target="_blank" rel="noopener">@nicocriscuolo&lt;/a>,
+&lt;a href="https://github.com/obarisk" target="_blank" rel="noopener">@obarisk&lt;/a>,
+&lt;a href="https://github.com/paddytobias" target="_blank" rel="noopener">@paddytobias&lt;/a>,
+&lt;a href="https://github.com/prithajnath" target="_blank" rel="noopener">@prithajnath&lt;/a>,
+&lt;a href="https://github.com/RockScience" target="_blank" rel="noopener">@RockScience&lt;/a>,
+&lt;a href="https://github.com/RozennGZ" target="_blank" rel="noopener">@RozennGZ&lt;/a>,
+&lt;a href="https://github.com/rpietro" target="_blank" rel="noopener">@rpietro&lt;/a>,
+&lt;a href="https://github.com/scottgrimes" target="_blank" rel="noopener">@scottgrimes&lt;/a>,
+&lt;a href="https://github.com/SimonCoulombe" target="_blank" rel="noopener">@SimonCoulombe&lt;/a>,
+&lt;a href="https://github.com/slomanl1" target="_blank" rel="noopener">@slomanl1&lt;/a>,
+&lt;a href="https://github.com/songyurita" target="_blank" rel="noopener">@songyurita&lt;/a>,
+&lt;a href="https://github.com/sumxf" target="_blank" rel="noopener">@sumxf&lt;/a>,
+&lt;a href="https://github.com/TheKashe" target="_blank" rel="noopener">@TheKashe&lt;/a>,
+&lt;a href="https://github.com/tingmar" target="_blank" rel="noopener">@tingmar&lt;/a>,
+&lt;a href="https://github.com/tmamiya" target="_blank" rel="noopener">@tmamiya&lt;/a>,
+&lt;a href="https://github.com/Vestaxis" target="_blank" rel="noopener">@Vestaxis&lt;/a>,
+&lt;a href="https://github.com/vikram-rawat" target="_blank" rel="noopener">@vikram-rawat&lt;/a>,
+&lt;a href="https://github.com/williamgunn" target="_blank" rel="noopener">@williamgunn&lt;/a>, and
+&lt;a href="https://github.com/xhudik" target="_blank" rel="noopener">@xhudik&lt;/a>&lt;/p></description></item></channel></rss>

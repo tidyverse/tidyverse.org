@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>poissonreg | Tidyverse</title><link>https://www.tidyverse.org/tags/poissonreg/</link><atom:link href="https://www.tidyverse.org/tags/poissonreg/index.xml" rel="self" type="application/rss+xml"/><description>poissonreg</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 15 Apr 2020 00:00:00 +0000</lastBuildDate><item><title>New parsnip-adjacent packages</title><link>https://www.tidyverse.org/blog/2020/04/parsnip-adjacent/</link><pubDate>Wed, 15 Apr 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/04/parsnip-adjacent/</guid><description>&lt;p>We&amp;rsquo;re delighted to announce the release of three new tidymodels packages. These are &amp;ldquo;parsnip-adjacent&amp;rdquo; packages that add new models to the tidymodels framework.&lt;/p>
+&lt;h2 id="baguette">baguette
+&lt;a href="#baguette">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This package contains basic functions and parsnip wrappers for bagging (aka
+&lt;a href="https://scholar.google.com/scholar?hl=en&amp;amp;as_sdt=0%2C7&amp;amp;q=bagging&amp;#43;predictors&amp;#43;breiman&amp;#43;1996&amp;amp;oq=Bagging&amp;#43;predictors&amp;#43;" target="_blank" rel="noopener">bootstrap aggregating&lt;/a>) ensemble models. Right now, there are parsnip wrappers called &lt;code>bag_tree()&lt;/code> and &lt;code>bag_mars()&lt;/code> although more are planned, especially for rule-based models.&lt;/p>
+&lt;p>One nice feature of this package is that the resulting model objects are smaller than they would normally be. Two separate operations are used to do this:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>The butcher package is used to remove object elements that are not crucial to using the models. For example, some models contain copies of the training set or model residuals when created. These are removed so that space is saved.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>For ensembles whose base models use a formula method, there is is a built-in redundancy because each model has an identical &lt;code>terms&lt;/code> object. However, each one of these takes up separate space in memory and can be quite large when there are many predictors. baguette fixes this by replacing each &lt;code>terms&lt;/code> object with the object from the &lt;em>first&lt;/em> model in the ensemble. Since the other &lt;code>terms&lt;/code> objects are not modified, we get the same functional capabilities using far less memory to save the ensemble. A similar trick is used for the resampling method sin &lt;code>modelr&lt;/code> and &lt;code>rsample&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;p>The models also return aggregated variable importance scores.&lt;/p>
+&lt;p>Here&amp;rsquo;s an example:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidymodels&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">baguette&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">bag_tree&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">set_engine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;rpart&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># C5.0 is also available here. &lt;/span>
+&lt;span class="c1">#&amp;gt; Bagged Decision Tree Model Specification (unknown)&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Main Arguments:&lt;/span>
+&lt;span class="c1">#&amp;gt; cost_complexity = 0&lt;/span>
+&lt;span class="c1">#&amp;gt; min_n = 2&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Computational engine: rpart&lt;/span>
+&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">5128&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">bag_cars&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">bag_tree&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">set_engine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;rpart&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">times&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">25&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="c1"># 25 ensemble members &lt;/span>
+&lt;span class="nf">set_mode&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;regression&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">fit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">bag_cars&lt;/span>
+&lt;span class="c1">#&amp;gt; parsnip model object&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Fit time: 4.6s &lt;/span>
+&lt;span class="c1">#&amp;gt; Bagged CART (regression with 25 members)&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Variable importance scores include:&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 10 x 4&lt;/span>
+&lt;span class="c1">#&amp;gt; term value std.error used&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 disp 966. 56.7 25&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 wt 951. 59.4 25&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 hp 810. 53.9 25&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 cyl 567. 53.9 25&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 drat 558. 57.5 25&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 qsec 214. 28.4 25&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 am 133. 41.1 23&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 carb 126. 37.7 25&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 vs 108. 41.2 24&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 gear 38.9 16.5 19&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="poissonreg">poissonreg
+&lt;a href="#poissonreg">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The parsnip package has methods for linear, logistic, and multinomial models. poissonreg extends this to data where the outcome is a count. There are engines for &lt;code>glm&lt;/code>, &lt;code>rstanarm&lt;/code>, &lt;code>glmnet&lt;/code>, &lt;code>hurdle&lt;/code>, and &lt;code>zeroinfl&lt;/code>. The latter two enable zero-inflated Poisson models from the
+&lt;a href="https://github.com/atahk/pscl" target="_blank" rel="noopener">pscl&lt;/a> package.&lt;/p>
+&lt;p>Here is an example using a log-linear model for analyzing a three dimensional contingency table using the data from Agresti (2007, Table 7.6):&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">poissonreg&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">log_lin_mod&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">poisson_reg&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">set_engine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;glm&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">fit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">count&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">.)^2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">seniors&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">log_lin_mod&lt;/span>
+&lt;span class="c1">#&amp;gt; parsnip model object&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Fit time: 4ms &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Call: stats::glm(formula = formula, family = stats::poisson, data = data)&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Coefficients:&lt;/span>
+&lt;span class="c1">#&amp;gt; (Intercept) marijuanayes &lt;/span>
+&lt;span class="c1">#&amp;gt; 5.6334 -5.3090 &lt;/span>
+&lt;span class="c1">#&amp;gt; cigaretteyes alcoholyes &lt;/span>
+&lt;span class="c1">#&amp;gt; -1.8867 0.4877 &lt;/span>
+&lt;span class="c1">#&amp;gt; marijuanayes:cigaretteyes marijuanayes:alcoholyes &lt;/span>
+&lt;span class="c1">#&amp;gt; 2.8479 2.9860 &lt;/span>
+&lt;span class="c1">#&amp;gt; cigaretteyes:alcoholyes &lt;/span>
+&lt;span class="c1">#&amp;gt; 2.0545 &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Degrees of Freedom: 7 Total (i.e. Null); 1 Residual&lt;/span>
+&lt;span class="c1">#&amp;gt; Null Deviance: 2851 &lt;/span>
+&lt;span class="c1">#&amp;gt; Residual Deviance: 0.374 AIC: 63.42&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>One interesting thing about the zero-inflated Poisson models is that there can be different predictors for the usual linear predictor as well as others for the probability of a zero count (see
+&lt;a href="https://www.jstatsoft.org/article/view/v027i08/" target="_blank" rel="noopener">Zeileis &lt;em>et al&lt;/em> (2008)&lt;/a> for more details). For example:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;bioChemists&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">package&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;pscl&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">poisson_reg&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">set_engine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;hurdle&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="c1"># Extended formula:&lt;/span>
+&lt;span class="nf">fit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">art&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">. &lt;/span>&lt;span class="o">|&lt;/span> &lt;span class="n">phd&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">bioChemists&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; parsnip model object&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Fit time: 22ms &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Call:&lt;/span>
+&lt;span class="c1">#&amp;gt; pscl::hurdle(formula = formula, data = data)&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Count model coefficients (truncated poisson with log link):&lt;/span>
+&lt;span class="c1">#&amp;gt; (Intercept) femWomen marMarried kid5 phd ment &lt;/span>
+&lt;span class="c1">#&amp;gt; 0.67114 -0.22858 0.09648 -0.14219 -0.01273 0.01875 &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Zero hurdle model coefficients (binomial with logit link):&lt;/span>
+&lt;span class="c1">#&amp;gt; (Intercept) phd &lt;/span>
+&lt;span class="c1">#&amp;gt; 0.3075 0.1750&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="plsmod">plsmod
+&lt;a href="#plsmod">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This package has parsnip methods for Partial Least Squares (PLS) regression and classification models based on the work in the Bioconductor
+&lt;a href="https://bioconductor.org/packages/release/bioc/html/mixOmics.html" target="_blank" rel="noopener">mixOmics&lt;/a> package. This package facilitates ordinary PLS models as well as sparse versions. Additionally, it can also be used for multivariate models.&lt;/p>
+&lt;p>Let&amp;rsquo;s take the &lt;code>meats&lt;/code> data from the modeldata package. Spectroscopy was used to estimate the percentage of protein, fat, and water from different meats. The predictors are a set of 100 highly correlated spectra values that would come from an instrument. The model can be used to estimate the three percentages simultaneously:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">plsmod&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">meats&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">package&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;modeldata&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">pls_fit&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">pls&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">num_comp&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">num_terms&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">20&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">set_engine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;mixOmics&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">set_mode&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;regression&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">fit_xy&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">meats&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">protein&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="n">fat&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="n">water&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">slice&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="p">)),&lt;/span>
+&lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">meats&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span> &lt;span class="n">protein&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">fat&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">water&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">slice&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="nf">predict&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">pls_fit&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">meats&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">protein&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="n">fat&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="n">water&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">slice&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 5 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; .pred_protein .pred_fat .pred_water&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 16.5 19.3 62.7&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 14.5 36.7 48.4&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 20.2 10.9 69.1&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 20.0 7.21 72.3&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 15.6 23.0 59.7&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This model used 5 PLS components for each of the outcomes. The use of &lt;code>num_terms&lt;/code> enables effect &lt;em>sparsity&lt;/em> where the 20 most influential predictors (out of 100) are used for each of the 5 PLS components. Different predictors can be used for each component. While this is not feature selection, it does offer the possibility of simpler models than ordinary PLS techniques.&lt;/p>
+&lt;h1 id="other-notes">Other notes
+&lt;a href="#other-notes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h1>&lt;p>Each of these models come fully enables to be used with the tune package; their model parameters can be optimized for performance.&lt;/p>
+&lt;p>There are one or two other parsnip-adjacent packages that are around the corner. One is for mixed- and hierarchical models and another is for rule-based machine learning models (e.g. cubist, RuleFit, etc.) currently on GitHub in the
+&lt;a href="https://github.com/tidymodels/rules" target="_blank" rel="noopener">rules repo&lt;/a>.&lt;/p></description></item></channel></rss>

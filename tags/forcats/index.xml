@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>forcats | Tidyverse</title><link>https://www.tidyverse.org/tags/forcats/</link><atom:link href="https://www.tidyverse.org/tags/forcats/index.xml" rel="self" type="application/rss+xml"/><description>forcats</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 30 Jan 2023 00:00:00 +0000</lastBuildDate><item><title>forcats 1.0.0</title><link>https://www.tidyverse.org/blog/2023/01/forcats-1-0-0/</link><pubDate>Mon, 30 Jan 2023 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2023/01/forcats-1-0-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re so happy to announce the release of
+&lt;a href="https://forcats.tidyverse.org" target="_blank" rel="noopener">forcats&lt;/a> 1.0.0. The goal of the forcats package is to provide a suite of tools that solve common problems with factors, including changing the order of levels or the values.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"forcats"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>While this is the 1.0.0 release of forcats, this version number is mainly to signal that we think forcats is stable, and that we don&amp;rsquo;t anticipate any major changes in the future. This blog post will outline the only major new feature in this version: better tools for dealing with the two ways that missing values can be represented in factors. As usual, you can see a full list of changes in the
+&lt;a href="https://github.com/tidyverse/forcats/releases/tag/v1.0.0" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://forcats.tidyverse.org/'>forcats&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="na-in-levels-vs-na-in-values">&lt;code>NA&lt;/code> in levels vs &lt;code>NA&lt;/code> in values
+&lt;a href="#na-in-levels-vs-na-in-values">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>There are two ways to represent a missing value in a factor:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>You can include it in the values of the factor; it does not appear in the levels and
+&lt;a href="https://rdrr.io/r/base/NA.html" target="_blank" rel="noopener">&lt;code>is.na()&lt;/code>&lt;/a> reports it as missing. This is how missing values are encoded by default:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>f1&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"x"&lt;/span>, &lt;span class='s'>"y"&lt;/span>, &lt;span class='kc'>NA&lt;/span>, &lt;span class='kc'>NA&lt;/span>, &lt;span class='s'>"x"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/levels.html'>levels&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>f1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "x" "y"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/NA.html'>is.na&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>f1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] FALSE FALSE TRUE TRUE FALSE&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>You can include it in the levels of the factor, thus
+&lt;a href="https://rdrr.io/r/base/NA.html" target="_blank" rel="noopener">&lt;code>is.na()&lt;/code>&lt;/a> does not report it as missing. This requires a little more work to create, because, by default,
+&lt;a href="https://rdrr.io/r/base/factor.html" target="_blank" rel="noopener">&lt;code>factor()&lt;/code>&lt;/a> uses &lt;code>exclude = NA&lt;/code>, meaning that missing values are not included in the levels. You can force &lt;code>NA&lt;/code> to be included by setting &lt;code>exclude = NULL&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>f2&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"x"&lt;/span>, &lt;span class='s'>"y"&lt;/span>, &lt;span class='kc'>NA&lt;/span>, &lt;span class='kc'>NA&lt;/span>, &lt;span class='s'>"x"&lt;/span>&lt;span class='o'>)&lt;/span>, exclude &lt;span class='o'>=&lt;/span> &lt;span class='kc'>NULL&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/levels.html'>levels&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>f2&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "x" "y" NA&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/NA.html'>is.na&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>f2&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] FALSE FALSE FALSE FALSE FALSE&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;/ul>
+&lt;p>You can see the difference a little more clearly by looking at the underlying integer values of the factor:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/integer.html'>as.integer&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>f1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 1 2 NA NA 1&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/integer.html'>as.integer&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>f2&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 1 2 3 3 1&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>When the &lt;code>NA&lt;/code> is stored in the levels, there&amp;rsquo;s no missing value in the underlying integer values, because the value of level 3 is &lt;code>NA&lt;/code>.&lt;/p>
+&lt;p>&lt;code>NA&lt;/code>s in the values tend to be best for data analysis, because
+&lt;a href="https://rdrr.io/r/base/NA.html" target="_blank" rel="noopener">&lt;code>is.na()&lt;/code>&lt;/a> works as you&amp;rsquo;d expect. &lt;code>NA&lt;/code>s in the levels are useful if you need to control where missing values are shown in a table or a plot. To make it easier to switch between these forms, forcats now comes
+&lt;a href="https://forcats.tidyverse.org/reference/fct_na_value_to_level.html" target="_blank" rel="noopener">&lt;code>fct_na_value_to_level()&lt;/code>&lt;/a> and
+&lt;a href="https://forcats.tidyverse.org/reference/fct_na_value_to_level.html" target="_blank" rel="noopener">&lt;code>fct_na_level_to_value()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>Here&amp;rsquo;s a practical example of why it matters. In the plot below, I&amp;rsquo;ve attempted to use
+&lt;a href="https://forcats.tidyverse.org/reference/fct_inorder.html" target="_blank" rel="noopener">&lt;code>fct_infreq()&lt;/code>&lt;/a> to reorder the levels of the factor so that the highest frequency levels are at the top of the bar chart:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://ggplot2.tidyverse.org'>ggplot2&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://dplyr.tidyverse.org'>dplyr&lt;/a>&lt;/span>, warn.conflicts &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>starwars&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_rev.html'>fct_rev&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_inorder.html'>fct_infreq&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>hair_color&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>y &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Hair color"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/fct-infreq-hair-1.png" alt="The bar chart of hair color, now ordered so that the least frequent colours come first and the most frequent colors come last. This makes it easy to see that the most common hair color is none (~35), followed by brown (~18), then black (~12). Surprisingly, NAs are at the top of the graph, even though there are ~5 NAs and other colors have smaller values." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Unfortunately, however, because the &lt;code>NA&lt;/code>s are stored in the values,
+&lt;a href="https://forcats.tidyverse.org/reference/fct_inorder.html" target="_blank" rel="noopener">&lt;code>fct_infreq()&lt;/code>&lt;/a> has no ability to affect them, so they appear in their default position, after all the other values (it might not be obvious that that they&amp;rsquo;re after the other values here, but remember in plots y values have their smallest values at the bottom and highest values at the top).&lt;/p>
+&lt;p>We can make
+&lt;a href="https://forcats.tidyverse.org/reference/fct_inorder.html" target="_blank" rel="noopener">&lt;code>fct_infreq()&lt;/code>&lt;/a> do what we want by moving the &lt;code>NA&lt;/code> from the values to the levels:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>starwars&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_rev.html'>fct_rev&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_inorder.html'>fct_infreq&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_na_value_to_level.html'>fct_na_value_to_level&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>hair_color&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>y &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Hair color"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-5-1.png" alt="The bar chart of hair color, now ordered so that NAs are ordered where you'd expect: in between white (4) and black (12)." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>That code is getting a little verbose so lets pull it out into a separate dplyr step and pull the factor transformation in to its own mini pipeline:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>starwars&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> hair_color &lt;span class='o'>=&lt;/span> &lt;span class='nv'>hair_color&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_na_value_to_level.html'>fct_na_value_to_level&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_inorder.html'>fct_infreq&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_rev.html'>fct_rev&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>hair_color&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>y &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Hair color"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-6-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>This structure makes it easier to make other adjustments. For example, the code below uses a more informative label for the missing level and lumps together the colours with less than 2 observations. I&amp;rsquo;ve left the (Other) category as a bar at the end, but if I wanted to I could cause it to sort in frequency order by flipping the order of
+&lt;a href="https://forcats.tidyverse.org/reference/fct_inorder.html" target="_blank" rel="noopener">&lt;code>fct_infreq()&lt;/code>&lt;/a> and
+&lt;a href="https://forcats.tidyverse.org/reference/fct_lump.html" target="_blank" rel="noopener">&lt;code>fct_lump_min()&lt;/code>&lt;/a> .&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>starwars&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> hair_color &lt;span class='o'>=&lt;/span> &lt;span class='nv'>hair_color&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_na_value_to_level.html'>fct_na_value_to_level&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"(Unknown)"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_inorder.html'>fct_infreq&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_lump.html'>fct_lump_min&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>2&lt;/span>, other_level &lt;span class='o'>=&lt;/span> &lt;span class='s'>"(Other)"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_rev.html'>fct_rev&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>hair_color&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>y &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Hair color"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-7-1.png" alt="The bar chart of hair color, with NA hair colour now labelled as (Unknown) and the low frequency bars lumped into (Other)." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Looking closely at what got lumped together made me realise that there&amp;rsquo;s an existing &amp;ldquo;Unknown&amp;rdquo; level that should probably be represented as a missing value. One way to fix that is with
+&lt;a href="https://forcats.tidyverse.org/reference/fct_na_value_to_level.html" target="_blank" rel="noopener">&lt;code>fct_na_level_to_value()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>starwars&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> hair_color &lt;span class='o'>=&lt;/span> &lt;span class='nv'>hair_color&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_na_value_to_level.html'>fct_na_level_to_value&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Unknown"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_na_value_to_level.html'>fct_na_value_to_level&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"(Unknown)"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_inorder.html'>fct_infreq&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_lump.html'>fct_lump_min&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>2&lt;/span>, other_level &lt;span class='o'>=&lt;/span> &lt;span class='s'>"(Other)"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_rev.html'>fct_rev&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>hair_color&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>y &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Hair color"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-8-1.png" alt="The bar chart of hair color, with &amp;quot;unknown&amp;quot; hair colour now lumped in with (Unknown) instead of other" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2></description></item><item><title>forcats 0.5.0</title><link>https://www.tidyverse.org/blog/2020/03/forcats-0-5-0/</link><pubDate>Mon, 02 Mar 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/03/forcats-0-5-0/</guid><description>&lt;p>We&amp;rsquo;re exceedingly happy to announce the release of
+&lt;a href="https://forcats.tidyverse.org/" target="_blank" rel="noopener">forcats&lt;/a> 0.5.0 on CRAN.
+The goal of the forcats package is to provide a suite of tools that solve common problems with factors, including changing the order of levels or the values.&lt;/p>
+&lt;p>This release includes improvements to several existing functions, as well as a division of
+&lt;a href="https://forcats.tidyverse.org/reference/fct_lump.html" target="_blank" rel="noopener">&lt;code>fct_lump()&lt;/code>&lt;/a> into four new functions: &lt;code>fct_lump_min()&lt;/code>, &lt;code>fct_lump_prop()&lt;/code>, &lt;code>fct_lump_n()&lt;/code>, and &lt;code>fct_lump_lowfreq()&lt;/code>. For a complete inventory of updates in this version, please see the
+&lt;a href="https://forcats.tidyverse.org/dev/news/index.html" target="_blank" rel="noopener">Change log&lt;/a>.&lt;/p>
+&lt;p>You can install forcats with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;forcats&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Attach the package by running:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">forcats&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="new-features">New features
+&lt;a href="#new-features">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="fct_lump-function-family">&lt;code>fct_lump()&lt;/code> function family
+&lt;a href="#fct_lump-function-family">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Lumping seems like a popular activity, and there are many interesting variants. Splitting fct_lump() into pieces makes it much easier for this collection to grow over time.&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>fct_lump_min()&lt;/code> lumps levels that appear fewer than &lt;code>min&lt;/code> times.&lt;/li>
+&lt;li>&lt;code>fct_lump_prop()&lt;/code> lumps levels that appear fewer than &lt;code>prop * n&lt;/code> times.&lt;/li>
+&lt;li>&lt;code>fct_lump_n()&lt;/code> lumps all levels except for the &lt;code>n&lt;/code> most frequent (or least frequent, if &lt;code>n &amp;lt; 0&lt;/code>).&lt;/li>
+&lt;li>&lt;code>fct_lump_lowfreq()&lt;/code> lumps together the least frequent levels, ensuring that &lt;code>&amp;quot;Other&amp;quot;&lt;/code> is still the smallest level.&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">factor&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">rep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kc">LETTERS&lt;/span>&lt;span class="n">[1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">8&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">times&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">40&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">10&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">27&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)))&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">table&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; .&lt;/span>
+&lt;span class="c1">#&amp;gt; A B C D E F G H &lt;/span>
+&lt;span class="c1">#&amp;gt; 40 10 5 27 3 1 1 1&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">fct_lump_min&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">table&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; .&lt;/span>
+&lt;span class="c1">#&amp;gt; A B C D Other &lt;/span>
+&lt;span class="c1">#&amp;gt; 40 10 5 27 6&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">fct_lump_prop&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0.10&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">table&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; .&lt;/span>
+&lt;span class="c1">#&amp;gt; A B D Other &lt;/span>
+&lt;span class="c1">#&amp;gt; 40 10 27 11&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">fct_lump_n&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">table&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; .&lt;/span>
+&lt;span class="c1">#&amp;gt; A B D Other &lt;/span>
+&lt;span class="c1">#&amp;gt; 40 10 27 11&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">fct_lump_lowfreq&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">table&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; .&lt;/span>
+&lt;span class="c1">#&amp;gt; A D Other &lt;/span>
+&lt;span class="c1">#&amp;gt; 40 27 21&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="new-arguments-and-helpers">New arguments, and helpers
+&lt;a href="#new-arguments-and-helpers">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>
+&lt;a href="https://forcats.tidyverse.org/reference/fct_collapse.html" target="_blank" rel="noopener">&lt;code>fct_collapse()&lt;/code>&lt;/a> now has an argument, &lt;code>other_level&lt;/code>, which allows a user-specified &lt;code>Other&lt;/code> level. Factors are now correctly collapsed when &lt;code>other_level&lt;/code> is not &lt;code>NULL&lt;/code>, and makes &lt;code>Other&lt;/code> the last level.&lt;/p>
+&lt;p>
+&lt;a href="https://forcats.tidyverse.org/reference/fct_reorder.html" target="_blank" rel="noopener">&lt;code>fct_reorder2()&lt;/code>&lt;/a> now has a helper function, &lt;code>first2()&lt;/code>, which sorts &lt;code>.y&lt;/code> by the first value of &lt;code>.x&lt;/code>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A special thanks goes out to everyone who contributed to forcats during Tidyverse developer day:
+&lt;a href="https://github.com/kbodwin" target="_blank" rel="noopener">Kelly Bodwin&lt;/a>,
+&lt;a href="https://github.com/labouz" target="_blank" rel="noopener">Layla Bouzoubaa&lt;/a>,
+&lt;a href="https://github.com/808sAndBR" target="_blank" rel="noopener">Scott Brenstuhl&lt;/a>,
+&lt;a href="https://github.com/jonocarroll" target="_blank" rel="noopener">Jonathan Carroll&lt;/a>,
+&lt;a href="https://github.com/monicagerber" target="_blank" rel="noopener">Monica Gerber&lt;/a>,
+&lt;a href="https://github.com/johngoldin" target="_blank" rel="noopener">John Goldin&lt;/a>,
+&lt;a href="https://github.com/gralgomez" target="_blank" rel="noopener">Laura Gomez&lt;/a>,
+&lt;a href="https://github.com/mitchelloharawild" target="_blank" rel="noopener">Mitchell O&amp;rsquo;Hara-Wild&lt;/a>,
+&lt;a href="https://github.com/riinuots" target="_blank" rel="noopener">Riinu Pius&lt;/a>, and
+&lt;a href="https://github.com/robinsones" target="_blank" rel="noopener">Emily Robinson&lt;/a>.&lt;/p>
+&lt;p>We&amp;rsquo;re extremely grateful for all 48 people who helped with this release:
+&lt;a href="https://github.com/808sAndBR" target="_blank" rel="noopener">@808sAndBR&lt;/a>,
+&lt;a href="https://github.com/adisarid" target="_blank" rel="noopener">@adisarid&lt;/a>,
+&lt;a href="https://github.com/alejandroschuler" target="_blank" rel="noopener">@alejandroschuler&lt;/a>,
+&lt;a href="https://github.com/AmeliaMN" target="_blank" rel="noopener">@AmeliaMN&lt;/a>,
+&lt;a href="https://github.com/AndrewKinsman" target="_blank" rel="noopener">@AndrewKinsman&lt;/a>,
+&lt;a href="https://github.com/avishaitsur" target="_blank" rel="noopener">@avishaitsur&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/bczucz" target="_blank" rel="noopener">@bczucz&lt;/a>,
+&lt;a href="https://github.com/billdenney" target="_blank" rel="noopener">@billdenney&lt;/a>,
+&lt;a href="https://github.com/bxc147" target="_blank" rel="noopener">@bxc147&lt;/a>,
+&lt;a href="https://github.com/cuttlefish44" target="_blank" rel="noopener">@cuttlefish44&lt;/a>,
+&lt;a href="https://github.com/dan-reznik" target="_blank" rel="noopener">@dan-reznik&lt;/a>,
+&lt;a href="https://github.com/dpprdan" target="_blank" rel="noopener">@dpprdan&lt;/a>,
+&lt;a href="https://github.com/dylanjm" target="_blank" rel="noopener">@dylanjm&lt;/a>,
+&lt;a href="https://github.com/GegznaV" target="_blank" rel="noopener">@GegznaV&lt;/a>,
+&lt;a href="https://github.com/ghost" target="_blank" rel="noopener">@ghost&lt;/a>,
+&lt;a href="https://github.com/gralgomez" target="_blank" rel="noopener">@gralgomez&lt;/a>,
+&lt;a href="https://github.com/gtm19" target="_blank" rel="noopener">@gtm19&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hongcui" target="_blank" rel="noopener">@hongcui&lt;/a>,
+&lt;a href="https://github.com/jamiefo" target="_blank" rel="noopener">@jamiefo&lt;/a>,
+&lt;a href="https://github.com/jburos" target="_blank" rel="noopener">@jburos&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/johngoldin" target="_blank" rel="noopener">@johngoldin&lt;/a>,
+&lt;a href="https://github.com/jonocarroll" target="_blank" rel="noopener">@jonocarroll&lt;/a>,
+&lt;a href="https://github.com/jtr13" target="_blank" rel="noopener">@jtr13&lt;/a>,
+&lt;a href="https://github.com/jwilliman" target="_blank" rel="noopener">@jwilliman&lt;/a>,
+&lt;a href="https://github.com/jzadra" target="_blank" rel="noopener">@jzadra&lt;/a>,
+&lt;a href="https://github.com/kbodwin" target="_blank" rel="noopener">@kbodwin&lt;/a>,
+&lt;a href="https://github.com/kei51e" target="_blank" rel="noopener">@kei51e&lt;/a>,
+&lt;a href="https://github.com/kyzphong" target="_blank" rel="noopener">@kyzphong&lt;/a>,
+&lt;a href="https://github.com/labouz" target="_blank" rel="noopener">@labouz&lt;/a>,
+&lt;a href="https://github.com/ledbettc" target="_blank" rel="noopener">@ledbettc&lt;/a>,
+&lt;a href="https://github.com/lwjohnst86" target="_blank" rel="noopener">@lwjohnst86&lt;/a>,
+&lt;a href="https://github.com/martinjhnhadley" target="_blank" rel="noopener">@martinjhnhadley&lt;/a>,
+&lt;a href="https://github.com/melissakey" target="_blank" rel="noopener">@melissakey&lt;/a>,
+&lt;a href="https://github.com/mitchelloharawild" target="_blank" rel="noopener">@mitchelloharawild&lt;/a>,
+&lt;a href="https://github.com/monicagerber" target="_blank" rel="noopener">@monicagerber&lt;/a>,
+&lt;a href="https://github.com/mstr3336" target="_blank" rel="noopener">@mstr3336&lt;/a>,
+&lt;a href="https://github.com/riinuots" target="_blank" rel="noopener">@riinuots&lt;/a>,
+&lt;a href="https://github.com/robinsones" target="_blank" rel="noopener">@robinsones&lt;/a>,
+&lt;a href="https://github.com/sgschreiber" target="_blank" rel="noopener">@sgschreiber&lt;/a>,
+&lt;a href="https://github.com/sinarueeger" target="_blank" rel="noopener">@sinarueeger&lt;/a>,
+&lt;a href="https://github.com/sindribaldur" target="_blank" rel="noopener">@sindribaldur&lt;/a>,
+&lt;a href="https://github.com/stelsemeyer" target="_blank" rel="noopener">@stelsemeyer&lt;/a>,
+&lt;a href="https://github.com/VincentGuyader" target="_blank" rel="noopener">@VincentGuyader&lt;/a>,
+&lt;a href="https://github.com/yimingli" target="_blank" rel="noopener">@yimingli&lt;/a>, and
+&lt;a href="https://github.com/zkamvar" target="_blank" rel="noopener">@zkamvar&lt;/a>.&lt;/p></description></item><item><title>forcats 0.4.0</title><link>https://www.tidyverse.org/blog/2019/05/forcats-0-4-0/</link><pubDate>Fri, 10 May 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/05/forcats-0-4-0/</guid><description>&lt;p>We are pleased to announce that
+&lt;a href="http://forcats.tidyverse.org/" target="_blank" rel="noopener">forcats 0.4.0&lt;/a> is now on CRAN.
+The forcats package provides a suite of useful tools that solve common problems with factors in R. This version benefited from the hard work of contributors new and old at our first
+&lt;a href="https://www.tidyverse.org/articles/2018/11/tidyverse-developer-day-2019/" target="_blank" rel="noopener">tidyverse dev day&lt;/a>. For a complete set of changes, please see the
+&lt;a href="https://github.com/tidyverse/forcats/releases/tag/v0.4.0" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;p>To install the latest version, run:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;forcats&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>As always, attach the package with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">forcats&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="new-functions">New functions
+&lt;a href="#new-functions">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://forcats.tidyverse.org/reference/fct_cross.html" target="_blank" rel="noopener">&lt;code>fct_cross()&lt;/code>&lt;/a> creates a new factor containing the combined levels from two or more input factors, similar to &lt;code>base::interaction()&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">fruit&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">factor&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;apple&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;kiwi&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;apple&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;apple&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="n">colour&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">factor&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;green&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;green&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;red&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;green&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="nf">fct_cross&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">fruit&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">colour&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] apple:green kiwi:green apple:red apple:green&lt;/span>
+&lt;span class="c1">#&amp;gt; Levels: apple:green apple:red kiwi:green&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>
+&lt;a href="https://forcats.tidyverse.org/reference/fct_lump.html" target="_blank" rel="noopener">&lt;code>fct_lump_min()&lt;/code>&lt;/a> preserves levels that appear at least &lt;code>min&lt;/code> times (can also be used with the &lt;code>w&lt;/code> weighted argument).&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">factor&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kc">letters&lt;/span>&lt;span class="nf">[rpois&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">50&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">]&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">fct_lump_min&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">min&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">10&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] Other b Other b Other Other Other b Other Other b &lt;/span>
+&lt;span class="c1">#&amp;gt; [12] Other Other Other b Other b Other Other b b Other&lt;/span>
+&lt;span class="c1">#&amp;gt; [23] Other Other b b Other Other Other Other Other b Other&lt;/span>
+&lt;span class="c1">#&amp;gt; [34] Other Other b Other Other Other Other Other Other Other Other&lt;/span>
+&lt;span class="c1">#&amp;gt; [45] Other b Other b &lt;/span>
+&lt;span class="c1">#&amp;gt; Levels: b Other&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>
+&lt;a href="https://forcats.tidyverse.org/reference/fct_match.html" target="_blank" rel="noopener">&lt;code>fct_match()&lt;/code>&lt;/a> tests for the presence of levels in a factor, providing a safer alternative to &lt;code>%in%&lt;/code> by throwing an error when there are unexpected levels.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">table&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">fct_match&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gss_cat&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">marital&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Married&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Divorced&amp;#34;&lt;/span>&lt;span class="p">)))&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; FALSE TRUE &lt;/span>
+&lt;span class="c1">#&amp;gt; 7983 13500&lt;/span>
+&lt;span class="nf">table&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gss_cat&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">marital&lt;/span> &lt;span class="o">%in%&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Maried&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Davorced&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; FALSE &lt;/span>
+&lt;span class="c1">#&amp;gt; 21483&lt;/span>
+&lt;span class="nf">table&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">fct_match&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gss_cat&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">marital&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Maried&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Davorced&amp;#34;&lt;/span>&lt;span class="p">)))&lt;/span>
+&lt;span class="c1">#&amp;gt; Error: Levels not present in factor: &amp;#34;Maried&amp;#34;, &amp;#34;Davorced&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="other-improvements">Other improvements
+&lt;a href="#other-improvements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://forcats.tidyverse.org/reference/fct_relevel.html" target="_blank" rel="noopener">&lt;code>fct_relevel()&lt;/code>&lt;/a> can now relevel factors using a function that is passed the current levels.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">f&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">factor&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;a&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;b&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;c&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;d&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">levels&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;b&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;c&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;d&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;a&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="nf">fct_relevel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">f&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">sort&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] a b c d&lt;/span>
+&lt;span class="c1">#&amp;gt; Levels: a b c d&lt;/span>
+&lt;span class="nf">fct_relevel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">f&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">rev&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] a b c d&lt;/span>
+&lt;span class="c1">#&amp;gt; Levels: a d c b&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://forcats.tidyverse.org/dev/reference/as_factor.html" target="_blank" rel="noopener">&lt;code>as_factor()&lt;/code>&lt;/a> now has a numeric method which orders factors in numeric order, unlike the other methods which default to order of appearance.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">y&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;1.1&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;11&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;2.2&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;22&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">as_factor&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">y&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 1.1 11 2.2 22 &lt;/span>
+&lt;span class="c1">#&amp;gt; Levels: 1.1 11 2.2 22&lt;/span>
+&lt;span class="n">z&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">as.numeric&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">y&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">as_factor&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">z&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 1.1 11 2.2 22 &lt;/span>
+&lt;span class="c1">#&amp;gt; Levels: 1.1 2.2 11 22&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://forcats.tidyverse.org/dev/reference/fct_inorder.html" target="_blank" rel="noopener">&lt;code>fct_inseq()&lt;/code>&lt;/a> reorders labels numerically, when possible.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Thanks to Emily Robinson, forcats also has a new
+&lt;a href="https://forcats.tidyverse.org/articles/forcats.html" target="_blank" rel="noopener">introductory vignette&lt;/a>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;re grateful for the 35 people who contributed to this release:
+&lt;a href="https://github.com/ahaque-utd" target="_blank" rel="noopener">@ahaque-utd&lt;/a>,
+&lt;a href="https://github.com/AmeliaMN" target="_blank" rel="noopener">@AmeliaMN&lt;/a>,
+&lt;a href="https://github.com/ashiklom" target="_blank" rel="noopener">@ashiklom&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/billdenney" target="_blank" rel="noopener">@billdenney&lt;/a>,
+&lt;a href="https://github.com/brianwdavis" target="_blank" rel="noopener">@brianwdavis&lt;/a>,
+&lt;a href="https://github.com/corybrunson" target="_blank" rel="noopener">@corybrunson&lt;/a>,
+&lt;a href="https://github.com/dalewsteele" target="_blank" rel="noopener">@dalewsteele&lt;/a>,
+&lt;a href="https://github.com/ewenharrison" target="_blank" rel="noopener">@ewenharrison&lt;/a>,
+&lt;a href="https://github.com/grayskripko" target="_blank" rel="noopener">@grayskripko&lt;/a>,
+&lt;a href="https://github.com/gtm19" target="_blank" rel="noopener">@gtm19&lt;/a>,
+&lt;a href="https://github.com/hack-r" target="_blank" rel="noopener">@hack-r&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/huftis" target="_blank" rel="noopener">@huftis&lt;/a>,
+&lt;a href="https://github.com/isteves" target="_blank" rel="noopener">@isteves&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jonocarroll" target="_blank" rel="noopener">@jonocarroll&lt;/a>,
+&lt;a href="https://github.com/jrosen48" target="_blank" rel="noopener">@jrosen48&lt;/a>,
+&lt;a href="https://github.com/jthomasmock" target="_blank" rel="noopener">@jthomasmock&lt;/a>,
+&lt;a href="https://github.com/kbodwin" target="_blank" rel="noopener">@kbodwin&lt;/a>,
+&lt;a href="https://github.com/mdjeric" target="_blank" rel="noopener">@mdjeric&lt;/a>,
+&lt;a href="https://github.com/orchid00" target="_blank" rel="noopener">@orchid00&lt;/a>,
+&lt;a href="https://github.com/richierocks" target="_blank" rel="noopener">@richierocks&lt;/a>,
+&lt;a href="https://github.com/robinsones" target="_blank" rel="noopener">@robinsones&lt;/a>,
+&lt;a href="https://github.com/rosedu1" target="_blank" rel="noopener">@rosedu1&lt;/a>,
+&lt;a href="https://github.com/RoyalTS" target="_blank" rel="noopener">@RoyalTS&lt;/a>,
+&lt;a href="https://github.com/russHyde" target="_blank" rel="noopener">@russHyde&lt;/a>,
+&lt;a href="https://github.com/Ryo-N7" target="_blank" rel="noopener">@Ryo-N7&lt;/a>,
+&lt;a href="https://github.com/s-fleck" target="_blank" rel="noopener">@s-fleck&lt;/a>,
+&lt;a href="https://github.com/seaaan" target="_blank" rel="noopener">@seaaan&lt;/a>,
+&lt;a href="https://github.com/spedygiorgio" target="_blank" rel="noopener">@spedygiorgio&lt;/a>,
+&lt;a href="https://github.com/tslumley" target="_blank" rel="noopener">@tslumley&lt;/a>,
+&lt;a href="https://github.com/xuhuizhang" target="_blank" rel="noopener">@xuhuizhang&lt;/a>,
+&lt;a href="https://github.com/zhiiiyang" target="_blank" rel="noopener">@zhiiiyang&lt;/a>, and
+&lt;a href="https://github.com/zx8754" target="_blank" rel="noopener">@zx8754&lt;/a>.&lt;/p></description></item><item><title>forcats 0.3.0</title><link>https://www.tidyverse.org/blog/2018/02/forcats-0-3-0/</link><pubDate>Wed, 21 Feb 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/02/forcats-0-3-0/</guid><description>
+&lt;p>We are pleased to announce that &lt;a href="http://forcats.tidyverse.org/">forcats 0.3.0&lt;/a> is now on CRAN.&lt;/p>
+&lt;p>The forcats package provides a suite of useful tools that solve common problems with factors in R. This version includes updates that resolve several of the “most popular” GitHub issues (as measured by reactions), some of which are highlighted below. For a complete set of changes, please see the &lt;a href="https://github.com/tidyverse/forcats/releases/tag/v0.3.0">release notes&lt;/a>.&lt;/p>
+&lt;p>You can install the latest version with:&lt;/p>
+&lt;pre class="r">&lt;code>install.packages(&amp;quot;forcats&amp;quot;)&lt;/code>&lt;/pre>
+&lt;div id="improvements-to-na-handling" class="section level3">
+&lt;h3>Improvements to NA handling&lt;/h3>
+&lt;p>Closing out one of the most up-voted &lt;a href="https://github.com/tidyverse/forcats/issues/89">issues&lt;/a> in the tidyverse, &lt;code>as_factor()&lt;/code> and &lt;code>fct_inorder()&lt;/code> can accept NA levels.&lt;/p>
+&lt;p>&lt;code>fct_inorder()&lt;/code> allows you to reorder factor levels by their first appearance. In this latest release, NAs are properly ignored.&lt;/p>
+&lt;pre class="r">&lt;code># forcats 0.3.0
+f &amp;lt;- factor(c(&amp;quot;b&amp;quot;, &amp;quot;b&amp;quot;, NA, &amp;quot;a&amp;quot;, &amp;quot;c&amp;quot;, &amp;quot;c&amp;quot;, &amp;quot;c&amp;quot;, NA))
+f
+#&amp;gt; [1] b b &amp;lt;NA&amp;gt; a c c c &amp;lt;NA&amp;gt;
+#&amp;gt; Levels: a b c
+fct_inorder(f)
+#&amp;gt; [1] b b &amp;lt;NA&amp;gt; a c c c &amp;lt;NA&amp;gt;
+#&amp;gt; Levels: b a c&lt;/code>&lt;/pre>
+&lt;p>&lt;code>fct_lump()&lt;/code> now correctly accounts for NA in input. &lt;code>lvls_revalue()&lt;/code> preserves NA levels. Missing values, including NAs, can be given an explicit factor level using &lt;code>fct_explicit_na()&lt;/code>, which ensures that missing values will appear in summaries and plots.&lt;/p>
+&lt;/div>
+&lt;div id="new-features" class="section level3">
+&lt;h3>New features&lt;/h3>
+&lt;p>Consistent with other tidyverse packages, all functions that take &lt;code>...&lt;/code> now use tidy dots. This means that you can use &lt;code>!!!&lt;/code> to splice in a list of values, and trailing empty arguments are automatically removed. For example:&lt;/p>
+&lt;pre class="r">&lt;code>fa &amp;lt;- factor(&amp;quot;a&amp;quot;)
+fb &amp;lt;- factor(&amp;quot;b&amp;quot;)
+fab &amp;lt;- factor(c(&amp;quot;a&amp;quot;, &amp;quot;b&amp;quot;))
+# You can pass a list of factors with !!!
+fs &amp;lt;- list(fa, fb, fab)
+fct_c(!!!fs)
+#&amp;gt; [1] a b a b
+#&amp;gt; Levels: a b&lt;/code>&lt;/pre>
+&lt;p>All other arguments to functions that take &lt;code>...&lt;/code> gain a &lt;code>.&lt;/code> prefix in order to avoid unhelpful matching of named arguments.&lt;/p>
+&lt;p>&lt;code>fct_lump()&lt;/code> has a new argument, &lt;code>w&lt;/code>, for weighing value frequencies before lumping them together. This is useful if you have pre-summarised data.&lt;/p>
+&lt;/div>
+&lt;div id="api-changes" class="section level3">
+&lt;h3>API changes&lt;/h3>
+&lt;p>We needed to make two backward incompatible changes in order to increase consistency across the tidyverse:&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>&lt;code>fct_c()&lt;/code> now requires explicit splicing with &lt;code>!!!&lt;/code> if you have a list of factors that you want to combine. See example, above.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;code>fct_reorder()&lt;/code> and &lt;code>fct_reorder2()&lt;/code> have renamed &lt;code>fun&lt;/code> to &lt;code>.fun&lt;/code> to avoid spurious matching of named arguments.&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;/div>
+&lt;div id="contributors" class="section level3">
+&lt;h3>Contributors&lt;/h3>
+&lt;p>A big thanks goes to the 30-plus people who made this release possible by opening issues and contributing code: &lt;a href="https://github.com/alistaire47">@alistaire47&lt;/a>, &lt;a href="https://github.com/antaldaniel">@antaldaniel&lt;/a>, &lt;a href="https://github.com/arhot">@arhot&lt;/a>, &lt;a href="https://github.com/BarkleyBG">@BarkleyBG&lt;/a>, &lt;a href="https://github.com/camdenhu">@camdenhu&lt;/a>, &lt;a href="https://github.com/ColinFay">@ColinFay&lt;/a>, &lt;a href="https://github.com/dannyparsons">@dannyparsons&lt;/a>, &lt;a href="https://github.com/davechilders">@davechilders&lt;/a>, &lt;a href="https://github.com/dpavlic">@dpavlic&lt;/a>, &lt;a href="https://github.com/eclarke">@eclarke&lt;/a>, &lt;a href="https://github.com/econandrew">@econandrew&lt;/a>, &lt;a href="https://github.com/felipegerard">@felipegerard&lt;/a>, &lt;a href="https://github.com/geneanalyst">@geneanalyst&lt;/a>, &lt;a href="https://github.com/GlynisHumphrey">@GlynisHumphrey&lt;/a>, &lt;a href="https://github.com/gregrs-uk">@gregrs-uk&lt;/a>, &lt;a href="https://github.com/huftis">@huftis&lt;/a>, &lt;a href="https://github.com/instantkaffee">@instantkaffee&lt;/a>, &lt;a href="https://github.com/jmpsteen">@jmpsteen&lt;/a>, &lt;a href="https://github.com/jtr13">@jtr13&lt;/a>, &lt;a href="https://github.com/krlmlr">@krlmlr&lt;/a>, &lt;a href="https://github.com/michaellevy">@michaellevy&lt;/a>, &lt;a href="https://github.com/NBRAYKO">@NBRAYKO&lt;/a>, &lt;a href="https://github.com/pbiecek">@pbiecek&lt;/a>, &lt;a href="https://github.com/philstraforelli">@philstraforelli&lt;/a>, &lt;a href="https://github.com/robinsones">@robinsones&lt;/a>, &lt;a href="https://github.com/rtaph">@rtaph&lt;/a>, &lt;a href="https://github.com/s-fleck">@s-fleck&lt;/a>, &lt;a href="https://github.com/Tazinho">@Tazinho&lt;/a>, &lt;a href="https://github.com/thercast">@thercast&lt;/a>, &lt;a href="https://github.com/vspinu">@vspinu&lt;/a>, &lt;a href="https://github.com/whatevergeek">@whatevergeek&lt;/a>, &lt;a href="https://github.com/wilkox">@wilkox&lt;/a>, and &lt;a href="https://github.com/wkostelecki">@wkostelecki&lt;/a>.&lt;/p>
+&lt;/div></description></item></channel></rss>

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>shinylive | Tidyverse</title><link>https://www.tidyverse.org/tags/shinylive/</link><atom:link href="https://www.tidyverse.org/tags/shinylive/index.xml" rel="self" type="application/rss+xml"/><description>shinylive</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 14 Oct 2024 00:00:00 +0000</lastBuildDate><item><title>WebAssembly roundup part 2: Shinylive 0.8.0</title><link>https://www.tidyverse.org/blog/2024/10/shinylive-0-8-0/</link><pubDate>Mon, 14 Oct 2024 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2024/10/shinylive-0-8-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>One of the most popular uses of webR in a wider project is
+&lt;a href="https://shinylive.io/r/examples" target="_blank" rel="noopener">Shinylive&lt;/a>, a system for deploying Shiny for R or Python apps that run completely in a web browser, without the need for a dedicated Shiny server. Shinylive works by running both the server and client components in the viewer&amp;rsquo;s browser, and the support for running R Shiny apps in this way is provided by webR.&lt;/p>
+&lt;p>Since Shinylive works with both R and Python Shiny apps, the project is released as multiple independent but interconnecting software. The core
+&lt;a href="https://github.com/posit-dev/shinylive" target="_blank" rel="noopener">Shinylive&lt;/a> assets, the
+&lt;a href="https://github.com/posit-dev/r-shinylive" target="_blank" rel="noopener">R shinylive&lt;/a> package, the
+&lt;a href="https://github.com/posit-dev/py-shinylive" target="_blank" rel="noopener">Python Shinylive&lt;/a> package, and the
+&lt;a href="https://github.com/quarto-ext/shinylive/" target="_blank" rel="noopener">Shinylive Quarto extension&lt;/a>. This post will describe some the latest changes in the context of running the R Shinylive package and Quarto extension.&lt;/p>
+&lt;h2 id="shinylive-assets">Shinylive assets
+&lt;a href="#shinylive-assets">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The latest release of the Shinylive assets upgrades the version of webR included to 0.4.2, bringing in the improved packaging and loading performance of R binaries discussed in
+&lt;a href="../webr-0-4-2/">part 1 of this series&lt;/a>. Shinylive now defaults to downloading R packages in the improved &lt;code>.tgz&lt;/code> archive format served by the
+&lt;a href="repo.r-wasm.org">webR default repository&lt;/a> and
+&lt;a href="https://r-universe.dev/" target="_blank" rel="noopener">R-Universe&lt;/a>, resulting in a more efficient R package installation and faster start up process.&lt;/p>
+&lt;p>These changes are already making a tangible difference to applications. In a recent meeting of the
+&lt;a href="https://rconsortium.github.io/submissions-wg/" target="_blank" rel="noopener">R Consortium Submissions Working Group&lt;/a>, it was reported that for a complex Shinylive app the overall load time decreased from over a minute to just 15 seconds! &lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>&lt;/p>
+&lt;p>The working group is championing improved practices for R-based submissions of clinical trial data to regulatory bodies for review. With their great work and our steady improvements to Shinylive over time, the group now report that they have reached a new milestone in
+&lt;a href="https://r-consortium.org/posts/using-r-to-submit-research-to-the-fda-pilot-4-successfully-submitted/" target="_blank" rel="noopener">successfully submitting a pilot R Shiny app&lt;/a>, featuring a WebAssembly component with Shinylive, to the FDA for review.&lt;/p>
+&lt;p>&lt;a href="images/pilot-2.png"> &lt;img src="images/pilot-2.png" alt="Screenshots showing the R Consortium Submissions Working Group Pilot 2 Shinylive app."/> &lt;/a>&lt;/p>
+&lt;h2 id="r-shinylive-package">R shinylive package
+&lt;a href="#r-shinylive-package">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="reproducible-data-science-with-binary-bundles">Reproducible data science with binary bundles
+&lt;a href="#reproducible-data-science-with-binary-bundles">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>A benefit of WebAssembly is that the same binary instructions can be executed on a whole range of machine architectures, from high performance desktop workstations to low-power devices such as mobile phones or tablets. WebAssembly provides a common environment ensuring that each device can reproduce the exact same results, both now and potentially for many years into the future.&lt;/p>
+&lt;p>However, those with experience of building software and documents with long-term reproducibility in mind will know that not only must the exact version of your own software be available, but also packages and system dependencies too. Accurate versioning matters; newer editions of R packages are always being released with modified functionality or features deprecated and perhaps even removed.&lt;/p>
+&lt;p>Previously Shinylive downloaded R packages at runtime from the webR default repository. However, that repository follows CRAN and upgrades packages to the latest version reasonably often. So, to help provide long-lived reproducibility, the latest version of Shinylive now not only deploys your application source but also downloads and bundles as many R package binaries as possible in the exported app.&lt;/p>
+&lt;p>By including WebAssembly R package binaries, a self-contained bundle is created that will never change over time, even as new R package versions are released. Once deployed to a static web service such as GitHub Pages or Netlify you can be confident that your results will be exactly the same now or in many years time &amp;ndash; at least as long as browsers continue to support the WebAssembly standard!&lt;/p>
+&lt;p>With this, it is now also possible to load a complex R Shinylive app from a local web server without any external internet connection. This isn&amp;rsquo;t likely to be that useful for most users, but there are some highly regulated industries and restricted network environments where it becomes a key feature.&lt;/p>
+&lt;h3 id="bundling-webassembly-binaries">Bundling WebAssembly binaries
+&lt;a href="#bundling-webassembly-binaries">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>By default, R packages installed from CRAN,
+&lt;a href="https://r-universe.dev/" target="_blank" rel="noopener">R-Universe&lt;/a>, or
+&lt;a href="https://bioconductor.org" target="_blank" rel="noopener">Bioconductor&lt;/a> will be downloaded and distributed with your Shinylive application. For CRAN packages, the packages are sourced from the webR default repository. For R-Universe or Bioconductor packages, they are sourced from the WebAssembly binaries provided by R-Universe.&lt;/p>
+&lt;p>Here&amp;rsquo;s an example of what this looks like for a sample Shiny app depending on the dplyr package. Shinylive assets and R package binaries are downloaded and bundled at export time, and the status of each is shown in the output.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">shinylive&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">export&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;app&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;site&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; ℹ Exporting Shiny app from: app&lt;/span>
+&lt;span class="c1">#&amp;gt; → Destination: site&lt;/span>
+&lt;span class="c1">#&amp;gt; [======================================================================] 100%&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ Copying base Shinylive files [289ms]&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ Loading metadata database ... done&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Finding R package dependencies ... Done!&lt;/span>
+&lt;span class="c1">#&amp;gt; [=======&amp;gt;--------------------------------------------------------------] 11%&lt;/span>
+&lt;span class="c1">#&amp;gt; trying URL &amp;#39;http://repo.r-wasm.org/bin/emscripten/contrib/4.4/dplyr_1.1.4.tgz&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; Content type &amp;#39;application/x-tar&amp;#39; length 1063948 bytes (1.0 MB)&lt;/span>
+&lt;span class="c1">#&amp;gt; ==================================================&lt;/span>
+&lt;span class="c1">#&amp;gt; downloaded 1.0 MB&lt;/span>
+&lt;span class="c1">#&amp;gt; [...]&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ Downloading WebAssembly R package binaries to site/shinylive/webr/packages [3.2s]&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ Writing app metadata to site/shinylive/webr/packages/metadata.rds [14ms]&lt;/span>
+&lt;span class="c1">#&amp;gt; ℹ Wrote site/shinylive/webr/packages/metadata.rds (694 bytes)&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ Writing site/app.json [17ms]&lt;/span>
+&lt;span class="c1">#&amp;gt; ℹ Wrote site/app.json (1.64K bytes)&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ Shinylive app export complete.&lt;/span>
+&lt;span class="c1">#&amp;gt; ℹ Run the following in an R session to serve the app:&lt;/span>
+&lt;span class="c1">#&amp;gt; `httpuv::runStaticServer(&amp;#34;site&amp;#34;)`&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The shinylive R package will query the currently installed versions of packages on your machine and attempt to download and bundle the same version for WebAssembly. Binaries are considered acceptable if the major and minor version numbers match, and a warning is issued otherwise. This check ensures the resulting behaviour of the exported Shinylive app is as close as possible to the behaviour when running the app in the usual way.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">shinylive&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">export&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;app&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;site&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [...]&lt;/span>
+&lt;span class="c1">#&amp;gt; Warning message:&lt;/span>
+&lt;span class="c1">#&amp;gt; Package version mismatch for dplyr, ensure the versions below are compatible.&lt;/span>
+&lt;span class="c1">#&amp;gt; ! Installed version: 1.0.9, WebAssembly version: 1.1.4.&lt;/span>
+&lt;span class="c1">#&amp;gt; ℹ Install a package version matching the WebAssembly version to silence this error. &lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="bundling-custom-r-packages">Bundling custom R packages
+&lt;a href="#bundling-custom-r-packages">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Using your own custom R packages with webR or Shinylive is also possible, but requires a little extra work. R packages, particularly those that include compiled code, must be processed specially for WebAssembly. This requires an environment with a WebAssembly compiler toolchain such as Emscripten and some set up to organise the cross-compiling of packages using R.&lt;/p>
+&lt;p>The easiest way to get up and running is to
+&lt;a href="https://ropensci.org/blog/2021/06/22/setup-runiverse/" target="_blank" rel="noopener">create a personal R-Universe repository&lt;/a> for your packages. The system will automatically build R package binaries for multiple targets, including WebAssembly, and Shinylive will download these resulting binaries when exporting your app.&lt;/p>
+&lt;p>It&amp;rsquo;s also possible to automatically cross-compile and deploy WebAssembly R package binaries using GitHub Actions. The
+&lt;a href="https://github.com/r-wasm/actions" target="_blank" rel="noopener">r-wasm/actions&lt;/a> repository provides reusable workflows for GitHub Actions, one of which can be used to automatically build WebAssembly R package when a GitHub release is created, attaching the resulting binary to the release. If an R package has been installed directly from GitHub, using a tool such as
+&lt;a href="https://pak.r-lib.org" target="_blank" rel="noopener">pak&lt;/a>, Shinylive will look for binaries attached to a GitHub release for bundling.&lt;/p>
+&lt;p>Finally, building an R package for WebAssembly can be done manually using the
+&lt;a href="https://r-wasm.github.io/rwasm/" target="_blank" rel="noopener">rwasm&lt;/a> package. This is a little more involved, using a combination of the
+&lt;a href="https://github.com/emscripten-core/emsdk" target="_blank" rel="noopener">Emscripten SDK&lt;/a> and the
+&lt;a href="https://github.com/r-wasm/webr/pkgs/container/webr" target="_blank" rel="noopener">webR Docker container&lt;/a> to organise cross-compiling packages with R and manage custom CRAN-like repositories. Shinylive will also bundle WebAssembly binaries for R packages installed from such a custom repository.&lt;/p>
+&lt;h2 id="shinylive-quarto-extension">Shinylive Quarto Extension
+&lt;a href="#shinylive-quarto-extension">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Shinylive applications may be embedded in a Quarto document using the Shinylive Quarto extension. With the extension active, a Shinylive app can be added by directly including its source code in the document markdown. Under the hood, the extension works by calling out to the export functionality provided by the Shinylive R and Python packages, and so improvements to the exporting process also applies to Shiny apps included in Quarto projects.&lt;/p>
+&lt;pre>&lt;code>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+```{shinylive-r}
+#| standalone: true
+library(shiny)
+ui &amp;lt;- [...]
+server &amp;lt;- [...]
+shinyApp(ui = ui, server = server)
+```
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+fugiat nulla pariatur.
+&lt;/code>&lt;/pre>
+&lt;h3 id="embedding-data-files-in-subdirectories">Embedding data files in subdirectories
+&lt;a href="#embedding-data-files-in-subdirectories">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>When a Shiny app has been deployed with Shinylive it does not have direct access to the filesystem on the client device. This is enforced by WebAssembly and the browser for security reasons. As such, additional data must either by downloaded or pre-loaded to a virtual filesystem before the app starts.&lt;/p>
+&lt;p>There are a few ways to do this with a Shinylive app, but when working in a Quarto document things are more constrained. One supported way is to define the content of additional data files inline.&lt;/p>
+&lt;pre>&lt;code>```{shinylive-r}
+#| standalone: true
+ui &amp;lt;- [...]
+server &amp;lt;- [...]
+shinyApp(ui = ui, server = server)
+## file: data/example.csv
+foo,bar,baz
+1,2,3
+2,4,6
+3,6,9
+5,10,15
+8,16,24
+```
+&lt;/code>&lt;/pre>
+&lt;p>The system has been improved to support adding content to subdirectories, along with the ability to define binary content that has been base64 encoded. Combining this with Garrick Aden-Buie&amp;rsquo;s
+&lt;a href="https://github.com/gadenbuie/quarto-base64" target="_blank" rel="noopener">quarto-base64&lt;/a> extension is a great way to easily include arbitrary data in your Quarto embedded Shinylive apps.&lt;/p>
+&lt;h3 id="quarto-project-wide-shared-assets">Quarto project-wide shared assets
+&lt;a href="#quarto-project-wide-shared-assets">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The latest version of the R shinylive package now checks if the export process is currently running as part of a Quarto render. If so, it uses the &lt;code>QUARTO_PROJECT_DIR&lt;/code> environment variable as a hint for where to deploy Shinylive assets and bundled WebAssembly R binaries.&lt;/p>
+&lt;p>With this change it&amp;rsquo;s possible to include multiple Shinylive applications in different documents, sharing their WebAssembly assets across the entire project. This avoids an undesirable situation where the exact same set of fundamental R packages are downloaded and deployed many times to different paths in a Quarto website.&lt;/p>
+&lt;h2 id="using-the-latest-shinylive-asssets">Using the latest Shinylive asssets
+&lt;a href="#using-the-latest-shinylive-asssets">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The Shinylive 0.8.0 assets have been
+&lt;a href="https://github.com/posit-dev/shinylive/releases/tag/v0.8.0" target="_blank" rel="noopener">released on GitHub&lt;/a>. They will automatically be downloaded and used once the latest version of the shinylive R package makes it to CRAN and the package has been updated on your machine.&lt;/p>
+&lt;p>If you&amp;rsquo;d like to get a head start on the latest R shinylive features, you can install the current development version of shinylive directly from GitHub:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>pak&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://pak.r-lib.org/reference/pak.html'>pak&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"posit-dev/r-shinylive"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Or, if you prefer, you can stick with the current release version of the shinylive R package and orchestrate it to use the latest version of the assets by setting the environment variable:&lt;/p>
+&lt;pre>&lt;code>SHINYLIVE_ASSETS_VERSION=0.8.0
+&lt;/code>&lt;/pre>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://github.com/chaehni" target="_blank" rel="noopener">@chaehni&lt;/a>,
+&lt;a href="https://github.com/cpsievert" target="_blank" rel="noopener">@cpsievert&lt;/a>,
+&lt;a href="https://github.com/darrida" target="_blank" rel="noopener">@darrida&lt;/a>,
+&lt;a href="https://github.com/erikhall6373" target="_blank" rel="noopener">@erikhall6373&lt;/a>,
+&lt;a href="https://github.com/gadenbuie" target="_blank" rel="noopener">@gadenbuie&lt;/a>,
+&lt;a href="https://github.com/gschivley" target="_blank" rel="noopener">@gschivley&lt;/a>,
+&lt;a href="https://github.com/helgasoft" target="_blank" rel="noopener">@helgasoft&lt;/a>,
+&lt;a href="https://github.com/jeroen" target="_blank" rel="noopener">@jeroen&lt;/a>,
+&lt;a href="https://github.com/JoaoGarcezAurelio" target="_blank" rel="noopener">@JoaoGarcezAurelio&lt;/a>,
+&lt;a href="https://github.com/jvcasillas" target="_blank" rel="noopener">@jvcasillas&lt;/a>,
+&lt;a href="https://github.com/kv9898" target="_blank" rel="noopener">@kv9898&lt;/a>,
+&lt;a href="https://github.com/next-game-solutions" target="_blank" rel="noopener">@next-game-solutions&lt;/a>,
+&lt;a href="https://github.com/Luke-Symes-Tsy" target="_blank" rel="noopener">@Luke-Symes-Tsy&lt;/a>,
+&lt;a href="https://github.com/maek-ies" target="_blank" rel="noopener">@maek-ies&lt;/a>,
+&lt;a href="https://github.com/pawelru" target="_blank" rel="noopener">@pawelru&lt;/a>,
+&lt;a href="https://github.com/quincountychsmn" target="_blank" rel="noopener">@quincountychsmn&lt;/a>,
+&lt;a href="https://github.com/rmcminds" target="_blank" rel="noopener">@rmcminds&lt;/a>,
+&lt;a href="https://github.com/rbcavanaugh" target="_blank" rel="noopener">@rbcavanaugh&lt;/a>,
+&lt;a href="https://github.com/schloerke" target="_blank" rel="noopener">@schloerke&lt;/a>,
+&lt;a href="https://github.com/StefKirsch" target="_blank" rel="noopener">@StefKirsch&lt;/a>,
+&lt;a href="https://github.com/virtualinertia" target="_blank" rel="noopener">@virtualinertia&lt;/a>, and
+&lt;a href="https://github.com/wch" target="_blank" rel="noopener">@wch&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>&lt;a href="https://rconsortium.github.io/submissions-wg/minutes/2024-08-02/#webassembly">https://rconsortium.github.io/submissions-wg/minutes/2024-08-02/#webassembly&lt;/a> &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item></channel></rss>

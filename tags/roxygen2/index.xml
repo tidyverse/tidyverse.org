@@ -1,0 +1,901 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>roxygen2 | Tidyverse</title><link>https://www.tidyverse.org/tags/roxygen2/</link><atom:link href="https://www.tidyverse.org/tags/roxygen2/index.xml" rel="self" type="application/rss+xml"/><description>roxygen2</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 11 Jan 2024 00:00:00 +0000</lastBuildDate><item><title>roxygen2 7.3.0</title><link>https://www.tidyverse.org/blog/2024/01/roxygen2-7-3-0/</link><pubDate>Thu, 11 Jan 2024 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2024/01/roxygen2-7-3-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re well pleased to announce the release of
+&lt;a href="http://roxygen2.r-lib.org/" target="_blank" rel="noopener">roxygen2&lt;/a> 7.3.0. roxygen2 allows you to write specially formatted R comments that generate R documentation files (&lt;code>man/*.Rd&lt;/code>) and the &lt;code>NAMESPACE&lt;/code> file. roxygen2 is used by over 13,000 CRAN packages.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"roxygen2"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>There are four major improvements in this release:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>The &lt;code>NAMESPACE&lt;/code> roclet now reports if you have S3 methods that are missing an &lt;code>@export&lt;/code> tag. All S3 methods need to be &lt;code>@export&lt;/code>ed even if the generic is not. This avoids rare, but hard to debug, problems. If you think this is giving a false positive,
+&lt;a href="https://github.com/r-lib/roxygen2/issues/new" target="_blank" rel="noopener">please file an issue&lt;/a> and suppress the warning with &lt;code>@exportS3Method NULL&lt;/code>.&lt;/p>
+&lt;p>I&amp;rsquo;ve also considerably revamped the documentation for S3 methods in
+&lt;a href="https://roxygen2.r-lib.org/dev/articles/namespace.html#s3" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;namespace&amp;quot;)&lt;/code>&lt;/a>. The docs now discuss what exporting an S3 method really means, and why it would be technically better to call it &lt;em>registering&lt;/em> the method.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Finally, the &lt;code>NAMESPACE&lt;/code> roclet once again regenerates imports &lt;em>before&lt;/em> loading package code and parsing roxygen blocks. This has been the goal for a
+&lt;a href="https://github.com/r-lib/roxygen2/issues/372" target="_blank" rel="noopener">long time&lt;/a>, but we accidentally broke it when adding support for code execution in markdown blocks. This change resolves a family of problems where you somehow bork your &lt;code>NAMESPACE&lt;/code> and can&amp;rsquo;t easily get fix it because you can&amp;rsquo;t re-document the package because you can&amp;rsquo;t load your package because your &lt;code>NAMESPACE&lt;/code> is borked.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>@docType package&lt;/code> now works like
+&lt;a href="https://roxygen2.r-lib.org/articles/rd-other.html#packages" target="_blank" rel="noopener">&lt;code>&amp;quot;_PACKAGE&amp;quot;&lt;/code>&lt;/a>, including creating a &lt;code>{packagename}-package&lt;/code> alias automatically. This resolves a bug introduced in roxygen2 7.0.0 that meant that many packages lacked the correct alias for their package documentation topic.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>&amp;quot;_PACKAGE&amp;quot;&lt;/code> does a better job of automatically generating aliases. In particular, it will no longer generate a duplicate alias if you have a function with the same name as your package (like
+&lt;a href="https://glue.tidyverse.org/reference/glue.html" target="_blank" rel="noopener">&lt;code>glue::glue()&lt;/code>&lt;/a> or
+&lt;a href="https://reprex.tidyverse.org/reference/reprex.html" target="_blank" rel="noopener">&lt;code>reprex::reprex()&lt;/code>&lt;/a>). If you&amp;rsquo;ve previously had to hack around this bug, you can now delete any custom &lt;code>@aliases&lt;/code> tags associated with the &lt;code>&amp;quot;_PACKAGE&amp;quot;&lt;/code> docs.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>You can see a full list of other minor improvements and bug fixes in the
+&lt;a href="https://github.com/r-lib/roxygen2/releases/tag/v7.3.0" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to the 46 folks who helped make this release possible through their thoughtful questions and carefully crafted code!
+&lt;a href="https://github.com/andrewmarx" target="_blank" rel="noopener">@andrewmarx&lt;/a>,
+&lt;a href="https://github.com/ashbythorpe" target="_blank" rel="noopener">@ashbythorpe&lt;/a>,
+&lt;a href="https://github.com/ateucher" target="_blank" rel="noopener">@ateucher&lt;/a>,
+&lt;a href="https://github.com/bahadzie" target="_blank" rel="noopener">@bahadzie&lt;/a>,
+&lt;a href="https://github.com/bastistician" target="_blank" rel="noopener">@bastistician&lt;/a>,
+&lt;a href="https://github.com/beginb" target="_blank" rel="noopener">@beginb&lt;/a>,
+&lt;a href="https://github.com/brodieG" target="_blank" rel="noopener">@brodieG&lt;/a>,
+&lt;a href="https://github.com/bryanhanson" target="_blank" rel="noopener">@bryanhanson&lt;/a>,
+&lt;a href="https://github.com/cbielow" target="_blank" rel="noopener">@cbielow&lt;/a>,
+&lt;a href="https://github.com/daattali" target="_blank" rel="noopener">@daattali&lt;/a>,
+&lt;a href="https://github.com/DanChaltiel" target="_blank" rel="noopener">@DanChaltiel&lt;/a>,
+&lt;a href="https://github.com/dpprdan" target="_blank" rel="noopener">@dpprdan&lt;/a>,
+&lt;a href="https://github.com/dsweber2" target="_blank" rel="noopener">@dsweber2&lt;/a>,
+&lt;a href="https://github.com/espinielli" target="_blank" rel="noopener">@espinielli&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hughjonesd" target="_blank" rel="noopener">@hughjonesd&lt;/a>,
+&lt;a href="https://github.com/jeroen" target="_blank" rel="noopener">@jeroen&lt;/a>,
+&lt;a href="https://github.com/jmbarbone" target="_blank" rel="noopener">@jmbarbone&lt;/a>,
+&lt;a href="https://github.com/johnbaums" target="_blank" rel="noopener">@johnbaums&lt;/a>,
+&lt;a href="https://github.com/jonocarroll" target="_blank" rel="noopener">@jonocarroll&lt;/a>,
+&lt;a href="https://github.com/kathi-munk" target="_blank" rel="noopener">@kathi-munk&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/kylebutts" target="_blank" rel="noopener">@kylebutts&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/LouisLeNezet" target="_blank" rel="noopener">@LouisLeNezet&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/MaximilianPi" target="_blank" rel="noopener">@MaximilianPi&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/moodymudskipper" target="_blank" rel="noopener">@moodymudskipper&lt;/a>,
+&lt;a href="https://github.com/msberends" target="_blank" rel="noopener">@msberends&lt;/a>,
+&lt;a href="https://github.com/multimeric" target="_blank" rel="noopener">@multimeric&lt;/a>,
+&lt;a href="https://github.com/musvaage" target="_blank" rel="noopener">@musvaage&lt;/a>,
+&lt;a href="https://github.com/neshvig10" target="_blank" rel="noopener">@neshvig10&lt;/a>,
+&lt;a href="https://github.com/olivroy" target="_blank" rel="noopener">@olivroy&lt;/a>,
+&lt;a href="https://github.com/ralmond" target="_blank" rel="noopener">@ralmond&lt;/a>,
+&lt;a href="https://github.com/RMHogervorst" target="_blank" rel="noopener">@RMHogervorst&lt;/a>,
+&lt;a href="https://github.com/Robinlovelace" target="_blank" rel="noopener">@Robinlovelace&lt;/a>,
+&lt;a href="https://github.com/rossellhayes" target="_blank" rel="noopener">@rossellhayes&lt;/a>,
+&lt;a href="https://github.com/rsbivand" target="_blank" rel="noopener">@rsbivand&lt;/a>,
+&lt;a href="https://github.com/sbgraves237" target="_blank" rel="noopener">@sbgraves237&lt;/a>,
+&lt;a href="https://github.com/schradj" target="_blank" rel="noopener">@schradj&lt;/a>,
+&lt;a href="https://github.com/sebffischer" target="_blank" rel="noopener">@sebffischer&lt;/a>,
+&lt;a href="https://github.com/simonpcouch" target="_blank" rel="noopener">@simonpcouch&lt;/a>,
+&lt;a href="https://github.com/stemangiola" target="_blank" rel="noopener">@stemangiola&lt;/a>,
+&lt;a href="https://github.com/tau31" target="_blank" rel="noopener">@tau31&lt;/a>, and
+&lt;a href="https://github.com/trusch139" target="_blank" rel="noopener">@trusch139&lt;/a>.&lt;/p></description></item><item><title>roxygen2 7.2.0</title><link>https://www.tidyverse.org/blog/2022/05/roxygen2-7-2-0/</link><pubDate>Fri, 13 May 2022 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2022/05/roxygen2-7-2-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re tickled pink to announce the release of
+&lt;a href="https://roxygen2.r-lib.org" target="_blank" rel="noopener">roxygen2&lt;/a> 7.2.0. roxygen2 allows you to write specially formatted R comments that generate R documentation files (&lt;code>man/*.Rd&lt;/code>) and the &lt;code>NAMESPACE&lt;/code> file. roxygen2 is used by over 9,000 CRAN packages.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"roxygen2"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>There are five big improvements in this release:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>The &lt;code>NAMESPACE&lt;/code> roclet now preserves all existing non-import directives during its first pass. This will generally eliminate the pair of &lt;code>&amp;quot;NAMESPACE has changed&amp;quot;&lt;/code> messages and should reduce the chances that you end up with a sufficiently broken &lt;code>NAMESPACE&lt;/code> that you can&amp;rsquo;t re-load and re-document your package.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>@inheritParams&lt;/code> now only inherits exact multi-parameter matches. For example take &lt;code>my_plot()&lt;/code> below:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='c'>#' @param width,height The dimensions in inches&lt;/span>
+&lt;span class='nv'>my_plot&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>, &lt;span class='nv'>width&lt;/span>, &lt;span class='nv'>height&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>
+&lt;span class='o'>&amp;#125;&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Previously, &lt;code>width&lt;/code> and &lt;code>height&lt;/code> were inherited individually, so this roxygen2 block:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='c'>#' @inheritParams my_plot&lt;/span>
+&lt;span class='nv'>your_plot&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>, &lt;span class='nv'>y&lt;/span>, &lt;span class='nv'>width&lt;/span>, &lt;span class='nv'>height&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>
+&lt;span class='o'>&amp;#125;&lt;/span> &lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Would be equivalent to:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='c'>#' @param width The dimensions in inches&lt;/span>
+&lt;span class='c'>#' @param height The dimensions in inches&lt;/span>
+&lt;span class='nv'>your_plot&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>, &lt;span class='nv'>y&lt;/span>, &lt;span class='nv'>width&lt;/span>, &lt;span class='nv'>height&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>
+&lt;span class='o'>&amp;#125;&lt;/span> &lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Now, multi-parameter arguments will be inherited as a whole. This could potentially break your documentation if you (e.g.) only had one of &lt;code>width&lt;/code> and &lt;code>height&lt;/code> in your function. But we&amp;rsquo;ve only seen this problem a few places in the tidyverse, it was easily fixed, and inherited arguments are generally much improved.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>We&amp;rsquo;ve done a thorough review of all warning messages to make them more informative and actionable. We&amp;rsquo;ve also fixed a number of bugs that led to invalid Rd files or pointed you to the wrong place.&lt;/p>
+&lt;p>If you have a daily build of RStudio, warnings now include a clickable link that takes you directly to the problem. This technology is under active development across the IDE and the
+&lt;a href="https://cli.r-lib.org" target="_blank" rel="noopener">cli&lt;/a> package and you can expect to see more of it in the future.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://github.com/r-lib/roxygen2/blob/main/NEWS.md" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to everyone who contributed to this release through their issues, pull requests, and discussions!
+&lt;a href="https://github.com/AlexisDerumigny" target="_blank" rel="noopener">@AlexisDerumigny&lt;/a>,
+&lt;a href="https://github.com/BenWiseman" target="_blank" rel="noopener">@BenWiseman&lt;/a>,
+&lt;a href="https://github.com/billdenney" target="_blank" rel="noopener">@billdenney&lt;/a>,
+&lt;a href="https://github.com/bobjansen" target="_blank" rel="noopener">@bobjansen&lt;/a>,
+&lt;a href="https://github.com/brry" target="_blank" rel="noopener">@brry&lt;/a>,
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/cjyetman" target="_blank" rel="noopener">@cjyetman&lt;/a>,
+&lt;a href="https://github.com/courtiol" target="_blank" rel="noopener">@courtiol&lt;/a>,
+&lt;a href="https://github.com/DanChaltiel" target="_blank" rel="noopener">@DanChaltiel&lt;/a>,
+&lt;a href="https://github.com/danielvartan" target="_blank" rel="noopener">@danielvartan&lt;/a>,
+&lt;a href="https://github.com/DarioS" target="_blank" rel="noopener">@DarioS&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dieghernan" target="_blank" rel="noopener">@dieghernan&lt;/a>,
+&lt;a href="https://github.com/dmurdoch" target="_blank" rel="noopener">@dmurdoch&lt;/a>,
+&lt;a href="https://github.com/dwachsmuth" target="_blank" rel="noopener">@dwachsmuth&lt;/a>,
+&lt;a href="https://github.com/flrd" target="_blank" rel="noopener">@flrd&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">@gaborcsardi&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/JantekM" target="_blank" rel="noopener">@JantekM&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/karoliskoncevicius" target="_blank" rel="noopener">@karoliskoncevicius&lt;/a>,
+&lt;a href="https://github.com/kongdd" target="_blank" rel="noopener">@kongdd&lt;/a>,
+&lt;a href="https://github.com/kpagacz" target="_blank" rel="noopener">@kpagacz&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/lorenzwalthert" target="_blank" rel="noopener">@lorenzwalthert&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/malcolmbarrett" target="_blank" rel="noopener">@malcolmbarrett&lt;/a>,
+&lt;a href="https://github.com/mbojan" target="_blank" rel="noopener">@mbojan&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>,
+&lt;a href="https://github.com/MislavSag" target="_blank" rel="noopener">@MislavSag&lt;/a>,
+&lt;a href="https://github.com/mschilli87" target="_blank" rel="noopener">@mschilli87&lt;/a>,
+&lt;a href="https://github.com/Nelson-Gon" target="_blank" rel="noopener">@Nelson-Gon&lt;/a>,
+&lt;a href="https://github.com/netique" target="_blank" rel="noopener">@netique&lt;/a>,
+&lt;a href="https://github.com/pnacht" target="_blank" rel="noopener">@pnacht&lt;/a>,
+&lt;a href="https://github.com/ramiromagno" target="_blank" rel="noopener">@ramiromagno&lt;/a>,
+&lt;a href="https://github.com/romainfrancois" target="_blank" rel="noopener">@romainfrancois&lt;/a>,
+&lt;a href="https://github.com/saicharanp18" target="_blank" rel="noopener">@saicharanp18&lt;/a>,
+&lt;a href="https://github.com/simonsays1980" target="_blank" rel="noopener">@simonsays1980&lt;/a>,
+&lt;a href="https://github.com/ThierryO" target="_blank" rel="noopener">@ThierryO&lt;/a>,
+&lt;a href="https://github.com/wch" target="_blank" rel="noopener">@wch&lt;/a>,
+&lt;a href="https://github.com/wurli" target="_blank" rel="noopener">@wurli&lt;/a>, and
+&lt;a href="https://github.com/yogat3ch" target="_blank" rel="noopener">@yogat3ch&lt;/a>.&lt;/p></description></item><item><title>roxygen2 7.1.0</title><link>https://www.tidyverse.org/blog/2020/03/roxygen2-7-1-0/</link><pubDate>Wed, 11 Mar 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/03/roxygen2-7-1-0/</guid><description>&lt;p>We&amp;rsquo;re chuffed to announce the release of
+&lt;a href="https://roxygen2.r-lib.org" target="_blank" rel="noopener">roxygen2 7.1.0&lt;/a>.
+roxygen2 allows you to write specially formatted R comments that generate R documentation files (&lt;code>man/*.Rd&lt;/code>) and the &lt;code>NAMESPACE&lt;/code> file.
+roxygen2 is used by over 8,800 CRAN packages.&lt;/p>
+&lt;p>Install the latest version of roxygen2 with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;roxygen2&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This is a minor release, with many small improvements and bug fixes, and some new features.
+This blog post discusses the most important changes. See the
+&lt;a href="https://roxygen2.r-lib.org/news/index.html#roxygen2-7-1-0" target="_blank" rel="noopener">full changelog&lt;/a> for all changes.&lt;/p>
+&lt;h2 id="roxygen2-meets-knitr">roxygen2 meets knitr
+&lt;a href="#roxygen2-meets-knitr">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We have been gradually improving roxygen2&amp;rsquo;s markdown support, and this release has an exciting new markdown feature as well.
+Starting from roxygen2 7.1.0 you can write inline R code and markdown code fences directly in roxygen2 comments!
+roxygen2 runs the R code and inserts its output into the documentation.&lt;/p>
+&lt;h3 id="inline-r-code">Inline R code
+&lt;a href="#inline-r-code">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>For running R code inline, use the usual markdown backticks, and prefix the code with &lt;code>r&lt;/code> and a space character.
+roxygen2 interprets the rest of the text within backticks as R code, evaluates it, and replaces the backtick expression with its value.
+After all such substitutions, the text of the whole tag is interpreted as markdown, as usual.&lt;/p>
+&lt;p>For example, the following code inserts the date and the R version of the roxygen2 run.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">#&amp;#39; roxygen2 created this manual page on `r Sys.Date()` using R version&lt;/span>
+&lt;span class="c1">#&amp;#39; `r getRversion()`.&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="code-blocks-fences">Code blocks (fences)
+&lt;a href="#code-blocks-fences">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Markdown code blocks can be dynamic as well, if you use &lt;code>```{r}&lt;/code> to start them, just like in knitr documents.
+roxygen evaluates the code, and (by default) both the code and the printed value of the expression will be inserted into the manual page.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">#&amp;#39; ```{r}&lt;/span>
+&lt;span class="c1">#&amp;#39; # This block of code will be evaluated&lt;/span>
+&lt;span class="c1">#&amp;#39; summary(iris)&lt;/span>
+&lt;span class="c1">#&amp;#39; ```&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Code blocks support knitr chunk options, e.g. to keep the output of several expressions together, you can specify &lt;code>results= &amp;quot;hold&amp;quot;&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">#&amp;#39; ```{r results = &amp;#34;hold&amp;#34;}&lt;/span>
+&lt;span class="c1">#&amp;#39; names(mtcars)&lt;/span>
+&lt;span class="c1">#&amp;#39; nrow(mtcars)&lt;/span>
+&lt;span class="c1">#&amp;#39; ```&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>By default plots create &lt;code>.png&lt;/code> files in the &lt;code>man/figures&lt;/code> directory. The file names are created from the chunk names:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">#&amp;#39; ```{r r-cookbook-barplot}&lt;/span>
+&lt;span class="c1">#&amp;#39; # https://r-graphics.org/recipe-distribution-basic-hist&lt;/span>
+&lt;span class="c1">#&amp;#39; library(ggplot2)&lt;/span>
+&lt;span class="c1">#&amp;#39; ggplot(faithful, aes(x = waiting)) +&lt;/span>
+&lt;span class="c1">#&amp;#39; geom_histogram()&lt;/span>
+&lt;span class="c1">#&amp;#39; ```&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Both the inline R code and the markdown code fences are evaluated when you run &lt;code>devtools::document()&lt;/code> (or &lt;code>roxygenize()&lt;/code>).
+You probably want to avoid lengthy computations, or set up caching to keep your package development workflow snappy.&lt;/p>
+&lt;p>Please see &lt;code>vignette(&amp;quot;rd-formatting&amp;quot;)&lt;/code> for more about dynamic documentation, including potential caveats.&lt;/p>
+&lt;h2 id="line-ending-conversion">Line ending conversion
+&lt;a href="#line-ending-conversion">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This version of roxygen2 does a much better job at keeping the line ending characters consistent within each file, across operating systems.
+In particular, if a generated file has only Windows (CR LF) line endings, roxygen2 keeps the file that way.
+If a file has mixed Windows and Unix (LF) line endings, roxygen2 converts all line endings to Unix (LF).
+For new files roxygen2 uses LF file endings.
+If you want to convert a file from CR LF line endings to LF, simply remove it and let roxygen2 re-create it.&lt;/p>
+&lt;p>The new convention works better with git on Windows.
+Windows git, depending on configuration, might or might not convert between CR LF and LF line endings when checking out and when committing code.
+No matter which git option you use, roxygen2 now does not introduce spurious line ending changes.&lt;/p>
+&lt;p>Thanks to
+&lt;a href="https://github.com/jonthegeek" target="_blank" rel="noopener">@jonthegeek&lt;/a> and
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a> for working on this feature.&lt;/p>
+&lt;h2 id="some-other-improvements">Some other improvements
+&lt;a href="#some-other-improvements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>
+&lt;p>Hyperlinks to R6 methods are also added in the PDF manual.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>@description NULL&lt;/code> and &lt;code>@details NULL&lt;/code> no longer fail; instead, these tags
+are ignored, except for &lt;code>@description NULL&lt;/code> in package level documentation,
+where it can be used to suppress the auto-generated &amp;lsquo;Description&amp;rsquo; section.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Multiple &lt;code>@format&lt;/code> tags are now combined.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>@evalNamespace()&lt;/code> works again.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all 40 contributors who helped make this release possible!
+&lt;a href="https://github.com/alandipert" target="_blank" rel="noopener">@alandipert&lt;/a>,
+&lt;a href="https://github.com/allenzhuaz" target="_blank" rel="noopener">@allenzhuaz&lt;/a>,
+&lt;a href="https://github.com/BenEngbers" target="_blank" rel="noopener">@BenEngbers&lt;/a>,
+&lt;a href="https://github.com/bgctw" target="_blank" rel="noopener">@bgctw&lt;/a>,
+&lt;a href="https://github.com/billdenney" target="_blank" rel="noopener">@billdenney&lt;/a>,
+&lt;a href="https://github.com/Bisaloo" target="_blank" rel="noopener">@Bisaloo&lt;/a>,
+&lt;a href="https://github.com/cboettig" target="_blank" rel="noopener">@cboettig&lt;/a>,
+&lt;a href="https://github.com/dmurdoch" target="_blank" rel="noopener">@dmurdoch&lt;/a>,
+&lt;a href="https://github.com/dragosmg" target="_blank" rel="noopener">@dragosmg&lt;/a>,
+&lt;a href="https://github.com/eddelbuettel" target="_blank" rel="noopener">@eddelbuettel&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">@gaborcsardi&lt;/a>,
+&lt;a href="https://github.com/genomaths" target="_blank" rel="noopener">@genomaths&lt;/a>,
+&lt;a href="https://github.com/goldingn" target="_blank" rel="noopener">@goldingn&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/HenrikBengtsson" target="_blank" rel="noopener">@HenrikBengtsson&lt;/a>,
+&lt;a href="https://github.com/Hong-Revo" target="_blank" rel="noopener">@Hong-Revo&lt;/a>,
+&lt;a href="https://github.com/hughjonesd" target="_blank" rel="noopener">@hughjonesd&lt;/a>,
+&lt;a href="https://github.com/iferres" target="_blank" rel="noopener">@iferres&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/jameslamb" target="_blank" rel="noopener">@jameslamb&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/kingaa" target="_blank" rel="noopener">@kingaa&lt;/a>,
+&lt;a href="https://github.com/kortschak" target="_blank" rel="noopener">@kortschak&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/michaelquinn32" target="_blank" rel="noopener">@michaelquinn32&lt;/a>,
+&lt;a href="https://github.com/mikemahoney218" target="_blank" rel="noopener">@mikemahoney218&lt;/a>,
+&lt;a href="https://github.com/mstr3336" target="_blank" rel="noopener">@mstr3336&lt;/a>,
+&lt;a href="https://github.com/muschellij2" target="_blank" rel="noopener">@muschellij2&lt;/a>,
+&lt;a href="https://github.com/nteetor" target="_blank" rel="noopener">@nteetor&lt;/a>,
+&lt;a href="https://github.com/ntguardian" target="_blank" rel="noopener">@ntguardian&lt;/a>,
+&lt;a href="https://github.com/pat-s" target="_blank" rel="noopener">@pat-s&lt;/a>,
+&lt;a href="https://github.com/RaphaelS1" target="_blank" rel="noopener">@RaphaelS1&lt;/a>,
+&lt;a href="https://github.com/russHyde" target="_blank" rel="noopener">@russHyde&lt;/a>,
+&lt;a href="https://github.com/s-fleck" target="_blank" rel="noopener">@s-fleck&lt;/a>,
+&lt;a href="https://github.com/stefanfritsch" target="_blank" rel="noopener">@stefanfritsch&lt;/a>,
+&lt;a href="https://github.com/strboul" target="_blank" rel="noopener">@strboul&lt;/a>,
+&lt;a href="https://github.com/TomKellyGenetics" target="_blank" rel="noopener">@TomKellyGenetics&lt;/a>,
+&lt;a href="https://github.com/VPetukhov" target="_blank" rel="noopener">@VPetukhov&lt;/a>, and
+&lt;a href="https://github.com/zachary-foster" target="_blank" rel="noopener">@zachary-foster&lt;/a>.&lt;/p></description></item><item><title>roxygen2 7.0.0</title><link>https://www.tidyverse.org/blog/2019/11/roxygen2-7-0-0/</link><pubDate>Tue, 12 Nov 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/11/roxygen2-7-0-0/</guid><description>&lt;p>We&amp;rsquo;re exceedingly happy to announce the release of
+&lt;a href="https://roxygen2.r-lib.org" target="_blank" rel="noopener">roxygen2 7.0.0&lt;/a>. roxygen2 allows you to write specially formatted R comments that generate R documentation files (&lt;code>man/*.Rd&lt;/code>) and a &lt;code>NAMESPACE&lt;/code> file. roxygen2 is used by over 8,000 CRAN packages.&lt;/p>
+&lt;p>Install the latest version of roxygen2 with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;roxygen2&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This a huge release containing
+&lt;a href="https://roxygen2.r-lib.org/news/index.html#roxygen2-7-0-0" target="_blank" rel="noopener">many minor improvements and bug fixes&lt;/a>. This blog post focusses on seven major improvements:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>roxygen2 is no longer (ironically!) the worst documented package. It has a
+fresh new website, &lt;a href="https://roxygen2.r-lib.org">https://roxygen2.r-lib.org&lt;/a>, and the vignettes have
+all been updated.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>We&amp;rsquo;ve made a number of tweaks to the rendering of &lt;code>.Rd&lt;/code>. Most importantly
+you no longer needed to escape &lt;code>%&lt;/code> in markdown, and functions with many
+arguments are displayed with one argument per line. We&amp;rsquo;ve also removed a
+couple of old features that are no longer supported.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>You can create tables and headings from markdown.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>You can share text and code between your README/vignettes and your
+documentation with the new &lt;code>@includeRmd&lt;/code> tag.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>You can now document R6 classes!&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>A package can declare how roxygen2 should load its code, making it easier to
+use roxygen2 in wider variety of workflows.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>roxygen2 has a documented extension mechanism so that it&amp;rsquo;s easy to implement
+new tags and new roclets in other packages.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="improved-documentation">Improved documentation
+&lt;a href="#improved-documentation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>roxygen2 finally (!!) has a
+&lt;a href="https://pkgdown.r-lib.org/" target="_blank" rel="noopener">pkgdown&lt;/a> website!&lt;/p>
+&lt;p>I used this as an opportunity to look at all the vignettes and make sure they are comprehensive and readable. These are now the best place to go if you want more details on any roxygen2 tag:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://roxygen2.r-lib.org/articles/rd.html" target="_blank" rel="noopener">Rd&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://roxygen2.r-lib.org/articles/rd-formatting.html" target="_blank" rel="noopener">Inline Rd formatting&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://roxygen2.r-lib.org/articles/namespace.html" target="_blank" rel="noopener">&lt;code>NAMESPACE&lt;/code>&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>Of course, documentation can always be improved, so if you find something hard to follow, please
+&lt;a href="https://github.com/r-lib/roxygen2/issues/new" target="_blank" rel="noopener">file an issue&lt;/a>!&lt;/p>
+&lt;h2 id="changes-to-rd-output">Changes to &lt;code>.Rd&lt;/code> output
+&lt;a href="#changes-to-rd-output">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>When you run roxygen2 7.0.0 for the first time, you&amp;rsquo;ll notice a number of changes to the rendered &lt;code>.Rd&lt;/code>. The two most important are:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>%&lt;/code> (the Rd comment symbol) is now automatically escaped in markdown text. That means if you previously escaped it with &lt;code>\%&lt;/code>, you&amp;rsquo;ll need to remove the backslash and take it back to &lt;code>%&lt;/code>.&lt;/p>
+&lt;p>If you forget to do this, you&amp;rsquo;ll see confusing &lt;code>R CMD check&lt;/code> notes like:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>unknown macro '\item'&lt;/code>&lt;/li>
+&lt;li>&lt;code>unexpected section header '\description'&lt;/code>&lt;/li>
+&lt;li>&lt;code>unexpected END_OF_INPUT&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>In the &amp;ldquo;Usage&amp;rdquo; section, you&amp;rsquo;ll notice the formatting of function calls has changed. Previously, function calls were wrapped to produce the smallest number of lines, e.g.:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">parse_package&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">path&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;.&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">env&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">env_package&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">path&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">registry&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">default_tags&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="n">global_options&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now long function calls are wrapped so that each argument gets its own line:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">parse_package&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">path&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;.&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">env&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">env_package&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">path&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">registry&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">default_tags&lt;/span>&lt;span class="p">(),&lt;/span>
+&lt;span class="n">global_options&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>If you prefer the old behaviour you can put the following in your
+&lt;code>DESCRIPTION&lt;/code>:&lt;/p>
+&lt;pre>&lt;code>Roxygen: list(old_usage = TRUE)
+&lt;/code>&lt;/pre>&lt;/li>
+&lt;/ul>
+&lt;p>You&amp;rsquo;ll also notice a number of small improvements:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Markdown code is converted to to either &lt;code>\code{}&lt;/code> or &lt;code>\verb{}&lt;/code>, depending on
+whether it not is valid R code. For example, &lt;code>`foofy()`&lt;/code> will become
+&lt;code>\code{foofy()}&lt;/code> but &lt;code>`1 +`&lt;/code> will become &lt;code>\verb{1 + }&lt;/code>. This better
+matches the intended usage of the &lt;code>\code{}&lt;/code> and &lt;code>\verb{}&lt;/code> macros, and should
+make it easier to include arbitrary &amp;ldquo;code&amp;rdquo; snippets in documentation without
+causing Rd failures.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>@family&lt;/code> automatically adds &lt;code>()&lt;/code> when linking to functions,
+and prints each link on its own line (to improve diffs).&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>We&amp;rsquo;ve also removed a few features to simplify the code and/or clearly advertise that certain features are no longer supported:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>@S3method&lt;/code> has been removed. It was deprecated in roxygen2 4.0.0
+released 2014-05-02, over 5 years ago.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Using the &lt;code>wrap&lt;/code> option will now trigger a warning, as it hasn&amp;rsquo;t worked
+for quite some time. Suppress the warning by remove the option from your
+&lt;code>DESCRIPTION&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>@docType package&lt;/code> will no longer add &lt;code>-name&lt;/code> to the file name. If you relied
+on this, either switch to the
+&lt;a href="https://roxygen2.r-lib.org/articles/rd.html#packages" target="_blank" rel="noopener">new workflow&lt;/a>, or
+use &lt;code>@name&lt;/code> to manaully override the default file name.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="markdown-improvements">Markdown improvements
+&lt;a href="#markdown-improvements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>There are two major improvements to roxygen2&amp;rsquo;s markdown support: you can now use markdown headers and tables.&lt;/p>
+&lt;p>Markdown headings can be used in top-level tags like &lt;code>@description&lt;/code>, &lt;code>@details&lt;/code>, and &lt;code>@returns&lt;/code>. Level 1 headings create a new top-level &lt;code>\section{}&lt;/code> and Level 2 headings (and below) create nested &lt;code>\subsection{}&lt;/code>s:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-R" data-lang="R">&lt;span class="c1">#&amp;#39; @details&lt;/span>
+&lt;span class="c1">#&amp;#39; First sentence&lt;/span>
+&lt;span class="c1">#&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;#39; ## Subheading&lt;/span>
+&lt;span class="c1">#&amp;#39; Second sentence&lt;/span>
+&lt;span class="c1">#&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;#39; # New section&lt;/span>
+&lt;span class="c1">#&amp;#39; Third sentence&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>is translated to&lt;/p>
+&lt;pre>&lt;code>\details{
+First sentence
+\subsection{Subheading}{
+Second sentence
+}
+}
+\section{New section}{
+Third sentence
+}
+&lt;/code>&lt;/pre>&lt;p>Markdown tables use the
+&lt;a href="https://github.github.com/gfm/#tables-extension-" target="_blank" rel="noopener">GFM table syntax&lt;/a> and are converted to &lt;code>\tabular{}&lt;/code> macros. For example,&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-R" data-lang="R">&lt;span class="c1">#&amp;#39; | foo | bar |&lt;/span>
+&lt;span class="c1">#&amp;#39; | :-- | --: |&lt;/span>
+&lt;span class="c1">#&amp;#39; | baz | bim |&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>is translated to&lt;/p>
+&lt;pre>&lt;code>\tabular{lr}{
+foo \tab bar \cr
+baz \tab bim \cr
+}
+&lt;/code>&lt;/pre>&lt;p>Lastly, using unsupported markdown features (like blockquotes, inline HTML, and horizontal rules) will now produce an informative message.&lt;/p>
+&lt;h2 id="includermd">&lt;code>@includeRmd&lt;/code>
+&lt;a href="#includermd">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>&lt;code>@includeRmd&lt;/code> provides a new tool that allows you to share text and code amongst &lt;code>.Rmd&lt;/code> and &lt;code>.Rd&lt;/code>. For example, if you have &lt;code>vignettes/common.Rmd&lt;/code>, you can include it:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>In documentation, with:&lt;/p>
+&lt;pre>&lt;code>#' @includeRmd vignettes/common.Rmd
+&lt;/code>&lt;/pre>&lt;/li>
+&lt;li>
+&lt;p>In other vignettes with:&lt;/p>
+&lt;pre>&lt;code>```{r child = &amp;quot;common.Rmd&amp;quot;}
+```
+&lt;/code>&lt;/pre>&lt;/li>
+&lt;li>
+&lt;p>In &lt;code>README.Rmd&lt;/code>, with:&lt;/p>
+&lt;pre>&lt;code>```{r child = &amp;quot;vignettes/common.Rmd&amp;quot;}
+```
+&lt;/code>&lt;/pre>&lt;/li>
+&lt;/ul>
+&lt;p>Learn more in
+&lt;a href="https://roxygen2.r-lib.org/articles/rd.html#including-external--rmd-md-files" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;rd&amp;quot;)&lt;/code>&lt;/a>&lt;/p>
+&lt;h2 id="r6-documentation">R6 documentation
+&lt;a href="#r6-documentation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>You can now document R6 classes! The basic usage is straighforward and works similarly to documenting functions. The main difference is that methods require explicit &lt;code>@description&lt;/code> and &lt;code>@detail&lt;/code> tags.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">#&amp;#39; R6 Class representing a person&lt;/span>
+&lt;span class="c1">#&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;#39; A person has a name and a hair color.&lt;/span>
+&lt;span class="n">Person&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">R6&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">R6Class&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Person&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">public&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="c1">#&amp;#39; @field name First or full name of the person.&lt;/span>
+&lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">NULL&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="c1">#&amp;#39; @field hair Hair color of the person.&lt;/span>
+&lt;span class="n">hair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">NULL&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="c1">#&amp;#39; @description&lt;/span>
+&lt;span class="c1">#&amp;#39; Create a new person object.&lt;/span>
+&lt;span class="c1">#&amp;#39; @param name Name.&lt;/span>
+&lt;span class="c1">#&amp;#39; @param hair Hair color.&lt;/span>
+&lt;span class="c1">#&amp;#39; @return A new `Person` object.&lt;/span>
+&lt;span class="n">initialize&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">NA&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">hair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">NA&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">self&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">name&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">name&lt;/span>
+&lt;span class="n">self&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">hair&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">hair&lt;/span>
+&lt;span class="n">self&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">greet&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="p">},&lt;/span>
+&lt;span class="c1">#&amp;#39; @description&lt;/span>
+&lt;span class="c1">#&amp;#39; Change hair color.&lt;/span>
+&lt;span class="c1">#&amp;#39; @param val New hair color.&lt;/span>
+&lt;span class="c1">#&amp;#39; @examples&lt;/span>
+&lt;span class="c1">#&amp;#39; P &amp;lt;- Person(&amp;#34;Ann&amp;#34;, &amp;#34;black&amp;#34;)&lt;/span>
+&lt;span class="c1">#&amp;#39; P$hair&lt;/span>
+&lt;span class="c1">#&amp;#39; P$set_hair(&amp;#34;red&amp;#34;)&lt;/span>
+&lt;span class="c1">#&amp;#39; P$hair&lt;/span>
+&lt;span class="n">set_hair&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">val&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">self&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">hair&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">val&lt;/span>
+&lt;span class="p">},&lt;/span>
+&lt;span class="c1">#&amp;#39; @description&lt;/span>
+&lt;span class="c1">#&amp;#39; Say hi.&lt;/span>
+&lt;span class="n">greet&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nf">cat&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">paste0&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Hello, my name is &amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">self&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;.\n&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Learn more in
+&lt;a href="https://roxygen2.r-lib.org/articles/rd.html#r6" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;rd&amp;quot;)&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>R6 documentation is a work in progress, so please let us know if you find anything missing or confusing. If you document a package with many R6 classes, you will get many warnings about missing documentation. If you want to suppress those warnings, you can turn off R6 documetation with the &lt;code>r6&lt;/code> option, i.e. put &lt;code>Roxygen: list(r6 = FALSE)&lt;/code> in your &lt;code>DESCRIPTION&lt;/code>.&lt;/p>
+&lt;h2 id="code-loading">Code loading
+&lt;a href="#code-loading">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>roxygen2 now provides three strategies for loading your code:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>load_pkgload()&lt;/code>, the default, uses
+&lt;a href="https://www.github.com/r-lib/pkgload" target="_blank" rel="noopener">pkgload&lt;/a>.
+Compared to the previous release, this now automatically recompiles your
+package if needed.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>load_source()&lt;/code> attaches required packages and &lt;code>source()&lt;/code>s all files in &lt;code>R/&lt;/code>.
+This is a cruder simulation of package loading than pkgload (and e.g. is
+unreliable if you use S4 extensively), but it does not require that the
+package be compiled. Try it if the default strategy (used in roxygen2 6.1.0
+and above) causes you grief.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>load_installed()&lt;/code> assumes you have installed the package. This is best
+used as part of a bigger automated workflow.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>You can override the default either by calling (e.g.) &lt;code>roxygenise(load_code = &amp;quot;source&amp;quot;)&lt;/code> or by setting the &lt;code>load&lt;/code> option in your DESCRIPTION: &lt;code>Roxygen: list(load = &amp;quot;source&amp;quot;)&lt;/code>.&lt;/p>
+&lt;h2 id="extending-roxygen2">Extending roxygen2
+&lt;a href="#extending-roxygen2">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The process for extending roxygen2 with new tags and new roclets has been completely overhauled, and is now documented in
+&lt;a href="https://roxygen2.r-lib.org/articles/extending.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;extending&amp;quot;)&lt;/code>&lt;/a>. A big thanks goes to
+&lt;a href="https://github.com/mikldk" target="_blank" rel="noopener">Mikkel Meyer Andersen&lt;/a> for starting on the vignette and motivating me to make the extension process much more pleasant.&lt;/p>
+&lt;p>If you&amp;rsquo;re one of the few people who have written a roxygen2 extension, sorry for breaking your code! But I genuinely believe that the improvements to the documentation, object structure, and print methods make it worth it. If you have previously made a new roclet, see the major changes in the
+&lt;a href="https://github.com/r-lib/roxygen2/blob/master/NEWS.md#extending-roxygen2" target="_blank" rel="noopener">news&lt;/a>. Since this interface is now documented, it will not change again without warning and a deprecation cycle.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all 69 contributors who helped make this giant release possible!
+&lt;a href="https://github.com/achubaty" target="_blank" rel="noopener">@achubaty&lt;/a>,
+&lt;a href="https://github.com/adam52" target="_blank" rel="noopener">@adam52&lt;/a>,
+&lt;a href="https://github.com/alaagalal" target="_blank" rel="noopener">@alaagalal&lt;/a>,
+&lt;a href="https://github.com/andrewmarx" target="_blank" rel="noopener">@andrewmarx&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/billdenney" target="_blank" rel="noopener">@billdenney&lt;/a>,
+&lt;a href="https://github.com/Bisaloo" target="_blank" rel="noopener">@Bisaloo&lt;/a>,
+&lt;a href="https://github.com/coolbutuseless" target="_blank" rel="noopener">@coolbutuseless&lt;/a>,
+&lt;a href="https://github.com/DominiqueMakowski" target="_blank" rel="noopener">@DominiqueMakowski&lt;/a>,
+&lt;a href="https://github.com/drjxf" target="_blank" rel="noopener">@drjxf&lt;/a>,
+&lt;a href="https://github.com/EmilBode" target="_blank" rel="noopener">@EmilBode&lt;/a>,
+&lt;a href="https://github.com/espinielli" target="_blank" rel="noopener">@espinielli&lt;/a>,
+&lt;a href="https://github.com/Freguglia" target="_blank" rel="noopener">@Freguglia&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">@gaborcsardi&lt;/a>,
+&lt;a href="https://github.com/gdurif" target="_blank" rel="noopener">@gdurif&lt;/a>,
+&lt;a href="https://github.com/gustavdelius" target="_blank" rel="noopener">@gustavdelius&lt;/a>,
+&lt;a href="https://github.com/ha0ye" target="_blank" rel="noopener">@ha0ye&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/halldc" target="_blank" rel="noopener">@halldc&lt;/a>,
+&lt;a href="https://github.com/HenrikBengtsson" target="_blank" rel="noopener">@HenrikBengtsson&lt;/a>,
+&lt;a href="https://github.com/hongyuanjia" target="_blank" rel="noopener">@hongyuanjia&lt;/a>,
+&lt;a href="https://github.com/huangwb8" target="_blank" rel="noopener">@huangwb8&lt;/a>,
+&lt;a href="https://github.com/iembry" target="_blank" rel="noopener">@iembry&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/inmybrain" target="_blank" rel="noopener">@inmybrain&lt;/a>,
+&lt;a href="https://github.com/jackwasey" target="_blank" rel="noopener">@jackwasey&lt;/a>,
+&lt;a href="https://github.com/JazzyPierrot" target="_blank" rel="noopener">@JazzyPierrot&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jeroen" target="_blank" rel="noopener">@jeroen&lt;/a>,
+&lt;a href="https://github.com/jhchou" target="_blank" rel="noopener">@jhchou&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jonthegeek" target="_blank" rel="noopener">@jonthegeek&lt;/a>,
+&lt;a href="https://github.com/kenahoo" target="_blank" rel="noopener">@kenahoo&lt;/a>,
+&lt;a href="https://github.com/kevinrue" target="_blank" rel="noopener">@kevinrue&lt;/a>,
+&lt;a href="https://github.com/kevinushey" target="_blank" rel="noopener">@kevinushey&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/leej3" target="_blank" rel="noopener">@leej3&lt;/a>,
+&lt;a href="https://github.com/leepface" target="_blank" rel="noopener">@leepface&lt;/a>,
+&lt;a href="https://github.com/lorenzwalthert" target="_blank" rel="noopener">@lorenzwalthert&lt;/a>,
+&lt;a href="https://github.com/mamueller" target="_blank" rel="noopener">@mamueller&lt;/a>,
+&lt;a href="https://github.com/maurolepore" target="_blank" rel="noopener">@maurolepore&lt;/a>,
+&lt;a href="https://github.com/michaelquinn32" target="_blank" rel="noopener">@michaelquinn32&lt;/a>,
+&lt;a href="https://github.com/mikemc" target="_blank" rel="noopener">@mikemc&lt;/a>,
+&lt;a href="https://github.com/mikldk" target="_blank" rel="noopener">@mikldk&lt;/a>,
+&lt;a href="https://github.com/mjskay" target="_blank" rel="noopener">@mjskay&lt;/a>,
+&lt;a href="https://github.com/mnazarov" target="_blank" rel="noopener">@mnazarov&lt;/a>,
+&lt;a href="https://github.com/msberends" target="_blank" rel="noopener">@msberends&lt;/a>,
+&lt;a href="https://github.com/msenn" target="_blank" rel="noopener">@msenn&lt;/a>,
+&lt;a href="https://github.com/nealrichardson" target="_blank" rel="noopener">@nealrichardson&lt;/a>,
+&lt;a href="https://github.com/NikKrieger" target="_blank" rel="noopener">@NikKrieger&lt;/a>,
+&lt;a href="https://github.com/nteetor" target="_blank" rel="noopener">@nteetor&lt;/a>,
+&lt;a href="https://github.com/paleolimbot" target="_blank" rel="noopener">@paleolimbot&lt;/a>,
+&lt;a href="https://github.com/pat-s" target="_blank" rel="noopener">@pat-s&lt;/a>,
+&lt;a href="https://github.com/peterdesmet" target="_blank" rel="noopener">@peterdesmet&lt;/a>,
+&lt;a href="https://github.com/phargarten2" target="_blank" rel="noopener">@phargarten2&lt;/a>,
+&lt;a href="https://github.com/ramiromagno" target="_blank" rel="noopener">@ramiromagno&lt;/a>,
+&lt;a href="https://github.com/Robinlovelace" target="_blank" rel="noopener">@Robinlovelace&lt;/a>,
+&lt;a href="https://github.com/sfirke" target="_blank" rel="noopener">@sfirke&lt;/a>,
+&lt;a href="https://github.com/Shians" target="_blank" rel="noopener">@Shians&lt;/a>,
+&lt;a href="https://github.com/SoerenXD" target="_blank" rel="noopener">@SoerenXD&lt;/a>,
+&lt;a href="https://github.com/stefanoborini" target="_blank" rel="noopener">@stefanoborini&lt;/a>,
+&lt;a href="https://github.com/SteveBronder" target="_blank" rel="noopener">@SteveBronder&lt;/a>,
+&lt;a href="https://github.com/tbates" target="_blank" rel="noopener">@tbates&lt;/a>,
+&lt;a href="https://github.com/thalesmello" target="_blank" rel="noopener">@thalesmello&lt;/a>,
+&lt;a href="https://github.com/the-knife" target="_blank" rel="noopener">@the-knife&lt;/a>,
+&lt;a href="https://github.com/thomasp85" target="_blank" rel="noopener">@thomasp85&lt;/a>,
+&lt;a href="https://github.com/trestletech" target="_blank" rel="noopener">@trestletech&lt;/a>,
+&lt;a href="https://github.com/vivekbhr" target="_blank" rel="noopener">@vivekbhr&lt;/a>, and
+&lt;a href="https://github.com/wenjie2wang" target="_blank" rel="noopener">@wenjie2wang&lt;/a>.&lt;/p></description></item><item><title>roxygen2 6.1.0</title><link>https://www.tidyverse.org/blog/2018/08/roxygen2-6-1-0/</link><pubDate>Tue, 07 Aug 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/08/roxygen2-6-1-0/</guid><description>&lt;p>We&amp;rsquo;re delighted to announce that
+&lt;a href="https://CRAN.R-project.org/package=roxygen2" target="_blank" rel="noopener">roxygen2&lt;/a>
+6.1.0 is now on CRAN. The goal of roxygen is to make documenting your code as
+easy as possible. It allows you to describe your functions in comments next to
+their definitions, and processes your source code and comments to produce &lt;code>.Rd&lt;/code>
+files in the &lt;code>man/&lt;/code> directory, as well as. roxygen will also create a
+&lt;code>NAMESPACE&lt;/code> for you, and will manage the &lt;code>Collate&lt;/code> field in &lt;code>DESCRIPTION&lt;/code>.&lt;/p>
+&lt;p>This release includes several updates to markdown parsing, as well as some new
+features we highlight below. For a full list of updates and changes, please
+see the
+&lt;a href="https://github.com/klutometis/roxygen/blob/master/NEWS.md#roxygen2-610" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="new-features">New features
+&lt;a href="#new-features">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The &lt;code>NAMESPACE&lt;/code> roclet now works in two passes - it first generates the
+&lt;code>NAMESPACE&lt;/code> containing only import directives because this can be generated
+without evaluating the code in the package. This alleviates a problem where it
+was previously possible to get into a state that you could only get out of by
+carefully editing the &lt;code>NAMESPACE&lt;/code> by hand.&lt;/p>
+&lt;p>&lt;code>roxygenise()&lt;/code> now uses &lt;code>pkgload::load_all()&lt;/code> instead of a homegrown solution
+to simulate package loading. This is one of the benefits of the
+&lt;a href="http://devtools.r-lib.org/#diaspora" target="_blank" rel="noopener">conscious uncoupling of devtools&lt;/a>. The
+simulated package loading is needed because roxygen2 uses run-time information
+to generate the documentation. This should reduce S4-related problems, and
+ensure that &lt;code>devtools::document()&lt;/code> and &lt;code>roxygenise()&lt;/code> always have the same
+behaviour.&lt;/p>
+&lt;p>&lt;code>@evalRd&lt;/code> &lt;code>foo()&lt;/code> evaluates &lt;code>foo()&lt;/code> defined in the package namespace and
+inserts the results into the current block. The code should return a character
+vector with one entry for each line (and they should not start with &lt;code>#'&lt;/code>). This
+provides a flexible way to extract out duplicated documentation. For example:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">today&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nf">paste0&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Today is \\strong{&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">format&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">Sys.Date&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="s">&amp;#34;%A&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="s">&amp;#34;}&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="c1">#&amp;#39; @evalRd today()&lt;/span>
+&lt;span class="kc">NULL&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>today()&lt;/code> will be executed every time that you run roxygen2. There are two small
+limitations to the current implementation: the generated roxygen will not affect
+the &lt;code>@md/@noMd&lt;/code> status, and &lt;code>@evalRd&lt;/code> does not work inside templates.&lt;/p>
+&lt;p>&lt;code>@evalNamespace&lt;/code> does for &lt;code>NAMESPACE&lt;/code> what &lt;code>@evalRd&lt;/code> does for &lt;code>Rd&lt;/code> files: you
+give it R code that produces a literal entry in &lt;code>NAMESPACE&lt;/code> when run. This
+should make it easier to export functions that are generated by other
+functions in your package.&lt;/p>
+&lt;h2 id="improvements-to-markdown-parsing">Improvements to markdown parsing
+&lt;a href="#improvements-to-markdown-parsing">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Starting from version 6.0.0, roxygen supports markdown markup within most
+roxygen tags (learn more
+&lt;a href="https://cran.r-project.org/web/packages/roxygen2/vignettes/markdown.html" target="_blank" rel="noopener">here&lt;/a>). You can switch to markdown documentation with
+&lt;a href="http://usethis.r-lib.org/reference/use_roxygen_md.html" target="_blank" rel="noopener">&lt;code>usethis::use_roxygen_md()&lt;/code>&lt;/a>,
+which uses the
+&lt;a href="https://github.com/r-lib/roxygen2md" target="_blank" rel="noopener">roxygen2md&lt;/a> package to
+convert Rd expressions to markdown.&lt;/p>
+&lt;p>In this version, we&amp;rsquo;ve made a number of bug fixes to markdown translation:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Whitespace between words in link text is now preserved as single space for
+links of the form &lt;code>[text][fcn]&lt;/code> and &lt;code>[text](URL)&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Code in link text is now properly rendered as code.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The parsing of markdown links has been modified to reduce false
+positives. If you still get a false positive, you can add &lt;code>\\&lt;/code> in front of the
+&lt;code>[&lt;/code> to avoid its being converted to a link.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Markdown features that are &lt;em>not&lt;/em> supported should now generate a warning
+identifying them as such.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thank you to the 114 people who have contributed to this release:
+&lt;a href="https://github.com/agwells" target="_blank" rel="noopener">＠agwells&lt;/a>,
+&lt;a href="https://github.com/alexpghayes" target="_blank" rel="noopener">＠alexpghayes&lt;/a>,
+&lt;a href="https://github.com/apomatix" target="_blank" rel="noopener">＠apomatix&lt;/a>,
+&lt;a href="https://github.com/Ax3man" target="_blank" rel="noopener">＠Ax3man&lt;/a>,
+&lt;a href="https://github.com/BarkleyBG" target="_blank" rel="noopener">＠BarkleyBG&lt;/a>,
+&lt;a href="https://github.com/BillWeld" target="_blank" rel="noopener">＠BillWeld&lt;/a>,
+&lt;a href="https://github.com/brodieG" target="_blank" rel="noopener">＠brodieG&lt;/a>,
+&lt;a href="https://github.com/brry" target="_blank" rel="noopener">＠brry&lt;/a>,
+&lt;a href="https://github.com/bwiernik" target="_blank" rel="noopener">＠bwiernik&lt;/a>,
+&lt;a href="https://github.com/cfhammill" target="_blank" rel="noopener">＠cfhammill&lt;/a>,
+&lt;a href="https://github.com/coatless" target="_blank" rel="noopener">＠coatless&lt;/a>,
+&lt;a href="https://github.com/coldfir3" target="_blank" rel="noopener">＠coldfir3&lt;/a>,
+&lt;a href="https://github.com/ColinFay" target="_blank" rel="noopener">＠ColinFay&lt;/a>,
+&lt;a href="https://github.com/ctbrown" target="_blank" rel="noopener">＠ctbrown&lt;/a>,
+&lt;a href="https://github.com/danielsjf" target="_blank" rel="noopener">＠danielsjf&lt;/a>,
+&lt;a href="https://github.com/dankelley" target="_blank" rel="noopener">＠dankelley&lt;/a>,
+&lt;a href="https://github.com/dewittpe" target="_blank" rel="noopener">＠dewittpe&lt;/a>,
+&lt;a href="https://github.com/dongzhuoer" target="_blank" rel="noopener">＠dongzhuoer&lt;/a>,
+&lt;a href="https://github.com/dpritchLibre" target="_blank" rel="noopener">＠dpritchLibre&lt;/a>,
+&lt;a href="https://github.com/ebridge2" target="_blank" rel="noopener">＠ebridge2&lt;/a>,
+&lt;a href="https://github.com/egnha" target="_blank" rel="noopener">＠egnha&lt;/a>,
+&lt;a href="https://github.com/evanbiederstedt" target="_blank" rel="noopener">＠evanbiederstedt&lt;/a>,
+&lt;a href="https://github.com/fangly" target="_blank" rel="noopener">＠fangly&lt;/a>,
+&lt;a href="https://github.com/FelixErnst" target="_blank" rel="noopener">＠FelixErnst&lt;/a>,
+&lt;a href="https://github.com/flyeye" target="_blank" rel="noopener">＠flyeye&lt;/a>,
+&lt;a href="https://github.com/flying-sheep" target="_blank" rel="noopener">＠flying-sheep&lt;/a>,
+&lt;a href="https://github.com/graemeleehickey" target="_blank" rel="noopener">＠graemeleehickey&lt;/a>,
+&lt;a href="https://github.com/grst" target="_blank" rel="noopener">＠grst&lt;/a>,
+&lt;a href="https://github.com/gvegayon" target="_blank" rel="noopener">＠gvegayon&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">＠hadley&lt;/a>,
+&lt;a href="https://github.com/HenrikBengtsson" target="_blank" rel="noopener">＠HenrikBengtsson&lt;/a>,
+&lt;a href="https://github.com/hughjonesd" target="_blank" rel="noopener">＠hughjonesd&lt;/a>,
+&lt;a href="https://github.com/ijlyttle" target="_blank" rel="noopener">＠ijlyttle&lt;/a>,
+&lt;a href="https://github.com/inkrement" target="_blank" rel="noopener">＠inkrement&lt;/a>,
+&lt;a href="https://github.com/jackwasey" target="_blank" rel="noopener">＠jackwasey&lt;/a>,
+&lt;a href="https://github.com/Jakob2014uafmx" target="_blank" rel="noopener">＠Jakob2014uafmx&lt;/a>,
+&lt;a href="https://github.com/jcrodriguez1989" target="_blank" rel="noopener">＠jcrodriguez1989&lt;/a>,
+&lt;a href="https://github.com/jeis2497052" target="_blank" rel="noopener">＠jeis2497052&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">＠jennybc&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">＠jimhester&lt;/a>,
+&lt;a href="https://github.com/jkl789" target="_blank" rel="noopener">＠jkl789&lt;/a>,
+&lt;a href="https://github.com/joethorley" target="_blank" rel="noopener">＠joethorley&lt;/a>,
+&lt;a href="https://github.com/JoFAM" target="_blank" rel="noopener">＠JoFAM&lt;/a>,
+&lt;a href="https://github.com/JohnMount" target="_blank" rel="noopener">＠JohnMount&lt;/a>,
+&lt;a href="https://github.com/jonlehrer" target="_blank" rel="noopener">＠jonlehrer&lt;/a>,
+&lt;a href="https://github.com/JoshOBrien" target="_blank" rel="noopener">＠JoshOBrien&lt;/a>,
+&lt;a href="https://github.com/jpfrench81" target="_blank" rel="noopener">＠jpfrench81&lt;/a>,
+&lt;a href="https://github.com/jpritikin" target="_blank" rel="noopener">＠jpritikin&lt;/a>,
+&lt;a href="https://github.com/jrosen48" target="_blank" rel="noopener">＠jrosen48&lt;/a>,
+&lt;a href="https://github.com/karawoo" target="_blank" rel="noopener">＠karawoo&lt;/a>,
+&lt;a href="https://github.com/kbenoit" target="_blank" rel="noopener">＠kbenoit&lt;/a>,
+&lt;a href="https://github.com/kevinushey" target="_blank" rel="noopener">＠kevinushey&lt;/a>,
+&lt;a href="https://github.com/klmr" target="_blank" rel="noopener">＠klmr&lt;/a>,
+&lt;a href="https://github.com/krivit" target="_blank" rel="noopener">＠krivit&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">＠krlmlr&lt;/a>,
+&lt;a href="https://github.com/leifeld" target="_blank" rel="noopener">＠leifeld&lt;/a>,
+&lt;a href="https://github.com/levisc8" target="_blank" rel="noopener">＠levisc8&lt;/a>,
+&lt;a href="https://github.com/lindbrook" target="_blank" rel="noopener">＠lindbrook&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">＠lionel-&lt;/a>,
+&lt;a href="https://github.com/lorenzwalthert" target="_blank" rel="noopener">＠lorenzwalthert&lt;/a>,
+&lt;a href="https://github.com/Lucaweihs" target="_blank" rel="noopener">＠Lucaweihs&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">＠maelle&lt;/a>,
+&lt;a href="https://github.com/MansMeg" target="_blank" rel="noopener">＠MansMeg&lt;/a>,
+&lt;a href="https://github.com/martin-mfg" target="_blank" rel="noopener">＠martin-mfg&lt;/a>,
+&lt;a href="https://github.com/mashranga" target="_blank" rel="noopener">＠mashranga&lt;/a>,
+&lt;a href="https://github.com/maxheld83" target="_blank" rel="noopener">＠maxheld83&lt;/a>,
+&lt;a href="https://github.com/mb706" target="_blank" rel="noopener">＠mb706&lt;/a>,
+&lt;a href="https://github.com/mcol" target="_blank" rel="noopener">＠mcol&lt;/a>,
+&lt;a href="https://github.com/md0u80c9" target="_blank" rel="noopener">＠md0u80c9&lt;/a>,
+&lt;a href="https://github.com/mikmart" target="_blank" rel="noopener">＠mikmart&lt;/a>,
+&lt;a href="https://github.com/mixtrak" target="_blank" rel="noopener">＠mixtrak&lt;/a>,
+&lt;a href="https://github.com/mkoohafkan" target="_blank" rel="noopener">＠mkoohafkan&lt;/a>,
+&lt;a href="https://github.com/mvkorpel" target="_blank" rel="noopener">＠mvkorpel&lt;/a>,
+&lt;a href="https://github.com/natgoodman" target="_blank" rel="noopener">＠natgoodman&lt;/a>,
+&lt;a href="https://github.com/nteetor" target="_blank" rel="noopener">＠nteetor&lt;/a>,
+&lt;a href="https://github.com/nuno-agostinho" target="_blank" rel="noopener">＠nuno-agostinho&lt;/a>,
+&lt;a href="https://github.com/PeterVermont" target="_blank" rel="noopener">＠PeterVermont&lt;/a>,
+&lt;a href="https://github.com/philmikejones" target="_blank" rel="noopener">＠philmikejones&lt;/a>,
+&lt;a href="https://github.com/pierreroudier" target="_blank" rel="noopener">＠pierreroudier&lt;/a>,
+&lt;a href="https://github.com/pkq" target="_blank" rel="noopener">＠pkq&lt;/a>,
+&lt;a href="https://github.com/privefl" target="_blank" rel="noopener">＠privefl&lt;/a>,
+&lt;a href="https://github.com/publicus" target="_blank" rel="noopener">＠publicus&lt;/a>,
+&lt;a href="https://github.com/QuLogic" target="_blank" rel="noopener">＠QuLogic&lt;/a>,
+&lt;a href="https://github.com/r2evans" target="_blank" rel="noopener">＠r2evans&lt;/a>,
+&lt;a href="https://github.com/rabutler" target="_blank" rel="noopener">＠rabutler&lt;/a>,
+&lt;a href="https://github.com/renozao" target="_blank" rel="noopener">＠renozao&lt;/a>,
+&lt;a href="https://github.com/richierocks" target="_blank" rel="noopener">＠richierocks&lt;/a>,
+&lt;a href="https://github.com/romainfrancois" target="_blank" rel="noopener">＠romainfrancois&lt;/a>,
+&lt;a href="https://github.com/rvlenth" target="_blank" rel="noopener">＠rvlenth&lt;/a>,
+&lt;a href="https://github.com/s-fleck" target="_blank" rel="noopener">＠s-fleck&lt;/a>,
+&lt;a href="https://github.com/saralinker" target="_blank" rel="noopener">＠saralinker&lt;/a>,
+&lt;a href="https://github.com/sgibb" target="_blank" rel="noopener">＠sgibb&lt;/a>,
+&lt;a href="https://github.com/spluque" target="_blank" rel="noopener">＠spluque&lt;/a>,
+&lt;a href="https://github.com/ssdavenport" target="_blank" rel="noopener">＠ssdavenport&lt;/a>,
+&lt;a href="https://github.com/ssokolen" target="_blank" rel="noopener">＠ssokolen&lt;/a>,
+&lt;a href="https://github.com/Stanwood18" target="_blank" rel="noopener">＠Stanwood18&lt;/a>,
+&lt;a href="https://github.com/statnmap" target="_blank" rel="noopener">＠statnmap&lt;/a>,
+&lt;a href="https://github.com/stufield" target="_blank" rel="noopener">＠stufield&lt;/a>,
+&lt;a href="https://github.com/StuHorsman" target="_blank" rel="noopener">＠StuHorsman&lt;/a>,
+&lt;a href="https://github.com/sylvainschmitt" target="_blank" rel="noopener">＠sylvainschmitt&lt;/a>,
+&lt;a href="https://github.com/sz-cgt" target="_blank" rel="noopener">＠sz-cgt&lt;/a>,
+&lt;a href="https://github.com/tbates" target="_blank" rel="noopener">＠tbates&lt;/a>,
+&lt;a href="https://github.com/teo029" target="_blank" rel="noopener">＠teo029&lt;/a>,
+&lt;a href="https://github.com/tpbilton" target="_blank" rel="noopener">＠tpbilton&lt;/a>,
+&lt;a href="https://github.com/twang2218" target="_blank" rel="noopener">＠twang2218&lt;/a>,
+&lt;a href="https://github.com/ugroempi" target="_blank" rel="noopener">＠ugroempi&lt;/a>,
+&lt;a href="https://github.com/unDocUMeantIt" target="_blank" rel="noopener">＠unDocUMeantIt&lt;/a>,
+&lt;a href="https://github.com/vjcitn" target="_blank" rel="noopener">＠vjcitn&lt;/a>,
+&lt;a href="https://github.com/WastlM" target="_blank" rel="noopener">＠WastlM&lt;/a>,
+&lt;a href="https://github.com/xhdong-umd" target="_blank" rel="noopener">＠xhdong-umd&lt;/a>,
+&lt;a href="https://github.com/xhudik" target="_blank" rel="noopener">＠xhudik&lt;/a>,
+&lt;a href="https://github.com/ximeg" target="_blank" rel="noopener">＠ximeg&lt;/a>,
+&lt;a href="https://github.com/yannickspill" target="_blank" rel="noopener">＠yannickspill&lt;/a>, and
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">＠yutannihilation&lt;/a>.&lt;/p></description></item></channel></rss>

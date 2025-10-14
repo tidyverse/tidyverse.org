@@ -1,0 +1,1397 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>usethis | Tidyverse</title><link>https://www.tidyverse.org/tags/usethis/</link><atom:link href="https://www.tidyverse.org/tags/usethis/index.xml" rel="self" type="application/rss+xml"/><description>usethis</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 22 Feb 2022 00:00:00 +0000</lastBuildDate><item><title>Upgrading to testthat edition 3</title><link>https://www.tidyverse.org/blog/2022/02/upkeep-testthat-3/</link><pubDate>Tue, 22 Feb 2022 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2022/02/upkeep-testthat-3/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] ~Add intro sentence, e.g. the standard tagline for the package~
+* [ ] ~[`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)~
+-->
+&lt;p>As the collection of packages in the tidyverse grows, maintenance becomes increasingly important, and Hadley made this the topic of his
+&lt;a href="https://www.rstudio.com/resources/rstudioglobal-2021/maintaining-the-house-the-tidyverse-built/" target="_blank" rel="noopener">keynote at rstudio::global 2021&lt;/a>.&lt;/p>
+&lt;p>In this blog post, I discuss my process for a recent maintenance task, upgrading package tests to use the third edition of testthat.&lt;/p>
+&lt;h2 id="testthat-3e">testthat 3e
+&lt;a href="#testthat-3e">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The testthat package introduced the idea of an &amp;ldquo;edition&amp;rdquo; in version 3.0.0:&lt;/p>
+&lt;blockquote>
+&lt;p>An edition is a bundle of behaviours that you have to explicitly choose to use, allowing us to make otherwise backward incompatible changes.&lt;/p>
+&lt;/blockquote>
+&lt;p>If you haven&amp;rsquo;t heard of testthat 3e yet, the
+&lt;a href="https://testthat.r-lib.org/articles/third-edition.html" target="_blank" rel="noopener">testthat article introducing the 3rd edition&lt;/a> is a great place to start. It outlines all the changes this edition brings.&lt;/p>
+&lt;p>While you can continue to use testthat&amp;rsquo;s previous behaviour, it&amp;rsquo;s a good idea to upgrade so that you can make use of handy new features. As some of the changes may break your tests, you might have been putting that off, though. You would not be alone in that! Several tidymodels packages still have to make the jump, but I recently upgraded
+&lt;a href="https://github.com/tidymodels/dials/" target="_blank" rel="noopener">dials&lt;/a> and
+&lt;a href="https://github.com/tidymodels/censored/" target="_blank" rel="noopener">censored&lt;/a> to testthat edition 3. Here is what I did and learned along the way.&lt;/p>
+&lt;h3 id="workflow-to-upgrade">Workflow to upgrade
+&lt;a href="#workflow-to-upgrade">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The testthat article tells you how you can opt in to the new edition, and about major changes: deprecations, how messages and warnings are handled, and how comparisons of objects are made.&lt;/p>
+&lt;p>The main guidance for a workflow is:&lt;/p>
+&lt;ol>
+&lt;li>Activate edition 3.&lt;/li>
+&lt;li>Remove or replace deprecated functions.&lt;/li>
+&lt;li>If your output got noisy, quiet things down as needed.&lt;/li>
+&lt;li>Think about what it means if things are not &amp;ldquo;all equal&amp;rdquo; anymore.&lt;/li>
+&lt;/ol>
+&lt;h3 id="activation-">Activation 🚀
+&lt;a href="#activation-">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>To activate you need to do two things in the DESCRIPTION - or you can let &lt;code>usethis::use_testthat(3)&lt;/code> do it for you:&lt;/p>
+&lt;ul>
+&lt;li>Increase the testthat version to &lt;code>&amp;gt;= 3.0.0&lt;/code>.&lt;/li>
+&lt;li>Set the &lt;code>Config/testthat/edition&lt;/code> field to &lt;code>3&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;h3 id="moving-on-from-deprecations-">Moving on from deprecations ✨
+&lt;a href="#moving-on-from-deprecations-">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The article on testthat 3e contains a
+&lt;a href="https://testthat.r-lib.org/articles/third-edition.html#deprecations" target="_blank" rel="noopener">list of deprecated functions&lt;/a> together with their successors. You can work your way through it, searching for the deprecated function and then replacing it with the most suitable alternative. The first one in that list is &lt;code>context()&lt;/code> as testthat will use the file name instead, ensuring that context and file name are in sync. As such, &lt;code>context()&lt;/code> does not have a replacement. My first
+&lt;a href="https://github.com/tidymodels/censored/pull/142" target="_blank" rel="noopener">commit&lt;/a> after activating the third edition was to remove all calls to &lt;code>context()&lt;/code>, followed by replacing other deprecated functions and arguments.&lt;/p>
+&lt;p>&lt;img src="commits.png" alt="A list of commits starting with &amp;ldquo;require testthat 3e, followed by removing context() and other deprecated functions&amp;rdquo;">&lt;/p>
+&lt;h3 id="warnings-and-messages-">Warnings and messages 🤫
+&lt;a href="#warnings-and-messages-">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>testthat edition 3 handles warnings and messages differently than edition 2: &lt;code>expect_warning()&lt;/code> captures at most one warning, so if your code generates multiple warnings, they will bubble up now. Messages were previously silently ignored, now they also bubble up. That means the output may be a lot noisier after switching to edition 3. If the warnings or messages are important, you should explicitly capture them. Otherwise you can suppress them to clean up the output and make it easier to focus on what&amp;rsquo;s important. Again, the testthat article has good examples for how to do either.&lt;/p>
+&lt;h3 id="comparing-things--">Comparing things 🍎 🍊
+&lt;a href="#comparing-things--">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The last big change from edition 2 to edition 3 that I want to mention is what is happening under the hood of &lt;code>expect_equal()&lt;/code> and &lt;code>expect_identical()&lt;/code>. Edition 3 uses
+&lt;a href="https://waldo.r-lib.org/reference/compare.html" target="_blank" rel="noopener">&lt;code>waldo::compare()&lt;/code>&lt;/a> while edition 2 uses
+&lt;a href="https://rdrr.io/r/base/all.equal.html" target="_blank" rel="noopener">&lt;code>all.equal()&lt;/code>&lt;/a>. For the most part, that meant changing the argument name from &lt;code>tol&lt;/code> to &lt;code>tolerance&lt;/code>, like in my third commit above.&lt;/p>
+&lt;p>I did, however, run into a situation where a test newly failed. Those are the situations where general advice is hard because it depends so much on the context. In my case, I made use of the &lt;code>ignore_function_env&lt;/code> and &lt;code>ignore_formula_env&lt;/code> arguments to
+&lt;a href="https://waldo.r-lib.org/reference/compare.html" target="_blank" rel="noopener">&lt;code>waldo::compare()&lt;/code>&lt;/a> to exclude those environments from the comparison. Those are probably useful to know about if you are upgrading a modelling package, but not particularly important otherwise. For dials and censored, that solved most of the cases. In one instance, I ended up tweaking the reference value based on theoretical considerations of the model I was dealing with rather than increasing the tolerance.&lt;/p>
+&lt;p>Those instances may be the most work when upgrading to edition 3, but I did not encounter many of them &amp;ndash; and, when I did, it was valuable to know about the differences (well, those which I didn&amp;rsquo;t choose to ignore).&lt;/p>
+&lt;h2 id="more-testing-made-easier">More testing made easier
+&lt;a href="#more-testing-made-easier">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>While I was going over all the test files, I also decided to cover a few other aspects.&lt;/p>
+&lt;h3 id="nested-expectations">Nested expectations
+&lt;a href="#nested-expectations">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>When
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">Davis Vaughan&lt;/a> moved other tidymodels packages to testthat 3e, I saw him disentangle nested expectations. For example, patterns like&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">expect_warning&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">expect_equal&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">one_call&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">another_call&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>or&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">expect_equal&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">expect_warning&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">one_call&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="nf">expect_warning&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">another_call&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>can be re-written as&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">expect_snapshot&lt;/span>&lt;span class="p">({&lt;/span>
+&lt;span class="n">object_from_one_call&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">one_call&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="n">object_from_another_call&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">another_call&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="p">})&lt;/span>
+&lt;span class="nf">expect_equal&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">object_from_one_call&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">object_from_another_call&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This separates an expectation about the warnings from the expectation about the value, making it easier to see which part(s) fail. Snapshots can also be particularly helpful in situations where you are trying to test for a combination of warnings, messages, and/or errors because they cover them all.&lt;/p>
+&lt;h3 id="self-contained-tests">Self-contained tests
+&lt;a href="#self-contained-tests">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>I wanted to make the tests more self-contained so that a test could run with a single call to &lt;code>test_that()&lt;/code>. Specifically, I didn&amp;rsquo;t want to have to scroll back up to the top of the file to load any necessary package or find the code that creates helper objects.&lt;/p>
+&lt;p>You can avoid the former by prefixing functions with the package they belong to, i.e. using
+&lt;a href="https://dplyr.tidyverse.org/reference/mutate.html" target="_blank" rel="noopener">&lt;code>dplyr::mutate()&lt;/code>&lt;/a> instead of
+&lt;a href="https://dplyr.tidyverse.org" target="_blank" rel="noopener">&lt;code>library(dplyr)&lt;/code>&lt;/a> at the top of the file and later &lt;code>mutate()&lt;/code> inside of the expression for &lt;code>test_that()&lt;/code>.&lt;/p>
+&lt;p>If creating a helper object is short, I might move the code inside of &lt;code>test_that()&lt;/code>. If you create the same helper objects multiple times and don&amp;rsquo;t want to see the code repeatedly, you can move it into a helper function. Files inside the &lt;code>testthat&lt;/code> folder of your source code with file names starting with &lt;code>helper&lt;/code> are executed before tests are run. You could put your helper code there but it is
+&lt;a href="https://testthat.r-lib.org/reference/test_file.html#special-files" target="_blank" rel="noopener">recommended&lt;/a> to put the helper code in your &lt;code>R/&lt;/code> folder, for example as
+&lt;a href="https://testthat.r-lib.org/articles/custom-expectation.html" target="_blank" rel="noopener">&lt;code>test-helpers.R&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>An example helper function is called &lt;code>make_test_model()&lt;/code>, which returns a list with training and testing data as well as the fitted model. A test on the prediction method could then look like this:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">test_that&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;prediction returns the correct number of records&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">helper_objects&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">make_test_model&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="n">pred&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">predict&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">helper_objects&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">model&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">helper_objects&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">test_data&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">expect_equal&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">nrow&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">pred&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="nf">nrow&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">helper_objects&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">test_data&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="p">})&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Any other data objects needed for testing I moved into &lt;code>tests/testthat/data/&lt;/code>.&lt;/p>
+&lt;h3 id="corresponding-files-in-r-and-teststestthat">Corresponding files in &lt;code>R/&lt;/code> and &lt;code>tests/testthat/&lt;/code>
+&lt;a href="#corresponding-files-in-r-and-teststestthat">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>If a file in &lt;code>R/&lt;/code> had a corresponding file in &lt;code>testthat/&lt;/code>, I made sure the names matched up, e.g., &lt;code>monstera.R&lt;/code> and &lt;code>test-monstera.R&lt;/code>.&lt;/p>
+&lt;p>This gives you access to some convenient features of usethis and devtools:&lt;/p>
+&lt;ul>
+&lt;li>When you have the R file open, it&amp;rsquo;s easy to open the corresponding test file with
+&lt;a href="https://usethis.r-lib.org/reference/use_r.html" target="_blank" rel="noopener">&lt;code>usethis::use_test()&lt;/code>&lt;/a> - and vice versa with
+&lt;a href="https://usethis.r-lib.org/reference/use_r.html" target="_blank" rel="noopener">&lt;code>usethis::use_r()&lt;/code>&lt;/a>. No clicking around needed!&lt;/li>
+&lt;li>When you have either file open, you can run the tests with
+&lt;a href="http://devtools.r-lib.org/reference/test.html" target="_blank" rel="noopener">&lt;code>devtools:::test_active_file()&lt;/code>&lt;/a>, and see the test coverage report with &lt;code>test_coverage_active_file()&lt;/code> (which also shows you which lines are actually being tested). Both also have an RStudio addin, which means you can add
+&lt;a href="https://rstudio.github.io/rstudioaddins/#keyboard-shorcuts" target="_blank" rel="noopener">keyboard shortcuts&lt;/a> for them!&lt;/li>
+&lt;/ul>
+&lt;p>And, with that, dials and censored were ready for more snapshot tests in the future!&lt;/p>
+&lt;p>For more guidance on implementing tidy standards, check out
+&lt;a href="https://usethis.r-lib.org/reference/tidyverse.html" target="_blank" rel="noopener">&lt;code>usethis::use_tidy_upkeep_issue()&lt;/code>&lt;/a>. It creates a GitHub issue with a handy checklist. You will be seeing those popping up in our repositories soon when we do some spring cleaning!&lt;/p></description></item><item><title>Renaming the default branch</title><link>https://www.tidyverse.org/blog/2021/10/renaming-default-branch/</link><pubDate>Wed, 27 Oct 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/10/renaming-default-branch/</guid><description>&lt;p>Technically, Git has no official concept of the default branch. But in practice, most Git repos have an &lt;em>effective default branch&lt;/em>. If there&amp;rsquo;s only one branch, this is it! It is the branch that most bug fixes and features get merged in to. It is the branch you see when you first visit a repo on a site such as GitHub. On a Git remote, it is the branch that &lt;code>HEAD&lt;/code> points to. The default branch may not be precisely defined in Git itself, but most of us know it when we see it.&lt;/p>
+&lt;p>Historically, &lt;code>master&lt;/code> has been the most common name for the default branch, but &lt;code>main&lt;/code> is an increasingly popular choice. There is coordinated change across the Git ecosystem that is making it easier for users to make this switch, for example:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://sfconservancy.org/news/2020/jun/23/gitbranchname/" target="_blank" rel="noopener">Regarding Git and Branch Naming&lt;/a>, statement from the Git project and the Software Freedom Conservancy regarding the new &lt;code>init.defaultBranch&lt;/code> configuration option&lt;/li>
+&lt;li>
+&lt;a href="https://github.com/github/renaming#readme" target="_blank" rel="noopener">Renaming the default branch from&lt;code>master&lt;/code>&lt;/a>, GitHub&amp;rsquo;s roadmap for supporting the shift away from &lt;code>master&lt;/code>&lt;/li>
+&lt;li>
+&lt;a href="https://about.gitlab.com/blog/2021/03/10/new-git-default-branch-name/" target="_blank" rel="noopener">The new Git default branch name&lt;/a>, same, but for GitLab&lt;/li>
+&lt;/ul>
+&lt;p>Folks at RStudio maintain hundreds of public repositories on GitHub, spread out over various organizations and user accounts. Some individual repos had already moved away from &lt;code>master&lt;/code> in the past year, but many of us had not made the change, just due to inertia. We&amp;rsquo;ve decided it tackle this switch proactively and in bulk, for any interested individual or team, hopefully reducing the pain for everyone.&lt;/p>
+&lt;p>The purpose of this blog post is to:&lt;/p>
+&lt;ul>
+&lt;li>Give our community a heads-up about this change.&lt;/li>
+&lt;li>Explain how this affects people who have cloned or forked our repositories.&lt;/li>
+&lt;li>Explain how you can make the &lt;code>master&lt;/code> to &lt;code>main&lt;/code> switch in your own Git life.&lt;/li>
+&lt;li>Advertise new functions in usethis &amp;gt;= 2.1.2 that help with the above.&lt;/li>
+&lt;/ul>
+&lt;h2 id="tldr">TL;DR
+&lt;a href="#tldr">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>These are the key bits of code shown below.&lt;/p>
+&lt;p>&lt;strong>NOTE: you will need to update to usethis 2.1.2 or higher to get this functionality!&lt;/strong>&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Function&lt;/th>
+&lt;th>Purpose&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>
+&lt;a href="https://usethis.r-lib.org/reference/git-default-branch.html" target="_blank" rel="noopener">&lt;code>usethis::git_default_branch()&lt;/code>&lt;/a>&lt;/td>
+&lt;td>Reveals the default branch of the current project.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>
+&lt;a href="https://usethis.r-lib.org/reference/git-default-branch.html" target="_blank" rel="noopener">&lt;code>usethis::git_default_branch_rediscover()&lt;/code>&lt;/a>&lt;/td>
+&lt;td>Detects when a project&amp;rsquo;s default branch has changed on GitHub and makes the necessary updates to your Git environment. Primarily for use by &lt;strong>contributors&lt;/strong>.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>
+&lt;a href="https://usethis.r-lib.org/reference/git-default-branch.html" target="_blank" rel="noopener">&lt;code>usethis::git_default_branch_rename()&lt;/code>&lt;/a>&lt;/td>
+&lt;td>Changes the default branch on GitHub and makes any necessary local updates. Aimed at &lt;strong>maintainers&lt;/strong> who have admin permissions.&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>
+&lt;a href="https://usethis.r-lib.org/reference/git-default-branch.html" target="_blank" rel="noopener">&lt;code>usethis::git_default_branch_configure()&lt;/code>&lt;/a>&lt;/td>
+&lt;td>Changes the default name of the initial branch in new Git repos, going forward.&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>Read on for more context.&lt;/p>
+&lt;h2 id="which-repositories-are-affected">Which repositories are affected?
+&lt;a href="#which-repositories-are-affected">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The transition from &lt;code>master&lt;/code> to &lt;code>main&lt;/code> is happening organization-wide for specific GitHub organizations (e.g. 
+&lt;a href="https://github.com/tidyverse" target="_blank" rel="noopener">tidyverse&lt;/a>,
+&lt;a href="https://github.com/r-lib" target="_blank" rel="noopener">r-lib&lt;/a>,
+&lt;a href="https://github.com/tidymodels" target="_blank" rel="noopener">tidymodels&lt;/a>, and
+&lt;a href="https://github.com/sol-eng" target="_blank" rel="noopener">sol-eng&lt;/a>). However, several teams maintain repos across multiple organizations and several organizations host repos for multiple teams and purposes. The organization-wide approach doesn&amp;rsquo;t work well for these cases. Therefore, many additional &amp;ldquo;one-off&amp;rdquo; repos are also part of this effort.&lt;/p>
+&lt;p>In total, we&amp;rsquo;re coordinating the &lt;code>master&lt;/code> to &lt;code>main&lt;/code> switch for around 350 repositories.&lt;/p>
+&lt;p>In each case, we opened a GitHub issue announcing the coming change, several weeks in advance. These issues all look something like this: &lt;a href="https://github.com/tidyverse/dplyr/issues/6006">https://github.com/tidyverse/dplyr/issues/6006&lt;/a>.&lt;/p>
+&lt;h2 id="when-are-things-changing">When are things changing?
+&lt;a href="#when-are-things-changing">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>&amp;ldquo;Around now.&amp;rdquo;&lt;/p>
+&lt;p>Ideally, we would publish this post at the very same moment we rename our branches. But that&amp;rsquo;s not possible for a variety of reasons, chiefly because no single person has the necessary permissions for all of the affected repos.&lt;/p>
+&lt;p>Is there a repo you care about, that has an open issue about branch renaming, and yet the change doesn&amp;rsquo;t seem to be happening? Feel free to give us a gentle nudge by commenting in the issue thread.&lt;/p>
+&lt;h2 id="usethis-has-functions-to-help">usethis has functions to help
+&lt;a href="#usethis-has-functions-to-help">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The recent release of usethis has some new functions to support changes in the default branch. Specifically, you want version 2.1.2 or higher. To be clear, you don&amp;rsquo;t &lt;em>need&lt;/em> usethis to adapt to change in the default branch. On a small scale, the work can be done through some combination of command line Git and actions in a web browser, if that&amp;rsquo;s how you roll.&lt;/p>
+&lt;p>But the new &lt;code>git_default_branch*()&lt;/code> family of functions can make this process more pleasant, for those who enjoy using devtools/usethis, especially for Git and GitHub tasks. These functions also help us do this work programmatically for hundreds of repositories at once.&lt;/p>
+&lt;p>You can install the newest version of usethis from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"usethis"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>You can make usethis available in your R session with either of these commands:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://usethis.r-lib.org'>usethis&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'># or possibly even better:&lt;/span>
+&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://devtools.r-lib.org/'>devtools&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'># devtools Depends on usethis, so attaching devtools also attaches usethis&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>If you&amp;rsquo;d like usethis to help with you with Git/GitHub, please read the article
+&lt;a href="https://usethis.r-lib.org/articles/articles/git-credentials.html" target="_blank" rel="noopener">Managing Git(Hub) Credentials&lt;/a>.&lt;/p>
+&lt;p>usethis is very opinionated and conservative about which GitHub setups it&amp;rsquo;s willing to manage, because we don&amp;rsquo;t want to barge in and mess with something we don&amp;rsquo;t understand. These standard setups and what we mean by, e.g., &lt;strong>source repo&lt;/strong> are all described at &lt;a href="https://happygitwithr.com/common-remote-setups.html">https://happygitwithr.com/common-remote-setups.html&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;div class="figure" style="text-align: center">
+&lt;p>&lt;img src="six-configs.png" alt="Six common GitHub setups" width="100%" />&lt;/p>
+&lt;p class="caption">
+Six common GitHub setups
+&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;h2 id="how-to-update-your-clones-and-forks">How to update your clones and forks
+&lt;a href="#how-to-update-your-clones-and-forks">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>As mentioned above, our bulk renaming involves around 350 GitHub repos, which are associated with approximately 90K watchers, 34K forks, 9.5K open issues, and 1K open pull requests. It&amp;rsquo;s impossible to say how many non-fork clones are out there. One thing that&amp;rsquo;s clear: our branch renaming potentially affects lots of people.&lt;/p>
+&lt;h3 id="how-will-i-know-i-have-a-problem">How will I know I have a problem?
+&lt;a href="#how-will-i-know-i-have-a-problem">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Here&amp;rsquo;s what it looks like when you try to pull from a remote repo in a project that used to use &lt;code>master&lt;/code>, but now uses &lt;code>main&lt;/code>, but you haven&amp;rsquo;t updated your local repo yet.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Example with
+&lt;a href="https://usethis.r-lib.org/reference/pull-requests.html" target="_blank" rel="noopener">&lt;code>usethis::pr_merge_main()&lt;/code>&lt;/a> &lt;strong>with usethis &amp;gt;= 2.1.2&lt;/strong>:&lt;/p>
+&lt;pre>&lt;code>pr_merge_main()
+#&amp;gt; Error: Default branch mismatch between local repo and remote.
+#&amp;gt; The default branch of the &amp;quot;origin&amp;quot; remote is &amp;quot;main&amp;quot;.
+#&amp;gt; But the default branch of the local repo appears to be &amp;quot;master&amp;quot;.
+#&amp;gt; Call `git_default_branch_rediscover()` to resolve this.
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;li>
+&lt;p>Example with command line &lt;code>git pull&lt;/code> (which is what RStudio&amp;rsquo;s blue &amp;ldquo;down&amp;rdquo; arrow does):&lt;/p>
+&lt;pre>&lt;code>Your configuration specifies to merge with the ref 'refs/heads/master'
+from the remote, but no such ref was fetched.
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;/ul>
+&lt;p>Both messages are telling you the same thing:&lt;/p>
+&lt;blockquote>
+&lt;p>We&amp;rsquo;re trying to pull changes from the remote &lt;code>master&lt;/code> branch, but the remote does not have a &lt;code>master&lt;/code> branch.&lt;/p>
+&lt;/blockquote>
+&lt;p>You need to tell your local repo about the switch from &lt;code>master&lt;/code> to &lt;code>main&lt;/code>.&lt;/p>
+&lt;p>In usethis v2.0.1 and earlier, we were not proactively on the lookout for a change to the default branch name in the source repository. Implicitly, we assumed that the user was responsible for staying current with such changes. The recent usethis release (&amp;gt;= 2.1.2) tries much harder to alert the user if the default branch name changes and to provide an easy way to sync up.&lt;/p>
+&lt;h3 id="-can-i-just-burn-it-all-down-">🔥 Can I just burn it all down? 🔥
+&lt;a href="#-can-i-just-burn-it-all-down-">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Yes, yes you can!&lt;/p>
+&lt;p>If there&amp;rsquo;s nothing precious in your local clone of our repo or in your fork, it&amp;rsquo;s perfectly reasonable to delete them and just start over. Locally, you delete the folder corresponding to the repo. On GitHub, in your fork, go to &lt;em>Settings&lt;/em> and scroll down to the &lt;em>Danger Zone&lt;/em> to &lt;em>Delete this repository&lt;/em>.&lt;/p>
+&lt;p>Then you can do a fresh fork-and-clone of, for example, dplyr:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://usethis.r-lib.org/reference/create_from_github.html'>create_from_github&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"tidyverse/dplyr"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h3 id="how-do-i-update-my-stuff-to-reflect-the-new-default-branch">How do I update my stuff to reflect the new default branch?
+&lt;a href="#how-do-i-update-my-stuff-to-reflect-the-new-default-branch">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>If you don&amp;rsquo;t want to burn it all down, you can call
+&lt;a href="https://usethis.r-lib.org/reference/git-default-branch.html" target="_blank" rel="noopener">&lt;code>usethis::git_default_branch_rediscover()&lt;/code>&lt;/a> to &lt;em>rediscover&lt;/em> the default branch from the &lt;strong>source repo&lt;/strong>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://usethis.r-lib.org/reference/git-default-branch.html'>git_default_branch_rediscover&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ℹ Default branch of the source repo 'jennybc/happy-git-with-r': 'main'&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Default branch of local repo has moved: 'master' --&amp;gt; 'main'&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Above, you see usethis updating the local repository to match the source repo. If we detect that you also have a fork of this repo, usethis will rename its default branch as well.&lt;/p>
+&lt;p>GitHub provides official instructions for
+&lt;a href="https://docs.github.com/en/github/administering-a-repository/managing-branches-in-your-repository/renaming-a-branch#updating-a-local-clone-after-a-branch-name-changes" target="_blank" rel="noopener">updating a local clone after a branch name changes&lt;/a>, using only command line Git:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>git branch -m OLD-BRANCH-NAME NEW-BRANCH-NAME
+git fetch origin
+git branch -u origin/NEW-BRANCH-NAME NEW-BRANCH-NAME
+git remote set-head origin -a&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Depending on your setup, above you might need to substitute &lt;code>upstream&lt;/code> for &lt;code>origin&lt;/code>. &lt;code>OLD-BRANCH-NAME&lt;/code> is probably &lt;code>master&lt;/code> and &lt;code>NEW-BRANCH-NAME&lt;/code> is probably &lt;code>main&lt;/code>.&lt;/p>
+&lt;h2 id="how-to-rename-default-branch-in-your-own-existing-repos">How to rename default branch in your own existing repos
+&lt;a href="#how-to-rename-default-branch-in-your-own-existing-repos">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>You can rename the default branch for repos that you effectively own. This is a straightforward task for a repo that only exists on your computer. &lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> We&amp;rsquo;re more concerned about the trickier case where the project is also on GitHub.&lt;/p>
+&lt;p>You can call
+&lt;a href="https://usethis.r-lib.org/reference/git-default-branch.html" target="_blank" rel="noopener">&lt;code>usethis::git_default_branch_rename()&lt;/code>&lt;/a> to &lt;em>rename&lt;/em> (or move) the default branch in the &lt;strong>source repo&lt;/strong>. For this to work, you must either own the source repo personally or, if it&amp;rsquo;s organization-owned, you must have &lt;code>admin&lt;/code> permission. This is a higher level of permission than &lt;code>write&lt;/code>, which is what&amp;rsquo;s needed to push.
+&lt;a href="https://usethis.r-lib.org/reference/git-default-branch.html" target="_blank" rel="noopener">&lt;code>git_default_branch_rename()&lt;/code>&lt;/a> checks this pre-requisite and exits early, without doing anything, if you are not going to be successful.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://usethis.r-lib.org/reference/git-default-branch.html'>git_default_branch_rename&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Default branch of the source repo 'jennybc/myrepo' has moved: 'master' --&amp;gt; 'main'&lt;/span>
+&lt;span class='c'>#&amp;gt; • Be sure to update files that refer to the default branch by name.&lt;/span>
+&lt;span class='c'>#&amp;gt; Consider searching within your project for 'master'.&lt;/span>
+&lt;span class='c'>#&amp;gt; x Some badges may refer to the old default branch 'master':&lt;/span>
+&lt;span class='c'>#&amp;gt; - 'README.md'&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Default branch of local repo has moved: 'master' --&amp;gt; 'main'&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Once the default branch is successfully renamed in the source repo on GitHub,
+&lt;a href="https://usethis.r-lib.org/reference/git-default-branch.html" target="_blank" rel="noopener">&lt;code>git_default_branch_rename()&lt;/code>&lt;/a> makes an internal call to
+&lt;a href="https://usethis.r-lib.org/reference/git-default-branch.html" target="_blank" rel="noopener">&lt;code>git_default_branch_rediscover()&lt;/code>&lt;/a> to finish the job. This makes any necessary local changes or, more rarely, changes in a personal fork.&lt;/p>
+&lt;p>Note also that we check for specific files that often include the name of the default branch, such as GitHub Actions workflows and the badges section of README. These references should be updated. It&amp;rsquo;s probably a good idea to do a project-wide search for both the old and the new name and take a hard look at the &amp;ldquo;hits&amp;rdquo;.&lt;/p>
+&lt;p>If you don&amp;rsquo;t want to use usethis, you can rename the default branch from a web browser. On GitHub, in your repo, go to &lt;em>Settings&lt;/em>, then &lt;em>Branches&lt;/em>, and edit the &lt;em>Default branch&lt;/em>. Then follow the command line instructions from the previous section, emulating what we do in
+&lt;a href="https://usethis.r-lib.org/reference/git-default-branch.html" target="_blank" rel="noopener">&lt;code>git_default_branch_rename()&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="how-to-change-the-default-name-of-your-default-branch-for-the-future">How to change the default name of your default branch, for the future
+&lt;a href="#how-to-change-the-default-name-of-your-default-branch-for-the-future">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The way most repos end up with &lt;code>master&lt;/code> as their default branch is that Git itself defaults to &lt;code>master&lt;/code> when it creates the very first branch, with the very first commit, in a new repo. As of Git 2.28 (released 2020-07-27), this became configurable, so it&amp;rsquo;s one of those things you can customize in your global, i.e. user-level, Git config file. usethis does all of its Git work via the
+&lt;a href="https://docs.ropensci.org/gert/" target="_blank" rel="noopener">gert package&lt;/a> and the underlying library libgit2 library gained similar support in version 1.1 (released 2020-10-12).&lt;/p>
+&lt;p>The new configuration option is &lt;code>init.defaultBranch&lt;/code>.&lt;/p>
+&lt;p>There are various ways to set your preferred initial branch name to, e.g., &lt;code>main&lt;/code>:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>With usethis &amp;gt;= 2.1.2, using a special-purpose function:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://usethis.r-lib.org/reference/git-default-branch.html'>git_default_branch_configure&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Configuring init.defaultBranch as 'main'.&lt;/span>
+&lt;span class='c'>#&amp;gt; ℹ Remember: this only affects repos you create in the future.&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>With usethis, using the general function to modify your Git configuration:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://usethis.r-lib.org/reference/use_git_config.html'>use_git_config&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>init.defaultBranch &lt;span class='o'>=&lt;/span> &lt;span class='s'>"main"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>With command line Git:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>git config --global init.defaultBranch main&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;/ul>
+&lt;p>Although it is more rare to first create repos on a host like GitHub or GitLab, this certainly comes up from time to time. All the major providers now support configuration of the initial branch name and, in the absence of a user or organization preference, all default to &lt;code>main&lt;/code>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thanks to Jeroen Ooms (
+&lt;a href="https://github.com/jeroen" target="_blank" rel="noopener">@jeroen&lt;/a>), maintainer of gert, for adding
+&lt;a href="https://docs.ropensci.org/gert/reference/git_branch.html" target="_blank" rel="noopener">&lt;code>gert::git_branch_move()&lt;/code>&lt;/a>. And thanks to everyone at RStudio helping with this effort, especially the champions from other teams: Barret Schloerke (
+&lt;a href="https://github.com/schloerke" target="_blank" rel="noopener">@schloerke&lt;/a>, Shiny), Ian Flores Siaca (
+&lt;a href="https://github.com/ian-flores" target="_blank" rel="noopener">@ian-flores&lt;/a>, Solutions Engineering), Julia Silge (
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>, tidymodels), Mine Çetinkaya-Rundel (
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>, Education), Sigrid Keydana (
+&lt;a href="https://github.com/skeydan" target="_blank" rel="noopener">@skeydan&lt;/a>, Machine Learning), Alison Presmanes Hill (
+&lt;a href="https://github.com/apreshill" target="_blank" rel="noopener">@apreshill&lt;/a>, Data Science Communication).&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>
+&lt;a href="https://usethis.r-lib.org/reference/git-default-branch.html" target="_blank" rel="noopener">&lt;code>usethis::git_default_branch_rename()&lt;/code>&lt;/a> &lt;strong>does&lt;/strong> handle the special case of &lt;code>&amp;quot;no_github&amp;quot;&lt;/code>. Internally, it calls
+&lt;a href="https://docs.ropensci.org/gert/reference/git_branch.html" target="_blank" rel="noopener">&lt;code>gert::git_branch_move()&lt;/code>&lt;/a>. With command line Git, use &lt;code>git branch -m OLD-BRANCH-NAME NEW-BRANCH-NAME&lt;/code>. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>usethis 2.0.0</title><link>https://www.tidyverse.org/blog/2020/12/usethis-2-0-0/</link><pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/12/usethis-2-0-0/</guid><description>&lt;p>We&amp;rsquo;re ecstatic to announce the release of usethis v2.0.0 (
+&lt;a href="https://usethis.r-lib.org/" target="_blank" rel="noopener">usethis.r-lib.org&lt;/a>). usethis is a package that facilitates interactive workflows for R project creation and development. It&amp;rsquo;s mostly focussed on easing day-to-day package development, but many of its functions are also useful for non-package projects.&lt;/p>
+&lt;p>You can install usethis from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"usethis"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This is a major release, involving lots of change under the hood, and yet there are no big, brand new features. Instead, this release is about making more things &amp;ldquo;just work&amp;rdquo; the way you expect. Below, we list many functions and arguments that have been deprecated, because we&amp;rsquo;ve been able to deliver the same functionality (actually, a bit more) with a smaller and simpler user interface.&lt;/p>
+&lt;p>This blog post hits a few highlights, mostly relating to Git and GitHub functionality:&lt;/p>
+&lt;ul>
+&lt;li>We&amp;rsquo;ve switched to a new package, gert, for Git operations. This resolves some long-standing difficulties around credential-finding and provides more reliable support for both HTTPS and SSH remotes.&lt;/li>
+&lt;li>Anything that works for github.com should now work for any
+&lt;a href="https://github.com/enterprise" target="_blank" rel="noopener">GitHub Enterprise&lt;/a> deployment.&lt;/li>
+&lt;li>GitHub personal access tokens are now handled in the same way as command line Git. This means we can all manage our tokens more securely and, for example, can have different tokens for different hosts.&lt;/li>
+&lt;li>We&amp;rsquo;ve added more functionality for working with GitHub pull requests.&lt;/li>
+&lt;li>A default branch named &lt;code>main&lt;/code> should be fully supported.&lt;/li>
+&lt;/ul>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://usethis.r-lib.org/news/index.html#usethis-2-0-0-2020-12-10" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://usethis.r-lib.org'>usethis&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="gitgithub--credentials-hosts-and-protocols">Git/GitHub &amp;amp; credentials, hosts, and protocols
+&lt;a href="#gitgithub--credentials-hosts-and-protocols">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Usethis has various functions that help with Git-related tasks, which break down into two categories:&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>Git&lt;/strong> tasks, such as clone, push, and pull. These are things you could do with command line Git.&lt;/li>
+&lt;li>Git&lt;strong>Hub&lt;/strong> tasks, such as fork, release, and open an issue or pull request. These are things you could do in the browser or with the GitHub API.&lt;/li>
+&lt;/ol>
+&lt;p>We&amp;rsquo;ve switched from git2r to the gert package for Git operations (&lt;a href="https://docs.ropensci.org/gert/">https://docs.ropensci.org/gert/&lt;/a>). We continue to use the gh package for GitHub API work (&lt;a href="https://gh.r-lib.org">https://gh.r-lib.org&lt;/a>).&lt;/p>
+&lt;p>Many real-world goals can only be accomplished through a mix of Git and GitHub operations, therefore many usethis functions make use of both gert and gh. These packages, in turn, might need your credentials to prove to GitHub that you have the permission to do what you&amp;rsquo;re trying to do.&lt;/p>
+&lt;p>If you stop reading here, just know that
+&lt;a href="https://usethis.r-lib.org/reference/github-token.html" target="_blank" rel="noopener">&lt;code>gh_token_help()&lt;/code>&lt;/a> is a good way to assess your credential situation:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://usethis.r-lib.org/reference/github-token.html'>gh_token_help&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ● GitHub host: &lt;span style='color: #0000BB;'>'https://github.com'&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; ● Host online: &lt;span style='color: #0000BB;'>TRUE&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; ● Personal access token for &lt;span style='color: #0000BB;'>'https://github.com'&lt;/span>&lt;span>: &lt;/span>&lt;span style='color: #0000BB;'>'&amp;lt;discovered&amp;gt;'&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>ℹ&lt;/span>&lt;span> Call &lt;/span>&lt;span style='color: #555555;'>`gh::gh_whoami()`&lt;/span>&lt;span> to see info about your token, e.g. the associated user&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>ℹ&lt;/span>&lt;span> To see or update the token, call &lt;/span>&lt;span style='color: #555555;'>`gitcreds::gitcreds_set()`&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span>&lt;span> If those results are OK, you are good go to!&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>ℹ&lt;/span>&lt;span> Read more in the &lt;/span>&lt;span style='color: #0000BB;'>'Managing Git(Hub) Credentials'&lt;/span>&lt;span> article:&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; https://usethis.r-lib.org/articles/articles/git-credentials.html&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>You can get even more diagnostic information with
+&lt;a href="https://usethis.r-lib.org/reference/git_sitrep.html" target="_blank" rel="noopener">&lt;code>git_sitrep()&lt;/code>&lt;/a>.&lt;/p>
+&lt;h3 id="finding-git-credentials">Finding Git credentials
+&lt;a href="#finding-git-credentials">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>One of the reasons we switched to the gert package is that it generally discovers the same Git credentials as command line Git, for both the HTTPS and SSH protocols, even on Windows. If things &lt;em>still&lt;/em> go sideways, gert&amp;rsquo;s approach to credential finding is mercifully explicit and debuggable&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>.&lt;/p>
+&lt;p>This allows usethis to shed some of the workarounds we have needed in the past, to serve as a remedial &amp;ldquo;credential valet&amp;rdquo;. As a result, several functions and arguments are no longer needed and have been deprecated:&lt;/p>
+&lt;ul>
+&lt;li>Deprecated functions:
+&lt;ul>
+&lt;li>
+&lt;a href="https://usethis.r-lib.org/reference/git_credentials.html" target="_blank" rel="noopener">&lt;code>use_git_credentials()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://usethis.r-lib.org/reference/git_credentials.html" target="_blank" rel="noopener">&lt;code>git_credentials()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://usethis.r-lib.org/reference/usethis-defunct.html" target="_blank" rel="noopener">&lt;code>github_token()&lt;/code>&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>Functions with (deprecated arguments):
+&lt;ul>
+&lt;li>
+&lt;a href="https://usethis.r-lib.org/reference/create_from_github.html" target="_blank" rel="noopener">&lt;code>create_from_github()&lt;/code>&lt;/a> (&lt;code>auth_token&lt;/code>, &lt;code>credentials&lt;/code>)&lt;/li>
+&lt;li>
+&lt;a href="https://usethis.r-lib.org/reference/use_github.html" target="_blank" rel="noopener">&lt;code>use_github()&lt;/code>&lt;/a> (&lt;code>auth_token&lt;/code>, &lt;code>credentials&lt;/code>)&lt;/li>
+&lt;li>
+&lt;a href="https://usethis.r-lib.org/reference/use_github_links.html" target="_blank" rel="noopener">&lt;code>use_github_links()&lt;/code>&lt;/a> (&lt;code>host&lt;/code>, &lt;code>auth_token&lt;/code>)&lt;/li>
+&lt;li>
+&lt;a href="https://usethis.r-lib.org/reference/use_github_labels.html" target="_blank" rel="noopener">&lt;code>use_github_labels()&lt;/code>&lt;/a>,
+&lt;a href="https://usethis.r-lib.org/reference/use_github_labels.html" target="_blank" rel="noopener">&lt;code>use_tidy_labels()&lt;/code>&lt;/a> (&lt;code>repo_spec&lt;/code>, &lt;code>host&lt;/code>, &lt;code>auth_token&lt;/code>)&lt;/li>
+&lt;li>
+&lt;a href="https://usethis.r-lib.org/reference/use_github_release.html" target="_blank" rel="noopener">&lt;code>use_github_release()&lt;/code>&lt;/a> (&lt;code>host&lt;/code>, &lt;code>auth_token&lt;/code>)&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;p>If you have any of these in your &lt;code>.Rprofile&lt;/code> or muscle memory, you can let go of that now. (We&amp;rsquo;ll say more about &lt;code>host&lt;/code>, &lt;code>repo_spec&lt;/code>, and &lt;code>auth_token&lt;/code> below.)&lt;/p>
+&lt;h3 id="host-and-github-enterprise">Host and GitHub Enterprise
+&lt;a href="#host-and-github-enterprise">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Many companies and universities run their own instance of GitHub, using a pro product called
+&lt;a href="https://github.com/enterprise" target="_blank" rel="noopener">GitHub Enterprise&lt;/a> (GHE), that walks and talks just like github.com. It&amp;rsquo;s been frustrating that many usethis functions didn&amp;rsquo;t &lt;em>quite&lt;/em> work for GHE. We had partial support for GHE, by adding a &lt;code>host&lt;/code> argument to some functions, but that created new headaches around juggling personal access tokens.&lt;/p>
+&lt;p>We&amp;rsquo;ve completely refactored the &amp;ldquo;GitHub host&amp;rdquo; logic in usethis and GHE should be fully supported now. In an existing repo, usethis consults the configured Git remotes, filters for remotes that smell like a GitHub deployment, and deduces the target &lt;code>host&lt;/code> and &lt;code>repo_spec&lt;/code>, where applicable. As a result, we&amp;rsquo;ve deprecated those arguments in several functions (listed above).&lt;/p>
+&lt;p>In
+&lt;a href="https://usethis.r-lib.org/reference/use_github.html" target="_blank" rel="noopener">&lt;code>use_github()&lt;/code>&lt;/a> and
+&lt;a href="https://usethis.r-lib.org/reference/create_from_github.html" target="_blank" rel="noopener">&lt;code>create_from_github()&lt;/code>&lt;/a>, we still have a &lt;code>host&lt;/code> argument, but there are also other ways to specify the &lt;code>host&lt;/code>:&lt;/p>
+&lt;ul>
+&lt;li>usethis no longer inserts its own opinion about the default &lt;code>host&lt;/code>. This means we no longer get in the way of the existing default behaviour of the gh package, which is to consult the &lt;code>GITHUB_API_URL&lt;/code> environment variable, if it is set. GitHub Enterprise users will probably want to lean heavily on this environment variable.&lt;/li>
+&lt;li>A couple functions now accept a full URL as the &lt;code>repo_spec&lt;/code> and, if you do that, we discover the &lt;code>host&lt;/code> from the URL.&lt;/li>
+&lt;/ul>
+&lt;h4 id="give-me-your-full-urls">Give me your full URLs!
+&lt;a href="#give-me-your-full-urls">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h4>&lt;p>The last point above is a nice quality-of-life improvement even when working on github.com. It means you can copy a URL straight from your browser and, as long as it points somewhere within the target repo, all will be well. For example, if you decide to fork-and-clone Matt Lincoln&amp;rsquo;s clipr package while perusing its issues, you can just copy the URL directly from your browser:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://usethis.r-lib.org/reference/create_from_github.html'>create_from_github&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"https://github.com/mdlincoln/clipr/issues"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ℹ Defaulting to https Git protocol&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Setting `fork = TRUE`&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Creating '/Users/jenny/Desktop/clipr/'&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Forking 'mdlincoln/clipr'&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Cloning repo from 'https://github.com/jennybc/clipr.git' into '/Users/jenny/Desktop/clipr'&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Setting active project to '/Users/jenny/Desktop/clipr'&lt;/span>
+&lt;span class='c'>#&amp;gt; ℹ Default branch is 'master'&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Adding 'upstream' remote: 'https://github.com/mdlincoln/clipr.git'&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Pulling changes from 'upstream/master' (default branch of source repo)&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Setting remote tracking branch for local 'master' branch to 'upstream/master'&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>URLs are supported by the &lt;code>repo_spec&lt;/code> argument of
+&lt;a href="https://usethis.r-lib.org/reference/create_from_github.html" target="_blank" rel="noopener">&lt;code>create_from_github()&lt;/code>&lt;/a> and
+&lt;a href="https://usethis.r-lib.org/reference/use_tidy_thanks.html" target="_blank" rel="noopener">&lt;code>use_tidy_thanks()&lt;/code>&lt;/a>. In addition to browser URLs, you can also use HTTPS and SSH Git remote URLs.&lt;/p>
+&lt;h3 id="personal-access-tokens-pats">Personal access tokens (PATs)
+&lt;a href="#personal-access-tokens-pats">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>This diagram shows the different ways that usethis might interact with GitHub:&lt;/p>
+&lt;ol>
+&lt;li>As a Git server, via gert, using either the HTTPS or SSH protocol&lt;/li>
+&lt;li>As a web service, via gh, using HTTPS (and OAuth)&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">
+&lt;p>&lt;img src="pat-kills-both-birds.png" width="80%" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>The cheerful orange ovals indicate why we recommend HTTPS as your Git protocol: Once you set up your GitHub personal access token (PAT), usethis, gert, and gh (and possibly other packages) will all be able to find and use this common credential. (If you are an SSH person, you need to set up a GitHub PAT for work that involves the GitHub API, in addition to the SSH keys needed for Git work.)&lt;/p>
+&lt;p>You may have noticed that command line Git remembers your HTTPS credentials, after you&amp;rsquo;ve provided them once&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>. Git has an internal interface for storing and retrieving HTTPS credentials from system-specific helpers, such as the macOS Keychain and Windows Credential Manager. This interface is exposed for use by other applications in the
+&lt;a href="https://git-scm.com/docs/git-credential" target="_blank" rel="noopener">&lt;code>git credential&lt;/code>&lt;/a> utility Both gert and gh (and, therefore, usethis) now use this utility to retrieve a PAT suitable for a specific &lt;code>host&lt;/code>. It is now possible to attain Git credential nirvana, where command line Git, RStudio, and all your favourite R packages are working with the same credentials.&lt;/p>
+&lt;p>In the previous section, we explained how the &lt;code>host&lt;/code> is now automatically discovered from Git remotes. And we&amp;rsquo;ve just explained that we now look up the PAT based on the &lt;code>host&lt;/code>. Together, this means usethis no longer needs any explicit PAT management and finishes explaining why so many credential-, token-, and host-related functions and arguments have been deprecated. This is also a major reason why GitHub Enterprise &amp;ldquo;just works&amp;rdquo; now.&lt;/p>
+&lt;p>The new connection to the system-specific Git credential store also means we no longer need to set &lt;code>GITHUB_PAT&lt;/code> in our &lt;code>.Renviron&lt;/code> startup files. It is a better security practice anyway to avoid storing such secrets in a plain text file, if better alternatives exist.&lt;/p>
+&lt;pre>&lt;code>WUT=yo
+GITHUB_PAT=xyz # &amp;lt;-- WE SUGGEST YOU REMOVE THIS LINE FROM .Renviron
+OTHER_WEB_SERVICE=super-secret-very-powerful-token
+&lt;/code>&lt;/pre>
+&lt;p>The &lt;code>host&lt;/code>-specific PAT is now retrieved from the Git credential store upon first need. Note that the PAT &lt;strong>is&lt;/strong> still cached in an environment variable for reuse during the remainder of the current R session.&lt;/p>
+&lt;p>Our full recommendations for getting and configuring a PAT are in the new vignette
+&lt;a href="https://usethis.r-lib.org/articles/articles/git-credentials.html" target="_blank" rel="noopener">Managing Git(Hub) Credentials&lt;/a>.&lt;/p>
+&lt;h3 id="git-protocol">Git protocol
+&lt;a href="#git-protocol">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>When usethis configures a new Git remote, it must choose a protocol, either HTTPS or SSH. The new default in this situation is HTTPS, because as we explained above, we think HTTPS is the best choice for most users and projects.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://usethis.r-lib.org/reference/git_protocol.html'>git_protocol&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>ℹ&lt;/span>&lt;span> Defaulting to https Git protocol&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; [1] "https"&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>As always, you can specify the default protocol for a single session with
+&lt;a href="https://usethis.r-lib.org/reference/git_protocol.html" target="_blank" rel="noopener">&lt;code>use_git_protocol()&lt;/code>&lt;/a> or for all sessions via the &lt;code>usethis.protocol&lt;/code> option. Those who prefer SSH may want to set this option in &lt;code>.Rprofile&lt;/code> going forward.&lt;/p>
+&lt;h2 id="pull-request-helpers">Pull request helpers
+&lt;a href="#pull-request-helpers">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The team that maintains the tidyverse and r-lib packages makes heavy use of GitHub pull requests for managing internal and external contributions&lt;sup id="fnref:3">&lt;a href="#fn:3" class="footnote-ref" role="doc-noteref">3&lt;/a>&lt;/sup>. The &lt;code>pr_*()&lt;/code> family of functions supports pull request workflows, for maintainers and contributors. This family has gained a couple of new functions and some improvements to existing functions:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://usethis.r-lib.org/reference/pull-requests.html" target="_blank" rel="noopener">&lt;code>pr_resume()&lt;/code>&lt;/a> resumes work on an existing local PR branch. It can be called argument-less, to select a branch interactively.&lt;/p>
+&lt;pre>&lt;code>&amp;gt; pr_resume()
+ℹ No branch specified ... looking up local branches and associated PRs
+Which branch do you want to checkout? (0 to exit)
+1: avalcarcel9-add_use_author --&amp;gt; #833 ('@avalcarcel9'): Add use author
+2: latex-hell
+3: holder
+4: patch-for-withr
+Selection:
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://usethis.r-lib.org/reference/pull-requests.html" target="_blank" rel="noopener">&lt;code>pr_fetch()&lt;/code>&lt;/a> and
+&lt;a href="https://usethis.r-lib.org/reference/pull-requests.html" target="_blank" rel="noopener">&lt;code>pr_view()&lt;/code>&lt;/a> now present a similar interactive choice, when the target PR is not specified or implied.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://usethis.r-lib.org/reference/pull-requests.html" target="_blank" rel="noopener">&lt;code>pr_forget()&lt;/code>&lt;/a> abandons a PR you initiated locally or fetched from GitHub. It only does local clean up and will never delete a remote branch or close a PR.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Other &lt;code>pr_*()&lt;/code> functions have nice little improvements, so heavy users should definitely read the
+&lt;a href="https://usethis.r-lib.org/news/index.html#changes-to-git-github-functionality" target="_blank" rel="noopener">full release notes&lt;/a>.&lt;/p>
+&lt;h2 id="other-goodies">Other goodies
+&lt;a href="#other-goodies">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The &lt;code>use_*_license()&lt;/code> functions have gotten a general overhaul and also now work for projects, not just for packages. This was part of a bigger effort related to re-licensing some tidyverse/r-lib packages and updating the
+&lt;a href="https://r-pkgs.org/license.html" target="_blank" rel="noopener">licensing chapter of R Packages&lt;/a> for its future second edition.&lt;/p>
+&lt;p>
+&lt;a href="https://usethis.r-lib.org/reference/browse-this.html" target="_blank" rel="noopener">&lt;code>browse_package()&lt;/code>&lt;/a> and
+&lt;a href="https://usethis.r-lib.org/reference/browse-this.html" target="_blank" rel="noopener">&lt;code>browse_project()&lt;/code>&lt;/a> are new additions to the &lt;code>browse_*()&lt;/code> family that let the user choose from a list of URLs derived from local Git remotes and DESCRIPTION (local or possibly on CRAN). Implementing these reminded us of how handy the existing &lt;code>browse_*()&lt;/code> functions are!&lt;/p>
+&lt;pre>&lt;code>&amp;gt; browse_package()
+Which URL do you want to visit? (0 to exit)
+1: https://github.com/r-lib/usethis ('origin' remote)
+2: https://github.com/avalcarcel9/usethis ('avalcarcel9' remote)
+3: https://usethis.r-lib.org (URL field in DESCRIPTION)
+4: https://github.com/r-lib/usethis (URL field in DESCRIPTION)
+5: https://github.com/r-lib/usethis/issues (BugReports field in DESCRIPTION)
+Selection: 0
+&amp;gt; browse_package(&amp;quot;gert&amp;quot;)
+Which URL do you want to visit? (0 to exit)
+1: https://docs.ropensci.org/gert/ (URL field in DESCRIPTION)
+2: https://github.com/r-lib/gert (URL field in DESCRIPTION)
+3: https://libgit2.org (URL field in DESCRIPTION)
+4: https://github.com/r-lib/gert/issues (BugReports field in DESCRIPTION)
+Selection: 0
+&amp;gt; browse_cran(&amp;quot;cowsay&amp;quot;)
+✓ Opening URL 'https://cran.r-project.org/package=cowsay'
+&amp;gt; browse_github(&amp;quot;cpp11&amp;quot;)
+✓ Opening URL 'https://github.com/r-lib/cpp11'
+&lt;/code>&lt;/pre>
+&lt;p>Here&amp;rsquo;s a sampler of other new features:&lt;/p>
+&lt;ul>
+&lt;li>A default Git branch named &lt;code>main&lt;/code> now works.
+&lt;a href="https://usethis.r-lib.org/reference/git_branch_default.html" target="_blank" rel="noopener">&lt;code>git_branch_default()&lt;/code>&lt;/a> is a new function that tries to discover the default branch from the local or remote Git repo. Internally, it is used everywhere that we previously assumed a default branch named &lt;code>master&lt;/code>.&lt;/li>
+&lt;li>
+&lt;a href="https://usethis.r-lib.org/reference/use_github_pages.html" target="_blank" rel="noopener">&lt;code>use_github_pages()&lt;/code>&lt;/a> and
+&lt;a href="https://usethis.r-lib.org/reference/tidyverse.html" target="_blank" rel="noopener">&lt;code>use_tidy_pkgdown()&lt;/code>&lt;/a> are great for turning on GitHub Pages and for using GitHub Actions to build and deploy a pkgdown site.&lt;/li>
+&lt;li>usethis knows that RStudio &amp;gt;= 1.3 stores user preferences in a file, which means that
+&lt;a href="https://usethis.r-lib.org/reference/use_blank_slate.html" target="_blank" rel="noopener">&lt;code>use_blank_slate()&lt;/code>&lt;/a> can be used to opt in to the &amp;ldquo;never save to or restore &lt;code>.RData&lt;/code>&amp;rdquo; lifestyle, globally, for a user.&lt;/li>
+&lt;/ul>
+&lt;p>For a full list of changes, see the
+&lt;a href="https://usethis.r-lib.org/news/index.html#usethis-2-0-0-2020-12-10" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;re especially grateful to
+&lt;a href="https://github.com/jeroen" target="_blank" rel="noopener">Jeroen Ooms&lt;/a> and
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">Gábor Csárdi&lt;/a> for a great deal of behind-the-scenes work in credentials, gert, gh, and gitcreds. This version of usethis would not be possible without coordinated development and CRAN releases across these five packages.&lt;/p>
+&lt;p>A big thanks to everyone who helped with this release by reporting bugs, discussing issues, and contributing code:
+&lt;a href="https://github.com/albersonmiranda" target="_blank" rel="noopener">@albersonmiranda&lt;/a>,
+&lt;a href="https://github.com/andrader" target="_blank" rel="noopener">@andrader&lt;/a>,
+&lt;a href="https://github.com/arashHaratian" target="_blank" rel="noopener">@arashHaratian&lt;/a>,
+&lt;a href="https://github.com/Athanasiamo" target="_blank" rel="noopener">@Athanasiamo&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/cstepper" target="_blank" rel="noopener">@cstepper&lt;/a>,
+&lt;a href="https://github.com/dmenne" target="_blank" rel="noopener">@dmenne&lt;/a>,
+&lt;a href="https://github.com/friep" target="_blank" rel="noopener">@friep&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/ijlyttle" target="_blank" rel="noopener">@ijlyttle&lt;/a>,
+&lt;a href="https://github.com/jamesmyatt" target="_blank" rel="noopener">@jamesmyatt&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jeroen" target="_blank" rel="noopener">@jeroen&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jtr13" target="_blank" rel="noopener">@jtr13&lt;/a>,
+&lt;a href="https://github.com/KoderKow" target="_blank" rel="noopener">@KoderKow&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/malcolmbarrett" target="_blank" rel="noopener">@malcolmbarrett&lt;/a>,
+&lt;a href="https://github.com/maurolepore" target="_blank" rel="noopener">@maurolepore&lt;/a>,
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>,
+&lt;a href="https://github.com/mrcaseb" target="_blank" rel="noopener">@mrcaseb&lt;/a>,
+&lt;a href="https://github.com/vinhtantran" target="_blank" rel="noopener">@vinhtantran&lt;/a>, and
+&lt;a href="https://github.com/whtns" target="_blank" rel="noopener">@whtns&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>gert uses a dedicated, standalone package: &lt;a href="https://docs.ropensci.org/credentials/">https://docs.ropensci.org/credentials/&lt;/a> &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>In our experience, on both macOS and Windows, recent Git versions come with credential caching that works out-of-the-box. If this is not your experience, it&amp;rsquo;s a good reason to update Git. &lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:3" role="doc-endnote">
+&lt;p>In 2019, we handled over 6,000 pull requests in the &amp;gt;180 public package repos owned by the GitHub organisations r-dbi, r-lib, rstudio, tidymodels, and tidyverse. &lt;a href="#fnref:3" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>usethis 1.6.0</title><link>https://www.tidyverse.org/blog/2020/04/usethis-1-6-0/</link><pubDate>Sat, 11 Apr 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/04/usethis-1-6-0/</guid><description>&lt;p>We&amp;rsquo;re happy to announce that
+&lt;a href="https://usethis.r-lib.org" target="_blank" rel="noopener">usethis&lt;/a> 1.6.0 is now available on CRAN. usethis is a package that facilitates interactive workflows for R project creation and development. It&amp;rsquo;s mostly focussed on easing day-to-day package development, but many of its functions are also useful for non-package projects. Install usethis with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;usethis&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This blog post discusses three sets of improvements to usethis:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>New helpers for using GitHub Actions for continuous integration. If you&amp;rsquo;re an
+R package developer who uses GitHub, we recommend moving away from Travis and
+AppVeyor in favour of GitHub Actions.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>We&amp;rsquo;ve made a number of small tweaks to &lt;code>create_package()&lt;/code> in order to reduce
+inessential friction in the initial startup phase of a package.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>We&amp;rsquo;ve continued to polish our tools for contributing to other people&amp;rsquo;s
+packages through GitHub pull requests.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>This release also includes a handful of new functions (my favourite is
+&lt;a href="https://usethis.r-lib.org/reference/rename_files.html" target="_blank" rel="noopener">&lt;code>rename_file()&lt;/code>&lt;/a>), many bug fixes, and lots of small improvements. We&amp;rsquo;re slowly grinding down the rough edges, so usethis just works in more cases, and when it fails, it&amp;rsquo;s more likely to give you error messages that help you quickly figure out the problem. As usual, you can find detailed notes about all these changes in the
+&lt;a href="https://usethis.r-lib.org/news/index.html" target="_blank" rel="noopener">change log&lt;/a>.&lt;/p>
+&lt;h2 id="github-actions">GitHub Actions
+&lt;a href="#github-actions">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://github.com/features/actions" target="_blank" rel="noopener">GitHub Actions&lt;/a> is a continuous integration service that allows you to automatically run code whenever you push to GitHub. If you&amp;rsquo;re developing a package this allows you to automate tasks like:&lt;/p>
+&lt;ul>
+&lt;li>Run &lt;code>R CMD check&lt;/code> on multiple platforms (Linux, Windows, and Mac) and
+different versions of R (e.g., devel, release, oldrel).&lt;/li>
+&lt;li>Record the code coverage of your unit tests.&lt;/li>
+&lt;li>Re-build your
+&lt;a href="https://pkgdown.r-lib.org/" target="_blank" rel="noopener">pkgdown&lt;/a> website.&lt;/li>
+&lt;/ul>
+&lt;p>Outside of a package, you can also use GitHub Actions to rebuild
+&lt;a href="https://github.com/r-lib/actions/blob/master/examples/blogdown.yaml" target="_blank" rel="noopener">blogdown&lt;/a> and
+&lt;a href="https://github.com/r-lib/actions/blob/master/examples/bookdown.yaml" target="_blank" rel="noopener">bookdown&lt;/a> sites, or regularly re-knit &lt;code>.Rmd&lt;/code> files.&lt;/p>
+&lt;p>Each GitHub Actions &lt;em>workflow&lt;/em> is described in a yaml file stored in the &lt;code>.github/workflows&lt;/code> directory of your repository. usethis v1.6.0 introduces new helper functions to create these files:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://github.com/r-lib/actions/blob/master/examples/check-standard.yaml" target="_blank" rel="noopener">&lt;code>use_github_action(&amp;quot;check-standard&amp;quot;)&lt;/code>&lt;/a> runs &lt;code>R CMD check&lt;/code> on the latest
+R release on Linux, Windows, and macOS, and R-devel on macOS. This ensures
+that your package works on all major operating systems, and alerts you to
+any potential problems in the next version of R.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://github.com/r-lib/actions/blob/master/examples/test-coverage.yaml" target="_blank" rel="noopener">&lt;code>use_github_action(&amp;quot;test-coverage&amp;quot;)&lt;/code>&lt;/a>
+uses
+&lt;a href="http://covr.r-lib.org/" target="_blank" rel="noopener">covr&lt;/a> to measure the test coverage of your package
+and publishes it to &lt;a href="http://codecov.io/">http://codecov.io/&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://github.com/r-lib/actions/blob/master/examples/pkgdown.yaml" target="_blank" rel="noopener">&lt;code>use_github_action(&amp;quot;pkgdown&amp;quot;)&lt;/code>&lt;/a>
+uses
+&lt;a href="https://pkgdown.r-lib.org/" target="_blank" rel="noopener">pkgdown&lt;/a> to build your package website and
+publishes it to the &lt;code>gh-pages&lt;/code> branch.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>You can see examples of other workflows at &lt;a href="https://github.com/r-lib/actions/tree/master/examples">https://github.com/r-lib/actions/tree/master/examples&lt;/a>. The files in this directory are templates that you can easily copy into your package by running &lt;code>use_github_action(&amp;quot;name&amp;quot;)&lt;/code>. We encourage you to look at the &lt;code>.yaml&lt;/code> files that these functions create and customise them to meet your needs.&lt;/p>
+&lt;p>Compared to Travis-CI, GitHub Actions:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Provides more resources, i.e. 6 hour build times and 20 concurrent builds
+instead of 50 minute build times and ~5 concurrent builds.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Has more complete support for building on Windows and macOS and a more
+natural way of using Docker containers.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Doesn&amp;rsquo;t require any extra authentication because all code is run on GitHub.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Is considerably easier to customise to provide workflows that we haven&amp;rsquo;t
+made easy.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>You can learn more by reading
+&lt;a href="https://ropenscilabs.github.io/actions_sandbox/" target="_blank" rel="noopener">&lt;em>Github Actions with R&lt;/em>&lt;/a>, by Chris Brown, Murray Cadzow, Paula A Martinez, Rhydwyn McGuire, David Neuzerling, David Wilkinson, and Saras Windecker, or watching Jim Hester&amp;rsquo;s
+&lt;a href="https://resources.rstudio.com/rstudio-conf-2020/azure-pipelines-and-github-actions-jim-hester" target="_blank" rel="noopener">rstudio::conf(2020) presentation&lt;/a>.&lt;/p>
+&lt;h2 id="creating-packages">Creating packages
+&lt;a href="#creating-packages">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Based on our experience teaching package development, we&amp;rsquo;ve made a few changes to how &lt;code>create_package()&lt;/code> sets up a new package. The biggest difference is that we now assume that you&amp;rsquo;re going to use roxygen2&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> (although you can opt out with &lt;code>roxygen = FALSE&lt;/code>), reducing some inconsistencies in development behaviours before and after your first run of &lt;code>devtools::document()&lt;/code>:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>We automatically add a &lt;code>RoxygenNote&lt;/code> field to the &lt;code>DESCRIPTION&lt;/code>. This is a
+subtle change that ensures &lt;code>devtools::check()&lt;/code> re-documents your package even
+when you haven&amp;rsquo;t yet run &lt;code>devtools::document()&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The default &lt;code>NAMESPACE&lt;/code> no longer exports anything. This means that you
+must always use &lt;code>@export&lt;/code> if you want functions to be available to the
+end-user.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>We made a couple of small changes to ease other minor frustrations:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>use_rstudio()&lt;/code> now sets the &lt;code>LineEndingConversion&lt;/code> to &lt;code>Posix&lt;/code> so that
+packages edited with RStudio always use LF line endings, regardless of
+platform. This reduces spurious changes when multiple people collaborate
+on the same package.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The &lt;code>usethis.description&lt;/code> option now lets you set &lt;code>Authors@R = person()&lt;/code>
+directly. That is, you can make an actual call to &lt;code>person()&lt;/code> as opposed
+to writing a &lt;em>string&lt;/em> that, when evaluated as code, returns a &lt;code>person()&lt;/code>.
+This makes it less aggravating to detect and correct any mistakes. For
+example, in my &lt;code>.Rprofile&lt;/code> I used to have:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">options&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">usethis.description&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">`Authors@R`&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#39;person(&amp;#34;Hadley&amp;#34;, &amp;#34;Wickham&amp;#34;, , &amp;#34;hadley@rstudio.com&amp;#34;, role = c(&amp;#34;aut&amp;#34;, &amp;#34;cre&amp;#34;))&amp;#39;&lt;/span>
+&lt;span class="p">))&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>And now I have:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">options&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">usethis.description&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">`Authors@R`&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">utils&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">person&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="s">&amp;#34;Hadley&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Wickham&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;hadley@rstudio.com&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">role&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;aut&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;cre&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="p">))&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>As you can see from the syntax highlighting, it&amp;rsquo;s now much easier to see if
+you&amp;rsquo;ve got all the quotes and commas in the right place. When you do this in
+&lt;code>.Rprofile&lt;/code>, note that you &lt;strong>must&lt;/strong> call it as &lt;code>utils::person()&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="contributing-to-packages-via-github-pull-requests">Contributing to packages via GitHub pull requests
+&lt;a href="#contributing-to-packages-via-github-pull-requests">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Based on our experiences at
+&lt;a href="https://www.tidyverse.org/blog/2019/11/tidyverse-dev-day-2020/" target="_blank" rel="noopener">tidyverse developer day&lt;/a>, we&amp;rsquo;ve tweaked the behaviour of usethis to ensure that new files have the same line ending as the rest of the project. We&amp;rsquo;ve also continued to polish our family of pull request helpers to work in more real-world situations. And, thanks to
+&lt;a href="http://www2.stat.duke.edu/~mc301/" target="_blank" rel="noopener">Mine Cetinkaya-Rundel&lt;/a>, we now have an article that
+&lt;a href="https://usethis.r-lib.org/articles/articles/pr-functions.html" target="_blank" rel="noopener">explains the overall workflow&lt;/a>.&lt;/p>
+&lt;h2 id="thank-you">Thank you!
+&lt;a href="#thank-you">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all 103 contributors who helped make this release happen via their contributions on GitHub.
+&lt;a href="https://github.com/aaronpeikert" target="_blank" rel="noopener">@aaronpeikert&lt;/a>,
+&lt;a href="https://github.com/adelmofilho" target="_blank" rel="noopener">@adelmofilho&lt;/a>,
+&lt;a href="https://github.com/Ahobert" target="_blank" rel="noopener">@Ahobert&lt;/a>,
+&lt;a href="https://github.com/alandipert" target="_blank" rel="noopener">@alandipert&lt;/a>,
+&lt;a href="https://github.com/andrie" target="_blank" rel="noopener">@andrie&lt;/a>,
+&lt;a href="https://github.com/angela-li" target="_blank" rel="noopener">@angela-li&lt;/a>,
+&lt;a href="https://github.com/antoine-sachet" target="_blank" rel="noopener">@antoine-sachet&lt;/a>,
+&lt;a href="https://github.com/aosmith16" target="_blank" rel="noopener">@aosmith16&lt;/a>,
+&lt;a href="https://github.com/atusy" target="_blank" rel="noopener">@atusy&lt;/a>,
+&lt;a href="https://github.com/avalcarcel9" target="_blank" rel="noopener">@avalcarcel9&lt;/a>,
+&lt;a href="https://github.com/barryrowlingson" target="_blank" rel="noopener">@barryrowlingson&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/boshek" target="_blank" rel="noopener">@boshek&lt;/a>,
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/Cervangirard" target="_blank" rel="noopener">@Cervangirard&lt;/a>,
+&lt;a href="https://github.com/chsafouane" target="_blank" rel="noopener">@chsafouane&lt;/a>,
+&lt;a href="https://github.com/coatless" target="_blank" rel="noopener">@coatless&lt;/a>,
+&lt;a href="https://github.com/ColinFay" target="_blank" rel="noopener">@ColinFay&lt;/a>,
+&lt;a href="https://github.com/CorradoLanera" target="_blank" rel="noopener">@CorradoLanera&lt;/a>,
+&lt;a href="https://github.com/csgillespie" target="_blank" rel="noopener">@csgillespie&lt;/a>,
+&lt;a href="https://github.com/cstepper" target="_blank" rel="noopener">@cstepper&lt;/a>,
+&lt;a href="https://github.com/davechilders" target="_blank" rel="noopener">@davechilders&lt;/a>,
+&lt;a href="https://github.com/davidchall" target="_blank" rel="noopener">@davidchall&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dchiu911" target="_blank" rel="noopener">@dchiu911&lt;/a>,
+&lt;a href="https://github.com/dragosmg" target="_blank" rel="noopener">@dragosmg&lt;/a>,
+&lt;a href="https://github.com/edgararuiz" target="_blank" rel="noopener">@edgararuiz&lt;/a>,
+&lt;a href="https://github.com/erindb" target="_blank" rel="noopener">@erindb&lt;/a>,
+&lt;a href="https://github.com/espinielli" target="_blank" rel="noopener">@espinielli&lt;/a>,
+&lt;a href="https://github.com/fabian-s" target="_blank" rel="noopener">@fabian-s&lt;/a>,
+&lt;a href="https://github.com/fermumen" target="_blank" rel="noopener">@fermumen&lt;/a>,
+&lt;a href="https://github.com/florianm" target="_blank" rel="noopener">@florianm&lt;/a>,
+&lt;a href="https://github.com/fmichonneau" target="_blank" rel="noopener">@fmichonneau&lt;/a>,
+&lt;a href="https://github.com/friep" target="_blank" rel="noopener">@friep&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">@gaborcsardi&lt;/a>,
+&lt;a href="https://github.com/GegznaV" target="_blank" rel="noopener">@GegznaV&lt;/a>,
+&lt;a href="https://github.com/GregorDeCillia" target="_blank" rel="noopener">@GregorDeCillia&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/igordot" target="_blank" rel="noopener">@igordot&lt;/a>,
+&lt;a href="https://github.com/ijlyttle" target="_blank" rel="noopener">@ijlyttle&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/irenetlv" target="_blank" rel="noopener">@irenetlv&lt;/a>,
+&lt;a href="https://github.com/isteves" target="_blank" rel="noopener">@isteves&lt;/a>,
+&lt;a href="https://github.com/jdblischak" target="_blank" rel="noopener">@jdblischak&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jimmyg3g" target="_blank" rel="noopener">@jimmyg3g&lt;/a>,
+&lt;a href="https://github.com/jmgirard" target="_blank" rel="noopener">@jmgirard&lt;/a>,
+&lt;a href="https://github.com/JohnCoene" target="_blank" rel="noopener">@JohnCoene&lt;/a>,
+&lt;a href="https://github.com/jplecavalier" target="_blank" rel="noopener">@jplecavalier&lt;/a>,
+&lt;a href="https://github.com/jpritikin" target="_blank" rel="noopener">@jpritikin&lt;/a>,
+&lt;a href="https://github.com/jrosen48" target="_blank" rel="noopener">@jrosen48&lt;/a>,
+&lt;a href="https://github.com/jules32" target="_blank" rel="noopener">@jules32&lt;/a>,
+&lt;a href="https://github.com/jzadra" target="_blank" rel="noopener">@jzadra&lt;/a>,
+&lt;a href="https://github.com/karawoo" target="_blank" rel="noopener">@karawoo&lt;/a>,
+&lt;a href="https://github.com/kevinushey" target="_blank" rel="noopener">@kevinushey&lt;/a>,
+&lt;a href="https://github.com/kiernann" target="_blank" rel="noopener">@kiernann&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/lettucehead" target="_blank" rel="noopener">@lettucehead&lt;/a>,
+&lt;a href="https://github.com/leungi" target="_blank" rel="noopener">@leungi&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/llrs" target="_blank" rel="noopener">@llrs&lt;/a>,
+&lt;a href="https://github.com/lorenzwalthert" target="_blank" rel="noopener">@lorenzwalthert&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/MagdyLaban" target="_blank" rel="noopener">@MagdyLaban&lt;/a>,
+&lt;a href="https://github.com/malcolmbarrett" target="_blank" rel="noopener">@malcolmbarrett&lt;/a>,
+&lt;a href="https://github.com/Maschette" target="_blank" rel="noopener">@Maschette&lt;/a>,
+&lt;a href="https://github.com/matthijsvanderloos" target="_blank" rel="noopener">@matthijsvanderloos&lt;/a>,
+&lt;a href="https://github.com/maurolepore" target="_blank" rel="noopener">@maurolepore&lt;/a>,
+&lt;a href="https://github.com/maxheld83" target="_blank" rel="noopener">@maxheld83&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/mikmart" target="_blank" rel="noopener">@mikmart&lt;/a>,
+&lt;a href="https://github.com/MilesMcBain" target="_blank" rel="noopener">@MilesMcBain&lt;/a>,
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>,
+&lt;a href="https://github.com/mitchelloharawild" target="_blank" rel="noopener">@mitchelloharawild&lt;/a>,
+&lt;a href="https://github.com/muschellij2" target="_blank" rel="noopener">@muschellij2&lt;/a>,
+&lt;a href="https://github.com/nandriychuk" target="_blank" rel="noopener">@nandriychuk&lt;/a>,
+&lt;a href="https://github.com/njtierney" target="_blank" rel="noopener">@njtierney&lt;/a>,
+&lt;a href="https://github.com/noamross" target="_blank" rel="noopener">@noamross&lt;/a>,
+&lt;a href="https://github.com/okhoma" target="_blank" rel="noopener">@okhoma&lt;/a>,
+&lt;a href="https://github.com/overdodactyl" target="_blank" rel="noopener">@overdodactyl&lt;/a>,
+&lt;a href="https://github.com/pachamaltese" target="_blank" rel="noopener">@pachamaltese&lt;/a>,
+&lt;a href="https://github.com/pat-s" target="_blank" rel="noopener">@pat-s&lt;/a>,
+&lt;a href="https://github.com/perezp44" target="_blank" rel="noopener">@perezp44&lt;/a>,
+&lt;a href="https://github.com/petrbouchal" target="_blank" rel="noopener">@petrbouchal&lt;/a>,
+&lt;a href="https://github.com/phargarten2" target="_blank" rel="noopener">@phargarten2&lt;/a>,
+&lt;a href="https://github.com/pieterjanvc" target="_blank" rel="noopener">@pieterjanvc&lt;/a>,
+&lt;a href="https://github.com/ramiromagno" target="_blank" rel="noopener">@ramiromagno&lt;/a>,
+&lt;a href="https://github.com/riccardoporreca" target="_blank" rel="noopener">@riccardoporreca&lt;/a>,
+&lt;a href="https://github.com/rich-iannone" target="_blank" rel="noopener">@rich-iannone&lt;/a>,
+&lt;a href="https://github.com/Robinlovelace" target="_blank" rel="noopener">@Robinlovelace&lt;/a>,
+&lt;a href="https://github.com/romainfrancois" target="_blank" rel="noopener">@romainfrancois&lt;/a>,
+&lt;a href="https://github.com/rossellhayes" target="_blank" rel="noopener">@rossellhayes&lt;/a>,
+&lt;a href="https://github.com/rundel" target="_blank" rel="noopener">@rundel&lt;/a>,
+&lt;a href="https://github.com/ryapric" target="_blank" rel="noopener">@ryapric&lt;/a>,
+&lt;a href="https://github.com/slyrus" target="_blank" rel="noopener">@slyrus&lt;/a>,
+&lt;a href="https://github.com/smingerson" target="_blank" rel="noopener">@smingerson&lt;/a>,
+&lt;a href="https://github.com/smwindecker" target="_blank" rel="noopener">@smwindecker&lt;/a>,
+&lt;a href="https://github.com/strboul" target="_blank" rel="noopener">@strboul&lt;/a>,
+&lt;a href="https://github.com/timtrice" target="_blank" rel="noopener">@timtrice&lt;/a>,
+&lt;a href="https://github.com/TylerGrantSmith" target="_blank" rel="noopener">@TylerGrantSmith&lt;/a>,
+&lt;a href="https://github.com/VincentGuyader" target="_blank" rel="noopener">@VincentGuyader&lt;/a>, and
+&lt;a href="https://github.com/wch" target="_blank" rel="noopener">@wch&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>This seems like a reasonable assumption given that ~80% of new CRAN packages use roxygen2. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>usethis 1.5.0</title><link>https://www.tidyverse.org/blog/2019/04/usethis-1.5.0/</link><pubDate>Tue, 09 Apr 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/04/usethis-1.5.0/</guid><description>&lt;p>We&amp;rsquo;re gratified to announce that
+&lt;a href="https://usethis.r-lib.org" target="_blank" rel="noopener">usethis&lt;/a> 1.5.0 is now available on CRAN. Learn more about usethis at &lt;a href="https://usethis.r-lib.org">https://usethis.r-lib.org&lt;/a>. Detailed notes are always in the
+&lt;a href="https://usethis.r-lib.org/news/index.html" target="_blank" rel="noopener">change log&lt;/a>.&lt;/p>
+&lt;p>usethis is a package that facilitates interactive workflows for R project creation and development. It has broad coverage of package development tasks, but many of its functions are also applicable to non-package projects.&lt;/p>
+&lt;p>usethis is part of the package development toolkit whose main public face is the venerable
+&lt;a href="https://devtools.r-lib.org" target="_blank" rel="noopener">devtools&lt;/a> package. When devtools went through its
+&lt;a href="https://www.tidyverse.org/articles/2018/10/devtools-2-0-0/#conscious-uncoupling" target="_blank" rel="noopener">conscious uncoupling&lt;/a>, the functionality related to package/project setup landed in usethis.&lt;/p>
+&lt;p>Install the latest release of usethis like so:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;usethis&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>devtools exposes all of usethis&amp;rsquo;s functions and most users should just use &lt;code>library(devtools)&lt;/code> to make usethis available in the session.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">devtools&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>It is also, of course, possible to just attach usethis specifically.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">usethis&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>usethis::use_devtools()&lt;/code> can help you put a code snippet in your &lt;code>.Rprofile&lt;/code> to do this automatically at startup for interactive sessions.&lt;/p>
+&lt;h2 id="overview-of-recent-developments">Overview of recent developments
+&lt;a href="#overview-of-recent-developments">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We last blogged about usethis in February 2018, at the
+&lt;a href="https://www.tidyverse.org/articles/2018/02/usethis-1-3-0/" target="_blank" rel="noopener">release of v1.3.0&lt;/a>, so there&amp;rsquo;s a lot to catch up on! We&amp;rsquo;ll cover cumulative developments in v1.4.0 and v1.5.0. The current release also marks the passing of the maintainership torch from Hadley Wickham to Jenny Bryan.&lt;/p>
+&lt;p>Main themes:&lt;/p>
+&lt;ul>
+&lt;li>Improve support for the Git/GitHub aspects of project initiation and development.&lt;/li>
+&lt;li>Make it possible for others to extend usethis, i.e. to implement specialized workflows or organization-specific standards.&lt;/li>
+&lt;li>Implement what the tidyverse/r-lib team regards as best practices, often in functions that feature the word &amp;ldquo;tidy&amp;rdquo;. These are mostly for our use and are, honestly, occasionally aspirational, but others may find it interesting or useful.&lt;/li>
+&lt;li>Embrace the
+&lt;a href="https://fs.r-lib.org" target="_blank" rel="noopener">fs package&lt;/a> internally for everything related to filepath management. We&amp;rsquo;re also gradually adding better tooling for programmatic management of specific files or for specific parts of a file, such as the badge section of &lt;code>README.Rmd&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;p>Below we highlight specific changes or new features that are of special interest to users. Again, detailed notes are in the
+&lt;a href="https://usethis.r-lib.org/news/index.html" target="_blank" rel="noopener">change log&lt;/a>.&lt;/p>
+&lt;h2 id="options-to-set-in-rprofile">Options to set in &lt;code>.Rprofile&lt;/code>
+&lt;a href="#options-to-set-in-rprofile">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>usethis consults certain options when it creates a new package and, if found, it favors this info over built-in defaults when populating the DESCRIPTION fields. devtools has long had this feature, but it&amp;rsquo;s a good time to open your &lt;code>.Rprofile&lt;/code> (maybe via &lt;code>usethis::edit_r_profile()&lt;/code>) and refresh your settings to look more like so:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">options&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">usethis.full_name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;Jane Doe&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">usethis.description&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">`Authors@R`&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#39;person(&amp;#34;Jane&amp;#34;, &amp;#34;Doe&amp;#34;, email = &amp;#34;jane@example.com&amp;#34;, role = c(&amp;#34;aut&amp;#34;, &amp;#34;cre&amp;#34;),
+&lt;/span>&lt;span class="s"> comment = c(ORCID = &amp;#34;YOUR-ORCID-ID&amp;#34;))&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">License&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;MIT + file LICENSE&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">Version&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;0.0.0.9000&amp;#34;&lt;/span>
+&lt;span class="p">),&lt;/span>
+&lt;span class="n">usethis.protocol&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;ssh&amp;#34;&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Note the &lt;code>usethis.*&lt;/code> name prefixes and that field-specific options like &lt;code>devtools.desc.author&lt;/code> and &lt;code>devtools.desc.license&lt;/code> have been replaced with a single named list, &lt;code>usethis.description&lt;/code>. If you are firmly an &amp;ldquo;SSH person&amp;rdquo; or an &amp;ldquo;HTTPS person&amp;rdquo;, in terms of your preferred Git transport protocol, this is a great place to express that. It affects remote URLs created by usethis.&lt;/p>
+&lt;p>More setup tips can be found in the
+&lt;a href="https://usethis.r-lib.org/articles/articles/usethis-setup.html" target="_blank" rel="noopener">usethis setup article&lt;/a>. For example, you will unlock a lot of usethis&amp;rsquo;s GitHub functionality by setting up a personal access token. &lt;code>usethis::browse_github_token()&lt;/code> walks you through that process.&lt;/p>
+&lt;h2 id="git-and-github">Git and GitHub
+&lt;a href="#git-and-github">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The &lt;code>git_sitrep()&lt;/code> function gives a &lt;strong>rep&lt;/strong>ort on your current &lt;strong>sit&lt;/strong>uation as a Git and GitHub user and specifics on the current repo&amp;rsquo;s remotes and branches. Here&amp;rsquo;s an example where Jane Doe is working in a local copy of OWNER&amp;rsquo;s package, maybe preparing to contribute a bug fix or new feature:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">usethis&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">git_sitrep&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; Git user&lt;/span>
+&lt;span class="c1">#&amp;gt; * Name: &amp;#39;Jane Doe&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; * Email: &amp;#39;jane.doe@example.com&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; * Vaccinated: TRUE&lt;/span>
+&lt;span class="c1">#&amp;gt; usethis + git2r&lt;/span>
+&lt;span class="c1">#&amp;gt; * Default usethis protocol: &amp;#39;ssh&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; * git2r supports SSH: TRUE&lt;/span>
+&lt;span class="c1">#&amp;gt; * Credentials: &amp;#39;&amp;lt;usethis + git2r default behaviour&amp;gt;&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; GitHub&lt;/span>
+&lt;span class="c1">#&amp;gt; * Personal access token: &amp;#39;&amp;lt;found in env var&amp;gt;&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; * User: &amp;#39;janedoe&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; * Name: &amp;#39;Jane Doe&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; Repo&lt;/span>
+&lt;span class="c1">#&amp;gt; * Path: &amp;#39;/Users/jane/tmp/REPO/.git&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; * Local branch -&amp;gt; remote tracking branch: &amp;#39;master&amp;#39; -&amp;gt; &amp;#39;origin/master&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; GitHub pull request readiness&lt;/span>
+&lt;span class="c1">#&amp;gt; * origin: janedoe/REPO, can push, forked from OWNER/REPO&lt;/span>
+&lt;span class="c1">#&amp;gt; * upstream: OWNER/REPO, read only&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>git_vaccinate()&lt;/code> makes sure your global, i.e. user-level, gitignore file contains entries relevant to useRs. You are less likely to push confidential or unnecessary and semi-embarrassing information to GitHub if you gitignore files like &lt;code>.Rhistory&lt;/code> and &lt;code>.Rdata&lt;/code>.&lt;/p>
+&lt;p>Several other new functions are mostly for internal use but can also be used for troubleshooting and taking greater control of the Git side of usethis: &lt;code>git_remotes()&lt;/code>, &lt;code>use_git_remote()&lt;/code>, &lt;code>git_protocol()&lt;/code>, &lt;code>use_git_protocol()&lt;/code>, &lt;code>git_credentials()&lt;/code>, &lt;code>use_git_credentials()&lt;/code>.&lt;/p>
+&lt;p>Two existing functions keep improving and deserve a mention:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>create_from_github(&amp;quot;OWNER/REPO)&lt;/code> creates a local project from a GitHub repository. It&amp;rsquo;s pretty smart about when it should clone vs fork-and-clone (or you can specify this) and, when it forks, it sets up the &lt;code>origin&lt;/code> and &lt;code>upstream&lt;/code> remotes correctly.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">usethis&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">create_from_github&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;OWNER/REPO&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">protocol&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;ssh&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ Creating &amp;#39;/Users/jane/rrr/REPO/&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ Forking &amp;#39;OWNER/REPO&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ Cloning repo from &amp;#39;git@github.com:janedoe/REPO.git&amp;#39; into &amp;#39;/Users/jane/rrr/REPO&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ Setting active project to &amp;#39;/Users/jane/rrr/REPO&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ Adding &amp;#39;upstream&amp;#39; remote: &amp;#39;git@github.com:OWNER/REPO.git&amp;#39;&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ Pulling changes from GitHub source repo &amp;#39;upstream/master&amp;#39;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>&lt;code>use_github()&lt;/code> connects an existing local repo to GitHub &lt;em>post hoc&lt;/em>. It is more robust and, when it fails, it does so early and with actionable messages about what you can fix.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>A new experimental family of &lt;code>pr_*()&lt;/code> functions makes GitHub pull requests (PR) easier, both for maintainers and contributors. We&amp;rsquo;re quite excited about these, as we handle an extraordinary number of pull requests across the tidyverse, r-lib, and tidymodels organizations. For maintainers, &lt;code>pr_fetch(&amp;lt;PR_NUMBER&amp;gt;)&lt;/code> allows you to check out a PR locally, explore it, check/test it, or even fix or extend it. &lt;code>pr_push()&lt;/code>
+&lt;a href="https://help.github.com/en/articles/committing-changes-to-a-pull-request-branch-created-from-a-fork" target="_blank" rel="noopener">pushes &lt;em>back into the actual PR&lt;/em>&lt;/a>, where it can now be merged or receive more work from the original author. For contributors, &lt;code>pr_init()&lt;/code> and &lt;code>pr_push()&lt;/code> help to initiate a PR. In all cases, &lt;code>pr_finish()&lt;/code> does the necessary local clean up when the PR is no longer in play.&lt;/p>
+&lt;h2 id="extending-usethis">Extending usethis
+&lt;a href="#extending-usethis">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;ve made usethis easier for others to wrap and extend:&lt;/p>
+&lt;ul>
+&lt;li>usethis is very chatty and this is now under the control of the option &lt;code>usethis.quiet&lt;/code>. This makes it easier for a wrapper to muffle usethis&amp;rsquo;s messaging or to temporarily toggle it with functions like &lt;code>withr::with_options()&lt;/code> or &lt;code>withr::local_options()&lt;/code>.&lt;/li>
+&lt;li>Project-related helpers &lt;code>proj_path()&lt;/code>, &lt;code>with_project()&lt;/code>, &lt;code>local_project()&lt;/code>, and &lt;code>proj_activate()&lt;/code> are exported.&lt;/li>
+&lt;li>File editing helpers &lt;code>edit_file()&lt;/code>, &lt;code>write_over()&lt;/code>, and &lt;code>write_union()&lt;/code> are exported.&lt;/li>
+&lt;li>&lt;code>use_template()&lt;/code> can use a template file stored in any package, not just usethis.&lt;/li>
+&lt;/ul>
+&lt;p>We&amp;rsquo;ve also exported the &lt;code>ui_*()&lt;/code> functions that implement usethis&amp;rsquo;s messaging, conditions, and interactive menus. This is in response to repeated community requests. These functions benefit greatly from the
+&lt;a href="https://glue.tidyverse.org" target="_blank" rel="noopener">glue&lt;/a> and
+&lt;a href="https://github.com/r-lib/crayon#readme" target="_blank" rel="noopener">crayon&lt;/a> packages to provide nifty features like string interpolation and formatting.&lt;/p>
+&lt;p>There are inline styles (&lt;code>ui_field()&lt;/code>, &lt;code>ui_value()&lt;/code>, &lt;code>ui_path()&lt;/code>, &lt;code>ui_code()&lt;/code>), which can be used within the block styles (&lt;code>ui_line()&lt;/code>, &lt;code>ui_done()&lt;/code>, &lt;code>ui_todo()&lt;/code>, &lt;code>ui_oops()&lt;/code>, &lt;code>ui_info()&lt;/code>). Some example usage (flanking newlines added for readability):&lt;/p>
+&lt;p>&lt;img src="https://www.tidyverse.org/images/usethis-1.5.0/ui-done-todo-oops-info.png"/>&lt;/p>
+&lt;p>&lt;code>ui_stop()&lt;/code> and &lt;code>ui_warn()&lt;/code> raise the associated condition, but with the same features for the message:&lt;/p>
+&lt;p>&lt;img src="https://www.tidyverse.org/images/usethis-1.5.0/ui-stop-warn.png"/>&lt;/p>
+&lt;p>Finally, &lt;code>ui_yeah()&lt;/code> and &lt;code>ui_nope()&lt;/code> facilitate control flow based on user input:&lt;/p>
+&lt;p>&lt;img src="https://www.tidyverse.org/images/usethis-1.5.0/ui-nope-yeah.png"/>&lt;/p>
+&lt;p>These functions may ultimately move to a more appropriate home, so we can use them to create a more consistent UI across a broad set of tidyverse, r-lib, and tidymodels packages.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;!-- use_tidy_thanks(from = "v1.3.0", to = "v1.5.0") -->
+&lt;p>We give a tremendous thanks to the 108 useRs who contributed to the v1.4.0 and v1.5.0 releases, especially those who joined us at the inaugural
+&lt;a href="https://www.tidyverse.org/articles/2018/11/tidyverse-developer-day-2019/" target="_blank" rel="noopener">Tidyverse Developer Day&lt;/a> following
+&lt;a href="https://www.rstudio.com/conference/" target="_blank" rel="noopener">rstudio::conf 2019&lt;/a>:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/Aariq" target="_blank" rel="noopener">@Aariq&lt;/a>,
+&lt;a href="https://github.com/adam-gruer" target="_blank" rel="noopener">@adam-gruer&lt;/a>,
+&lt;a href="https://github.com/akgold" target="_blank" rel="noopener">@akgold&lt;/a>,
+&lt;a href="https://github.com/alandipert" target="_blank" rel="noopener">@alandipert&lt;/a>,
+&lt;a href="https://github.com/alexpghayes" target="_blank" rel="noopener">@alexpghayes&lt;/a>,
+&lt;a href="https://github.com/andrie" target="_blank" rel="noopener">@andrie&lt;/a>,
+&lt;a href="https://github.com/angela-li" target="_blank" rel="noopener">@angela-li&lt;/a>,
+&lt;a href="https://github.com/apreshill" target="_blank" rel="noopener">@apreshill&lt;/a>,
+&lt;a href="https://github.com/atheriel" target="_blank" rel="noopener">@atheriel&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/beanumber" target="_blank" rel="noopener">@beanumber&lt;/a>,
+&lt;a href="https://github.com/behrman" target="_blank" rel="noopener">@behrman&lt;/a>,
+&lt;a href="https://github.com/benmarwick" target="_blank" rel="noopener">@benmarwick&lt;/a>,
+&lt;a href="https://github.com/bestdan" target="_blank" rel="noopener">@bestdan&lt;/a>,
+&lt;a href="https://github.com/bfgray3" target="_blank" rel="noopener">@bfgray3&lt;/a>,
+&lt;a href="https://github.com/boshek" target="_blank" rel="noopener">@boshek&lt;/a>,
+&lt;a href="https://github.com/cboettig" target="_blank" rel="noopener">@cboettig&lt;/a>,
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/chris-billingham" target="_blank" rel="noopener">@chris-billingham&lt;/a>,
+&lt;a href="https://github.com/Chris-Engelhardt" target="_blank" rel="noopener">@Chris-Engelhardt&lt;/a>,
+&lt;a href="https://github.com/chris-prener" target="_blank" rel="noopener">@chris-prener&lt;/a>,
+&lt;a href="https://github.com/coatless" target="_blank" rel="noopener">@coatless&lt;/a>,
+&lt;a href="https://github.com/colearendt" target="_blank" rel="noopener">@colearendt&lt;/a>,
+&lt;a href="https://github.com/cwickham" target="_blank" rel="noopener">@cwickham&lt;/a>,
+&lt;a href="https://github.com/dirkschumacher" target="_blank" rel="noopener">@dirkschumacher&lt;/a>,
+&lt;a href="https://github.com/dpprdan" target="_blank" rel="noopener">@dpprdan&lt;/a>,
+&lt;a href="https://github.com/dragosmg" target="_blank" rel="noopener">@dragosmg&lt;/a>,
+&lt;a href="https://github.com/duckmayr" target="_blank" rel="noopener">@duckmayr&lt;/a>,
+&lt;a href="https://github.com/echasnovski" target="_blank" rel="noopener">@echasnovski&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/erictleung" target="_blank" rel="noopener">@erictleung&lt;/a>,
+&lt;a href="https://github.com/etiennebr" target="_blank" rel="noopener">@etiennebr&lt;/a>,
+&lt;a href="https://github.com/Fazendaaa" target="_blank" rel="noopener">@Fazendaaa&lt;/a>,
+&lt;a href="https://github.com/friendly" target="_blank" rel="noopener">@friendly&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">@gaborcsardi&lt;/a>,
+&lt;a href="https://github.com/gadenbuie" target="_blank" rel="noopener">@gadenbuie&lt;/a>,
+&lt;a href="https://github.com/GregorDeCillia" target="_blank" rel="noopener">@GregorDeCillia&lt;/a>,
+&lt;a href="https://github.com/GShotwell" target="_blank" rel="noopener">@GShotwell&lt;/a>,
+&lt;a href="https://github.com/gvelasq" target="_blank" rel="noopener">@gvelasq&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hafen" target="_blank" rel="noopener">@hafen&lt;/a>,
+&lt;a href="https://github.com/HanjoStudy" target="_blank" rel="noopener">@HanjoStudy&lt;/a>,
+&lt;a href="https://github.com/haozhu233" target="_blank" rel="noopener">@haozhu233&lt;/a>,
+&lt;a href="https://github.com/heavywatal" target="_blank" rel="noopener">@heavywatal&lt;/a>,
+&lt;a href="https://github.com/ijlyttle" target="_blank" rel="noopener">@ijlyttle&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/jackwasey" target="_blank" rel="noopener">@jackwasey&lt;/a>,
+&lt;a href="https://github.com/Jadamso" target="_blank" rel="noopener">@Jadamso&lt;/a>,
+&lt;a href="https://github.com/jayhesselberth" target="_blank" rel="noopener">@jayhesselberth&lt;/a>,
+&lt;a href="https://github.com/JBGruber" target="_blank" rel="noopener">@JBGruber&lt;/a>,
+&lt;a href="https://github.com/jdblischak" target="_blank" rel="noopener">@jdblischak&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jjchern" target="_blank" rel="noopener">@jjchern&lt;/a>,
+&lt;a href="https://github.com/jmgirard" target="_blank" rel="noopener">@jmgirard&lt;/a>,
+&lt;a href="https://github.com/jonocarroll" target="_blank" rel="noopener">@jonocarroll&lt;/a>,
+&lt;a href="https://github.com/jonthegeek" target="_blank" rel="noopener">@jonthegeek&lt;/a>,
+&lt;a href="https://github.com/jooyoungseo" target="_blank" rel="noopener">@jooyoungseo&lt;/a>,
+&lt;a href="https://github.com/jsta" target="_blank" rel="noopener">@jsta&lt;/a>,
+&lt;a href="https://github.com/jtr13" target="_blank" rel="noopener">@jtr13&lt;/a>,
+&lt;a href="https://github.com/karawoo" target="_blank" rel="noopener">@karawoo&lt;/a>,
+&lt;a href="https://github.com/kevinushey" target="_blank" rel="noopener">@kevinushey&lt;/a>,
+&lt;a href="https://github.com/khailper" target="_blank" rel="noopener">@khailper&lt;/a>,
+&lt;a href="https://github.com/kiwiroy" target="_blank" rel="noopener">@kiwiroy&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/lbusett" target="_blank" rel="noopener">@lbusett&lt;/a>,
+&lt;a href="https://github.com/leonawicz" target="_blank" rel="noopener">@leonawicz&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/llrs" target="_blank" rel="noopener">@llrs&lt;/a>,
+&lt;a href="https://github.com/lorenzwalthert" target="_blank" rel="noopener">@lorenzwalthert&lt;/a>,
+&lt;a href="https://github.com/lwjohnst86" target="_blank" rel="noopener">@lwjohnst86&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/maislind" target="_blank" rel="noopener">@maislind&lt;/a>,
+&lt;a href="https://github.com/markdly" target="_blank" rel="noopener">@markdly&lt;/a>,
+&lt;a href="https://github.com/martinjhnhadley" target="_blank" rel="noopener">@martinjhnhadley&lt;/a>,
+&lt;a href="https://github.com/MatthieuStigler" target="_blank" rel="noopener">@MatthieuStigler&lt;/a>,
+&lt;a href="https://github.com/maurolepore" target="_blank" rel="noopener">@maurolepore&lt;/a>,
+&lt;a href="https://github.com/maxheld83" target="_blank" rel="noopener">@maxheld83&lt;/a>,
+&lt;a href="https://github.com/mdlincoln" target="_blank" rel="noopener">@mdlincoln&lt;/a>,
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>,
+&lt;a href="https://github.com/MishaCivey" target="_blank" rel="noopener">@MishaCivey&lt;/a>,
+&lt;a href="https://github.com/mkearney" target="_blank" rel="noopener">@mkearney&lt;/a>,
+&lt;a href="https://github.com/move[bot]" target="_blank" rel="noopener">@move[bot]&lt;/a>,
+&lt;a href="https://github.com/muschellij2" target="_blank" rel="noopener">@muschellij2&lt;/a>,
+&lt;a href="https://github.com/nbrgraphs" target="_blank" rel="noopener">@nbrgraphs&lt;/a>,
+&lt;a href="https://github.com/nijibabulu" target="_blank" rel="noopener">@nijibabulu&lt;/a>,
+&lt;a href="https://github.com/njtierney" target="_blank" rel="noopener">@njtierney&lt;/a>,
+&lt;a href="https://github.com/noamross" target="_blank" rel="noopener">@noamross&lt;/a>,
+&lt;a href="https://github.com/overmar" target="_blank" rel="noopener">@overmar&lt;/a>,
+&lt;a href="https://github.com/pat-s" target="_blank" rel="noopener">@pat-s&lt;/a>,
+&lt;a href="https://github.com/petermeissner" target="_blank" rel="noopener">@petermeissner&lt;/a>,
+&lt;a href="https://github.com/romainfrancois" target="_blank" rel="noopener">@romainfrancois&lt;/a>,
+&lt;a href="https://github.com/rorynolan" target="_blank" rel="noopener">@rorynolan&lt;/a>,
+&lt;a href="https://github.com/ryapric" target="_blank" rel="noopener">@ryapric&lt;/a>,
+&lt;a href="https://github.com/sriharitn" target="_blank" rel="noopener">@sriharitn&lt;/a>,
+&lt;a href="https://github.com/statquant" target="_blank" rel="noopener">@statquant&lt;/a>,
+&lt;a href="https://github.com/statwonk" target="_blank" rel="noopener">@statwonk&lt;/a>,
+&lt;a href="https://github.com/strboul" target="_blank" rel="noopener">@strboul&lt;/a>,
+&lt;a href="https://github.com/stufield" target="_blank" rel="noopener">@stufield&lt;/a>,
+&lt;a href="https://github.com/tgerke" target="_blank" rel="noopener">@tgerke&lt;/a>,
+&lt;a href="https://github.com/thomasp85" target="_blank" rel="noopener">@thomasp85&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>,
+&lt;a href="https://github.com/trestletech" target="_blank" rel="noopener">@trestletech&lt;/a>,
+&lt;a href="https://github.com/VerenaHeld" target="_blank" rel="noopener">@VerenaHeld&lt;/a>,
+&lt;a href="https://github.com/VincentGuyader" target="_blank" rel="noopener">@VincentGuyader&lt;/a>,
+&lt;a href="https://github.com/vnijs" target="_blank" rel="noopener">@vnijs&lt;/a>,
+&lt;a href="https://github.com/webbedfeet" target="_blank" rel="noopener">@webbedfeet&lt;/a>, and
+&lt;a href="https://github.com/wlandau" target="_blank" rel="noopener">@wlandau&lt;/a>&lt;/p></description></item><item><title>usethis 1.3.0</title><link>https://www.tidyverse.org/blog/2018/02/usethis-1-3-0/</link><pubDate>Sun, 25 Feb 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/02/usethis-1-3-0/</guid><description>
+&lt;p>We are pleased to announce that &lt;a href="http://usethis.r-lib.org">usethis&lt;/a> 1.3.0 is now available on CRAN. usethis automates many common setup tasks for R projects, especially, but not only, for R packages. You can learn more about it at &lt;a href="http://usethis.r-lib.org" class="uri">http://usethis.r-lib.org&lt;/a>. Install it with:&lt;/p>
+&lt;pre class="r">&lt;code>install.packages(&amp;quot;usethis&amp;quot;)&lt;/code>&lt;/pre>
+&lt;p>usethis is part of the refactoring of the &lt;a href="https://github.com/r-lib/devtools#readme">devtools&lt;/a> package. We realize we need to say more about that process, so stay tuned for a dedicated post in the near future. Short version: devtools is here to stay, but it’s being separated into more manageable pieces under the hood.&lt;/p>
+&lt;p>usethis was first released in late 2017 at version 1.0.0 (&lt;a href="https://www.tidyverse.org/articles/2017/11/usethis-1.0.0/">blog post&lt;/a>). Here we highlight notable developments since then. For the full details, see the &lt;a href="https://github.com/r-lib/usethis/releases/tag/v1.3.0">release notes&lt;/a>.&lt;/p>
+&lt;div id="website-including-setup-advice" class="section level2">
+&lt;h2>Website, including setup advice&lt;/h2>
+&lt;p>usethis now has a basic website, &lt;a href="http://usethis.r-lib.org" class="uri">http://usethis.r-lib.org&lt;/a>. It includes a &lt;a href="http://usethis.r-lib.org/articles/articles/usethis-setup.html">setup article&lt;/a>, with a “to do” list of tasks that are especially rewarding for R developers who use usethis and devtools.&lt;/p>
+&lt;p>In particular, usethis can help with the Git and GitHub side of your R projects, if you do the necessary software installation and configuration. usethis even offers several functions to help with this: &lt;a href="http://usethis.r-lib.org/reference/index.html#section-configuration">configuration functions&lt;/a>.&lt;/p>
+&lt;/div>
+&lt;div id="secondary-value-of-usethis" class="section level2">
+&lt;h2>Secondary value of usethis&lt;/h2>
+&lt;p>Working on this usethis release made me reflect on what it is good for. I think of it as a “jig”, in the woodworking sense (quoting &lt;a href="https://en.wikipedia.org/wiki/Jig_(tool)">Wikipedia&lt;/a>:&lt;/p>
+&lt;blockquote>
+&lt;p>[Jigs are made] to increase productivity through consistency, to do repetitive activities or to do a job more precisely.&lt;/p>
+&lt;/blockquote>
+&lt;p>An R package is set of files with a very specific structure and the definitive document is &lt;a href="https://cran.r-project.org/doc/manuals/r-release/R-exts.html">Writing R Extensions&lt;/a> (WRE). A great many of these conventions are fairly simple and rote, yet don’t come up often enough for you to remember all the details. Examples include how to embed data in a package (see &lt;a href="http://usethis.r-lib.org/reference/use_data.html">&lt;code>use_data()&lt;/code>&lt;/a>) or how to set up a vignette (see &lt;a href="http://usethis.r-lib.org/reference/use_vignette.html">&lt;code>use_vignette()&lt;/code>&lt;/a>).&lt;/p>
+&lt;p>usethis provides a useful complement to WRE. Each function adds one specific piece of infrastructure to a package or project. Importantly, it documents this not (only) in prose, but also in executable R code. The implementation as discrete R functions allows us to make specific bits of documentation readily available, through the normal R help mechanism. If you use version control, the diff right after executing one of these functions also makes it clear what has been added or modified. Even if you don’t use the usethis functions all the time, they provide a handy reference and learning tool.&lt;/p>
+&lt;/div>
+&lt;div id="git-and-github" class="section level2">
+&lt;h2>Git and GitHub&lt;/h2>
+&lt;p>usethis has gained new functions to help with Git/GitHub and some existing functions are now more powerful.&lt;/p>
+&lt;p>&lt;a href="http://usethis.r-lib.org/reference/use_git_config.html">&lt;code>use_git_config()&lt;/code>&lt;/a> allows you to set (or view) &lt;code>user.name&lt;/code> and &lt;code>user.email&lt;/code> from within R, at either the user or project level (global or local, in Git-speak).&lt;/p>
+&lt;pre class="r">&lt;code>use_git_config(user.name = &amp;quot;Jane Doe&amp;quot;, user.email = &amp;quot;jane@example.com&amp;quot;)
+#&amp;gt; ✔ Writing to user git config file
+#&amp;gt; $user.name
+#&amp;gt; [1] &amp;quot;Jane Doe&amp;quot;
+#&amp;gt;
+#&amp;gt; $user.email
+#&amp;gt; [1] &amp;quot;jane@example.com&amp;quot;&lt;/code>&lt;/pre>
+&lt;p>&lt;a href="http://usethis.r-lib.org/reference/browse_github_pat.html">&lt;code>browse_github_pat()&lt;/code>&lt;/a> takes you to a pre-filled web form to generate a GitHub personal access token (PAT). You are instructed how to store this as an environment variable, which usethis can then use downstream to, e.g., create new GitHub repositories on your behalf.&lt;/p>
+&lt;p>&lt;a href="http://usethis.r-lib.org/reference/create_from_github.html">&lt;code>create_from_github()&lt;/code>&lt;/a> is not new, but is newly capable of both the &lt;a href="https://help.github.com/articles/cloning-a-repository/">“clone”&lt;/a> or &lt;a href="https://help.github.com/articles/fork-a-repo/">“fork and clone”&lt;/a> workflows, with either the https or ssh protocols. It gains optional arguments for direct provision of the PAT, Git credentials, and GitHub host. usethis can now facilitate all the major workflows:&lt;/p>
+&lt;ul>
+&lt;li>GitHub first, local project/repo last: &lt;a href="http://usethis.r-lib.org/reference/create_from_github.html">&lt;code>create_from_github()&lt;/code>&lt;/a> does this, with and without forking. In the case of a fork, both the &lt;code>origin&lt;/code> and &lt;code>upstream&lt;/code> remotes are configured, so you are ready to stay in sync with the upstream repo.&lt;/li>
+&lt;li>Local project/repo first, GitHub last: &lt;a href="http://usethis.r-lib.org/reference/use_github.html">&lt;code>use_github()&lt;/code>&lt;/a> does this.&lt;/li>
+&lt;/ul>
+&lt;/div>
+&lt;div id="distribution-of-course-materials" class="section level2">
+&lt;h2>Distribution of course materials&lt;/h2>
+&lt;p>Many courses and workshops kick-off with the participants downloading a set of files from the instructor, such as slides or code examples. We have found this to be a reliable source of aggravation, due to the diversity of the learners’ file system knowledge and habits. You cannot assume that everyone will quickly download an entire set of files, and only those files, to a well-named folder, that they can find in their file browser. &lt;a href="http://usethis.r-lib.org/reference/use_course.html">&lt;code>use_course()&lt;/code>&lt;/a> is a targeted solution to this problem, when time is of the essence.&lt;/p>
+&lt;p>&lt;a href="http://usethis.r-lib.org/reference/use_course.html">&lt;code>use_course()&lt;/code>&lt;/a> accepts a link and interactively obtains user’s permission to download a ZIP archive and unpack it to a deliberately named folder on user’s desktop. If an RStudio Project file is found, the new Project is launched and, otherwise, the folder is opened in the file manager, e.g. Finder or File Explorer.&lt;/p>
+&lt;p>Here’s an example where the bit.ly shortlink points to the usethis source on GitHub.&lt;/p>
+&lt;pre class="r">&lt;code>usethis::use_course(&amp;quot;bit.ly/usethis-shortlink-example&amp;quot;)
+#&amp;gt; ✔ Downloading ZIP file to &amp;#39;/Users/jenny/Desktop/r-lib-usethis-v1.2.0-93-g7d1c255.zip&amp;#39;
+#&amp;gt; ✔ Unpacking ZIP file into &amp;#39;/Users/jenny/Desktop/r-lib-usethis-7d1c255/&amp;#39; (272 files extracted)&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="community-specific-conventions" class="section level2">
+&lt;h2>Community-specific conventions&lt;/h2>
+&lt;p>The development conventions for &lt;a href="https://www.tidyverse.org/packages/">tidyverse packages&lt;/a> are gradually being codified into a set of &lt;a href="http://usethis.r-lib.org/reference/tidyverse.html">&lt;code>use_tidy_*()&lt;/code>&lt;/a> helper functions. Some of these functions are directly useful to other developers, such as &lt;code>use_tidy_ci()&lt;/code>, whereas others draw on templates very specific to the &lt;a href="https://github.com/tidyverse/">tidyverse organization&lt;/a>, such as &lt;code>use_tidy_support()&lt;/code>.&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>use_tidy_style()&lt;/code> is a new function that uses the &lt;a href="http://styler.r-lib.org">styler package&lt;/a> to restyle code according to the &lt;a href="http://style.tidyverse.org">tidyverse style guide&lt;/a>. It’s an example of a function that is generally useful.&lt;/li>
+&lt;li>&lt;code>use_tidy_github()&lt;/code> is a new function that adds several standard files, such as contribution guidelines and an issue template, to make a project &lt;a href="https://help.github.com/articles/helping-people-contribute-to-your-project/">more transparent to outside contributors&lt;/a>. These files include hyperlinks that are specific to the tidyverse, so other developers will need to edit the resulting files to reflect their project’s context.&lt;/li>
+&lt;/ul>
+&lt;p>The community has contributed new &lt;a href="http://usethis.r-lib.org/reference/badges.html">badging functions&lt;/a>, such as &lt;code>use_bioc_badge()&lt;/code> for the build status of BioConductor packages and &lt;code>use_binder_badge()&lt;/code> for &lt;a href="https://mybinder.org">binder&lt;/a> projects. The tidyverse team is starting to use &lt;code>use_lifecycle_badge()&lt;/code> to indicate the &lt;a href="https://www.tidyverse.org/lifecycle/">developmental stage&lt;/a> of a package.&lt;/p>
+&lt;/div>
+&lt;div id="acknowledgements" class="section level2">
+&lt;h2>Acknowledgements&lt;/h2>
+&lt;p>A special salute to Maelle Salmon for encouraging the &lt;a href="http://usethis.r-lib.org/articles/articles/usethis-setup.html">setup article&lt;/a>, Ian Lyttle for regularly sharing his Windows pain, Carl Boettiger for exploring every possible GitHub scenario, Stefan Widgren for his stewardship of &lt;a href="https://github.com/ropensci/git2r">git2r&lt;/a>, Jared Lander for commiseration re: workshops, and Jeroen Ooms for the clever pre-filled webform for GitHub PATs.&lt;/p>
+&lt;p>A big thanks goes out to the 53 users who contributed issues and pull requests since usethis became a separate package:
+&lt;a href="https://github.com/adomingues">@adomingues&lt;/a>, &lt;a href="https://github.com/alexholcombe">@alexholcombe&lt;/a>, &lt;a href="https://github.com/batpigandme">@batpigandme&lt;/a>, &lt;a href="https://github.com/benmarwick">@benmarwick&lt;/a>, &lt;a href="https://github.com/bhaskarvk">@bhaskarvk&lt;/a>, &lt;a href="https://github.com/cboettig">@cboettig&lt;/a>, &lt;a href="https://github.com/colearendt">@colearendt&lt;/a>, &lt;a href="https://github.com/CorradoLanera">@CorradoLanera&lt;/a>, &lt;a href="https://github.com/dchiu911">@dchiu911&lt;/a>, &lt;a href="https://github.com/dhimmel">@dhimmel&lt;/a>, &lt;a href="https://github.com/dougmet">@dougmet&lt;/a>, &lt;a href="https://github.com/dpastoor">@dpastoor&lt;/a>, &lt;a href="https://github.com/eheinzen">@eheinzen&lt;/a>, &lt;a href="https://github.com/EmilHvitfeldt">@EmilHvitfeldt&lt;/a>, &lt;a href="https://github.com/gaborcsardi">@gaborcsardi&lt;/a>, &lt;a href="https://github.com/gvegayon">@gvegayon&lt;/a>, &lt;a href="https://github.com/hadley">@hadley&lt;/a>, &lt;a href="https://github.com/ijlyttle">@ijlyttle&lt;/a>, &lt;a href="https://github.com/jasonserviss">@jasonserviss&lt;/a>, &lt;a href="https://github.com/jdblischak">@jdblischak&lt;/a>, &lt;a href="https://github.com/jennybc">@jennybc&lt;/a>, &lt;a href="https://github.com/jeroen">@jeroen&lt;/a>, &lt;a href="https://github.com/jimhester">@jimhester&lt;/a>, &lt;a href="https://github.com/jjchern">@jjchern&lt;/a>, &lt;a href="https://github.com/jonocarroll">@jonocarroll&lt;/a>, &lt;a href="https://github.com/jrosen48">@jrosen48&lt;/a>, &lt;a href="https://github.com/jsta">@jsta&lt;/a>, &lt;a href="https://github.com/katrinleinweber">@katrinleinweber&lt;/a>, &lt;a href="https://github.com/kevinushey">@kevinushey&lt;/a>, &lt;a href="https://github.com/krlmlr">@krlmlr&lt;/a>, &lt;a href="https://github.com/lindbrook">@lindbrook&lt;/a>, &lt;a href="https://github.com/LiNk-NY">@LiNk-NY&lt;/a>, &lt;a href="https://github.com/lionel-">@lionel-&lt;/a>, &lt;a href="https://github.com/llrs">@llrs&lt;/a>, &lt;a href="https://github.com/lorenzwalthert">@lorenzwalthert&lt;/a>, &lt;a href="https://github.com/maelle">@maelle&lt;/a>, &lt;a href="https://github.com/malcolmbarrett">@malcolmbarrett&lt;/a>, &lt;a href="https://github.com/martinjhnhadley">@martinjhnhadley&lt;/a>, &lt;a href="https://github.com/maurolepore">@maurolepore&lt;/a>, &lt;a href="https://github.com/mixtrak">@mixtrak&lt;/a>, &lt;a href="https://github.com/muschellij2">@muschellij2&lt;/a>, &lt;a href="https://github.com/nbenn">@nbenn&lt;/a>, &lt;a href="https://github.com/PeteHaitch">@PeteHaitch&lt;/a>, &lt;a href="https://github.com/r-pkgs-bot">@r-pkgs-bot&lt;/a>, &lt;a href="https://github.com/rdrivers">@rdrivers&lt;/a>, &lt;a href="https://github.com/richierocks">@richierocks&lt;/a>, &lt;a href="https://github.com/s-fleck">@s-fleck&lt;/a>, &lt;a href="https://github.com/seankross">@seankross&lt;/a>, &lt;a href="https://github.com/tjmahr">@tjmahr&lt;/a>, &lt;a href="https://github.com/topepo">@topepo&lt;/a>, &lt;a href="https://github.com/uribo">@uribo&lt;/a>, &lt;a href="https://github.com/vnijs">@vnijs&lt;/a>, and &lt;a href="https://github.com/webbedfeet">@webbedfeet&lt;/a>.&lt;/p>
+&lt;/div></description></item><item><title>usethis 1.0.0 (and 1.1.0)</title><link>https://www.tidyverse.org/blog/2017/11/usethis-1.0.0/</link><pubDate>Tue, 28 Nov 2017 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2017/11/usethis-1.0.0/</guid><description>
+&lt;p>We’re pleased to announce the release of &lt;a href="https://github.com/r-lib/usethis/releases/tag/v1.0.0">usethis 1.0.0&lt;/a> on CRAN (now &lt;a href="https://github.com/r-lib/usethis/releases/tag/v1.1.0">1.1.0&lt;/a>, following some small improvements discovered after release). usethis is designed to smooth package-development workflows by automating everything that can be automated. Many of the functions were previously part of devtools, but have been extracted out in their own package to give them more room to grow.&lt;/p>
+&lt;pre class="r">&lt;code>install.packages(&amp;quot;usethis&amp;quot;)&lt;/code>&lt;/pre>
+&lt;div id="r-packages" class="section level2">
+&lt;h2>R packages&lt;/h2>
+&lt;p>Get started by loading usethis and running &lt;code>create_package()&lt;/code>. For this blog post, I’m going to create a package in a temporary directory, but normally you’d create it somewhere safe!&lt;/p>
+&lt;pre class="r">&lt;code>library(usethis)
+# Create a new package -------------------------------------------------
+tmp &amp;lt;- file.path(tempdir(), &amp;quot;mypkg&amp;quot;)
+create_package(tmp)
+#&amp;gt; Changing active project to mypkg
+#&amp;gt; ✔ Creating &amp;#39;R/&amp;#39;
+#&amp;gt; ✔ Creating &amp;#39;man/&amp;#39;
+#&amp;gt; ✔ Writing &amp;#39;DESCRIPTION&amp;#39;
+#&amp;gt; ✔ Writing &amp;#39;NAMESPACE&amp;#39;&lt;/code>&lt;/pre>
+&lt;p>If you’re using RStudio, this will automatically open a new RStudio session. Generally, usethis is tightly integrated with RStudio but should work with other editors too. The fallbacks for non-RStudio editors aren’t as well tested, so please &lt;a href="https://github.com/r-lib/usethis/issues">let us know&lt;/a> if you encounter problems.&lt;/p>
+&lt;p>(If you find yourself using usethis a lot and don’t want to load it everytime, run &lt;code>use_usethis()&lt;/code> and follow the instructions.)&lt;/p>
+&lt;p>Notice that the output includes “Changing active project to mypkg”. usethis has the concept of an “active project” which is where all usethis functions will have effect. It is usually the working directory, but is changed automatically by the &lt;code>create_&lt;/code> functions, and can be changed manually with &lt;code>proj_set()&lt;/code>.&lt;/p>
+&lt;p>If you don’t want a package, use &lt;code>create_project()&lt;/code> to create a minimal &lt;a href="https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects">RStudio project&lt;/a>. usethis is gradually evolving towards supporting more general R “projects” but this is still a work in progress. Please &lt;a href="https://github.com/r-lib/usethis/issues">let us know&lt;/a> if you have ideas or discover a problem!&lt;/p>
+&lt;div id="code-and-tests" class="section level3">
+&lt;h3>Code and tests&lt;/h3>
+&lt;p>&lt;code>use_r()&lt;/code> will create/edit a script file in &lt;code>R/&lt;/code>:&lt;/p>
+&lt;pre class="r">&lt;code>use_r(&amp;quot;foo&amp;quot;)
+#&amp;gt; ● Edit &amp;#39;R/foo.R&amp;#39;&lt;/code>&lt;/pre>
+&lt;p>&lt;code>use_test(&amp;quot;foo&amp;quot;)&lt;/code> will set up all the infrastructure you need for &lt;a href="http://r-pkgs.had.co.nz/tests.html">unit testing&lt;/a>, and create/edit a test file in &lt;code>tests/teststhat/&lt;/code>:&lt;/p>
+&lt;pre class="r">&lt;code>use_test(&amp;quot;foo&amp;quot;)
+#&amp;gt; ✔ Adding &amp;#39;testthat&amp;#39; to Suggests field in DESCRIPTION
+#&amp;gt; ✔ Creating &amp;#39;tests/testthat/&amp;#39;
+#&amp;gt; ✔ Writing &amp;#39;tests/testthat.R&amp;#39;
+#&amp;gt; ✔ Writing &amp;#39;tests/testthat/test-foo.R&amp;#39;
+#&amp;gt; ● Edit &amp;#39;tests/testthat/test-foo.R&amp;#39;&lt;/code>&lt;/pre>
+&lt;p>We recommend that you have paired test and source files. If you use RStudio, you can use &lt;code>use_test()&lt;/code> to create/edit the test file corresponding to the open source file, and &lt;code>use_r()&lt;/code> to create/edit to the source file corresponding to the open test file.&lt;/p>
+&lt;/div>
+&lt;div id="dependencies" class="section level3">
+&lt;h3>Dependencies&lt;/h3>
+&lt;p>To declare that your project has some dependencies, use &lt;code>use_package()&lt;/code>:&lt;/p>
+&lt;pre class="r">&lt;code>use_package(&amp;quot;ggplot2&amp;quot;)
+#&amp;gt; ✔ Adding &amp;#39;ggplot2&amp;#39; to Imports field in DESCRIPTION
+#&amp;gt; ● Refer to functions with `ggplot2::fun()`
+use_package(&amp;quot;dplyr&amp;quot;)
+#&amp;gt; ✔ Adding &amp;#39;dplyr&amp;#39; to Imports field in DESCRIPTION
+#&amp;gt; ● Refer to functions with `dplyr::fun()`&lt;/code>&lt;/pre>
+&lt;p>Or if you want a dependency on a development version of a package, use &lt;code>use_dev_package()&lt;/code>.&lt;/p>
+&lt;/div>
+&lt;div id="documentation" class="section level3">
+&lt;h3>Documentation&lt;/h3>
+&lt;p>Take advantage of these helpers to document your package:&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>&lt;code>use_roxygen_md()&lt;/code> sets up &lt;a href="http://r-pkgs.had.co.nz/man.html">roxygen2&lt;/a> and enables markdown mode so you can use markdown in your roxygen2 comment blocks.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;code>use_package_doc()&lt;/code> creates a skeleton documentation file for the complete package, taking the advantage of the latest roxygen2 features to minimise duplication between the &lt;code>DESCRIPTION&lt;/code> and the documentation.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;code>use_readme_rmd()&lt;/code> creates a &lt;a href="http://r-pkgs.had.co.nz/release.html#important-files">&lt;code>README.Rmd&lt;/code>&lt;/a>: use this to describe what your package does and why people should care about it.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;code>use_news_md()&lt;/code> creates a basic &lt;code>NEWS.md&lt;/code> for you to record changes.&lt;/p>&lt;/li>
+&lt;li>&lt;p>&lt;code>use_vignette(&amp;quot;vignette-name&amp;quot;)&lt;/code> sets you up for success by configuring &lt;code>DESCRIPTION&lt;/code> and creating a &lt;code>.Rmd&lt;/code> template in &lt;code>vignettes/&lt;/code>&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;/div>
+&lt;div id="sharing" class="section level3">
+&lt;h3>Sharing&lt;/h3>
+&lt;p>If you want to share your code with others, it’s good practice to make the licensing clear. usethis provides helpers for the four most common open source licenses:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://choosealicense.com/licenses/mit">&lt;code>use_mit_license()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://choosealicense.com/licenses/apache-2.0/">&lt;code>use_apl2_license()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://choosealicense.com/licenses/gpl-3.0/">&lt;code>use_gpl3_license()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://creativecommons.org/publicdomain/zero/1.0/">&lt;code>use_cc0_license()&lt;/code>&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>These set the &lt;code>License&lt;/code> field in the &lt;code>DESCRIPTION&lt;/code> and include the license text in &lt;code>LICENSE.md&lt;/code>, which is then added to &lt;code>.Rbuildignore&lt;/code>. This allows you to follow licensing best practices while adhering to CRAN’s requirements.&lt;/p>
+&lt;p>For this package, I’ll use an MIT license which is simple and permissive:&lt;/p>
+&lt;pre class="r">&lt;code>use_mit_license(&amp;quot;Hadley Wickham&amp;quot;)
+#&amp;gt; ✔ Setting License field in DESCRIPTION to &amp;#39;MIT + file LICENSE&amp;#39;
+#&amp;gt; ✔ Writing &amp;#39;LICENSE.md&amp;#39;
+#&amp;gt; ✔ Adding &amp;#39;^LICENSE\\.md$&amp;#39; to &amp;#39;.Rbuildignore&amp;#39;
+#&amp;gt; ✔ Writing &amp;#39;LICENSE&amp;#39;&lt;/code>&lt;/pre>
+&lt;p>It’s also easy to activate git:&lt;/p>
+&lt;pre class="r">&lt;code>use_git()
+#&amp;gt; ✔ Initialising Git repo
+#&amp;gt; ✔ Adding &amp;#39;.Rhistory&amp;#39;, &amp;#39;.RData&amp;#39;, &amp;#39;.Rproj.user&amp;#39; to &amp;#39;./.gitignore&amp;#39;
+#&amp;gt; ✔ Adding files and committing&lt;/code>&lt;/pre>
+&lt;p>And publish to GitHub (I’m not going to run this code here!)&lt;/p>
+&lt;pre class="r">&lt;code>use_github()&lt;/code>&lt;/pre>
+&lt;p>(For this to work, you’ll need to set a &lt;code>GITHUB_PAT&lt;/code> environment variable in your &lt;code>~/.Renviron&lt;/code>. Follow &lt;a href="http://happygitwithr.com/github-pat.html#step-by-step">Jenny Bryan’s instructions&lt;/a>, and use &lt;code>edit_r_environ()&lt;/code> to easily access the right file for editing)&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;div id="browsing" class="section level2">
+&lt;h2>Browsing&lt;/h2>
+&lt;p>You can also use usethis to easily create and/or edit important configuration files:&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>R: &lt;code>edit_r_profile()&lt;/code> (R code run on start up), &lt;code>edit_r_environ()&lt;/code> (environment variables), and &lt;code>edit_r_makevars()&lt;/code> (default configuration for compiled code).&lt;/p>&lt;/li>
+&lt;li>&lt;p>Git: &lt;code>edit_git_config()&lt;/code> and &lt;code>edit_git_ignore()&lt;/code>.&lt;/p>&lt;/li>
+&lt;li>&lt;p>RStudio: &lt;code>edit_rstudio_snippets(type)&lt;/code> (edit language specific &lt;a href="https://support.rstudio.com/hc/en-us/articles/204463668-Code-Snippets">snippets&lt;/a>).&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;p>Most functions have a &lt;code>scope&lt;/code> argument which can be either “user” or “project”. This lets you control the scope of your changes: either to the current project, or for all projects for the current user (the default).&lt;/p>
+&lt;p>Another set of functions lets you quickly jump to important websites:&lt;/p>
+&lt;ul>
+&lt;li>CRAN: &lt;code>browse_cran()&lt;/code>&lt;/li>
+&lt;li>GitHub: &lt;code>browse_github()&lt;/code>, &lt;code>browse_github_issues()&lt;/code>, &lt;code>browse_github_pulls()&lt;/code>&lt;/li>
+&lt;li>Travis &lt;code>browse_travis()&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>These functions take a package name as the first argument; if not supplied they’ll use the current project.&lt;/p>
+&lt;/div></description></item></channel></rss>

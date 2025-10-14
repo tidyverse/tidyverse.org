@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>postprocessing | Tidyverse</title><link>https://www.tidyverse.org/tags/postprocessing/</link><atom:link href="https://www.tidyverse.org/tags/postprocessing/index.xml" rel="self" type="application/rss+xml"/><description>postprocessing</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 08 Oct 2024 00:00:00 +0000</lastBuildDate><item><title>Postprocessing is coming to tidymodels</title><link>https://www.tidyverse.org/blog/2024/10/postprocessing-preview/</link><pubDate>Tue, 08 Oct 2024 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2024/10/postprocessing-preview/</guid><description>&lt;p>We&amp;rsquo;re bristling with elation to share about a set of upcoming features for postprocessing with tidymodels. Postprocessors refine predictions outputted from machine learning models to improve predictive performance or better satisfy distributional limitations. The developmental versions of many tidymodels core packages include changes to support postprocessors, and we&amp;rsquo;re ready to share about our work and hear the community&amp;rsquo;s thoughts on our progress so far.&lt;/p>
+&lt;p>Postprocessing support with tidymodels hasn&amp;rsquo;t yet made it to CRAN, but you can install the needed versions of tidymodels packages with the following code.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>pak&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://pak.r-lib.org/reference/pak.html'>pak&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/paste.html'>paste0&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>"tidymodels/"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"tune"&lt;/span>, &lt;span class='s'>"workflows"&lt;/span>, &lt;span class='s'>"rsample"&lt;/span>, &lt;span class='s'>"tailor"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Now, we load packages with those developmental versions installed.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://tidymodels.tidymodels.org'>tidymodels&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://github.com/tidymodels/probably'>probably&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://github.com/tidymodels/tailor'>tailor&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Existing tidymodels users might have spotted something funky already; who is this tailor character?&lt;/p>
+&lt;h2 id="meet-tailor">Meet tailor👋
+&lt;a href="#meet-tailor">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The tailor package introduces tailor objects, which compose iterative adjustments to model predictions. tailor is to postprocessing as recipes is to preprocessing; applying your mental model of recipes to tailor should get you a good bit of the way there.&lt;/p>
+&lt;div style="width: 140%; max-width: 140%; overflow-x: auto;">
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Tool&lt;/th>
+&lt;th>Applied to...&lt;/th>
+&lt;th>Initialize with...&lt;/th>
+&lt;th>Composes...&lt;/th>
+&lt;th>Train with...&lt;/th>
+&lt;th>Predict with...&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>recipes&lt;/td>
+&lt;td>Training data&lt;/td>
+&lt;td>&lt;code>recipe()&lt;/code>&lt;/td>
+&lt;td>&lt;code>step_*()&lt;/code>s&lt;/td>
+&lt;td>&lt;code>prep()&lt;/code>&lt;/td>
+&lt;td>&lt;code>bake()&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>tailor&lt;/td>
+&lt;td>Model predictions&lt;/td>
+&lt;td>
+&lt;a href="https://tailor.tidymodels.org/reference/tailor.html" target="_blank" rel="noopener">&lt;code>tailor()&lt;/code>&lt;/a>&lt;/td>
+&lt;td>&lt;code>adjust_*()&lt;/code>ments&lt;/td>
+&lt;td>
+&lt;a href="https://generics.r-lib.org/reference/fit.html" target="_blank" rel="noopener">&lt;code>fit()&lt;/code>&lt;/a>&lt;/td>
+&lt;td>
+&lt;a href="https://rdrr.io/r/stats/predict.html" target="_blank" rel="noopener">&lt;code>predict()&lt;/code>&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;/div>
+&lt;p>First, users can initialize a tailor object with
+&lt;a href="https://tailor.tidymodels.org/reference/tailor.html" target="_blank" rel="noopener">&lt;code>tailor()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://tailor.tidymodels.org/reference/tailor.html'>tailor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>──&lt;/span> &lt;span style='font-weight: bold;'>tailor&lt;/span> &lt;span style='color: #00BBBB;'>──────────────────────────────────────────────────────────────────────&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; A postprocessor with 0 adjustments.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Tailors compose &amp;ldquo;adjustments,&amp;rdquo; analogous to steps from the recipes package.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://tailor.tidymodels.org/reference/tailor.html'>tailor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://tailor.tidymodels.org/reference/adjust_probability_threshold.html'>adjust_probability_threshold&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>threshold &lt;span class='o'>=&lt;/span> &lt;span class='m'>.7&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>──&lt;/span> &lt;span style='font-weight: bold;'>tailor&lt;/span> &lt;span style='color: #00BBBB;'>──────────────────────────────────────────────────────────────────────&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; A binary postprocessor with 1 adjustment:&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>•&lt;/span> Adjust probability threshold to 0.7.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>As an example, we&amp;rsquo;ll apply this tailor to the &lt;code>two_class_example&lt;/code> data made available after loading tidymodels.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/head.html'>head&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>two_class_example&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; truth Class1 Class2 predicted&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 1 Class2 0.003589243 0.9964107574 Class2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 2 Class1 0.678621054 0.3213789460 Class1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 3 Class2 0.110893522 0.8891064779 Class2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 4 Class1 0.735161703 0.2648382969 Class1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 5 Class2 0.016239960 0.9837600397 Class2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 6 Class1 0.999275071 0.0007249286 Class1&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This data gives the true value of an outcome variable &lt;code>truth&lt;/code> as well as predicted probabilities (&lt;code>Class1&lt;/code> and &lt;code>Class2&lt;/code>). The hard class predictions, in &lt;code>predicted&lt;/code>, are &lt;code>&amp;quot;Class1&amp;quot;&lt;/code> if the probability assigned to &lt;code>&amp;quot;Class1&amp;quot;&lt;/code> is above .5, and &lt;code>&amp;quot;Class2&amp;quot;&lt;/code> otherwise.&lt;/p>
+&lt;p>The model predicts &lt;code>&amp;quot;Class1&amp;quot;&lt;/code> more often than it does &lt;code>&amp;quot;Class2&amp;quot;&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>two_class_example&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;span class='nf'>count&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>predicted&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; predicted n&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 1 Class1 277&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 2 Class2 223&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>If we wanted the model to predict &lt;code>&amp;quot;Class2&amp;quot;&lt;/code> more often, we could increase the probability threshold assigned to &lt;code>&amp;quot;Class1&amp;quot;&lt;/code> above which the hard class prediction will be &lt;code>&amp;quot;Class1&amp;quot;&lt;/code>. In the tailor package, this adjustment is implemented in
+&lt;a href="https://tailor.tidymodels.org/reference/adjust_probability_threshold.html" target="_blank" rel="noopener">&lt;code>adjust_probability_threshold()&lt;/code>&lt;/a>, which can be situated in a tailor object.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>tlr&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://tailor.tidymodels.org/reference/tailor.html'>tailor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://tailor.tidymodels.org/reference/adjust_probability_threshold.html'>adjust_probability_threshold&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>threshold &lt;span class='o'>=&lt;/span> &lt;span class='m'>.7&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>tlr&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>──&lt;/span> &lt;span style='font-weight: bold;'>tailor&lt;/span> &lt;span style='color: #00BBBB;'>──────────────────────────────────────────────────────────────────────&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; A binary postprocessor with 1 adjustment:&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>•&lt;/span> Adjust probability threshold to 0.7.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>tailors must be fitted before they can predict on new data. For adjustments like
+&lt;a href="https://tailor.tidymodels.org/reference/adjust_probability_threshold.html" target="_blank" rel="noopener">&lt;code>adjust_probability_threshold()&lt;/code>&lt;/a>, there&amp;rsquo;s no training that actually happens at the
+&lt;a href="https://generics.r-lib.org/reference/fit.html" target="_blank" rel="noopener">&lt;code>fit()&lt;/code>&lt;/a> step besides recording the name and type of relevant variables. For other adjustments, like numeric calibration with
+&lt;a href="https://tailor.tidymodels.org/reference/adjust_numeric_calibration.html" target="_blank" rel="noopener">&lt;code>adjust_numeric_calibration()&lt;/code>&lt;/a>, parameters are actually estimated at the
+&lt;a href="https://generics.r-lib.org/reference/fit.html" target="_blank" rel="noopener">&lt;code>fit()&lt;/code>&lt;/a> stage and separate data should be used to train the postprocessor and evaluate its performance. More on this in
+&lt;a href="#tailors-in-context">Tailors in context&lt;/a>.&lt;/p>
+&lt;p>In this case, though, we can
+&lt;a href="https://generics.r-lib.org/reference/fit.html" target="_blank" rel="noopener">&lt;code>fit()&lt;/code>&lt;/a> on the whole dataset. The resulting object is still a tailor, but is now flagged as trained.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>tlr_trained&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://generics.r-lib.org/reference/fit.html'>fit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>tlr&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>two_class_example&lt;/span>,&lt;/span>
+&lt;span> outcome &lt;span class='o'>=&lt;/span> &lt;span class='nv'>truth&lt;/span>,&lt;/span>
+&lt;span> estimate &lt;span class='o'>=&lt;/span> &lt;span class='nv'>predicted&lt;/span>,&lt;/span>
+&lt;span> probabilities &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>Class1&lt;/span>, &lt;span class='nv'>Class2&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>tlr_trained&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>──&lt;/span> &lt;span style='font-weight: bold;'>tailor&lt;/span> &lt;span style='color: #00BBBB;'>──────────────────────────────────────────────────────────────────────&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; A binary postprocessor with 1 adjustment:&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>•&lt;/span> Adjust probability threshold to 0.7. [trained]&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>When used with a model
+&lt;a href="https://workflows.tidymodels.org" target="_blank" rel="noopener">workflow&lt;/a> via
+&lt;a href="https://workflows.tidymodels.org/dev/reference/add_tailor.html" target="_blank" rel="noopener">&lt;code>add_tailor()&lt;/code>&lt;/a>, the arguments to
+&lt;a href="https://generics.r-lib.org/reference/fit.html" target="_blank" rel="noopener">&lt;code>fit()&lt;/code>&lt;/a> a tailor will be set automatically. Generally, as in recipes, we recommend that users add tailors to model workflows for training and prediction rather than using them standalone for greater ease of use and to prevent data leakage, but tailors are totally functional by themselves, too.&lt;/p>
+&lt;p>Now, when passed new data, the trained tailor will determine the outputted class based on whether the probability assigned to the level &lt;code>&amp;quot;Class1&amp;quot;&lt;/code> is above &lt;code>.7&lt;/code>, resulting in more predictions of &lt;code>&amp;quot;Class2&amp;quot;&lt;/code> than before.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/predict.html'>predict&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>tlr_trained&lt;/span>, &lt;span class='nv'>two_class_example&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;span class='nf'>count&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>predicted&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 2 × 2&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; predicted n&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> Class1 236&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> Class2 264&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Changing the probability threshold is one of many possible adjustments available in tailor.&lt;/p>
+&lt;ul>
+&lt;li>For probabilities:
+&lt;a href="https://tailor.tidymodels.org/reference/adjust_probability_calibration.html" target="_blank" rel="noopener">calibration&lt;/a>&lt;/li>
+&lt;li>For transformation of probabilities to hard class predictions:
+&lt;a href="https://tailor.tidymodels.org/reference/adjust_probability_threshold.html" target="_blank" rel="noopener">thresholds&lt;/a>,
+&lt;a href="https://tailor.tidymodels.org/reference/adjust_equivocal_zone.html" target="_blank" rel="noopener">equivocal zones&lt;/a>&lt;/li>
+&lt;li>For numeric outcomes:
+&lt;a href="https://tailor.tidymodels.org/reference/adjust_numeric_calibration.html" target="_blank" rel="noopener">calibration&lt;/a>,
+&lt;a href="https://tailor.tidymodels.org/reference/adjust_numeric_range.html" target="_blank" rel="noopener">range&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>Support for tailors is now plumbed through workflows (via
+&lt;a href="https://workflows.tidymodels.org/dev/reference/add_tailor.html" target="_blank" rel="noopener">&lt;code>add_tailor()&lt;/code>&lt;/a>) and tune, and rsample includes a set of infrastructural changes to prevent data leakage behind the scenes. That said, we haven&amp;rsquo;t yet implemented support for tuning parameters in tailors, but we plan to implement that before this functionality heads to CRAN.&lt;/p>
+&lt;h2 id="tailors-in-context">Tailors in context
+&lt;a href="#tailors-in-context">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>As an example, let&amp;rsquo;s model a study of food delivery times in minutes (i.e., the time from the initial order to receiving the food) for a single restaurant. The &lt;code>deliveries&lt;/code> data is available upon loading the tidymodels meta-package.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/data.html'>data&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>deliveries&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># split into training and testing sets&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>delivery_split&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>initial_split&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>deliveries&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>delivery_train&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>training&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>delivery_split&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>delivery_test&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>testing&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>delivery_split&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># resample the training set using 10-fold cross-validation&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>delivery_folds&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>vfold_cv&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>delivery_train&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># print out the training set&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>delivery_train&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 7,509 × 31&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; time_to_delivery hour day distance item_01 item_02 item_03 item_04 item_05&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> 21.2 16.1 Tue 3.02 0 0 0 0 0&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> 17.9 12.4 Sun 3.37 0 0 0 0 0&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> 22.4 14.2 Fri 2.59 0 0 0 0 0&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> 30.9 19.1 Sat 2.77 0 0 0 0 0&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> 30.1 16.5 Fri 2.05 0 0 0 1 0&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> 35.3 14.7 Sat 4.57 0 0 2 1 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> 13.1 11.5 Sat 2.09 0 0 0 0 0&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> 18.3 13.4 Tue 2.35 0 2 1 0 0&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> 25.2 20.5 Sat 2.43 0 0 0 1 0&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> 30.7 16.7 Fri 2.24 0 0 0 1 0&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 7,499 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 22 more variables: item_06 &amp;lt;int&amp;gt;, item_07 &amp;lt;int&amp;gt;, item_08 &amp;lt;int&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># item_09 &amp;lt;int&amp;gt;, item_10 &amp;lt;int&amp;gt;, item_11 &amp;lt;int&amp;gt;, item_12 &amp;lt;int&amp;gt;, item_13 &amp;lt;int&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># item_14 &amp;lt;int&amp;gt;, item_15 &amp;lt;int&amp;gt;, item_16 &amp;lt;int&amp;gt;, item_17 &amp;lt;int&amp;gt;, item_18 &amp;lt;int&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># item_19 &amp;lt;int&amp;gt;, item_20 &amp;lt;int&amp;gt;, item_21 &amp;lt;int&amp;gt;, item_22 &amp;lt;int&amp;gt;, item_23 &amp;lt;int&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># item_24 &amp;lt;int&amp;gt;, item_25 &amp;lt;int&amp;gt;, item_26 &amp;lt;int&amp;gt;, item_27 &amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Let&amp;rsquo;s deliberately define a regression model that has poor predicted values: a boosted tree with only three ensemble members.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>delivery_wflow&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>workflow&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>add_formula&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>time_to_delivery&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>add_model&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>boost_tree&lt;/span>&lt;span class='o'>(&lt;/span>mode &lt;span class='o'>=&lt;/span> &lt;span class='s'>"regression"&lt;/span>, trees &lt;span class='o'>=&lt;/span> &lt;span class='m'>3&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Evaluating against resamples:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>delivery_res&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>fit_resamples&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>delivery_wflow&lt;/span>, &lt;/span>
+&lt;span> &lt;span class='nv'>delivery_folds&lt;/span>, &lt;/span>
+&lt;span> control &lt;span class='o'>=&lt;/span> &lt;span class='nf'>control_resamples&lt;/span>&lt;span class='o'>(&lt;/span>save_pred &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The $R^2$ looks quite strong!&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://tune.tidymodels.org/reference/collect_predictions.html'>collect_metrics&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>delivery_res&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 2 × 6&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .metric .estimator mean n std_err .config &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> rmse standard 9.52 10 0.053&lt;span style='text-decoration: underline;'>3&lt;/span> Preprocessor1_Model1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> rsq standard 0.853 10 0.003&lt;span style='text-decoration: underline;'>57&lt;/span> Preprocessor1_Model1&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Let&amp;rsquo;s take a closer look at the predictions, though. How well are they calibrated? We can use the
+&lt;a href="https://probably.tidymodels.org/reference/cal_plot_regression.html" target="_blank" rel="noopener">&lt;code>cal_plot_regression()&lt;/code>&lt;/a> helper from the probably package to put together a quick diagnostic plot.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://tune.tidymodels.org/reference/collect_predictions.html'>collect_predictions&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>delivery_res&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://probably.tidymodels.org/reference/cal_plot_regression.html'>cal_plot_regression&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>truth &lt;span class='o'>=&lt;/span> &lt;span class='nv'>time_to_delivery&lt;/span>, estimate &lt;span class='o'>=&lt;/span> &lt;span class='nv'>.pred&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/predictions-bad-boost-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Ooof.&lt;/p>
+&lt;p>In comes tailor! Numeric calibration can help address the correlated errors here. We can add a tailor to our existing workflow to &amp;ldquo;bump up&amp;rdquo; predictions towards their true value.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>delivery_wflow_improved&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>delivery_wflow&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>add_tailor&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://tailor.tidymodels.org/reference/tailor.html'>tailor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;span class='nf'>&lt;a href='https://tailor.tidymodels.org/reference/adjust_numeric_calibration.html'>adjust_numeric_calibration&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The resampling code looks the same from here.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>delivery_res_improved&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>fit_resamples&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>delivery_wflow_improved&lt;/span>, &lt;/span>
+&lt;span> &lt;span class='nv'>delivery_folds&lt;/span>, &lt;/span>
+&lt;span> control &lt;span class='o'>=&lt;/span> &lt;span class='nf'>control_resamples&lt;/span>&lt;span class='o'>(&lt;/span>save_pred &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Checking out the same plot reveals a much better fit!&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://tune.tidymodels.org/reference/collect_predictions.html'>collect_predictions&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>delivery_res_improved&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://probably.tidymodels.org/reference/cal_plot_regression.html'>cal_plot_regression&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>truth &lt;span class='o'>=&lt;/span> &lt;span class='nv'>time_to_delivery&lt;/span>, estimate &lt;span class='o'>=&lt;/span> &lt;span class='nv'>.pred&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/predictios-better-boost-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>There&amp;rsquo;s actually some tricky data leakage prevention happening under the hood here. When you add tailors to workflow and fit them with tune, this is all taken care of for you. If you&amp;rsquo;re interested in using tailors outside of that context, check out
+&lt;a href="https://workflows.tidymodels.org/dev/reference/add_tailor.html#data-usage" target="_blank" rel="noopener">this documentation section&lt;/a> in &lt;code>add_tailor()&lt;/code>.&lt;/p>
+&lt;h2 id="whats-to-come">What&amp;rsquo;s to come
+&lt;a href="#whats-to-come">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;re excited about how this work is shaping up and would love to hear yall&amp;rsquo;s thoughts on what we&amp;rsquo;ve brought together so far. Please do comment on our social media posts about this blog entry or leave issues on the
+&lt;a href="https://github.com/tidymodels/tailor" target="_blank" rel="noopener">tailor GitHub repository&lt;/a> and let us know what you think!&lt;/p>
+&lt;p>Before these changes head out to CRAN, we&amp;rsquo;ll also be implementing tuning functionality for postprocessors. You&amp;rsquo;ll be able to tag arguments like &lt;code>adjust_probability_threshold(threshold)&lt;/code> or &lt;code>adjust_probability_calibration(method)&lt;/code> with &lt;code>tune()&lt;/code> to optimize across several values. Besides that, post-processing with tidymodels should &amp;ldquo;just work&amp;rdquo; on the developmental versions of our packages&amp;mdash;let us know if you come across anything wonky.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Postprocessing support has been a longstanding feature request across many of our repositories; we&amp;rsquo;re grateful for the community discussions there for shaping this work. Additionally, we thank Ryan Tibshirani and Daniel McDonald for fruitful discussions on how we might scope these features.&lt;/p></description></item></channel></rss>

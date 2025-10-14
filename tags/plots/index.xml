@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>plots | Tidyverse</title><link>https://www.tidyverse.org/tags/plots/</link><atom:link href="https://www.tidyverse.org/tags/plots/index.xml" rel="self" type="application/rss+xml"/><description>plots</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 29 Nov 2022 00:00:00 +0000</lastBuildDate><item><title>Model Calibration</title><link>https://www.tidyverse.org/blog/2022/11/model-calibration/</link><pubDate>Tue, 29 Nov 2022 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2022/11/model-calibration/</guid><description>&lt;!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [ ] Find photo &amp; update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>I am very excited to introduce work currently underway on the probably package.&lt;br>
+We are looking to create early awareness and receive feedback from the community. That is why the enhancements discussed here are not yet on CRAN.&lt;/p>
+&lt;p>While the article is meant to introduce new package functionality, we also have the goal of introducing model calibration conceptually. We want to provide sufficient background for those who may not be familiar with model calibration. If you are already familiar with this technique, feel free to skip to the
+&lt;a href="#example-data">Setup&lt;/a> section to get started.&lt;/p>
+&lt;p>To install the version of probably used here:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>remotes&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://remotes.r-lib.org/reference/install_github.html'>install_github&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"tidymodels/probably"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="model-calibration">Model Calibration
+&lt;a href="#model-calibration">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>&lt;em>The goal of model calibration is to ensure that the estimated class probabilities are consistent with what would naturally occur.&lt;/em> If a model has poor calibration, we might be able to post-process the original predictions to coerce them to have better properties.&lt;/p>
+&lt;p>There are two main components to model calibration:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Diagnosis&lt;/strong> - Figuring out how well the original (and re-calibrated) probabilities perform.&lt;/li>
+&lt;li>&lt;strong>Remediation&lt;/strong> - Adjusting the original values to have better properties.&lt;/li>
+&lt;/ul>
+&lt;h3 id="the-development-plan">The Development Plan
+&lt;a href="#the-development-plan">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>As with everything in machine learning, there are several options to consider when calibrating a model. Through the new features in the tidymodels packages, we aspire to make those options as easily accessible as possible.&lt;/p>
+&lt;p>Our plan is to implement model calibration in two phases: the first phase will focus on binary models, and the second phase will focus on multi-class models.&lt;/p>
+&lt;p>The first batch of enhancements are now available in the development version of the probably package. The enhancements are centered around plotting functions meant for &lt;strong>diagnosing&lt;/strong> the prediction&amp;rsquo;s performance. These are more commonly known as &lt;strong>calibration plots&lt;/strong>.&lt;/p>
+&lt;h2 id="calibration-plots">Calibration Plots
+&lt;a href="#calibration-plots">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The idea behind a calibration plot is that if we group the predictions based on their probability, then we should see a percentage of events &lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> that match such probability.&lt;/p>
+&lt;p>For example, if we collect a group of the predictions whose probabilities are estimated to be about 10%, then we should expect that about 10% of the those in the group to indeed be events. The plots shown below can be used as diagnostics to see if our predictions are consistent with the observed event rates.&lt;/p>
+&lt;h3 id="example-data">Example Data
+&lt;a href="#example-data">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>If you would like to follow along, load the probably and dplyr packages into your R session.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://tidymodels.tidymodels.org'>tidymodels&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://github.com/tidymodels/probably/'>probably&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The probably package comes with a few data sets. For most of the examples in this post, we will use &lt;code>segment_logistic&lt;/code>, an example data set that contains predicted probabilities and classes from a logistic regression model for a binary outcome &lt;code>Class&lt;/code>, taking values &lt;code>&amp;quot;good&amp;quot;&lt;/code> or &lt;code>&amp;quot;bad&amp;quot;&lt;/code>. predictions, and their probabilities. &lt;code>Class&lt;/code> contains the outcome of &lt;code>.pred_good&lt;/code> contains the probability that the event is &amp;ldquo;good&amp;rdquo;.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>segment_logistic&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 1,010 × 3&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .pred_poor .pred_good Class&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>*&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> 0.986 0.014&lt;span style='text-decoration: underline;'>2&lt;/span> poor &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> 0.897 0.103 poor &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> 0.118 0.882 good &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> 0.102 0.898 good &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> 0.991 0.009&lt;span style='text-decoration: underline;'>14&lt;/span> poor &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> 0.633 0.367 good &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> 0.770 0.230 good &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> 0.008&lt;span style='text-decoration: underline;'>42&lt;/span> 0.992 good &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> 0.995 0.004&lt;span style='text-decoration: underline;'>58&lt;/span> poor &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> 0.765 0.235 poor &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># … with 1,000 more rows&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h3 id="binned-plot">Binned Plot
+&lt;a href="#binned-plot">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>On smaller data sets, it is challenging to obtain an accurate &lt;em>event rate&lt;/em> for a given probability. For example, if there are 5 predictions with about a 50% probability, and 3 of those are events, the plot would show a 60% event rate. This comparison would not be appropriate because there are not enough predictions to determine how close to 50% the model really is.&lt;/p>
+&lt;p>The most common approach is to group the probabilities into bins, or buckets. Usually, the data is split into 10 discrete buckets, from 0 to 1 (0 - 100%). The &lt;em>event rate&lt;/em> and the &lt;em>bin midpoint&lt;/em> is calculated for each bin.&lt;/p>
+&lt;p>In the probably package, binned calibration plots can be created using
+&lt;a href="https://probably.tidymodels.org/reference/cal_plot_breaks.html" target="_blank" rel="noopener">&lt;code>cal_plot_breaks()&lt;/code>&lt;/a>. It expects a data set (&lt;code>.data&lt;/code>), the un-quoted variable names that contain the events (&lt;code>truth&lt;/code>), and the probabilities (&lt;code>estimate&lt;/code>). For the example here, we pass the &lt;code>segment_logistic&lt;/code> data set, and use &lt;code>Class&lt;/code> and &lt;code>.pred_good&lt;/code> as the arguments. By default, this function will create a calibration plot with 10 buckets (breaks):&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>segment_logistic&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>Class&lt;/span>, &lt;span class='nv'>.pred_good&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-4-1.png" alt="A ggplot line plot with predicted probabilities on the x axis and event rates on the y axis, both ranging from 0 to 1. A dashed line lies on the identity line y equals x, and is loosely followed by a solid line that joins a series of dots representing the midpoint for each of 10 bins. Past predicted probabilities of 0.5, the dots consistently lie below the dashed line." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>The calibration plot for the ideal model will essentially be perfect incline line that start at (0,0) and ends in (1,1). In the case of this model, we can see that the seventh point has an event rate of 49.1% despite having estimated probabilities ranging from 60% to 70%. This indicates that the model is not creating predictions in this region that are consistent with the data (i.e., it is under-predicting).&lt;/p>
+&lt;p>The number of bins in
+&lt;a href="https://probably.tidymodels.org/reference/cal_plot_breaks.html" target="_blank" rel="noopener">&lt;code>cal_plot_breaks()&lt;/code>&lt;/a> can be adjusted using &lt;code>num_breaks&lt;/code>. Here is an example of what the plot looks like if we reduce the bins from 10, to 5:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>segment_logistic&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>Class&lt;/span>, &lt;span class='nv'>.pred_good&lt;/span>, num_breaks &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-6-1.png" alt="A calibration like that above, but with half as many bins. In this version of the plot, the solid line is less jagged, though still shows that dots consistently lie below the dashed line beyond a predicted probability of 0.5." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>The number of breaks should be based on ensuring that there is enough data in each bin to adequately estimate the observed event rate. If your data are small, the next version of the calibration plot might be a better solution.&lt;/p>
+&lt;h3 id="windowed">Windowed
+&lt;a href="#windowed">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Another approach is to use overlapping ranges, or windows. Like the previous plot, we bin the data and calculate the event rate. However, we can add more bins by allowing them to overlap. If the data set size is small, one strategy is to use a set of wide bins that overlap one another.&lt;/p>
+&lt;p>There are two variables that control the windows. The &lt;strong>step size&lt;/strong> controls the frequency of the windows. If we set a step size of 5%, windows will be created for each 5% increment in predicted probability (5%, 10%, 15%, etc). The second argument is the (maximum) &lt;strong>window size&lt;/strong>. If it is set to 10%&amp;mdash;and the step size is set at 5%&amp;mdash;then a given step will overlap halfway into both the previous step and the next step. Here is a visual representation of this specific scenario:&lt;/p>
+&lt;div class="highlight">
+&lt;p>&lt;img src="figs/unnamed-chunk-7-1.png" alt="Plot illustrating the horizontal location of each step and the size of the window" width="70%" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>In probably, the
+&lt;a href="https://probably.tidymodels.org/reference/cal_plot_breaks.html" target="_blank" rel="noopener">&lt;code>cal_plot_windowed()&lt;/code>&lt;/a> function provides this functionality. The default step size is 0.05, and can be changed via the &lt;code>step_size&lt;/code> argument. The default window size is 0.1, and can be changed via the &lt;code>window_size&lt;/code> argument:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>segment_logistic&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_windowed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>Class&lt;/span>, &lt;span class='nv'>.pred_good&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-8-1.png" alt="Calibration plot with 21 windows, created with the cal_plot_windowed() function" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Here is an example of reducing the &lt;code>step_size&lt;/code> from 0.05 to 0.02. There are more than double the windows:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>segment_logistic&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_windowed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>Class&lt;/span>, &lt;span class='nv'>.pred_good&lt;/span>, step_size &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.02&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-9-1.png" alt="Calibration plot with more steps than the default, created with the cal_plot_windowed() function" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h3 id="model-based">Model-Based
+&lt;a href="#model-based">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Another way to visualize the performance is to fit a classification model of the events against the estimated probabilities. This is helpful because it avoids the use of pre-determined groupings. Another difference is that we are not plotting midpoints of actual results, but rather predictions based on those results.&lt;/p>
+&lt;p>The
+&lt;a href="https://probably.tidymodels.org/reference/cal_plot_breaks.html" target="_blank" rel="noopener">&lt;code>cal_plot_logistic()&lt;/code>&lt;/a> provides this functionality. By default, it uses a logistic regression. There are two possible methods for fitting:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>smooth = TRUE&lt;/code> (the default) fits a generalized additive model using splines. This allows for more flexible model fits.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>smooth = FALSE&lt;/code> uses an ordinary logistic regression model with linear terms for the predictor.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>As an example:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>segment_logistic&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_logistic&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>Class&lt;/span>, &lt;span class='nv'>.pred_good&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-10-1.png" alt="Logistic Spline calibration plot, created with the cal_plot_logistic() function" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>The corresponding
+&lt;a href="https://rdrr.io/r/stats/glm.html" target="_blank" rel="noopener">&lt;code>glm()&lt;/code>&lt;/a> model produces:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>segment_logistic&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_logistic&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>Class&lt;/span>, &lt;span class='nv'>.pred_good&lt;/span>, smooth &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-11-1.png" alt="Ordinary logistic calibration plot, created with the cal_plot_logistic() function" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h3 id="additional-options-and-features">Additional options and features
+&lt;a href="#additional-options-and-features">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>
+&lt;h4 id="intervals">&lt;strong>Intervals&lt;/strong>
+&lt;a href="#intervals">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h4>&lt;p>The confidence intervals are visualized using the gray ribbon. The default interval is 0.9, but can be changed using the &lt;code>conf_level&lt;/code> argument.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>segment_logistic&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>Class&lt;/span>, &lt;span class='nv'>.pred_good&lt;/span>, conf_level &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.8&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-12-1.png" alt="Calibration plot with a confidence interval set to 0.8" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>If desired, the intervals can be removed by setting the &lt;code>include_ribbon&lt;/code> argument to &lt;code>FALSE&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>segment_logistic&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>Class&lt;/span>, &lt;span class='nv'>.pred_good&lt;/span>, include_ribbon &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-13-1.png" alt="Calibration plot with the confidence interval ribbon turned off" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h4 id="rugs">&lt;strong>Rugs&lt;/strong>
+&lt;a href="#rugs">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h4>&lt;p>By default, the calibration plots include a RUGs layer at the top and at the bottom of the visualization. They are meant to give us an idea of the density of events and non-events as the probabilities progress from 0 to 1.&lt;/p>
+&lt;div class="highlight">
+&lt;p>&lt;img src="figs/unnamed-chunk-14-1.png" alt="Calibration plot with arrows pointing to where the RUGS plots are placed in the graph" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>This layer can be removed by setting &lt;code>include_rug&lt;/code> to &lt;code>FALSE&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>segment_logistic&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>Class&lt;/span>, &lt;span class='nv'>.pred_good&lt;/span>, include_rug &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span> &lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-15-1.png" alt="Calibration plot without RUGS" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="integration-with-tune">Integration with tune
+&lt;a href="#integration-with-tune">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>So far, the inputs to the functions have been data frames. In tidymodels, the tune package has methods for resampling models as well as functions for tuning hyperparameters.&lt;/p>
+&lt;p>The calibration plots in the probably package also support the results of these functions (with class &lt;code>tune_results&lt;/code>). The functions read the metadata from the tune object, and the &lt;code>truth&lt;/code> and &lt;code>estimate&lt;/code> arguments automatically.&lt;/p>
+&lt;p>To showcase this feature, we will tune a model based on simulated data. In order for the calibration plot to work, the predictions need to be collected. This is done by setting &lt;code>save_pred&lt;/code> to &lt;code>TRUE&lt;/code> in &lt;code>tune_grid()&lt;/code>'s control settings.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>111&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>sim_data&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>sim_classification&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>500&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>sim_folds&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>vfold_cv&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>sim_data&lt;/span>, repeats &lt;span class='o'>=&lt;/span> &lt;span class='m'>3&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>rf_mod&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>rand_forest&lt;/span>&lt;span class='o'>(&lt;/span>min_n &lt;span class='o'>=&lt;/span> &lt;span class='nf'>tune&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;span class='nf'>set_mode&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"classification"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>222&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>tuned_model&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nv'>rf_mod&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>tune_grid&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>class&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>,&lt;/span>
+&lt;span> resamples &lt;span class='o'>=&lt;/span> &lt;span class='nv'>sim_folds&lt;/span>,&lt;/span>
+&lt;span> grid &lt;span class='o'>=&lt;/span> &lt;span class='m'>4&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='c'># Important: `saved_pred` has to be set to TRUE in order for &lt;/span>&lt;/span>
+&lt;span> &lt;span class='c'># the plotting to be possible&lt;/span>&lt;/span>
+&lt;span> control &lt;span class='o'>=&lt;/span> &lt;span class='nf'>control_resamples&lt;/span>&lt;span class='o'>(&lt;/span>save_pred &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>tuned_model&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; # Tuning results&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; # 10-fold cross-validation repeated 3 times &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 30 × 6&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; splits id id2 .metrics .notes .predicti…¹&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [450/50]&amp;gt;&lt;/span> Repeat1 Fold01 &lt;span style='color: #555555;'>&amp;lt;tibble [8 × 5]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span> &amp;lt;tibble&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [450/50]&amp;gt;&lt;/span> Repeat1 Fold02 &lt;span style='color: #555555;'>&amp;lt;tibble [8 × 5]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span> &amp;lt;tibble&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [450/50]&amp;gt;&lt;/span> Repeat1 Fold03 &lt;span style='color: #555555;'>&amp;lt;tibble [8 × 5]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span> &amp;lt;tibble&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [450/50]&amp;gt;&lt;/span> Repeat1 Fold04 &lt;span style='color: #555555;'>&amp;lt;tibble [8 × 5]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span> &amp;lt;tibble&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [450/50]&amp;gt;&lt;/span> Repeat1 Fold05 &lt;span style='color: #555555;'>&amp;lt;tibble [8 × 5]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span> &amp;lt;tibble&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [450/50]&amp;gt;&lt;/span> Repeat1 Fold06 &lt;span style='color: #555555;'>&amp;lt;tibble [8 × 5]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span> &amp;lt;tibble&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [450/50]&amp;gt;&lt;/span> Repeat1 Fold07 &lt;span style='color: #555555;'>&amp;lt;tibble [8 × 5]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span> &amp;lt;tibble&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [450/50]&amp;gt;&lt;/span> Repeat1 Fold08 &lt;span style='color: #555555;'>&amp;lt;tibble [8 × 5]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span> &amp;lt;tibble&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [450/50]&amp;gt;&lt;/span> Repeat1 Fold09 &lt;span style='color: #555555;'>&amp;lt;tibble [8 × 5]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span> &amp;lt;tibble&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [450/50]&amp;gt;&lt;/span> Repeat1 Fold10 &lt;span style='color: #555555;'>&amp;lt;tibble [8 × 5]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span> &amp;lt;tibble&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># … with 20 more rows, and abbreviated variable name ¹​.predictions&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The plotting functions will automatically collect the predictions. Each of the pre-processing groups will be plotted individually in its own facet.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>tuned_model&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_logistic&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-17-1.png" alt="Multiple calibration plots presented in a grid" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>A panel is produced for each value of &lt;code>min_n&lt;/code>, coded with an automatically generated configuration name. This makes sure to use the out-of-sample data to make the plot (instead of just re-predicting the training set).&lt;/p>
+&lt;h2 id="preparing-for-the-next-stage">Preparing for the next stage
+&lt;a href="#preparing-for-the-next-stage">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>As mentioned in the outset of this post, the goal is to also provide a way to calibrate the model, and to apply the calibration to future predictions. We have made sure that the plotting functions are ready now to accept multiple probability sets.&lt;/p>
+&lt;p>In this post, we will showcase that functionality by &amp;ldquo;manually&amp;rdquo; creating a quick calibration model and comparing its output to the original probabilities. We will need both of them in the same data frame, as well as a variable distinguishing the original probabilities from the calibrated probabilities. In this case we will create a variable called &lt;code>source&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>model&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/glm.html'>glm&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>Class&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>.pred_good&lt;/span>, &lt;span class='nv'>segment_logistic&lt;/span>, family &lt;span class='o'>=&lt;/span> &lt;span class='s'>"binomial"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>preds&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/predict.html'>predict&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>model&lt;/span>, &lt;span class='nv'>segment_logistic&lt;/span>, type &lt;span class='o'>=&lt;/span> &lt;span class='s'>"response"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;/span>
+&lt;span>&lt;span class='nv'>combined&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_rows&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>segment_logistic&lt;/span>, source &lt;span class='o'>=&lt;/span> &lt;span class='s'>"original"&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>segment_logistic&lt;/span>, .pred_good &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span> &lt;span class='o'>-&lt;/span> &lt;span class='nv'>preds&lt;/span>, source &lt;span class='o'>=&lt;/span> &lt;span class='s'>"glm"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>combined&lt;/span> &lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 2,020 × 4&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .pred_poor .pred_good Class source &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> 0.986 0.014&lt;span style='text-decoration: underline;'>2&lt;/span> poor original&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> 0.897 0.103 poor original&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> 0.118 0.882 good original&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> 0.102 0.898 good original&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> 0.991 0.009&lt;span style='text-decoration: underline;'>14&lt;/span> poor original&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> 0.633 0.367 good original&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> 0.770 0.230 good original&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> 0.008&lt;span style='text-decoration: underline;'>42&lt;/span> 0.992 good original&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> 0.995 0.004&lt;span style='text-decoration: underline;'>58&lt;/span> poor original&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> 0.765 0.235 poor original&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># … with 2,010 more rows&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The new plot functions support dplyr groupings. So, to overlay the two groups, we just need to pass &lt;code>source&lt;/code> to
+&lt;a href="https://dplyr.tidyverse.org/reference/group_by.html" target="_blank" rel="noopener">&lt;code>group_by()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>combined&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>source&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>Class&lt;/span>, &lt;span class='nv'>.pred_good&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-19-1.png" alt="Calibration plot with two overlaying probability trends, one is the original and the second is the model" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>If we would like to plot them side by side, we can add
+&lt;a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" target="_blank" rel="noopener">&lt;code>facet_wrap()&lt;/code>&lt;/a> as an additional step of the plot:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>combined&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>source&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://probably.tidymodels.org/reference/cal_plot_breaks.html'>cal_plot_breaks&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>Class&lt;/span>, &lt;span class='nv'>.pred_good&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/facet_wrap.html'>facet_wrap&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>~&lt;/span>&lt;span class='nv'>source&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>legend.position &lt;span class='o'>=&lt;/span> &lt;span class='s'>"none"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-20-1.png" alt="Calibration plot with two side-by-side probability trends" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Our goal in the future is to provide calibration functions that create the models, and provide an easy way to visualize them.&lt;/p>
+&lt;h2 id="conclusion">Conclusion
+&lt;a href="#conclusion">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>As mentioned at the top of this post, we welcome your feedback as you try out these features and read about our plans for the future. If you wish to send us your thoughts, feel free to open an issue in probably&amp;rsquo;s GitHub repo here: &lt;a href="https://github.com/tidymodels/probably/issues">https://github.com/tidymodels/probably/issues&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>We can think of an &lt;strong>event&lt;/strong> as the outcome that is being tracked by the probability. For example, if a model predicts &amp;ldquo;heads&amp;rdquo; or &amp;ldquo;tails&amp;rdquo; and we want to calibrate the probability for &amp;ldquo;tails&amp;rdquo;, then the &lt;strong>event&lt;/strong> is when the column containing the outcome, has the value of &amp;ldquo;tails&amp;rdquo;. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item></channel></rss>

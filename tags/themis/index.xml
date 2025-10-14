@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>themis | Tidyverse</title><link>https://www.tidyverse.org/tags/themis/</link><atom:link href="https://www.tidyverse.org/tags/themis/index.xml" rel="self" type="application/rss+xml"/><description>themis</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 11 Feb 2020 00:00:00 +0000</lastBuildDate><item><title>themis 0.1.0</title><link>https://www.tidyverse.org/blog/2020/02/themis-0-1-0/</link><pubDate>Tue, 11 Feb 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/02/themis-0-1-0/</guid><description>&lt;p>We&amp;rsquo;re chuffed to announce the release of
+&lt;a href="https://github.com/tidymodels/themis" target="_blank" rel="noopener">themis&lt;/a> on CRAN.
+&lt;a href="https://tidymodels.github.io/themis/" target="_blank" rel="noopener">themis&lt;/a> implements a collection of new steps for the
+&lt;a href="https://github.com/tidymodels/recipes" target="_blank" rel="noopener">recipes&lt;/a> package to deal with unbalanced data. themis is still in early development so any and all feedback is highly appreciated.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">modeldata&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">recipes&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">themis&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>In a classification context, a dataset is said to be unbalanced if there is an unequal number of observations in each class. Many models perform best when the number of observations is equal and, thus, tend to struggle with unbalanced data.&lt;/p>
+&lt;p>The steps in this package can be divided into two camps:&lt;/p>
+&lt;ul>
+&lt;li>Ones that remove observations from the majority class(es), and&lt;/li>
+&lt;li>Ones that add observations to the minority class(es).&lt;/li>
+&lt;/ul>
+&lt;p>You can do more than one action, and, thus, are able to mix and match by for example first removing observations from the majority class followed by adding observations to the minority class to achieve the balance you want.&lt;/p>
+&lt;h2 id="hybrid-sampling-steps">Hybrid-sampling steps
+&lt;a href="#hybrid-sampling-steps">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Hybrid-sampling involves adding observations to the minority class. This can be done in multiple ways, one way is to sample existing data points like &lt;code>step_upsample()&lt;/code> does, another way is to synthetically generate new points based on existing points, &lt;code>step_smote()&lt;/code> and related steps uses k nearest neighbor information to generate new points. Currently &lt;code>step_upsample()&lt;/code>, &lt;code>step_smote()&lt;/code>, &lt;code>step_bsmote()&lt;/code>, &lt;code>step_adasyn()&lt;/code>, and &lt;code>step_rose()&lt;/code> are available. All steps have references in their respective help pages. They have slightly different requirements according to the data they can handle; most need all numeric with no missing data, but those requirements can and should be handled by previous steps.&lt;/p>
+&lt;p>In the following example, let&amp;rsquo;s look at the &lt;code>okc&lt;/code> dataset. and we can see that the imbalance is 1-to-6.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;okc&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">table&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">okc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">Class&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; stem other &lt;/span>
+&lt;span class="c1">#&amp;gt; 9539 50316&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>We will use &lt;code>age&lt;/code>, &lt;code>diet&lt;/code> and &lt;code>height&lt;/code> in modeling to predict &lt;code>Class&lt;/code>. Since &lt;code>diet&lt;/code> is a factor, we first need to dummify it before we normalize and perform mean imputation to handle all the missing data.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">rec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Class&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">age&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">diet&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">height&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">okc&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_unknown&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">diet&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_dummy&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">diet&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_normalize&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">all_predictors&lt;/span>&lt;span class="p">())&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_meanimpute&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">all_predictors&lt;/span>&lt;span class="p">())&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_smote&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Class&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">rec&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">prep&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">juice&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">pull&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Class&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">table&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; .&lt;/span>
+&lt;span class="c1">#&amp;gt; stem other &lt;/span>
+&lt;span class="c1">#&amp;gt; 50316 50316&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>And we see that the resulting dataset has a perfectly even distribution. All the hybrid-sampling steps share the parameter &lt;code>over_ratio&lt;/code>, which specifies the desired ratio between the biggest class and the smallest class. It defaults to 1 for an even distribution but can be set to something like &lt;code>0.5&lt;/code> to have the minority class become half the size of the majority class.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">rec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Class&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">age&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">diet&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">height&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">okc&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_unknown&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">diet&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_dummy&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">diet&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_normalize&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">all_predictors&lt;/span>&lt;span class="p">())&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_meanimpute&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">all_predictors&lt;/span>&lt;span class="p">())&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_smote&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Class&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">over_ratio&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">rec&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">prep&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">juice&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">pull&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Class&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">table&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; .&lt;/span>
+&lt;span class="c1">#&amp;gt; stem other &lt;/span>
+&lt;span class="c1">#&amp;gt; 25158 50316&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="under-sampling-steps">Under-sampling steps
+&lt;a href="#under-sampling-steps">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Under-sampling is removing observations from the majority class. Currently &lt;code>step_downsample()&lt;/code>, &lt;code>step_nearmiss()&lt;/code> and &lt;code>step_tomek()&lt;/code> are available. These steps should have the same user experience as the previous steps as they have a similar shared parameter &lt;code>under_ratio&lt;/code> which is the ratio between the smallest and the biggest class. Simply using &lt;code>step_downsample()&lt;/code> randomly removes samples in the majority classes to get them to be the same size as the smallest class.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">rec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Class&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">age&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">diet&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">height&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">okc&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_unknown&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">diet&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_dummy&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">diet&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_normalize&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">all_predictors&lt;/span>&lt;span class="p">())&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_meanimpute&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">all_predictors&lt;/span>&lt;span class="p">())&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_downsample&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Class&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">rec&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">prep&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">juice&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">pull&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Class&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">table&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; .&lt;/span>
+&lt;span class="c1">#&amp;gt; stem other &lt;/span>
+&lt;span class="c1">#&amp;gt; 9539 9539&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div></description></item></channel></rss>

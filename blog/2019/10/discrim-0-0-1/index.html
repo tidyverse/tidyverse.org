@@ -1,0 +1,231 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>discrim 0.0.1</title><meta property="og:title" content="discrim 0.0.1"><meta property="og:description" content="The first version of discrim (0.0.1) is on CRAN."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2019/10/discrim-0-0-1/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="discrim 0.0.1 - Tidyverse"><meta property="description" content="The first version of discrim (0.0.1) is on CRAN."><meta property="og:description" content="The first version of discrim (0.0.1) is on CRAN."><meta property="og:image" content="https://www.tidyverse.org/blog/2019/10/discrim-0-0-1/discrim-0-0-1-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2019/10/discrim-0-0-1/discrim-0-0-1-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>discrim 0.0.1</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2019/10/discrim-0-0-1/discrim-0-0-1-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/4op9_2Bt2Eg>Teo Duldulao</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2019/10/17</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/tidymodels/>tidymodels</a>,
+<a href=/tags/discrim/>discrim</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Max Kuhn</p><div class=article-content><p>The new package
+<a href=https://tidymodels.github.io/discrim/ target=_blank rel=noopener><code>discrim</code></a> contains <code>parsnip</code> bindings for additional classification models, including:</p><ul><li>Linear discriminant analysis (LDA, simple and L2 regularized)</li><li>Regularized discriminant analysis (RDA, via
+<a href="https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22Regularized+Discriminant+Analysis%22&btnG=" target=_blank rel=noopener>Friedman (1989)</a>)</li><li><a href="https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22Flexible+discriminant+analysis%22&btnG=" target=_blank rel=noopener>Flexible discriminant analysis</a> (FDA) using
+<a href="https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22multivariate+adaptive+regression+splines%22&btnG=" target=_blank rel=noopener>MARS features</a></li><li>Naive Bayes models</li></ul><p>The package can also be used as a template for adding new models to <code>tidymodels</code> without having to directly involve <code>parsnip</code>.</p><p>As an example, the package contains a simulated data set with two factors and two classes:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>tidyverse</span><span class=p>)</span>
+<span class=c1>#&gt; ── Attaching packages ────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──</span>
+<span class=c1>#&gt; ✔ tibble  2.1.3     ✔ purrr   0.3.2</span>
+<span class=c1>#&gt; ✔ tidyr   1.0.0     ✔ dplyr   0.8.3</span>
+<span class=c1>#&gt; ✔ readr   1.3.1     ✔ stringr 1.4.0</span>
+<span class=c1>#&gt; ✔ tibble  2.1.3     ✔ forcats 0.4.0</span>
+<span class=c1>#&gt; ── Conflicts ───────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──</span>
+<span class=c1>#&gt; ✖ dplyr::filter() masks stats::filter()</span>
+<span class=c1>#&gt; ✖ dplyr::lag()    masks stats::lag()</span>
+<span class=c1>#&gt; ✖ dplyr::select() masks MASS::select()</span>
+<span class=nf>library</span><span class=p>(</span><span class=n>rsample</span><span class=p>)</span>
+<span class=nf>library</span><span class=p>(</span><span class=n>discrim</span><span class=p>)</span>
+<span class=c1>#&gt; Loading required package: parsnip</span>
+<span class=nf>library</span><span class=p>(</span><span class=n>earth</span><span class=p>)</span>
+
+<span class=nf>data</span><span class=p>(</span><span class=s>&#34;parabolic&#34;</span><span class=p>,</span> <span class=n>package</span> <span class=o>=</span> <span class=s>&#34;rsample&#34;</span><span class=p>)</span>
+<span class=c1>#&gt; Warning in data(&#34;parabolic&#34;, package = &#34;rsample&#34;): data set &#39;parabolic&#39; not</span>
+<span class=c1>#&gt; found</span>
+<span class=n>parabolic</span>
+<span class=c1>#&gt; # A tibble: 500 x 3</span>
+<span class=c1>#&gt;        X1     X2 class </span>
+<span class=c1>#&gt;     &lt;dbl&gt;  &lt;dbl&gt; &lt;fct&gt; </span>
+<span class=c1>#&gt;  1  3.29   1.66  Class1</span>
+<span class=c1>#&gt;  2  1.47   0.414 Class2</span>
+<span class=c1>#&gt;  3  1.66   0.791 Class2</span>
+<span class=c1>#&gt;  4  1.60   0.276 Class2</span>
+<span class=c1>#&gt;  5  2.17   3.17  Class1</span>
+<span class=c1>#&gt;  6  1.94   3.83  Class1</span>
+<span class=c1>#&gt;  7 -0.588 -0.977 Class2</span>
+<span class=c1>#&gt;  8 -0.951  1.40  Class1</span>
+<span class=c1>#&gt;  9  0.275  0.370 Class2</span>
+<span class=c1>#&gt; 10 -1.13  -1.14  Class1</span>
+<span class=c1>#&gt; # … with 490 more rows</span>
+
+<span class=nf>ggplot</span><span class=p>(</span><span class=n>parabolic</span><span class=p>,</span> <span class=nf>aes</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=n>X1</span><span class=p>,</span> <span class=n>y</span> <span class=o>=</span> <span class=n>X2</span><span class=p>))</span> <span class=o>+</span> 
+  <span class=nf>geom_point</span><span class=p>(</span><span class=nf>aes</span><span class=p>(</span><span class=n>col</span> <span class=o>=</span> <span class=n>class</span><span class=p>),</span> <span class=n>alpha</span> <span class=o>=</span> <span class=m>.3</span><span class=p>)</span> <span class=o>+</span> 
+  <span class=nf>coord_equal</span><span class=p>()</span> <span class=o>+</span> 
+  <span class=nf>theme</span><span class=p>(</span><span class=n>legend.position</span> <span class=o>=</span> <span class=s>&#34;top&#34;</span><span class=p>)</span>
+</code></pre></div><p><img src=/articles/2019-10-discrim-0-01_files/figure-html/startup-1.png width=700px style=display:block;margin:auto></p><p>How would a flexible discriminant model do here? We&rsquo;ll split the data then fit the model:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>set.seed</span><span class=p>(</span><span class=m>115</span><span class=p>)</span>
+<span class=n>data_split</span> <span class=o>&lt;-</span> <span class=nf>initial_split</span><span class=p>(</span><span class=n>parabolic</span><span class=p>,</span> <span class=n>prop</span> <span class=o>=</span> <span class=m>2</span><span class=o>/</span><span class=m>3</span><span class=p>)</span>
+<span class=n>data_tr</span> <span class=o>&lt;-</span> <span class=nf>training</span><span class=p>(</span><span class=n>data_split</span><span class=p>)</span>
+<span class=n>data_te</span> <span class=o>&lt;-</span> <span class=nf>testing</span><span class=p>(</span><span class=n>data_split</span><span class=p>)</span>
+
+<span class=n>fda_mod</span> <span class=o>&lt;-</span> <span class=nf>discrim_flexible</span><span class=p>()</span> <span class=o>%&gt;%</span> <span class=nf>set_engine</span><span class=p>(</span><span class=s>&#34;earth&#34;</span><span class=p>)</span>
+
+<span class=n>fda_fit</span> <span class=o>&lt;-</span> 
+  <span class=n>fda_mod</span> <span class=o>%&gt;%</span> 
+  <span class=nf>fit</span><span class=p>(</span><span class=n>class</span> <span class=o>~</span> <span class=n>X1</span> <span class=o>+</span> <span class=n>X2</span><span class=p>,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>data_tr</span><span class=p>)</span>
+
+<span class=n>fda_fit</span> 
+<span class=c1>#&gt; parsnip model object</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Call:</span>
+<span class=c1>#&gt; mda::fda(formula = formula, data = data, method = earth::earth)</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Dimension: 1 </span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Percent Between-Group Variance Explained:</span>
+<span class=c1>#&gt;  v1 </span>
+<span class=c1>#&gt; 100 </span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Training Misclassification Error: 0.105 ( N = 334 )</span>
+</code></pre></div><p>Since no model tuning parameters were specified, the MARS algorithm follows its own internal method for optimizing the number of features that are included in the model. The underlying MARS model is:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>summary</span><span class=p>(</span><span class=n>fda_fit</span><span class=o>$</span><span class=n>fit</span><span class=o>$</span><span class=n>fit</span><span class=p>)</span>
+<span class=c1>#&gt; Call: earth(x=x, y=Theta, weights=weights)</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt;                  coefficients</span>
+<span class=c1>#&gt; (Intercept)            -0.892</span>
+<span class=c1>#&gt; h(X1- -1.42535)         2.780</span>
+<span class=c1>#&gt; h(X1- -0.907457)       -1.972</span>
+<span class=c1>#&gt; h(X1- -0.450335)       -0.766</span>
+<span class=c1>#&gt; h(X2-0.351695)         -1.634</span>
+<span class=c1>#&gt; h(X2-1.44562)           1.461</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Selected 6 of 13 terms, and 2 of 2 predictors</span>
+<span class=c1>#&gt; Termination condition: Reached nk 21</span>
+<span class=c1>#&gt; Importance: X2, X1</span>
+<span class=c1>#&gt; Number of terms at each degree of interaction: 1 5 (additive model)</span>
+<span class=c1>#&gt; GCV 0.333    RSS 104    GRSq 0.669    RSq 0.688</span>
+</code></pre></div><p>The classification boundary, overlaid on the test set, shows a series of segmented lines:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>pred_grid</span> <span class=o>&lt;-</span> 
+  <span class=nf>expand.grid</span><span class=p>(</span><span class=n>X1</span> <span class=o>=</span> <span class=nf>seq</span><span class=p>(</span><span class=m>-5</span><span class=p>,</span> <span class=m>5</span><span class=p>,</span> <span class=n>length</span> <span class=o>=</span> <span class=m>100</span><span class=p>),</span> <span class=n>X2</span> <span class=o>=</span> <span class=nf>seq</span><span class=p>(</span><span class=m>-5</span><span class=p>,</span> <span class=m>5</span><span class=p>,</span> <span class=n>length</span> <span class=o>=</span> <span class=m>100</span><span class=p>))</span>
+
+<span class=n>pred_grid</span> <span class=o>&lt;-</span> 
+  <span class=nf>bind_cols</span><span class=p>(</span>
+    <span class=n>pred_grid</span><span class=p>,</span>
+    <span class=nf>predict</span><span class=p>(</span><span class=n>fda_fit</span><span class=p>,</span> <span class=n>pred_grid</span><span class=p>,</span> <span class=n>type</span> <span class=o>=</span> <span class=s>&#34;prob&#34;</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+      <span class=nf>select</span><span class=p>(</span><span class=n>.pred_Class1</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+      <span class=nf>setNames</span><span class=p>(</span><span class=s>&#34;fda_pred&#34;</span><span class=p>)</span>
+  <span class=p>)</span>
+
+<span class=n>p</span> <span class=o>&lt;-</span>
+  <span class=nf>ggplot</span><span class=p>(</span><span class=n>data_te</span><span class=p>,</span> <span class=nf>aes</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=n>X1</span><span class=p>,</span> <span class=n>y</span> <span class=o>=</span> <span class=n>X2</span><span class=p>))</span> <span class=o>+</span> 
+  <span class=nf>geom_point</span><span class=p>(</span><span class=nf>aes</span><span class=p>(</span><span class=n>col</span> <span class=o>=</span> <span class=n>class</span><span class=p>),</span> <span class=n>alpha</span> <span class=o>=</span> <span class=m>.3</span><span class=p>)</span> <span class=o>+</span> 
+  <span class=nf>coord_equal</span><span class=p>()</span> <span class=o>+</span> 
+  <span class=nf>theme</span><span class=p>(</span><span class=n>legend.position</span> <span class=o>=</span> <span class=s>&#34;top&#34;</span><span class=p>)</span>
+
+<span class=n>p</span> <span class=o>+</span> 
+  <span class=nf>geom_contour</span><span class=p>(</span><span class=n>data</span> <span class=o>=</span> <span class=n>pred_grid</span><span class=p>,</span> <span class=nf>aes</span><span class=p>(</span><span class=n>z</span> <span class=o>=</span> <span class=n>fda_pred</span><span class=p>),</span> <span class=n>breaks</span> <span class=o>=</span> <span class=m>.5</span><span class=p>,</span> <span class=n>col</span> <span class=o>=</span> <span class=s>&#34;black&#34;</span><span class=p>)</span>
+</code></pre></div><p><img src=/articles/2019-10-discrim-0-01_files/figure-html/grid-1-1.png width=700px style=display:block;margin:auto></p><p>This boundary seems pretty reasonable.</p><p>These models also work with the new
+<a href=https://github.com/tidymodels/tune target=_blank rel=noopener><code>tune</code> package</a>. To demonstrate, a regularized discriminant analysis model^[Despite the name, this type of regularization is different from the more commonly used lasso ($L_1$) or ridge ($L_2$) regression methods. Here, the <em>covariance matrix</em> of the predictors is regularized in different ways as described
+<a href=https://rdrr.io/cran/klaR/man/rda.html target=_blank rel=noopener>here</a>.] will be fit to the data and optimized using a simple grid search.</p><p>We&rsquo;ll use the devel version of dials:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c1># devtools::install_github(&#34;tidymodels/tune&#34;)</span>
+<span class=c1># We use the devel version of several tidymodels packages:</span>
+<span class=nf>library</span><span class=p>(</span><span class=n>tidymodels</span><span class=p>)</span>
+<span class=c1>#&gt; Registered S3 method overwritten by &#39;xts&#39;:</span>
+<span class=c1>#&gt;   method     from</span>
+<span class=c1>#&gt;   as.zoo.xts zoo</span>
+<span class=c1>#&gt; ── Attaching packages ───────────────────────────────────────────────────────────────────────────────────── tidymodels 0.0.3 ──</span>
+<span class=c1>#&gt; ✔ broom     0.5.2          ✔ recipes   0.1.7.9001</span>
+<span class=c1>#&gt; ✔ dials     0.0.3.9001     ✔ yardstick 0.0.4     </span>
+<span class=c1>#&gt; ✔ infer     0.5.0</span>
+<span class=c1>#&gt; ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────── tidymodels_conflicts() ──</span>
+<span class=c1>#&gt; ✖ scales::discard() masks purrr::discard()</span>
+<span class=c1>#&gt; ✖ dplyr::filter()   masks stats::filter()</span>
+<span class=c1>#&gt; ✖ recipes::fixed()  masks stringr::fixed()</span>
+<span class=c1>#&gt; ✖ dplyr::lag()      masks stats::lag()</span>
+<span class=c1>#&gt; ✖ dials::margin()   masks ggplot2::margin()</span>
+<span class=c1>#&gt; ✖ dials::offset()   masks stats::offset()</span>
+<span class=c1>#&gt; ✖ dplyr::select()   masks MASS::select()</span>
+<span class=c1>#&gt; ✖ yardstick::spec() masks readr::spec()</span>
+<span class=c1>#&gt; ✖ recipes::step()   masks stats::step()</span>
+<span class=nf>library</span><span class=p>(</span><span class=n>tune</span><span class=p>)</span>
+</code></pre></div><p>First, we mark the parameters for tuning:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>rda_mod</span> <span class=o>&lt;-</span> 
+  <span class=nf>discrim_regularized</span><span class=p>(</span><span class=n>frac_common_cov</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>(),</span> <span class=n>frac_identity</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>())</span> <span class=o>%&gt;%</span> 
+  <span class=nf>set_engine</span><span class=p>(</span><span class=s>&#34;klaR&#34;</span><span class=p>)</span>
+</code></pre></div><p>In order to tune the model, we require a grid of candidate values along with a resampling specification. We&rsquo;ll also setup a <code>yardstick</code> object to measure the area under the ROC curve for each candidate model:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>set.seed</span><span class=p>(</span><span class=m>20014</span><span class=p>)</span>
+<span class=n>folds</span> <span class=o>&lt;-</span> <span class=nf>vfold_cv</span><span class=p>(</span><span class=n>data_tr</span><span class=p>,</span> <span class=n>repeats</span> <span class=o>=</span> <span class=m>5</span><span class=p>)</span>
+
+<span class=c1># Use a space-filling design with 30 candidate models</span>
+<span class=n>candidates</span> <span class=o>&lt;-</span> 
+  <span class=n>rda_mod</span> <span class=o>%&gt;%</span> 
+  <span class=nf>param_set</span><span class=p>()</span> <span class=o>%&gt;%</span> 
+  <span class=nf>grid_max_entropy</span><span class=p>(</span><span class=n>size</span> <span class=o>=</span> <span class=m>30</span><span class=p>)</span>
+
+<span class=n>roc_values</span> <span class=o>&lt;-</span> <span class=nf>metric_set</span><span class=p>(</span><span class=n>roc_auc</span><span class=p>)</span>
+</code></pre></div><p>Now we can tune the model:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>rda_res</span> <span class=o>&lt;-</span>
+  <span class=nf>tune_grid</span><span class=p>(</span><span class=n>class</span> <span class=o>~</span> <span class=n>X1</span> <span class=o>+</span> <span class=n>X2</span><span class=p>,</span>
+            <span class=n>model</span> <span class=o>=</span> <span class=n>rda_mod</span><span class=p>,</span>
+            <span class=n>rs</span> <span class=o>=</span> <span class=n>folds</span><span class=p>,</span>
+            <span class=n>grid</span> <span class=o>=</span> <span class=n>candidates</span><span class=p>,</span>
+            <span class=n>perf</span> <span class=o>=</span> <span class=n>roc_values</span><span class=p>)</span>
+</code></pre></div><p>The resampling estimates rank the models (starting with the best) as:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>auc_values</span> <span class=o>&lt;-</span> <span class=nf>estimate</span><span class=p>(</span><span class=n>rda_res</span><span class=p>)</span> <span class=o>%&gt;%</span> <span class=nf>arrange</span><span class=p>(</span><span class=nf>desc</span><span class=p>(</span><span class=n>mean</span><span class=p>))</span> 
+<span class=n>auc_values</span> <span class=o>%&gt;%</span> <span class=nf>slice</span><span class=p>(</span><span class=m>1</span><span class=o>:</span><span class=m>5</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 5 x 7</span>
+<span class=c1>#&gt;   frac_common_cov frac_identity .metric .estimator  mean     n std_err</span>
+<span class=c1>#&gt;             &lt;dbl&gt;         &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1          0.0223         0.171 roc_auc binary     0.949    50 0.00392</span>
+<span class=c1>#&gt; 2          0.107          0.362 roc_auc binary     0.943    50 0.00421</span>
+<span class=c1>#&gt; 3          0.255          0.410 roc_auc binary     0.941    50 0.00445</span>
+<span class=c1>#&gt; 4          0.434          0.685 roc_auc binary     0.939    50 0.00454</span>
+<span class=c1>#&gt; 5          0.357          0.584 roc_auc binary     0.939    50 0.00454</span>
+</code></pre></div><p>Let&rsquo;s plot the resampling results:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>ggplot</span><span class=p>(</span><span class=n>auc_values</span><span class=p>,</span> <span class=nf>aes</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=n>frac_common_cov</span><span class=p>,</span> <span class=n>y</span> <span class=o>=</span> <span class=n>frac_identity</span><span class=p>,</span> <span class=n>size</span> <span class=o>=</span> <span class=n>mean</span><span class=p>))</span> <span class=o>+</span> 
+  <span class=nf>geom_point</span><span class=p>(</span><span class=n>alpha</span> <span class=o>=</span> <span class=m>.5</span><span class=p>)</span> <span class=o>+</span> 
+  <span class=nf>coord_equal</span><span class=p>()</span>
+</code></pre></div><p><img src=/articles/2019-10-discrim-0-01_files/figure-html/grid-res-1.png width=700px style=display:block;margin:auto></p><p>There is a wide range of parameter combinations associated with good performance here. The poor results occur mostly when the model tries to enforce a mostly LDA covariance matrix (<code>frac_common_cov</code> > 0.9) along with <code>frac_identity</code> &lt;= 0.6. The latter parameter tries to shrink the covariance matrix towards one where the parameters are considered to be nearly independent.</p><p>The <code>parsnip</code> model object can be updated with the best parameter combination (<code>frac_common_cov</code> = 0.022 and <code>frac_identity</code> = 0.171). These parameter values result in a model close to a pure QDA model. The <code>merge()</code> function can be used to insert these values into our original <code>parsnip</code> object:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>final_param</span> <span class=o>&lt;-</span> 
+  <span class=n>auc_values</span> <span class=o>%&gt;%</span> 
+  <span class=nf>slice</span><span class=p>(</span><span class=m>1</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>select</span><span class=p>(</span><span class=n>frac_common_cov</span><span class=p>,</span> <span class=n>frac_identity</span><span class=p>)</span>
+
+<span class=n>rda_mod</span> <span class=o>&lt;-</span> 
+  <span class=n>rda_mod</span> <span class=o>%&gt;%</span> 
+  <span class=nf>merge</span><span class=p>(</span><span class=n>final_param</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>pull</span><span class=p>(</span><span class=n>x</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>pluck</span><span class=p>(</span><span class=m>1</span><span class=p>)</span>
+
+<span class=n>rda_mod</span>
+<span class=c1>#&gt; Regularized Discriminant Model Specification (classification)</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Main Arguments:</span>
+<span class=c1>#&gt;   frac_common_cov = 0.0222721435129642</span>
+<span class=c1>#&gt;   frac_identity = 0.171292591374367</span>
+<span class=c1>#&gt; </span>
+<span class=c1>#&gt; Computational engine: klaR</span>
+
+<span class=n>rda_fit</span> <span class=o>&lt;-</span> 
+  <span class=n>rda_mod</span> <span class=o>%&gt;%</span> 
+  <span class=nf>fit</span><span class=p>(</span><span class=n>class</span> <span class=o>~</span> <span class=n>X1</span> <span class=o>+</span> <span class=n>X2</span><span class=p>,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>data_tr</span><span class=p>)</span>
+</code></pre></div><p>To show the class boundary:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>pred_grid</span> <span class=o>&lt;-</span> 
+  <span class=nf>bind_cols</span><span class=p>(</span>
+    <span class=n>pred_grid</span><span class=p>,</span>
+    <span class=nf>predict</span><span class=p>(</span><span class=n>rda_fit</span><span class=p>,</span> <span class=n>pred_grid</span><span class=p>,</span> <span class=n>type</span> <span class=o>=</span> <span class=s>&#34;prob&#34;</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+      <span class=nf>select</span><span class=p>(</span><span class=n>.pred_Class1</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+      <span class=nf>setNames</span><span class=p>(</span><span class=s>&#34;rda_pred&#34;</span><span class=p>)</span>
+  <span class=p>)</span>
+
+<span class=n>p</span> <span class=o>+</span> 
+  <span class=nf>geom_contour</span><span class=p>(</span><span class=n>data</span> <span class=o>=</span> <span class=n>pred_grid</span><span class=p>,</span> <span class=nf>aes</span><span class=p>(</span><span class=n>z</span> <span class=o>=</span> <span class=n>fda_pred</span><span class=p>),</span> <span class=n>breaks</span> <span class=o>=</span> <span class=m>.5</span><span class=p>,</span> <span class=n>col</span> <span class=o>=</span> <span class=s>&#34;black&#34;</span><span class=p>,</span> 
+               <span class=n>alpha</span> <span class=o>=</span> <span class=m>.5</span><span class=p>,</span> <span class=n>lty</span> <span class=o>=</span> <span class=m>2</span><span class=p>)</span> <span class=o>+</span> 
+  <span class=nf>geom_contour</span><span class=p>(</span><span class=n>data</span> <span class=o>=</span> <span class=n>pred_grid</span><span class=p>,</span> <span class=nf>aes</span><span class=p>(</span><span class=n>z</span> <span class=o>=</span> <span class=n>rda_pred</span><span class=p>),</span> <span class=n>breaks</span> <span class=o>=</span> <span class=m>.5</span><span class=p>,</span> <span class=n>col</span> <span class=o>=</span> <span class=s>&#34;black&#34;</span><span class=p>)</span>
+</code></pre></div><p><img src=/articles/2019-10-discrim-0-01_files/figure-html/rda-boundary-1.png width=700px style=display:block;margin:auto></p><p>This is pretty close to the true simulated boundary, which is parabolic in nature.</p><p>The test sets results are:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>probs_te</span> <span class=o>&lt;-</span> 
+  <span class=nf>predict</span><span class=p>(</span><span class=n>rda_fit</span><span class=p>,</span> <span class=n>data_te</span><span class=p>,</span> <span class=n>type</span> <span class=o>=</span> <span class=s>&#34;prob&#34;</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>bind_cols</span><span class=p>(</span><span class=n>data_te</span> <span class=o>%&gt;%</span> <span class=nf>select</span><span class=p>(</span><span class=n>class</span><span class=p>))</span>
+<span class=n>probs_te</span>
+<span class=c1>#&gt; # A tibble: 166 x 3</span>
+<span class=c1>#&gt;    .pred_Class1 .pred_Class2 class </span>
+<span class=c1>#&gt;           &lt;dbl&gt;        &lt;dbl&gt; &lt;fct&gt; </span>
+<span class=c1>#&gt;  1        0.851     0.149    Class1</span>
+<span class=c1>#&gt;  2        0.205     0.795    Class2</span>
+<span class=c1>#&gt;  3        1.000     0.000339 Class1</span>
+<span class=c1>#&gt;  4        0.326     0.674    Class2</span>
+<span class=c1>#&gt;  5        0.377     0.623    Class2</span>
+<span class=c1>#&gt;  6        0.202     0.798    Class2</span>
+<span class=c1>#&gt;  7        0.333     0.667    Class1</span>
+<span class=c1>#&gt;  8        0.472     0.528    Class1</span>
+<span class=c1>#&gt;  9        0.979     0.0210   Class1</span>
+<span class=c1>#&gt; 10        0.166     0.834    Class2</span>
+<span class=c1>#&gt; # … with 156 more rows</span>
+
+<span class=nf>roc_auc</span><span class=p>(</span><span class=n>probs_te</span><span class=p>,</span> <span class=n>class</span><span class=p>,</span> <span class=n>.pred_Class1</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 1 x 3</span>
+<span class=c1>#&gt;   .metric .estimator .estimate</span>
+<span class=c1>#&gt;   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1 roc_auc binary         0.971</span>
+</code></pre></div><p>Pretty good!</p></div></div><div class=column25><div class="section hideOnMobile"></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

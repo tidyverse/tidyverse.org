@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>package maintenance | Tidyverse</title><link>https://www.tidyverse.org/tags/package-maintenance/</link><atom:link href="https://www.tidyverse.org/tags/package-maintenance/index.xml" rel="self" type="application/rss+xml"/><description>package maintenance</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 10 Nov 2023 00:00:00 +0000</lastBuildDate><item><title>Three ways errors are about to get better in tidymodels</title><link>https://www.tidyverse.org/blog/2023/11/tidymodels-errors-q4/</link><pubDate>Fri, 10 Nov 2023 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2023/11/tidymodels-errors-q4/</guid><description>&lt;p>Twice a year, the tidymodels team comes together for &amp;ldquo;spring cleaning,&amp;rdquo; a week-long project devoted to package maintenance. Ahead of the week, we come up with a list of maintenance tasks that we&amp;rsquo;d like to see consistently implemented across our packages. Many of these tasks can be completed by running one usethis function, while others are much more involved, like issue triage.&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> In tidymodels, triaging issues in our core packages helps us to better understand common ways that users struggle to wrap their heads around an API choice we&amp;rsquo;ve made or find the information they need. So, among other things, refinements to the wording of our error messages is a common output of our spring cleanings. This blog post will call out three kinds of changes to our erroring that came out of this spring cleaning:&lt;/p>
+&lt;ul>
+&lt;li>Improving existing errors:
+&lt;a href="#outcome">The outcome went missing&lt;/a>&lt;/li>
+&lt;li>Do something where we once did nothing:
+&lt;a href="#predict">Predicting with things that can&amp;rsquo;t predict&lt;/a>&lt;/li>
+&lt;li>Make a place and point to it:
+&lt;a href="#model">Model formulas&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>To demonstrate, we&amp;rsquo;ll walk through some examples using the tidymodels packages:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://tidymodels.tidymodels.org'>tidymodels&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ── &lt;span style='font-weight: bold;'>Attaching packages&lt;/span> ──────────────────────────── tidymodels 1.1.1 ──&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>broom &lt;/span> 1.0.5 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>recipes &lt;/span> 1.0.8.&lt;span style='color: #BB0000;'>9000&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>dials &lt;/span> 1.2.0 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>rsample &lt;/span> 1.2.0 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>dplyr &lt;/span> 1.1.3 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>tibble &lt;/span> 3.2.1 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>ggplot2 &lt;/span> 3.4.4 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>tidyr &lt;/span> 1.3.0 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>infer &lt;/span> 1.0.5 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>tune &lt;/span> 1.1.2.&lt;span style='color: #BB0000;'>9000&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>modeldata &lt;/span> 1.2.0 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>workflows &lt;/span> 1.1.3 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>parsnip &lt;/span> 1.1.1.&lt;span style='color: #BB0000;'>9001&lt;/span> &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>workflowsets&lt;/span> 1.0.1 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>purrr &lt;/span> 1.0.2 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>yardstick &lt;/span> 1.2.0&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; ── &lt;span style='font-weight: bold;'>Conflicts&lt;/span> ─────────────────────────────── tidymodels_conflicts() ──&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> &lt;span style='color: #0000BB;'>purrr&lt;/span>::&lt;span style='color: #00BB00;'>discard()&lt;/span> masks &lt;span style='color: #0000BB;'>scales&lt;/span>::discard()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> &lt;span style='color: #0000BB;'>dplyr&lt;/span>::&lt;span style='color: #00BB00;'>filter()&lt;/span> masks &lt;span style='color: #0000BB;'>stats&lt;/span>::filter()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> &lt;span style='color: #0000BB;'>dplyr&lt;/span>::&lt;span style='color: #00BB00;'>lag()&lt;/span> masks &lt;span style='color: #0000BB;'>stats&lt;/span>::lag()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> &lt;span style='color: #0000BB;'>recipes&lt;/span>::&lt;span style='color: #00BB00;'>step()&lt;/span> masks &lt;span style='color: #0000BB;'>stats&lt;/span>::step()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #0000BB;'>•&lt;/span> Use suppressPackageStartupMessages() to eliminate package startup messages&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Note that my installed versions include the current dev version of a few tidymodels packages. You can install those versions with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>pak&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://pak.r-lib.org/reference/pak.html'>pak&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/paste.html'>paste0&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"tidymodels/"&lt;/span>, &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"tune"&lt;/span>, &lt;span class='s'>"parsnip"&lt;/span>, &lt;span class='s'>"recipes"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="the-outcome-went-missing-">The outcome went missing 👻
+&lt;a href="#the-outcome-went-missing-">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The tidymodels packages focus on &lt;em>supervised&lt;/em> machine learning problems, predicting the value of an outcome using predictors.&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup> For example, in the code:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>linear_spec&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>linear_reg&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>linear_fit&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>fit&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>linear_spec&lt;/span>, &lt;span class='nv'>mpg&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>hp&lt;/span>, &lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The &lt;code>mpg&lt;/code> variable is the outcome. There are many ways that an analyst may mistakenly fail to pass an outcome. In the most straightforward case, they might omit the outcome on the LHS of the formula:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">fit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">linear_spec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">hp&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error in lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...) : &lt;/span>
+&lt;span class="c1">#&amp;gt; incompatible dimensions&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>In this case, parsnip used to defer to the modeling engine to raise an error, which may or may not be informative.&lt;/p>
+&lt;p>There are many less obvious ways an analyst may mistakenly supply no outcome variable. For example, try spotting the issue in the following code, defining a recipe to perform principal component analysis (PCA) on the numeric variables in the data before fitting the model:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">mtcars_rec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_pca&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">all_numeric&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="nf">workflow&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars_rec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">linear_spec&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">fit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error: object &amp;#39;.&amp;#39; not found&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>A head-scratcher! To help diagnose what&amp;rsquo;s happening here, we could first try seeing what data is actually being passed to the model.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>mtcars_rec_trained&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>mtcars_rec&lt;/span> &lt;span class='o'>%&amp;gt;%&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>prep&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span> &lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>mtcars_rec_trained&lt;/span> &lt;span class='o'>%&amp;gt;%&lt;/span> &lt;span class='nf'>bake&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='kc'>NULL&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 32 × 5&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; PC1 PC2 PC3 PC4 PC5&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> -&lt;span style='color: #BB0000;'>195.&lt;/span> 12.8 -&lt;span style='color: #BB0000;'>11.4&lt;/span> 0.016&lt;span style='text-decoration: underline;'>4&lt;/span> 2.17 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> -&lt;span style='color: #BB0000;'>195.&lt;/span> 12.9 -&lt;span style='color: #BB0000;'>11.7&lt;/span> -&lt;span style='color: #BB0000;'>0.479&lt;/span> 2.11 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> -&lt;span style='color: #BB0000;'>142.&lt;/span> 25.9 -&lt;span style='color: #BB0000;'>16.0&lt;/span> -&lt;span style='color: #BB0000;'>1.34&lt;/span> -&lt;span style='color: #BB0000;'>1.18&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> -&lt;span style='color: #BB0000;'>279.&lt;/span> -&lt;span style='color: #BB0000;'>38.3&lt;/span> -&lt;span style='color: #BB0000;'>14.0&lt;/span> 0.157 -&lt;span style='color: #BB0000;'>0.817&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> -&lt;span style='color: #BB0000;'>399.&lt;/span> -&lt;span style='color: #BB0000;'>37.3&lt;/span> -&lt;span style='color: #BB0000;'>1.38&lt;/span> 2.56 -&lt;span style='color: #BB0000;'>0.444&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> -&lt;span style='color: #BB0000;'>248.&lt;/span> -&lt;span style='color: #BB0000;'>25.6&lt;/span> -&lt;span style='color: #BB0000;'>12.2&lt;/span> -&lt;span style='color: #BB0000;'>3.01&lt;/span> -&lt;span style='color: #BB0000;'>1.08&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> -&lt;span style='color: #BB0000;'>435.&lt;/span> 20.9 13.9 0.801 -&lt;span style='color: #BB0000;'>0.916&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> -&lt;span style='color: #BB0000;'>160.&lt;/span> -&lt;span style='color: #BB0000;'>20.0&lt;/span> -&lt;span style='color: #BB0000;'>23.3&lt;/span> -&lt;span style='color: #BB0000;'>1.06&lt;/span> 0.787&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> -&lt;span style='color: #BB0000;'>172.&lt;/span> 10.8 -&lt;span style='color: #BB0000;'>18.3&lt;/span> -&lt;span style='color: #BB0000;'>4.40&lt;/span> -&lt;span style='color: #BB0000;'>0.836&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> -&lt;span style='color: #BB0000;'>209.&lt;/span> 19.7 -&lt;span style='color: #BB0000;'>8.94&lt;/span> -&lt;span style='color: #BB0000;'>2.58&lt;/span> 1.33 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 22 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Mmm. What happened to &lt;code>mpg&lt;/code>? We mistakenly told &lt;code>step_pca()&lt;/code> to perform PCA on &lt;em>all&lt;/em> of the numeric variables, not just the numeric &lt;em>predictors&lt;/em>! As a result, it incorporated &lt;code>mpg&lt;/code> into the principal components, removing each of the original numeric variables after the fact. Rewriting using the correct tidyselect specification &lt;code>all_numeric_predictors()&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>mtcars_rec_new&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>recipe&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>, &lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>%&amp;gt;%&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>step_pca&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>all_numeric_predictors&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>workflow&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars_rec_new&lt;/span>, &lt;span class='nv'>linear_spec&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>%&amp;gt;%&lt;/span> &lt;span class='nf'>fit&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ══ Workflow [trained] ════════════════════════════════════════════════&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-style: italic;'>Preprocessor:&lt;/span> Recipe&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-style: italic;'>Model:&lt;/span> linear_reg()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ── Preprocessor ──────────────────────────────────────────────────────&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 1 Recipe Step&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • step_pca()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ── Model ─────────────────────────────────────────────────────────────&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Call:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; stats::lm(formula = ..y ~ ., data = data)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Coefficients:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; (Intercept) PC1 PC2 PC3 PC4 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 43.39293 0.07609 -0.05266 0.57892 0.94890 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; PC5 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; -1.72569&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Works like a charm. That error we saw previously could be much more helpful, though. With the current developmental version of parsnip, this looks like:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>fit&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>linear_spec&lt;/span>, &lt;span class='o'>~&lt;/span> &lt;span class='nv'>hp&lt;/span>, &lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00; font-weight: bold;'>Error&lt;/span>&lt;span style='font-weight: bold;'>:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>!&lt;/span> `linear_reg()` was unable to find an outcome.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> Ensure that you have specified an outcome column and that it hasn't&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; been removed in pre-processing.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Or, with workflows:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>workflow&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars_rec&lt;/span>, &lt;span class='nv'>linear_spec&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>%&amp;gt;%&lt;/span> &lt;span class='nf'>fit&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00; font-weight: bold;'>Error&lt;/span>&lt;span style='font-weight: bold;'>:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>!&lt;/span> `linear_reg()` was unable to find an outcome.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> Ensure that you have specified an outcome column and that it hasn't&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; been removed in pre-processing.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Much better.&lt;/p>
+&lt;h2 id="predicting-with-things-that-cant-predict">Predicting with things that can&amp;rsquo;t predict
+&lt;a href="#predicting-with-things-that-cant-predict">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Earlier this year, Dr. Louise E. Sinks put out a
+&lt;a href="https://lsinks.github.io/posts/2023-04-10-tidymodels/tidymodels_tutorial.html" target="_blank" rel="noopener">wonderful blog post&lt;/a> documenting what it felt like to approach the various object types defined in the tidymodels as a newcomer to the collection of packages. They wrote:&lt;/p>
+&lt;blockquote>
+&lt;p>I found it confusing that &lt;code>fit&lt;/code>, &lt;code>last_fit&lt;/code>, &lt;code>fit_resamples&lt;/code>, etc., did not all produce objects that contained the same information and could be acted on by the same functions.&lt;/p>
+&lt;/blockquote>
+&lt;p>This makes sense. While we try to forefront the intended mental model for fitting and predicting with tidymodels in our APIs and documentation, we also need to be proactive in anticipating common challenges in constructing that mental model.&lt;/p>
+&lt;p>For example, we&amp;rsquo;ve found that it&amp;rsquo;s sometimes not clear to users which outputs they can call
+&lt;a href="https://rdrr.io/r/stats/predict.html" target="_blank" rel="noopener">&lt;code>predict()&lt;/code>&lt;/a> on. One such situation, as Louise points out, is with &lt;code>fit_resamples()&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># fit a linear regression model to bootstrap resamples of mtcars&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>mtcars_res&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>fit_resamples&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>linear_reg&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='nv'>mpg&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>, &lt;span class='nf'>bootstraps&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>mtcars_res&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; # Resampling results&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; # Bootstrap sampling &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 25 × 4&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; splits id .metrics .notes &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [32/11]&amp;gt;&lt;/span> Bootstrap01 &lt;span style='color: #555555;'>&amp;lt;tibble [2 × 4]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [32/10]&amp;gt;&lt;/span> Bootstrap02 &lt;span style='color: #555555;'>&amp;lt;tibble [2 × 4]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [32/16]&amp;gt;&lt;/span> Bootstrap03 &lt;span style='color: #555555;'>&amp;lt;tibble [2 × 4]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [32/11]&amp;gt;&lt;/span> Bootstrap04 &lt;span style='color: #555555;'>&amp;lt;tibble [2 × 4]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [32/10]&amp;gt;&lt;/span> Bootstrap05 &lt;span style='color: #555555;'>&amp;lt;tibble [2 × 4]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [32/13]&amp;gt;&lt;/span> Bootstrap06 &lt;span style='color: #555555;'>&amp;lt;tibble [2 × 4]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [32/16]&amp;gt;&lt;/span> Bootstrap07 &lt;span style='color: #555555;'>&amp;lt;tibble [2 × 4]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [32/11]&amp;gt;&lt;/span> Bootstrap08 &lt;span style='color: #555555;'>&amp;lt;tibble [2 × 4]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [32/11]&amp;gt;&lt;/span> Bootstrap09 &lt;span style='color: #555555;'>&amp;lt;tibble [2 × 4]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [32/10]&amp;gt;&lt;/span> Bootstrap10 &lt;span style='color: #555555;'>&amp;lt;tibble [2 × 4]&amp;gt;&lt;/span> &lt;span style='color: #555555;'>&amp;lt;tibble [0 × 3]&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 15 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>With previous tidymodels versions, mistakenly trying to predict with this object resulted in the following output:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">predict&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars_res&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error in UseMethod(&amp;#34;predict&amp;#34;) : &lt;/span>
+&lt;span class="c1">#&amp;gt; no applicable method for &amp;#39;predict&amp;#39; applied to an object of class&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;#34;c(&amp;#39;resample_results&amp;#39;, &amp;#39;tune_results&amp;#39;, &amp;#39;tbl_df&amp;#39;, &amp;#39;tbl&amp;#39;, &amp;#39;data.frame&amp;#39;)&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Some R developers may recognize this error as what results when we didn&amp;rsquo;t define any
+&lt;a href="https://rdrr.io/r/stats/predict.html" target="_blank" rel="noopener">&lt;code>predict()&lt;/code>&lt;/a> method for &lt;code>tune_results&lt;/code> objects. We didn&amp;rsquo;t do so because prediction isn&amp;rsquo;t well-defined for tuning results. &lt;em>But&lt;/em>, this error message does little to help a user understand why that&amp;rsquo;s the case.&lt;/p>
+&lt;p>We&amp;rsquo;ve recently made some changes to error more informatively in this case. We do so by defining a &amp;ldquo;dummy&amp;rdquo;
+&lt;a href="https://rdrr.io/r/stats/predict.html" target="_blank" rel="noopener">&lt;code>predict()&lt;/code>&lt;/a> method for tuning results, implemented only for the sake of erroring more informatively. The same code will now give the following output:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">predict&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars_res&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error in `predict()`:&lt;/span>
+&lt;span class="c1">#&amp;gt; ! `predict()` is not well-defined for tuning results.&lt;/span>
+&lt;span class="c1">#&amp;gt; ℹ To predict with the optimal model configuration from tuning&lt;/span>
+&lt;span class="c1">#&amp;gt; results, ensure that the tuning result was generated with the&lt;/span>
+&lt;span class="c1">#&amp;gt; control option `save_workflow = TRUE`, run `fit_best()`, and&lt;/span>
+&lt;span class="c1">#&amp;gt; then predict using `predict()` on its output.&lt;/span>
+&lt;span class="c1">#&amp;gt; ℹ To collect predictions from tuning results, ensure that the&lt;/span>
+&lt;span class="c1">#&amp;gt; tuning result was generated with the control option `save_pred&lt;/span>
+&lt;span class="c1">#&amp;gt; = TRUE` and run `collect_predictions()`.&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>References to important concepts or functions, like
+&lt;a href="https://tune.tidymodels.org/reference/control_grid.html" target="_blank" rel="noopener">control options&lt;/a>,
+&lt;a href="https://tune.tidymodels.org/reference/fit_best.html?q=fit_best" target="_blank" rel="noopener">&lt;code>fit_best()&lt;/code>&lt;/a>, and
+&lt;a href="https://tune.tidymodels.org/reference/collect_predictions.html?q=collect" target="_blank" rel="noopener">&lt;code>collect_predictions()&lt;/code>&lt;/a>, link to the help-files for those functions using
+&lt;a href="https://cli.r-lib.org/reference/cli_abort.html" target="_blank" rel="noopener">cli&amp;rsquo;s erroring tools&lt;/a>.&lt;/p>
+&lt;p>We hope new error messages like this will help to get folks back on track.&lt;/p>
+&lt;h2 id="model-formulas">Model formulas
+&lt;a href="#model-formulas">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>In R, formulas provide a compact, symbolic notation to specify model terms. Many modeling functions in R make use of &amp;ldquo;specials,&amp;rdquo; or nonstandard notations used in formulas. Specials are defined and handled as a special case by a given modeling package. parsnip defers to engine packages to handle specials, so you can work with them as usual. For example, the mgcv package provides support for generalized additive models in R, and defines a special called &lt;code>s()&lt;/code> to indicate smoothing terms. You can interface with it via tidymodels like so:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># define a generalized additive model specification&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>gam_spec&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>gen_additive_mod&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"regression"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># fit the specification using a formula with specials&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>fit&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>gam_spec&lt;/span>, &lt;span class='nv'>mpg&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>cyl&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>s&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>disp&lt;/span>, k &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; parsnip model object&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Family: gaussian &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Link function: identity &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Formula:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; mpg ~ cyl + s(disp, k = 5)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Estimated degrees of freedom:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 3.39 total = 5.39 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; GCV score: 6.380152&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>While parsnip can handle specials just fine, the package is often used in conjunction with the greater tidymodels package ecosystem, which defines its own pre-processing infrastructure and functionality via packages like hardhat and recipes. The specials defined in many modeling packages introduce conflicts with that infrastructure. To support specials while also maintaining consistent syntax elsewhere in the ecosystem, &lt;strong>tidymodels delineates between two types of formulas: preprocessing formulas and model formulas&lt;/strong>. Preprocessing formulas determine the input variables, while model formulas determine the model structure.&lt;/p>
+&lt;p>This is a tricky abstraction, and one that users have tripped up on in the past. Users could generate all sorts of different errors by 1) mistakenly passing model formulas where preprocessing formulas were expected, or 2) forgetting to pass a model formula where it&amp;rsquo;s needed. For an example of 1), we could pass recipes the same formula we passed to parsnip:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">cyl&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="nf">s&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">disp&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">k&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error in `inline_check()`:&lt;/span>
+&lt;span class="c1">#&amp;gt; ! No in-line functions should be used here; use steps to &lt;/span>
+&lt;span class="c1">#&amp;gt; define baking actions.&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>But we &lt;em>just&lt;/em> used a special with another tidymodels function! Rude!&lt;/p>
+&lt;p>Or, to demonstrate 2), we pass the preprocessing formula as we ought to but forget to provide the model formula:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">gam_wflow&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">workflow&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">add_formula&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">add_model&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gam_spec&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">gam_wflow&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">fit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error in `fit_xy()`:&lt;/span>
+&lt;span class="c1">#&amp;gt; ! `fit()` must be used with GAM models (due to its use of formulas).&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Uh, but I &lt;em>did&lt;/em> just use &lt;code>fit()&lt;/code>!&lt;/p>
+&lt;p>Since the distinction between model formulas and preprocessor formulas comes up in functions across tidymodels, we decide to create a
+&lt;a href="https://parsnip.tidymodels.org/dev/reference/model_formula.html" target="_blank" rel="noopener">central page&lt;/a> that documents the concept itself, hopefully making the syntax associated with it come more easily to users. Then, we link to it &lt;em>all over the place&lt;/em>. For example, those errors now look like:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>recipe&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>cyl&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>s&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>disp&lt;/span>, k &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00; font-weight: bold;'>Error&lt;/span>&lt;span style='font-weight: bold;'> in `inline_check()`:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> No in-line functions should be used here.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> The following function was found: `s`.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> Use steps to do transformations instead.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> If your modeling engine uses special terms in formulas, pass that&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; formula to workflows as a model formula&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; (`?parsnip::model_formula()`).&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Or:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>gam_wflow&lt;/span> &lt;span class='o'>%&amp;gt;%&lt;/span> &lt;span class='nf'>fit&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00; font-weight: bold;'>Error&lt;/span>&lt;span style='font-weight: bold;'>:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>!&lt;/span> When working with generalized additive models, please supply&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; the model specification to `workflows::add_model()` along with a&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; `formula` argument.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> See `?parsnip::model_formula()` to learn more.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>While I&amp;rsquo;ve only outlined three, there are all sorts of improvements to error messages on their way to the tidymodels packages in upcoming releases. If you happen to stumble across them, we hope they quickly set you back on the right path. 🗺&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>Issue triage consists of categorizing, prioritizing, and consolidating issues in a repository&amp;rsquo;s issue tracker. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>See the
+&lt;a href="https://tidyclust.tidymodels.org" target="_blank" rel="noopener">tidyclust&lt;/a> package for unsupervised learning with tidymodels! &lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>Package spring cleaning</title><link>https://www.tidyverse.org/blog/2023/06/spring-cleaning-2023/</link><pubDate>Wed, 07 Jun 2023 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2023/06/spring-cleaning-2023/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] `Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+&lt;style>
+p.caption {
+color:#696969;
+font-style: italic;
+}
+&lt;/style>
+&lt;p>When Spring arrives in the Northern hemisphere, the sun&amp;rsquo;s rays reach into the dark corners and illuminate the dust that has been gathering over the winter. This is when our thoughts start to turn to Spring cleaning &amp;mdash; a time to clear out the clutter that has accumulated over the past year. It represents a fresh start and a new beginning, and leaves us feeling rejuvenated and ready to take on the rest of the year. This applies not only to our homes, but also to the code that we maintain &amp;mdash; there are often bits and pieces that we know need attention but never seem to make it to the top of the priority list.&lt;/p>
+&lt;p>Doing this kind of work isn&amp;rsquo;t necessarily only about adopting good practices or increasing the quality of your code &amp;mdash; it can also be about adding value through standardization. Most developers only work sporadically on a particular package. For some it&amp;rsquo;s because they work on a lot of packages, while for many it&amp;rsquo;s because package development is not their main job. When you return to a package after a long gap, there is potential for a lot of friction (and dread/procrastination) as you get re-oriented to its idiosyncrasies. Making the occasional pass through your packages and looking for opportunities to adopt current, shared practices can make it easier to dip in and out of different packages.&lt;/p>
+&lt;p>The tidyverse team at Posit has a practice of tackling Spring Cleaning together - we set aside a week every year to work in a semi-structured way to efficiently take care of a common list of package maintenance tasks. We find that setting a time for them and doing them all together during one week is an effective, and more fun, way to get them done. We recently completed our 2023 Spring Cleaning and thought it might be fun to share our process.&lt;/p>
+&lt;p>I&amp;rsquo;ll also show off a new feature we&amp;rsquo;ve built in to the
+&lt;a href="https://usethis.r-lib.org/news/index.html#usethis-220" target="_blank" rel="noopener">latest version of usethis&lt;/a> that will help you organize your own Spring Cleaning. Feel free to
+&lt;a href="#spring-cleaning-and-you">jump straight there&lt;/a> if you want to skip the back story (don&amp;rsquo;t you wish recipe blogs had this feature?).&lt;/p>
+&lt;h2 id="preparation">Preparation
+&lt;a href="#preparation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Early in the new year, we set aside the time in our calendars for Spring Cleaning &amp;mdash; this way everyone knows that it&amp;rsquo;s coming up and can make sure they have cleared the space in their schedules (and their minds) to focus on it.&lt;/p>
+&lt;p>We prepare for the week by creating a list of things we want to take care of in our packages. Rather than adding features or fixing bugs, these tasks are usually about bringing things up to current standards or best practices, and include things like updating tests to the latest testthat version, updating pkgdown templates, and adding alt-text to images in pkgdown sites. Not surprisingly, this year a lot of the upkeep was related to our
+&lt;a href="https://posit.co/blog/rstudio-is-now-posit/" target="_blank" rel="noopener">recent rebrand from RStudio to Posit&lt;/a> &amp;mdash; things like updating the copyright holder and author email addresses, and using updated logos without the old rstudio.com website on them.&lt;/p>
+&lt;p>We start off the week with a kickoff meeting on Monday morning. We go through the checklist with everybody and refine what&amp;rsquo;s in it, making sure everybody has had input. Because we maintain so many packages, we have a spreadsheet where we keep track of the packages that are undergoing spring cleaning, and people can assign themselves to packages and mark them as completed when they&amp;rsquo;re done.&lt;/p>
+&lt;h2 id="checklists-checklists-checklists">Checklists, checklists, checklists
+&lt;a href="#checklists-checklists-checklists">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We formalize these tasks into a checklist (
+&lt;a href="https://atulgawande.com/book/the-checklist-manifesto/" target="_blank" rel="noopener">who doesn&amp;rsquo;t love checklists&lt;/a>) via a tidyverse-focused function in usethis called &lt;code>use_tidy_upkeep_issue()&lt;/code>. If you&amp;rsquo;re a package developer and you use
+&lt;a href="https://usethis.r-lib.org/reference/use_release_issue.html" target="_blank" rel="noopener">&lt;code>use_release_issue()&lt;/code>&lt;/a>, this will look familiar: it opens an issue in the package&amp;rsquo;s GitHub repository with a checklist of tasks to guide us through what needs to be done to bring it up to current tidyverse standards. We update the function with the current year&amp;rsquo;s checklist just prior to starting (and sometimes during) Spring Cleaning.&lt;/p>
+&lt;p>Package maintainers then install the development version of usethis to get the current checklist, and call &lt;code>usethis::use_tidy_upkeep_issue()&lt;/code> in their package to create the issue. If there are any tasks that aren&amp;rsquo;t relevant to that particular repo it&amp;rsquo;s easy to just edit the issue and remove it. To be really meta, here is the 2023 Spring Cleaning
+&lt;a href="https://github.com/r-lib/usethis/issues/1791" target="_blank" rel="noopener">upkeep issue for usethis&lt;/a>, created by usethis:&lt;/p>
+&lt;div class="highlight">
+&lt;div class="figure" style="text-align: center">
+&lt;p>&lt;a href="https://github.com/r-lib/usethis/issues/1791" target="_blank">&lt;img src="img/usethis-upkeep-issue.png" alt="2023 Upkeep Issue for usethis" width="700px" />&lt;/a>&lt;/p>
+&lt;p class="caption">
+2023 Upkeep Issue for usethis
+&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;p>We separated the tasks into &amp;ldquo;Necessary&amp;rdquo; and &amp;ldquo;Optional&amp;rdquo;. The necessary tasks were those we needed to complete for all of our packages, and also were simple enough that we could be sure we would able to complete them. The optional items were those that were nice to have, and/or would take longer to complete. We try to complete the work, including reviewing and merging any related
+&lt;a href="https://github.com/tidymodels/dials/pull/275" target="_blank" rel="noopener">pull requests&lt;/a>, all within the week, with the intention of closing the upkeep issue by Friday.&lt;/p>
+&lt;h2 id="wrapup">Wrapup
+&lt;a href="#wrapup">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Finally, we end the week with a wrap-up meeting - we do a retrospective on what worked, what didn&amp;rsquo;t, and what we would change for next time. For example, we found that a couple of items on this year&amp;rsquo;s checklist that were too complex to complete within the week, especially across many repos. So we decided to start a practice of converting those &amp;ldquo;too big&amp;rdquo; tasks into issues of their own &amp;mdash; you can see an example in the
+&lt;a href="https://github.com/r-lib/testthat/issues/1749" target="_blank" rel="noopener">testthat upkeep issue&lt;/a>. This makes it more likely that we can cleanly complete the checklist but still flag those lingering things we would like to finish.&lt;/p>
+&lt;p>We also try to have a little fun during the wrap-up meeting! I made a small R package called
+&lt;a href="https://github.com/ateucher/chatrbox" target="_blank" rel="noopener">chatrbox&lt;/a> that uses
+&lt;a href="https://openai.com/blog/chatgpt" target="_blank" rel="noopener">ChatGPT&lt;/a> to generate R-themed Spring Cleaning text snippets. And Tracy Teal used
+&lt;a href="https://quarto.org/" target="_blank" rel="noopener">quarto&lt;/a> to make certificates of achievement for each of us, complete with inspirational messages made with chatrbox!&lt;/p>
+&lt;div class="highlight">
+&lt;p>&lt;img src="img/george-certificate.png" alt="A certificate of excellence in Spring Cleaning for George Stagg, with AI-generated text in the form of a tweet about software licensing in the style of Shakespeare. The generated text says: &amp;quot;Of software fair, be wary and take heed, For licensing terms doth often mislead. Choose wisely, lest thou shouldst freely bruise.&amp;quot; #SoftwareLicensing #ShakespeareanTweets" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="spring-cleaning-and-you">Spring cleaning and you!
+&lt;a href="#spring-cleaning-and-you">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>In
+&lt;a href="https://usethis.r-lib.org/news/index.html#usethis-220" target="_blank" rel="noopener">version 2.2.0 of usethis&lt;/a>, we have created a general purpose
+&lt;a href="https://usethis.r-lib.org/reference/use_upkeep_issue.html" target="_blank" rel="noopener">&lt;code>use_upkeep_issue()&lt;/code>&lt;/a> function for package authors to use if they wish to do a Spring Cleaning of their own. It is a fairly opinionated list of tasks but we believe taking care of them will generally make your package better, easier to maintain, and more enjoyable for your users. Some of the tasks are meant to be performed only once (and once completed shouldn&amp;rsquo;t show up in subsequent lists), and some should be reviewed periodically. If you want to include additional tasks, you can add an (unexported) function named &lt;code>upkeep_bullets()&lt;/code> to your own package that returns a character vector of tasks. These will be added to your upkeep checklist.&lt;/p>
+&lt;p>Here is an example of an upkeep issue I created for my package rmapshaper. I created an internal function &lt;code>upkeep_bullets()&lt;/code> in the package, with an extra bullet I wanted to add to the upkeep issue:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>upkeep_bullets&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='s'>"Update bundled mapshaper node library."&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>And then called &lt;code>use_upkeep_issue()&lt;/code> in my rmapshaper package directory:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>devtools&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://devtools.r-lib.org/reference/load_all.html'>load_all&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ℹ Loading rmapshaper&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>usethis&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://usethis.r-lib.org/reference/use_upkeep_issue.html'>use_upkeep_issue&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ✔ Setting active project to '/Users/andyteucher/dev/ateucher/rmapshaper'&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • Open URL 'https://github.com/ateucher/rmapshaper/issues/160'&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div class="highlight">
+&lt;div class="figure" style="text-align: center">
+&lt;p>&lt;a href="https://github.com/ateucher/rmapshaper/issues/160" target="_blank">&lt;img src="img/rmapshaper-upkeep-issue.png" alt="Upkeep issue for rmapshaper" width="700px" />&lt;/a>&lt;/p>
+&lt;p class="caption">
+Upkeep issue for rmapshaper
+&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;p>In a fun confluence of events, while working on this post I attended an
+&lt;a href="https://ropensci.org/events/coworking-2023-05/" target="_blank" rel="noopener">rOpenSci coworking session&lt;/a> where the topic of the day was spring cleaning! We chatted about the benefits of regular upkeep, and what types of tasks make good spring cleaning issues. It was really inspiring and validating to connect with other people tackling maintenance like this.&lt;/p>
+&lt;p>We hope that this will provide a starting point, and motivate you to take care of those nagging maintenance issues, whether it be in the Spring (whenever that is in your part of the world), or any other time of the year. We&amp;rsquo;d love to hear if you find this helpful, or if there&amp;rsquo;s a way that it could be better, please
+&lt;a href="https://github.com/r-lib/usethis/issues" target="_blank" rel="noopener">let us know&lt;/a>.&lt;/p></description></item></channel></rss>

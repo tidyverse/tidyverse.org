@@ -1,0 +1,665 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>httr | Tidyverse</title><link>https://www.tidyverse.org/tags/httr/</link><atom:link href="https://www.tidyverse.org/tags/httr/index.xml" rel="self" type="application/rss+xml"/><description>httr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 14 Nov 2023 00:00:00 +0000</lastBuildDate><item><title>httr2 1.0.0</title><link>https://www.tidyverse.org/blog/2023/11/httr2-1-0-0/</link><pubDate>Tue, 14 Nov 2023 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2023/11/httr2-1-0-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re delighted to announce the release of
+&lt;a href="https://httr2.r-lib.org" target="_blank" rel="noopener">httr2&lt;/a>&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> 1.0.0. httr2 is the second generation of httr: it helps you generate HTTP requests and process the responses, designed with an eye towards modern web APIs and potentially putting your code in a package.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"httr2"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>httr2 has been under development for the last two years, but this is the first time we&amp;rsquo;ve blogged about it because we&amp;rsquo;ve been waiting until the user interface felt stable. It now does, and we&amp;rsquo;re ready to encourage you to use httr2 whenever you need to talk to a web server. Most importantly httr2 is now a &amp;ldquo;real&amp;rdquo; package because it has a wonderful new logo, thanks to a collaborative effort involving Julie Jung, Greg Swineheart, and DALL•E 3.&lt;/p>
+&lt;div class="highlight">
+&lt;p>&lt;img src="httr2.png" alt="The new httr2 logo is a dark blue hexagon with httr2 written in bright white at the top of logo. Underneath the text is a vibrant magenta baseball player hitting a ball emblazoned with the letters &amp;quot;www&amp;quot;." width="200px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>httr2 is the successor to httr. The biggest difference is that it has an explicit request object which you can build up over multiple function calls. This makes the interface fit more naturally with the pipe, and generally makes life easier because you can iteratively build up a complex request. httr2 also builds on the 10 years of package development experience we&amp;rsquo;ve accrued since creating httr, so it should all around be more enjoyable to use. If you&amp;rsquo;re a current httr user, there&amp;rsquo;s no need to switch, as we&amp;rsquo;ll continue to maintain the package for many years to come, but if you start on a new project, I&amp;rsquo;d recommend that you give httr2 a shot.&lt;/p>
+&lt;p>If you&amp;rsquo;ve been following httr2 development for a while, you might want to jump to the
+&lt;a href="https://github.com/r-lib/httr2/releases/tag/v1.0.0" target="_blank" rel="noopener">release notes&lt;/a> to see what&amp;rsquo;s new (a lot!). The most important change in this release is that
+&lt;a href="https://github.com/mgirlich" target="_blank" rel="noopener">Maximilian Girlich&lt;/a> is now a httr2 author, in recognition of his many contributions to the package. This release also features improved tools for performing multiple requests (more on that below) and a bunch of bug fixes and minor improvements for OAuth.&lt;/p>
+&lt;p>For the rest of this blog post, I&amp;rsquo;ll assume that you&amp;rsquo;re familiar with the basics of HTTP. If you&amp;rsquo;re not, you might want to start with &lt;code>vignette(&amp;quot;httr2&amp;quot;)&lt;/code> which introduces you to HTTP using httr2.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://httr2.r-lib.org'>httr2&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="making-a-request">Making a request
+&lt;a href="#making-a-request">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>httr2 is designed around the two big pieces of HTTP: requests and responses. First you&amp;rsquo;ll create a request, with a URL:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>req&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/request.html'>request&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/example_url.html'>example_url&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>req&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #0000BB;'>&amp;lt;httr2_request&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>GET&lt;/span> http://127.0.0.1:51981/&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Body&lt;/span>: empty&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Instead of using an external website, here we&amp;rsquo;re using a test server that&amp;rsquo;s built in to httr2. This ensures that this blog post, and many httr2 examples, work independently from the rest of the internet.&lt;/p>
+&lt;p>You can see the HTTP request that httr2 will send, without actually sending it&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>, by doing a dry run:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>req&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/req_dry_run.html'>req_dry_run&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; GET / HTTP/1.1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Host&lt;/span>: 127.0.0.1:51981&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>User-Agent&lt;/span>: httr2/0.2.3.9000 r-curl/5.1.0 libcurl/8.1.2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Accept&lt;/span>: */*&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Accept-Encoding&lt;/span>: deflate, gzip&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>As you can see, this request object will perform a simple &lt;code>GET&lt;/code> request with automatic user agent and accept headers.&lt;/p>
+&lt;p>To make more complex requests, you modify the request object with functions that start with &lt;code>req_&lt;/code>. For example, you could make it a &lt;code>HEAD&lt;/code> request, with some query parameters, and a custom user agent:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>req&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/req_url.html'>req_url_query&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>param &lt;span class='o'>=&lt;/span> &lt;span class='s'>"value"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/req_user_agent.html'>req_user_agent&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"My user agent"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/req_method.html'>req_method&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"HEAD"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/req_dry_run.html'>req_dry_run&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; HEAD /?param=value HTTP/1.1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Host&lt;/span>: 127.0.0.1:51981&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>User-Agent&lt;/span>: My user agent&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Accept&lt;/span>: */*&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Accept-Encoding&lt;/span>: deflate, gzip&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Or you could send some JSON in the body of the request:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>req&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/req_body.html'>req_body_json&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/list.html'>list&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='s'>"a"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/req_dry_run.html'>req_dry_run&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; POST / HTTP/1.1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Host&lt;/span>: 127.0.0.1:51981&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>User-Agent&lt;/span>: httr2/0.2.3.9000 r-curl/5.1.0 libcurl/8.1.2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Accept&lt;/span>: */*&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Accept-Encoding&lt;/span>: deflate, gzip&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Content-Type&lt;/span>: application/json&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Content-Length&lt;/span>: 15&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;#123;"x":1,"y":"a"&amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>httr2 provides a
+&lt;a href="https://httr2.r-lib.org/dev/reference/index.html#requests" target="_blank" rel="noopener">wide range of &lt;code>req_&lt;/code> function&lt;/a> to customise the request in common ways; if there&amp;rsquo;s something you need that httr2 doesn&amp;rsquo;t support, please
+&lt;a href="https://github.com/r-lib/httr2/issues/new" target="_blank" rel="noopener">file an issue&lt;/a>!&lt;/p>
+&lt;h2 id="performing-the-request-and-handling-the-response">Performing the request and handling the response
+&lt;a href="#performing-the-request-and-handling-the-response">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Once you have a request that you are happy with, you can send it to the server with
+&lt;a href="https://httr2.r-lib.org/reference/req_perform.html" target="_blank" rel="noopener">&lt;code>req_perform()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>req_json&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>req&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/req_url.html'>req_url_path&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"/json"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>resp&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>req_json&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/req_perform.html'>req_perform&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Performing a request will return a response object (or throw an error, which we&amp;rsquo;ll talk about next). You can see the basic details of the request by printing it or you can see the raw response with
+&lt;a href="https://httr2.r-lib.org/reference/resp_raw.html" target="_blank" rel="noopener">&lt;code>resp_raw()&lt;/code>&lt;/a>&lt;sup id="fnref:3">&lt;a href="#fn:3" class="footnote-ref" role="doc-noteref">3&lt;/a>&lt;/sup>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>resp&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #0000BB;'>&amp;lt;httr2_response&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>GET&lt;/span> http://127.0.0.1:51981/json&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>Status&lt;/span>: 200 OK&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>Content-Type&lt;/span>: application/json&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>Body&lt;/span>: In memory (407 bytes)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>resp&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/resp_raw.html'>resp_raw&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; HTTP/1.1 200 OK&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Connection&lt;/span>: close&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Date&lt;/span>: Tue, 14 Nov 2023 14:41:32 GMT&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Content-Type&lt;/span>: application/json&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Content-Length&lt;/span>: 407&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>ETag&lt;/span>: "de760e6d"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;#123;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "firstName": "John",&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "lastName": "Smith",&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "isAlive": true,&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "age": 27,&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "address": &amp;#123;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "streetAddress": "21 2nd Street",&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "city": "New York",&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "state": "NY",&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "postalCode": "10021-3100"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;#125;,&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "phoneNumbers": [&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;#123;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "type": "home",&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "number": "212 555-1234"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;#125;,&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;#123;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "type": "office",&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "number": "646 555-4567"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ],&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "children": [],&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; "spouse": null&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>But generally, you&amp;rsquo;ll want to use the &lt;code>resp_&lt;/code> functions to extract parts of the response for further processing. For example, you could parse the JSON body into an R data structure:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>resp&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/resp_body_raw.html'>resp_body_json&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/str.html'>str&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; List of 8&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ firstName : chr "John"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ lastName : chr "Smith"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ isAlive : logi TRUE&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ age : int 27&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ address :List of 4&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ streetAddress: chr "21 2nd Street"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ city : chr "New York"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ state : chr "NY"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ postalCode : chr "10021-3100"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ phoneNumbers:List of 2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ :List of 2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ type : chr "home"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ number: chr "212 555-1234"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ :List of 2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ type : chr "office"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ number: chr "646 555-4567"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ children : list()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ spouse : NULL&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Or get the value of a header:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>resp&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/resp_headers.html'>resp_header&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Content-Length"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "407"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="error-handling">Error handling
+&lt;a href="#error-handling">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>You can use
+&lt;a href="https://httr2.r-lib.org/reference/resp_status.html" target="_blank" rel="noopener">&lt;code>resp_status()&lt;/code>&lt;/a> to see the returned status:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>resp&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/resp_status.html'>resp_status&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 200&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>But this will almost always be 200, because httr2 automatically follows redirects (statuses in the 300s) and turns HTTP failures (statuses in the 400s and 500s) into R errors. The following example shows what error handling looks like using an example endpoint that returns a response with the status defined in the URL:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>req&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/req_url.html'>req_url_path&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"/status/404"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/req_perform.html'>req_perform&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00; font-weight: bold;'>Error&lt;/span>&lt;span style='font-weight: bold;'> in `req_perform()`:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>!&lt;/span> HTTP 404 Not Found.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>req&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/req_url.html'>req_url_path&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"/status/500"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/req_perform.html'>req_perform&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00; font-weight: bold;'>Error&lt;/span>&lt;span style='font-weight: bold;'> in `req_perform()`:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>!&lt;/span> HTTP 500 Internal Server Error.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Turning HTTP failures into R errors can make debugging hard, so httr2 provides the
+&lt;a href="https://httr2.r-lib.org/reference/last_response.html" target="_blank" rel="noopener">&lt;code>last_request()&lt;/code>&lt;/a> and
+&lt;a href="https://httr2.r-lib.org/reference/last_response.html" target="_blank" rel="noopener">&lt;code>last_response()&lt;/code>&lt;/a> helpers which you can use to figure out what went wrong:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/last_response.html'>last_request&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #0000BB;'>&amp;lt;httr2_request&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>GET&lt;/span> http://127.0.0.1:51981/status/500&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Body&lt;/span>: empty&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/last_response.html'>last_response&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #0000BB;'>&amp;lt;httr2_response&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>GET&lt;/span> http://127.0.0.1:51981/status/500&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>Status&lt;/span>: 500 Internal Server Error&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>Content-Type&lt;/span>: text/plain&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>Body&lt;/span>: None&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>httr2 provides two other tools to customise error handling:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://httr2.r-lib.org/reference/req_error.html" target="_blank" rel="noopener">&lt;code>req_error()&lt;/code>&lt;/a> gives you full control over what responses should be turned into R errors, and allows you to add additional information to the error message.&lt;/li>
+&lt;li>
+&lt;a href="https://httr2.r-lib.org/reference/req_retry.html" target="_blank" rel="noopener">&lt;code>req_retry()&lt;/code>&lt;/a> helps deal with transient errors, where you need to wait a bit and try again. For example, many APIs are rate limited and will return a 429 status if you have made too many requests.&lt;/li>
+&lt;/ul>
+&lt;p>You can learn more about both of these functions in &amp;ldquo;
+&lt;a href="https://httr2.r-lib.org/articles/wrapping-apis.html" target="_blank" rel="noopener">Wrapping APIs&lt;/a>&amp;rdquo; as they are particularly important when creating an R package (or script) that wraps a web API.&lt;/p>
+&lt;h2 id="control-the-request-process">Control the request process
+&lt;a href="#control-the-request-process">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>There are a number of other &lt;code>req_&lt;/code> functions that don&amp;rsquo;t directly affect the HTTP request but instead control the overall process of submitting a request and handling the response. These include:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://httr2.r-lib.org/reference/req_cache.html" target="_blank" rel="noopener">&lt;code>req_cache()&lt;/code>&lt;/a>, which sets up a cache so if repeated requests return the same results, and you can avoid a trip to the server.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://httr2.r-lib.org/reference/req_throttle.html" target="_blank" rel="noopener">&lt;code>req_throttle()&lt;/code>&lt;/a>, which automatically adds a small delay before each request so you can avoid hammering a server with many requests.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://httr2.r-lib.org/reference/req_progress.html" target="_blank" rel="noopener">&lt;code>req_progress()&lt;/code>&lt;/a>, which adds a progress bar for long downloads or uploads.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://httr2.r-lib.org/reference/req_cookie_preserve.html" target="_blank" rel="noopener">&lt;code>req_cookie_preserve()&lt;/code>&lt;/a>, which lets you preserve cookies across requests.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Additionally, httr2 provides rich support for authenticating with OAuth, implementing many more OAuth flows than httr. You&amp;rsquo;ve probably used OAuth a bunch without knowing what it&amp;rsquo;s called: you use it when you login to a non-Google website using your Google account, when you give your phone access to your twitter account, or when you login to a streaming app on your smart TV. OAuth is a big, complex, topic, and is documented in &amp;ldquo;
+&lt;a href="https://httr2.r-lib.org/articles/oauth.html" target="_blank" rel="noopener">OAuth&lt;/a>&amp;quot;.&lt;/p>
+&lt;h2 id="multiple-requests">Multiple requests
+&lt;a href="#multiple-requests">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>httr2 includes three functions to perform multiple requests:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://httr2.r-lib.org/reference/req_perform_sequential.html" target="_blank" rel="noopener">&lt;code>req_perform_sequential()&lt;/code>&lt;/a> takes a list of requests and performs them one at a time.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://httr2.r-lib.org/reference/req_perform_parallel.html" target="_blank" rel="noopener">&lt;code>req_perform_parallel()&lt;/code>&lt;/a> takes a list of requests and performs them in parallel (up to 6 at a time by default). It&amp;rsquo;s similar to
+&lt;a href="https://httr2.r-lib.org/reference/req_perform_sequential.html" target="_blank" rel="noopener">&lt;code>req_perform_sequential()&lt;/code>&lt;/a>, but is obviously faster, at the expense of potentially hammering a server. It also has some limitations: most importantly it can&amp;rsquo;t refresh an expired OAuth token and it doesn&amp;rsquo;t respect
+&lt;a href="https://httr2.r-lib.org/reference/req_retry.html" target="_blank" rel="noopener">&lt;code>req_retry()&lt;/code>&lt;/a> or
+&lt;a href="https://httr2.r-lib.org/reference/req_throttle.html" target="_blank" rel="noopener">&lt;code>req_throttle()&lt;/code>&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://httr2.r-lib.org/reference/req_perform_iterative.html" target="_blank" rel="noopener">&lt;code>req_perform_iterative()&lt;/code>&lt;/a> takes a single request and a callback function to generate the next request from previous response. It&amp;rsquo;ll keep going until the callback function returns &lt;code>NULL&lt;/code> or &lt;code>max_reqs&lt;/code> requests have been performed. This is very useful for paginated APIs that only tell you the URL for the &lt;em>next&lt;/em> page.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>For example, imagine we wanted to download each person from the
+&lt;a href="https://swapi.dev" target="_blank" rel="noopener">Star Wars API&lt;/a>. The URLs have a very consistent structure so we can generate a bunch of them, then create the corresponding requests:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>urls&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/paste.html'>paste0&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"https://swapi.dev/api/people/"&lt;/span>, &lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>reqs&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/lapply.html'>lapply&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>urls&lt;/span>, &lt;span class='nv'>request&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Now I can perform those requests, collecting a list of responses:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>resps&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/req_perform_sequential.html'>req_perform_sequential&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>reqs&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Iterating &lt;span style='color: #00BB00;'>■■■■ &lt;/span> 10% | ETA: 40s&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; Iterating &lt;span style='color: #00BB00;'>■■■■■■■ &lt;/span> 20% | ETA: 3m&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; Iterating &lt;span style='color: #00BB00;'>■■■■■■■■■■ &lt;/span> 30% | ETA: 2m&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; Iterating &lt;span style='color: #00BB00;'>■■■■■■■■■■■■■ &lt;/span> 40% | ETA: 1m&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; Iterating &lt;span style='color: #00BB00;'>■■■■■■■■■■■■■■■■ &lt;/span> 50% | ETA: 46s&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; Iterating &lt;span style='color: #00BB00;'>■■■■■■■■■■■■■■■■■■■ &lt;/span> 60% | ETA: 33s&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; Iterating &lt;span style='color: #00BB00;'>■■■■■■■■■■■■■■■■■■■■■■ &lt;/span> 70% | ETA: 22s&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; Iterating &lt;span style='color: #00BB00;'>■■■■■■■■■■■■■■■■■■■■■■■■■ &lt;/span> 80% | ETA: 13s&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; Iterating &lt;span style='color: #00BB00;'>■■■■■■■■■■■■■■■■■■■■■■■■■■■■ &lt;/span> 90% | ETA: 6s&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; Iterating &lt;span style='color: #00BB00;'>■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■ &lt;/span> 100% | ETA: 0s&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>These responses contain their data in a JSON body:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>resps&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nv'>_&lt;/span>&lt;span class='o'>[[&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>]&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/resp_body_raw.html'>resp_body_json&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/str.html'>str&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; List of 16&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ name : chr "Luke Skywalker"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ height : chr "172"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ mass : chr "77"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ hair_color: chr "blond"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ skin_color: chr "fair"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ eye_color : chr "blue"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ birth_year: chr "19BBY"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ gender : chr "male"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ homeworld : chr "https://swapi.dev/api/planets/1/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ films :List of 4&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ : chr "https://swapi.dev/api/films/1/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ : chr "https://swapi.dev/api/films/2/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ : chr "https://swapi.dev/api/films/3/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ : chr "https://swapi.dev/api/films/6/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ species : list()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ vehicles :List of 2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ : chr "https://swapi.dev/api/vehicles/14/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ : chr "https://swapi.dev/api/vehicles/30/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ starships :List of 2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ : chr "https://swapi.dev/api/starships/12/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ : chr "https://swapi.dev/api/starships/22/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ created : chr "2014-12-09T13:50:51.644000Z"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ edited : chr "2014-12-20T21:17:56.891000Z"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ url : chr "https://swapi.dev/api/people/1/"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>There&amp;rsquo;s lots of ways to deal with this sort of data (e.g. for loops or functional programming) but to make life easier, httr2 comes with its own helper,
+&lt;a href="https://httr2.r-lib.org/reference/resps_successes.html" target="_blank" rel="noopener">&lt;code>resps_data()&lt;/code>&lt;/a>. This function takes a callback that retrieves the data for each response, then concatenates all the data into a single object. In this case, we need to wrap
+&lt;a href="https://httr2.r-lib.org/reference/resp_body_raw.html" target="_blank" rel="noopener">&lt;code>resp_body_json()&lt;/code>&lt;/a> in a list, so we get one list for each person, rather than one list in total:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>resps&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/resps_successes.html'>resps_data&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>\&lt;span class='o'>(&lt;/span>&lt;span class='nv'>resp&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/list.html'>list&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/resp_body_raw.html'>resp_body_json&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>resp&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nv'>_&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>3&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/str.html'>str&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>list.len &lt;span class='o'>=&lt;/span> &lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; List of 3&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ :List of 16&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ name : chr "Luke Skywalker"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ height : chr "172"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ mass : chr "77"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ hair_color: chr "blond"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ skin_color: chr "fair"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ eye_color : chr "blue"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ birth_year: chr "19BBY"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ gender : chr "male"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ homeworld : chr "https://swapi.dev/api/planets/1/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ films :List of 4&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/1/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/2/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/3/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/6/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. [list output truncated]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ :List of 16&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ name : chr "C-3PO"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ height : chr "167"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ mass : chr "75"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ hair_color: chr "n/a"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ skin_color: chr "gold"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ eye_color : chr "yellow"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ birth_year: chr "112BBY"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ gender : chr "n/a"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ homeworld : chr "https://swapi.dev/api/planets/1/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ films :List of 6&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/1/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/2/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/3/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/4/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/5/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/6/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. [list output truncated]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ :List of 16&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ name : chr "R2-D2"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ height : chr "96"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ mass : chr "32"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ hair_color: chr "n/a"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ skin_color: chr "white, blue"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ eye_color : chr "red"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ birth_year: chr "33BBY"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ gender : chr "n/a"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ homeworld : chr "https://swapi.dev/api/planets/8/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ films :List of 6&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/1/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/2/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/3/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/4/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/5/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. ..$ : chr "https://swapi.dev/api/films/6/"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .. [list output truncated]&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Another option would be to convert each response into a data frame or tibble. That&amp;rsquo;s a little tricky here because of the nested lists that will need to become list-columns&lt;sup id="fnref:4">&lt;a href="#fn:4" class="footnote-ref" role="doc-noteref">4&lt;/a>&lt;/sup>, so we&amp;rsquo;ll avoid that challenge here by focussing on the first nine columns:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>sw_data&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>resp&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>tibble&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://tibble.tidyverse.org/reference/as_tibble.html'>as_tibble&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/resp_body_raw.html'>resp_body_json&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>resp&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>9&lt;/span>&lt;span class='o'>]&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>resps&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://httr2.r-lib.org/reference/resps_successes.html'>resps_data&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>sw_data&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 10 × 9&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>name&lt;/span> &lt;span style='font-weight: bold;'>height&lt;/span> &lt;span style='font-weight: bold;'>mass&lt;/span> &lt;span style='font-weight: bold;'>hair_color&lt;/span> &lt;span style='font-weight: bold;'>skin_color&lt;/span> &lt;span style='font-weight: bold;'>eye_color&lt;/span> &lt;span style='font-weight: bold;'>birth_year&lt;/span> &lt;span style='font-weight: bold;'>gender&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> Luke Skywalker 172 77 blond fair blue 19BBY male &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> C-3PO 167 75 n/a gold yellow 112BBY n/a &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> R2-D2 96 32 n/a white, bl… red 33BBY n/a &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> Darth Vader 202 136 none white yellow 41.9BBY male &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> Leia Organa 150 49 brown light brown 19BBY female&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> Owen Lars 178 120 brown, gr… light blue 52BBY male &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> Beru Whitesun… 165 75 brown light blue 47BBY female&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> R5-D4 97 32 n/a white, red red unknown n/a &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> Biggs Darklig… 183 84 black light brown 24BBY male &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> Obi-Wan Kenobi 182 77 auburn, w… fair blue-gray 57BBY male &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 1 more variable: &lt;/span>&lt;span style='color: #555555; font-weight: bold;'>homeworld&lt;/span>&lt;span style='color: #555555;'> &amp;lt;chr&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>When you&amp;rsquo;re performing large numbers of requests, it&amp;rsquo;s almost inevitable that something will go wrong. By default, all three functions will bubble up errors, causing you to lose all of the work that&amp;rsquo;s been done so far. You can, however, use the &lt;code>on_error&lt;/code> argument to change what happens, either ignoring errors, or returning when you hit the first error. This will changes the return value: instead of a list of responses, the list might now also contain error objects. httr2 provides other helpers to work with this object:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://httr2.r-lib.org/reference/resps_successes.html" target="_blank" rel="noopener">&lt;code>resps_successes()&lt;/code>&lt;/a> filters the list to find the successful responses. You&amp;rsquo;ll can then pair this with
+&lt;a href="https://httr2.r-lib.org/reference/resps_successes.html" target="_blank" rel="noopener">&lt;code>resps_data()&lt;/code>&lt;/a> to get the data from the successful request.&lt;/li>
+&lt;li>
+&lt;a href="https://httr2.r-lib.org/reference/resps_successes.html" target="_blank" rel="noopener">&lt;code>resps_failures()&lt;/code>&lt;/a> filters the list to find the failed responses. You&amp;rsquo;ll can then pair this with
+&lt;a href="https://httr2.r-lib.org/reference/resps_successes.html" target="_blank" rel="noopener">&lt;code>resps_requests()&lt;/code>&lt;/a> to find the requests that generated them and figure out what went wrong,.&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all 87 folks who have helped make httr2 possible!&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/allenbaron" target="_blank" rel="noopener">@allenbaron&lt;/a>,
+&lt;a href="https://github.com/asadow" target="_blank" rel="noopener">@asadow&lt;/a>,
+&lt;a href="https://github.com/atheriel" target="_blank" rel="noopener">@atheriel&lt;/a>,
+&lt;a href="https://github.com/boshek" target="_blank" rel="noopener">@boshek&lt;/a>,
+&lt;a href="https://github.com/casa-henrym" target="_blank" rel="noopener">@casa-henrym&lt;/a>,
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/colmanhumphrey" target="_blank" rel="noopener">@colmanhumphrey&lt;/a>,
+&lt;a href="https://github.com/cstjohn810" target="_blank" rel="noopener">@cstjohn810&lt;/a>,
+&lt;a href="https://github.com/cwang23" target="_blank" rel="noopener">@cwang23&lt;/a>,
+&lt;a href="https://github.com/DavidRLovell" target="_blank" rel="noopener">@DavidRLovell&lt;/a>,
+&lt;a href="https://github.com/DMerch" target="_blank" rel="noopener">@DMerch&lt;/a>,
+&lt;a href="https://github.com/dpprdan" target="_blank" rel="noopener">@dpprdan&lt;/a>,
+&lt;a href="https://github.com/ECOSchulz" target="_blank" rel="noopener">@ECOSchulz&lt;/a>,
+&lt;a href="https://github.com/edavidaja" target="_blank" rel="noopener">@edavidaja&lt;/a>,
+&lt;a href="https://github.com/elipousson" target="_blank" rel="noopener">@elipousson&lt;/a>,
+&lt;a href="https://github.com/emmansh" target="_blank" rel="noopener">@emmansh&lt;/a>,
+&lt;a href="https://github.com/Enchufa2" target="_blank" rel="noopener">@Enchufa2&lt;/a>,
+&lt;a href="https://github.com/ErdaradunGaztea" target="_blank" rel="noopener">@ErdaradunGaztea&lt;/a>,
+&lt;a href="https://github.com/fangzhou-xie" target="_blank" rel="noopener">@fangzhou-xie&lt;/a>,
+&lt;a href="https://github.com/fh-mthomson" target="_blank" rel="noopener">@fh-mthomson&lt;/a>,
+&lt;a href="https://github.com/fkohrt" target="_blank" rel="noopener">@fkohrt&lt;/a>,
+&lt;a href="https://github.com/flahn" target="_blank" rel="noopener">@flahn&lt;/a>,
+&lt;a href="https://github.com/gregleleu" target="_blank" rel="noopener">@gregleleu&lt;/a>,
+&lt;a href="https://github.com/guga31bb" target="_blank" rel="noopener">@guga31bb&lt;/a>,
+&lt;a href="https://github.com/gvelasq" target="_blank" rel="noopener">@gvelasq&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hongooi73" target="_blank" rel="noopener">@hongooi73&lt;/a>,
+&lt;a href="https://github.com/howardbaek" target="_blank" rel="noopener">@howardbaek&lt;/a>,
+&lt;a href="https://github.com/jameslairdsmith" target="_blank" rel="noopener">@jameslairdsmith&lt;/a>,
+&lt;a href="https://github.com/JBGruber" target="_blank" rel="noopener">@JBGruber&lt;/a>,
+&lt;a href="https://github.com/jchrom" target="_blank" rel="noopener">@jchrom&lt;/a>,
+&lt;a href="https://github.com/jemus42" target="_blank" rel="noopener">@jemus42&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimrothstein" target="_blank" rel="noopener">@jimrothstein&lt;/a>,
+&lt;a href="https://github.com/jjesusfilho" target="_blank" rel="noopener">@jjesusfilho&lt;/a>,
+&lt;a href="https://github.com/jjfantini" target="_blank" rel="noopener">@jjfantini&lt;/a>,
+&lt;a href="https://github.com/jl5000" target="_blank" rel="noopener">@jl5000&lt;/a>,
+&lt;a href="https://github.com/jonthegeek" target="_blank" rel="noopener">@jonthegeek&lt;/a>,
+&lt;a href="https://github.com/JosiahParry" target="_blank" rel="noopener">@JosiahParry&lt;/a>,
+&lt;a href="https://github.com/judith-bourque" target="_blank" rel="noopener">@judith-bourque&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/kasperwelbers" target="_blank" rel="noopener">@kasperwelbers&lt;/a>,
+&lt;a href="https://github.com/kelvindso" target="_blank" rel="noopener">@kelvindso&lt;/a>,
+&lt;a href="https://github.com/kieran-mace" target="_blank" rel="noopener">@kieran-mace&lt;/a>,
+&lt;a href="https://github.com/KoderKow" target="_blank" rel="noopener">@KoderKow&lt;/a>,
+&lt;a href="https://github.com/lassehjorthmadsen" target="_blank" rel="noopener">@lassehjorthmadsen&lt;/a>,
+&lt;a href="https://github.com/llrs" target="_blank" rel="noopener">@llrs&lt;/a>,
+&lt;a href="https://github.com/lyndon-bird" target="_blank" rel="noopener">@lyndon-bird&lt;/a>,
+&lt;a href="https://github.com/m-mohr" target="_blank" rel="noopener">@m-mohr&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/maxheld83" target="_blank" rel="noopener">@maxheld83&lt;/a>,
+&lt;a href="https://github.com/mgirlich" target="_blank" rel="noopener">@mgirlich&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/michaelgfalk" target="_blank" rel="noopener">@michaelgfalk&lt;/a>,
+&lt;a href="https://github.com/misea" target="_blank" rel="noopener">@misea&lt;/a>,
+&lt;a href="https://github.com/MislavSag" target="_blank" rel="noopener">@MislavSag&lt;/a>,
+&lt;a href="https://github.com/mkoohafkan" target="_blank" rel="noopener">@mkoohafkan&lt;/a>,
+&lt;a href="https://github.com/mmuurr" target="_blank" rel="noopener">@mmuurr&lt;/a>,
+&lt;a href="https://github.com/multimeric" target="_blank" rel="noopener">@multimeric&lt;/a>,
+&lt;a href="https://github.com/nbenn" target="_blank" rel="noopener">@nbenn&lt;/a>,
+&lt;a href="https://github.com/nclsbarreto" target="_blank" rel="noopener">@nclsbarreto&lt;/a>,
+&lt;a href="https://github.com/nealrichardson" target="_blank" rel="noopener">@nealrichardson&lt;/a>,
+&lt;a href="https://github.com/Nelson-Gon" target="_blank" rel="noopener">@Nelson-Gon&lt;/a>,
+&lt;a href="https://github.com/olivroy" target="_blank" rel="noopener">@olivroy&lt;/a>,
+&lt;a href="https://github.com/owenjonesuob" target="_blank" rel="noopener">@owenjonesuob&lt;/a>,
+&lt;a href="https://github.com/paul-carteron" target="_blank" rel="noopener">@paul-carteron&lt;/a>,
+&lt;a href="https://github.com/pbulsink" target="_blank" rel="noopener">@pbulsink&lt;/a>,
+&lt;a href="https://github.com/ramiromagno" target="_blank" rel="noopener">@ramiromagno&lt;/a>,
+&lt;a href="https://github.com/rplati" target="_blank" rel="noopener">@rplati&lt;/a>,
+&lt;a href="https://github.com/rressler" target="_blank" rel="noopener">@rressler&lt;/a>,
+&lt;a href="https://github.com/samterfa" target="_blank" rel="noopener">@samterfa&lt;/a>,
+&lt;a href="https://github.com/schnee" target="_blank" rel="noopener">@schnee&lt;/a>,
+&lt;a href="https://github.com/sckott" target="_blank" rel="noopener">@sckott&lt;/a>,
+&lt;a href="https://github.com/sebastian-c" target="_blank" rel="noopener">@sebastian-c&lt;/a>,
+&lt;a href="https://github.com/selesnow" target="_blank" rel="noopener">@selesnow&lt;/a>,
+&lt;a href="https://github.com/Shaunson26" target="_blank" rel="noopener">@Shaunson26&lt;/a>,
+&lt;a href="https://github.com/SokolovAnatoliy" target="_blank" rel="noopener">@SokolovAnatoliy&lt;/a>,
+&lt;a href="https://github.com/spotrh" target="_blank" rel="noopener">@spotrh&lt;/a>,
+&lt;a href="https://github.com/stefanedwards" target="_blank" rel="noopener">@stefanedwards&lt;/a>,
+&lt;a href="https://github.com/taerwin" target="_blank" rel="noopener">@taerwin&lt;/a>,
+&lt;a href="https://github.com/vanhry" target="_blank" rel="noopener">@vanhry&lt;/a>,
+&lt;a href="https://github.com/wing328" target="_blank" rel="noopener">@wing328&lt;/a>,
+&lt;a href="https://github.com/xinzhuohkust" target="_blank" rel="noopener">@xinzhuohkust&lt;/a>,
+&lt;a href="https://github.com/yogat3ch" target="_blank" rel="noopener">@yogat3ch&lt;/a>,
+&lt;a href="https://github.com/yogesh-bansal" target="_blank" rel="noopener">@yogesh-bansal&lt;/a>,
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>, and
+&lt;a href="https://github.com/zacdav-db" target="_blank" rel="noopener">@zacdav-db&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>Pronounced &amp;ldquo;hitter 2&amp;rdquo;. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>Well, technically, it does send the request, just to another test server that returns the request that it received. &lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:3" role="doc-endnote">
+&lt;p>This is only an approximation. For example, it only shows the final response if there were redirects, and it automatically uncompresses the body if it was compressed. Nevertheless, it&amp;rsquo;s still pretty useful. &lt;a href="#fnref:3" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:4" role="doc-endnote">
+&lt;p>To turn these into list-columns, you need to wrap each list in another list, something like &lt;code>is_list &amp;lt;- map_lgl(json, is.list); json[is_list] &amp;lt;- map(json[is_list], list)&lt;/code>. This ensures that each element has length 1, the invariant for a row in a tibble. &lt;a href="#fnref:4" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>httr 1.4.0</title><link>https://www.tidyverse.org/blog/2018/12/httr-1-4-0/</link><pubDate>Tue, 18 Dec 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/12/httr-1-4-0/</guid><description>&lt;p>We&amp;rsquo;re well pleased to announce the release of
+&lt;a href="https://httr.r-lib.org/" target="_blank" rel="noopener">httr&lt;/a> 1.4.0. The goal of httr is to provide a wrapper for the
+&lt;a href="https://CRAN.R-project.org/package=curl" target="_blank" rel="noopener">curl&lt;/a> package, customised to the demands of modern web APIs.&lt;/p>
+&lt;p>The
+&lt;a href="https://httr.r-lib.org/news/index.html#httr-1-4-0" target="_blank" rel="noopener">httr 1.4.0&lt;/a> release includes improved flexibility for
+&lt;a href="https://oauth.net/2/" target="_blank" rel="noopener">OAuth 2.0&lt;/a>, new and updated
+&lt;a href="https://github.com/r-lib/httr/tree/master/demo" target="_blank" rel="noopener">demos&lt;/a>, and several minor changes and improvements — the full details of which can be found in the
+&lt;a href="https://github.com/r-lib/httr/blob/master/NEWS.md#httr-140" target="_blank" rel="noopener">changelog&lt;/a>.&lt;/p>
+&lt;h2 id="oauth-20-improvements">OAuth 2.0 improvements
+&lt;a href="#oauth-20-improvements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>OAuth 2.0 has been made somewhat more flexible in order to support more websites.
+&lt;a href="https://httr.r-lib.org/reference/init_oauth2.0.html" target="_blank" rel="noopener">&lt;code>init_oauth2.0()&lt;/code>&lt;/a> now passes &lt;code>use_basic_auth&lt;/code> onward, enabling basic authentication for OAuth 2.0.
+&lt;a href="https://httr.r-lib.org/reference/oauth2.0_token.html" target="_blank" rel="noopener">&lt;code>oauth2.0_token()&lt;/code>&lt;/a> and &lt;code>init_oauth2.0()&lt;/code> have gained two new arguments:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>oob_value&lt;/code> specifies the value to use for the &lt;code>redirect_uri&lt;/code> parameter when retrieving an authorization URL, necessary when using &amp;ldquo;out-of-band&amp;rdquo; (oob) configuration.&lt;/li>
+&lt;li>&lt;code>query_authorize_extra&lt;/code> makes it possible to add extra query parameters to the authorization URL, as is required by some APIs.&lt;/li>
+&lt;/ul>
+&lt;p>Scopes are now de-duplicated, sorted and stripped of names before being hashed for on-disk token retrieval. This eliminates a source of hash mismatch that could cause new tokens to be requested, even when existing tokens had the necessary scope.&lt;/p>
+&lt;h2 id="demo-updates">Demo updates
+&lt;a href="#demo-updates">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thanks to
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">Christophe Dervieux&lt;/a>, a new
+&lt;a href="https://github.com/r-lib/httr/blob/master/demo/oauth1-nounproject.r" target="_blank" rel="noopener">demo&lt;/a> for
+&lt;a href="http://oauthbible.com/#oauth-10a-one-legged" target="_blank" rel="noopener">OAuth 1.0a&amp;rsquo;s one-legged&lt;/a> authentication mechanism has been added, using the
+&lt;a href="https://thenounproject.com/" target="_blank" rel="noopener">Noun Project&lt;/a> API.&lt;/p>
+&lt;p>The
+&lt;a href="https://github.com/r-lib/httr/blob/master/demo/oauth2-facebook.r" target="_blank" rel="noopener">Faceboook demo&lt;/a> now uses
+&lt;a href="https://developers.facebook.com/docs/facebook-login/for-devices/" target="_blank" rel="noopener">device flow&lt;/a>. This means that you can continue to use the Facebook API from R under their new security policy.&lt;/p>
+&lt;p>The
+&lt;a href="https://github.com/r-lib/httr/blob/master/demo/oauth2-vimeo.r" target="_blank" rel="noopener">Vimeo demo&lt;/a> has been updated to use OAuth 2.0.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thank you to the 69 contributors who made this release possible:
+&lt;a href="https://github.com/aazaff" target="_blank" rel="noopener">@aazaff&lt;/a>,
+&lt;a href="https://github.com/alex-hioperator" target="_blank" rel="noopener">@alex-hioperator&lt;/a>,
+&lt;a href="https://github.com/barryrowlingson" target="_blank" rel="noopener">@barryrowlingson&lt;/a>,
+&lt;a href="https://github.com/billdenney" target="_blank" rel="noopener">@billdenney&lt;/a>,
+&lt;a href="https://github.com/bradyte" target="_blank" rel="noopener">@bradyte&lt;/a>,
+&lt;a href="https://github.com/braggbear" target="_blank" rel="noopener">@braggbear&lt;/a>,
+&lt;a href="https://github.com/brennanpincardiff" target="_blank" rel="noopener">@brennanpincardiff&lt;/a>,
+&lt;a href="https://github.com/cameronbracken" target="_blank" rel="noopener">@cameronbracken&lt;/a>,
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/ChrisMuir" target="_blank" rel="noopener">@ChrisMuir&lt;/a>,
+&lt;a href="https://github.com/cosmomeese" target="_blank" rel="noopener">@cosmomeese&lt;/a>,
+&lt;a href="https://github.com/cranknasty" target="_blank" rel="noopener">@cranknasty&lt;/a>,
+&lt;a href="https://github.com/cschroed-usgs" target="_blank" rel="noopener">@cschroed-usgs&lt;/a>,
+&lt;a href="https://github.com/cstawitz" target="_blank" rel="noopener">@cstawitz&lt;/a>,
+&lt;a href="https://github.com/ctrombley" target="_blank" rel="noopener">@ctrombley&lt;/a>,
+&lt;a href="https://github.com/dcldmartin" target="_blank" rel="noopener">@dcldmartin&lt;/a>,
+&lt;a href="https://github.com/dfv-ms" target="_blank" rel="noopener">@dfv-ms&lt;/a>,
+&lt;a href="https://github.com/dkulp2" target="_blank" rel="noopener">@dkulp2&lt;/a>,
+&lt;a href="https://github.com/drewabbot" target="_blank" rel="noopener">@drewabbot&lt;/a>,
+&lt;a href="https://github.com/EOneita" target="_blank" rel="noopener">@EOneita&lt;/a>,
+&lt;a href="https://github.com/ErezLo" target="_blank" rel="noopener">@ErezLo&lt;/a>,
+&lt;a href="https://github.com/FelixMailoa" target="_blank" rel="noopener">@FelixMailoa&lt;/a>,
+&lt;a href="https://github.com/giuseppec" target="_blank" rel="noopener">@giuseppec&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/Hong-Revo" target="_blank" rel="noopener">@Hong-Revo&lt;/a>,
+&lt;a href="https://github.com/infinitetrial" target="_blank" rel="noopener">@infinitetrial&lt;/a>,
+&lt;a href="https://github.com/Isaacsh" target="_blank" rel="noopener">@Isaacsh&lt;/a>,
+&lt;a href="https://github.com/j-Rinehart" target="_blank" rel="noopener">@j-Rinehart&lt;/a>,
+&lt;a href="https://github.com/JacquesBonet" target="_blank" rel="noopener">@JacquesBonet&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jguerrero77" target="_blank" rel="noopener">@jguerrero77&lt;/a>,
+&lt;a href="https://github.com/JhossePaul" target="_blank" rel="noopener">@JhossePaul&lt;/a>,
+&lt;a href="https://github.com/jlegewie" target="_blank" rel="noopener">@jlegewie&lt;/a>,
+&lt;a href="https://github.com/jmwerner" target="_blank" rel="noopener">@jmwerner&lt;/a>,
+&lt;a href="https://github.com/jthomp1818" target="_blank" rel="noopener">@jthomp1818&lt;/a>,
+&lt;a href="https://github.com/KaranKhullar" target="_blank" rel="noopener">@KaranKhullar&lt;/a>,
+&lt;a href="https://github.com/karigunnarsson" target="_blank" rel="noopener">@karigunnarsson&lt;/a>,
+&lt;a href="https://github.com/klarakaleb" target="_blank" rel="noopener">@klarakaleb&lt;/a>,
+&lt;a href="https://github.com/kokomoo" target="_blank" rel="noopener">@kokomoo&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/l-ts" target="_blank" rel="noopener">@l-ts&lt;/a>,
+&lt;a href="https://github.com/leonardo-murano" target="_blank" rel="noopener">@leonardo-murano&lt;/a>,
+&lt;a href="https://github.com/maalsol" target="_blank" rel="noopener">@maalsol&lt;/a>,
+&lt;a href="https://github.com/mmuurr" target="_blank" rel="noopener">@mmuurr&lt;/a>,
+&lt;a href="https://github.com/moloscripts" target="_blank" rel="noopener">@moloscripts&lt;/a>,
+&lt;a href="https://github.com/mtmorgan" target="_blank" rel="noopener">@mtmorgan&lt;/a>,
+&lt;a href="https://github.com/mvkorpel" target="_blank" rel="noopener">@mvkorpel&lt;/a>,
+&lt;a href="https://github.com/Nosferican" target="_blank" rel="noopener">@Nosferican&lt;/a>,
+&lt;a href="https://github.com/paulgarnes" target="_blank" rel="noopener">@paulgarnes&lt;/a>,
+&lt;a href="https://github.com/peterdesmet" target="_blank" rel="noopener">@peterdesmet&lt;/a>,
+&lt;a href="https://github.com/peterhartman" target="_blank" rel="noopener">@peterhartman&lt;/a>,
+&lt;a href="https://github.com/picousse" target="_blank" rel="noopener">@picousse&lt;/a>,
+&lt;a href="https://github.com/pohzipohzi" target="_blank" rel="noopener">@pohzipohzi&lt;/a>,
+&lt;a href="https://github.com/porfila" target="_blank" rel="noopener">@porfila&lt;/a>,
+&lt;a href="https://github.com/potterzot" target="_blank" rel="noopener">@potterzot&lt;/a>,
+&lt;a href="https://github.com/ramnov" target="_blank" rel="noopener">@ramnov&lt;/a>,
+&lt;a href="https://github.com/sajukassim" target="_blank" rel="noopener">@sajukassim&lt;/a>,
+&lt;a href="https://github.com/sasajuratovic" target="_blank" rel="noopener">@sasajuratovic&lt;/a>,
+&lt;a href="https://github.com/Sb9309" target="_blank" rel="noopener">@Sb9309&lt;/a>,
+&lt;a href="https://github.com/shrektan" target="_blank" rel="noopener">@shrektan&lt;/a>,
+&lt;a href="https://github.com/skirmer" target="_blank" rel="noopener">@skirmer&lt;/a>,
+&lt;a href="https://github.com/stefanfritsch" target="_blank" rel="noopener">@stefanfritsch&lt;/a>,
+&lt;a href="https://github.com/StevenMMortimer" target="_blank" rel="noopener">@StevenMMortimer&lt;/a>,
+&lt;a href="https://github.com/swanderz" target="_blank" rel="noopener">@swanderz&lt;/a>,
+&lt;a href="https://github.com/swood-ecology" target="_blank" rel="noopener">@swood-ecology&lt;/a>,
+&lt;a href="https://github.com/tjpalanca" target="_blank" rel="noopener">@tjpalanca&lt;/a>,
+&lt;a href="https://github.com/TuanTran07" target="_blank" rel="noopener">@TuanTran07&lt;/a>,
+&lt;a href="https://github.com/viddagrava" target="_blank" rel="noopener">@viddagrava&lt;/a>, and
+&lt;a href="https://github.com/wsphd" target="_blank" rel="noopener">@wsphd&lt;/a>.&lt;/p></description></item></channel></rss>

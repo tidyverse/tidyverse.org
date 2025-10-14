@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>plumber2 | Tidyverse</title><link>https://www.tidyverse.org/tags/plumber2/</link><atom:link href="https://www.tidyverse.org/tags/plumber2/index.xml" rel="self" type="application/rss+xml"/><description>plumber2</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 23 Sep 2025 00:00:00 +0000</lastBuildDate><item><title>plumber2 0.1.0</title><link>https://www.tidyverse.org/blog/2025/09/plumber2-0-1-0/</link><pubDate>Tue, 23 Sep 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/09/plumber2-0-1-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>I&amp;rsquo;m super excited to announce the release of the plumber2 package on CRAN. plumber2 is a package for creating webservers in R based on either an annotation-based or programmatic workflow. It is the successor to the plumber package who has empowered the R community for 10 years and allowed them to share their R based functionalities with their organizations and the world.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>pak&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://pak.r-lib.org/reference/pak.html'>pak&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"plumber2"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This blog post will go over the new release. Why create a new package? What has changed? What has stayed the same? and, What is new?&lt;/p>
+&lt;p>It&amp;rsquo;s a mouthful, so let&amp;rsquo;s get to it!&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://posit-dev.github.io/plumber2/'>plumber2&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="waving-goodbye-to-plumber">Waving goodbye to plumber
+&lt;a href="#waving-goodbye-to-plumber">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The first question that may cross your mind is: Why even create a new package instead of continue to build on, and improve, the old one?&lt;/p>
+&lt;p>It is always a weighing of pros and cons when such a decision is made, but what largely tipped the scale was that the codebase had accrued so much technical debt that it had become hard to maintain. A lot has happened in 10 years and plumber has had to adapt to it all while maintaining backwards compatibility and in the end it took a toll on the codebase.&lt;/p>
+&lt;p>If you end up deciding on a rewrite you might as well take the opportunity to learn from past mistakes and shed some decisions that turned out wrong, without worrying about breaking existing code. This both gives you a chance to improve on the API, but also give you the freedom to create the best possible foundation without artificial boundaries based on existing uses.&lt;/p>
+&lt;p>So, in the end, we wanted a complete rewrite, and we wanted breaking changes. Instead of pulling the rug on users and break their deployments we chose to start afresh, leave the old plumber around, and allow users to gradually migrate to the new package.&lt;/p>
+&lt;h2 id="familiarity">Familiarity
+&lt;a href="#familiarity">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If you fear that the decisions we outlined above means that you need to start from square one despite being a seasoned plumber user then fear not. plumber2 takes the soul of plumber and carries it on. Annotations are still central to how you use plumber2 and most of them work just as before. There are, however, foundational changes in store for you, so you will have to update some of your habits to suit a new (and better) world.&lt;/p>
+&lt;p>Let&amp;rsquo;s start with the core of annotations, which is the parsing of them. In plumber this was handled by an internal parser which tried to mimic how roxygen2 parsed documentation annotation. This led to almost, but not quite, parity with roxygen2 which tripped up users. plumber2 now uses roxygen2 directly for parsing, so any convention you have become used to from writing package documentation can be transferred. Most important of these are support for multi-line annotation (hello 2025), and the conventions around the first line being the title as well as any text between that and the first tag being a long-form description.&lt;/p>
+&lt;p>Along with the move to using roxygen2 comes a well-defined way of extending the annotation API, so that other packages more easily can extend plumber2 in a way that feels native without resorting to any unpleasant hacks.&lt;/p>
+&lt;p>Enough talk. How does it look? Below you see an annotation for a &lt;code>GET&lt;/code> endpoint written for plumber2:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* Get a weather forecast&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* This endpoint will provide the client with a forecast for a &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* specific city. You can modify the length of the forecast &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* through the query parameters&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @get /forecast/&amp;lt;city&amp;gt;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#*&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#*.@param city:string The city to query&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @query length:integer|1, 10|(7) How long a forecast&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#*&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @response 200:[&amp;#123;day:date, temp:number, rain:boolean&amp;#125;] An array &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* of objects, each corresponding to a day&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @serializer json&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @serializer yaml&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>city&lt;/span>, &lt;span class='nv'>query&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>get_forecast&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>city&lt;/span>, &lt;span class='nv'>query&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>length&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>If you are a plumber user I hope you can agree that it doesn&amp;rsquo;t look totally foreign. Sure, there are new things in there but all of them in the same spirit as what you know. We have already mentioned the support for multi-lines and how the first lines until the first tag are parsed. The first line with a tag, &lt;code>@get&lt;/code> is also straight out of the plumber book and so is the following &lt;code>@param&lt;/code> line.&lt;/p>
+&lt;p>The &lt;code>@query&lt;/code> line is new however (in multiple ways). In plumber2 function input can come from 3 places: path parameters (&lt;code>city&lt;/code> in the above), the query string (&lt;code>length&lt;/code> in the above), or the request body (not shown). This was true in plumber as well, but in plumber2 we have made the distinction explicit. Instead of using &lt;code>@param&lt;/code> to document them all we now have dedicated tags for input coming from query and body (&lt;code>@query&lt;/code> and &lt;code>@body&lt;/code> respectively). This is also reflected in the function signature where only path parameters are provided directly as arguments. Query input is provided through the &lt;code>query&lt;/code> argument and body input is provided through the &lt;code>body&lt;/code> argument. This means that there is no longer the potential for masking out arguments if e.g. the query string contained an element with the same name as a path parameter. It also means that we can avoid parsing both the query string and the request body if it is not used by the handler function.&lt;/p>
+&lt;p>The &lt;code>@query&lt;/code> line holds more surprises in the form of richer type annotation. Numbers and integers can now be bounded (here, between 1 and 10), and all input can be provided with a default value (here, 7). plumber2 does automatic input checking and type conversion based on this, and will return early with an error if an input is of the wrong format. There are also even more types to use. Enums, Dates, Datetimes, Bytes, and Patterns are all now possible, along with rich descriptions of objects (as can be seen in the &lt;code>@response&lt;/code> line). All of these will be casted to the correct R type and can potentially be provided as arrays by enclosing them in &lt;code>[...]&lt;/code>.&lt;/p>
+&lt;p>The &lt;code>@response&lt;/code> tag is also available in plumber, but in plumber2 you can now annotate the return type as well, using the same type syntax as used for input. Doing so will allow the people using your API to now what kind of return value to expect which is critical to writing robust interfaces.&lt;/p>
+&lt;p>The last two annotations are both new an old. plumber had a &lt;code>@serializer&lt;/code> tag as well, where you could specify a named serializer. This would then be used to convert the return value of your function into a string or binary representation to send back to the client. In plumber2 this is still the case, but what is new is the possibility of specifying multiples. In fact, the default is to use a collection of common serialization formats and let the client chose which they prefer through the &lt;code>Content-Type&lt;/code> header (a process known as content negotiation). While not shown here, the same is true for the &lt;code>@parser&lt;/code> tag which allows you to specify how the request body should be parsed into an R object. If content negotiation fails (on either side) plumber2 will send a structured error response to the client so they can see what goes wrong.&lt;/p>
+&lt;p>There are of course more to it (we will touch on a range of new tags below), but the above will probably cover 80% of use cases and hopefully that all feels very familiar.&lt;/p>
+&lt;h3 id="programmatic-interface">Programmatic interface
+&lt;a href="#programmatic-interface">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>While plumber2 promotes the use of annotations as a way to describe your webserver logic, it also provides a programmatic API that gives you all of the same abilities. In plumber, this api was prefixed with &lt;code>pr_&lt;/code> which was a an acronym for &amp;ldquo;Plumber Route&amp;rdquo;. In plumber2, both to avoid namespace collision and because not all functions are concerned with creating routes, we use the &lt;code>api_&lt;/code> prefix. Many functions in plumber have a counterpart in plumber2 but there has been made no attempt to ensure compatibility between arguments etc. Thus, if you have used the programmatic interface in plumber you may experience a bit more friction in moving over to plumber2. Consult the
+&lt;a href="https://plumber2.posit.co/reference/index.html" target="_blank" rel="noopener">extensive documentation&lt;/a> if you are in that boat.&lt;/p>
+&lt;h2 id="new-features">New features
+&lt;a href="#new-features">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The rewrite has allowed us to add many new features which would either have been extremely cumbersome or downright unfeasible to add to plumber. While not exhaustive, the following will give you a taste of what is now possible&lt;/p>
+&lt;h3 id="multi-file-apis">Multi-file APIs
+&lt;a href="#multi-file-apis">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>With plumber2 you are no longer limited to a single file for describing your api. Multiple files can be passed into the constructor (
+&lt;a href="https://plumber2.posit.co/reference/api.html" target="_blank" rel="noopener">&lt;code>api()&lt;/code>&lt;/a>) and by default they will each constitute a single route. This implies the plumber2 has support for multiple routes which will be tried in turn, which again implies full middleware support. This extended power replaces the filters and &lt;code>@preempt&lt;/code> in plumber.&lt;/p>
+&lt;p>The properties of each plumber2 file can be modified with a few specific annotations that must (if present) appear at the top of the file, e.g.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* @routeName secondary_route&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @routeOrder 10&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @root /sub/path&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kc'>NULL&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The above sets the name of the route (defaults to the file name), the position in the chain of routes (defaults to the order they are passed to the constructor), as well as provides a root which will be prepended to all endpoints defined in the file. If multiple files has the same &lt;code>@routeName&lt;/code> they will be merged into the same route, so even if you only need a single layer of middleware, this is a great way to organize a web server implementation that has grown large.&lt;/p>
+&lt;h3 id="websocket-support">Websocket support
+&lt;a href="#websocket-support">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>While plumber was born as a way to create REST apis, the web is broader than that and sometimes your web server need to use additional technologies. WebSocket is a bidirectional communication layer that is initiated by the client and, once established, allows both the server and the client to send messages back and forth at any point in time. WebSockets is the technology that powers Shiny&amp;rsquo; reactive capabilities so it is not new in the world of R, and plumber2 gives you access to both receive and send messages at your leisure.&lt;/p>
+&lt;p>You can add a websocket listener using the &lt;code>@message&lt;/code> tag like so:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* @message&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>message&lt;/span>, &lt;span class='nv'>client_id&lt;/span>, &lt;span class='nv'>server&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>cli&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://cli.r-lib.org/reference/cli_abort.html'>cli_inform&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"WS message from &amp;#123;client_id&amp;#125;: &amp;#123;message&amp;#125;"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;/span>
+&lt;span> &lt;span class='nv'>server&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nf'>time&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>server&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nf'>send&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"We got your message, alright!"&lt;/span>, &lt;span class='nv'>client_id&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> after &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>In the above we set up (a rather nonsensical) WebSocket logic which will log any incoming messages from a client and then, after 5 seconds have passed, send back a message to the client.&lt;/p>
+&lt;h3 id="async-evaluation">Async evaluation
+&lt;a href="#async-evaluation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>plumber2 expands on the asynchronous evaluation supported in plumber. Like in plumber it is still possible to return a promise from a handler (both for HTTP and websocket handlers), which will then be evaluated asynchronously and, in the case of a HTTP handler, modify the response once done, before sending it back to the client. What is new is that standard handlers can be converted to asynchronous handlers automatically. All it takes is adding the &lt;code>@async&lt;/code> tag to the annotation, and plumber2 takes care of the rest. The functionality is build upon
+&lt;a href="https://mirai.r-lib.org" target="_blank" rel="noopener">mirai&lt;/a>, which is a modern framework for async evaluation with very little overhead. However, it is extendible so if a new better framework comes along it is easy to add, either directly in plumber2 or in an extension package.&lt;/p>
+&lt;p>To convert the forecast endpoint from our first example into an asynchronous one we just have to add a single line:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* Get a weather forecast&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* This endpoint will provide the client with a forecast for a &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* specific city. You can modify the length of the forecast &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* through the query parameters&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @get /forecast/&amp;lt;city&amp;gt;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#*&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#*.@param city:string The city to query&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @query length:integer|1, 10|(7) How long a forecast&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#*&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @response 200:[&amp;#123;day:date, temp:number, rain:boolean&amp;#125;] An array &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* of objects, each corresponding to a day&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @serializer json&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @serializer yaml&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @async&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>city&lt;/span>, &lt;span class='nv'>query&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>get_forecast&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>city&lt;/span>, &lt;span class='nv'>query&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>length&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Since async evaluation is happening in a different process they do not have access to the server object, nor the request and response object. All they can do is return a value which will be set to the response body. If you need to work with either of these objects you can chain a function call to the async one which will execute in the main process once the async expression has returned. You can do this by adding a &lt;code>@then&lt;/code> block directly after the async one, e.g.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* of objects, each corresponding to a day&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @serializer json&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @serializer yaml&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @async&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>city&lt;/span>, &lt;span class='nv'>query&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>get_forecast&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>city&lt;/span>, &lt;span class='nv'>query&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>length&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @then&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>result&lt;/span>, &lt;span class='nv'>response&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>response&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>body&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>result&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>response&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nf'>set_header&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"cache-control"&lt;/span>, &lt;span class='s'>"max-age=86400"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>Next&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>In the above we set the body to the result of the prior async expression (this would have happened automatically), then we add an additional header to the response which would have been otherwise impossible in the async expression and lastly we return the &lt;code>Next&lt;/code> sentinel which signal that the request can move on to the next route/middleware.&lt;/p>
+&lt;h3 id="redirection-and-forwarding">Redirection and forwarding
+&lt;a href="#redirection-and-forwarding">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Over the lifetime of a webserver you may end up cleaning up functionality or moving things around. If some functionality ends up at a different path your API will contain dead links unless you do something about it. plumber2 makes it easy to redirect requests to a new location so that users of the API can gracefully migrate to the new location without disruption.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* @redirect !get /old/data/* /new/data/*&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @redirect any /unstable/endpoint /stable/endpoint&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kc'>NULL&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The above adds two different redirects. One is a permanent redirect (denoted by the &lt;code>!&lt;/code> in front of the method). It redirects all &lt;code>GET&lt;/code> requests from &lt;code>/old/data/*&lt;/code> to &lt;code>/new/data/*&lt;/code> be returning a &lt;code>308&lt;/code> response directing the client to try the new location. The other is a temporary redirect which instead returns a &lt;code>307&lt;/code> response.&lt;/p>
+&lt;p>You can use wildcards (as shown above) and path parameters in the redirection paths as long as they match between the old and new path (the new path can drop path parameters from old, but can&amp;rsquo;t make up new ones).&lt;/p>
+&lt;p>Redirection goes through the client. The server responds with a &lt;code>307&lt;/code>/&lt;code>308&lt;/code> response that include the new location of the resource and it is up to the client to follow that to the final destination.&lt;/p>
+&lt;p>There is another kind of redirection, one that is invisible to the client, where the server forwards the request to another service and returns the response to the client once it receives it. This is called a reverse proxy. A reverse proxy can either forward a request to another service running locally, or to a service running on a separate server. Reverse proxying is implemented with the &lt;code>@forward&lt;/code> tag:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* @forward /proxy http://127.0.0.1:56789&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @except /local&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kc'>NULL&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The above sets up a reverse proxy that forwards requests made to &lt;code>/proxy&lt;/code> to the service running locally on &lt;code>http://127.0.0.1:56789&lt;/code>. It uses the &lt;code>@except&lt;/code> tag to preclude requests to &lt;code>/proxy/local/*&lt;/code> from being forwarded.&lt;/p>
+&lt;h3 id="shiny-support">Shiny support
+&lt;a href="#shiny-support">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Build on top of the reverse proxy capabilities is support for launching and serving one or more shiny applications. The shiny applications are launched in another process and HTTP and WebSocket communication is forwarded to it. Once the plumber2 server stops the shiny applications are stopped as well. Launching a shiny application is very straightforward:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* @shiny /my_app/&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>shiny&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/pkg/shiny/man/shinyApp.html'>shinyAppDir&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"./shiny"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>You use the &lt;code>@shiny&lt;/code> tag and provide the path from where you want to serve the shiny app, then, below the annotation where the handler would normally be, you provide a shiny app object.&lt;/p>
+&lt;p>You can also use the &lt;code>@except&lt;/code> tag here meaning that it is e.g. possible to serve a shiny app from the root, but e.g. let requests to &lt;code>/api/*&lt;/code> fall through and be handled by plumber2:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* @shiny /&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @except /api&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>shiny&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/pkg/shiny/man/shinyApp.html'>shinyAppDir&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"./frontend"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @get /api&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>...&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h3 id="serving-quarto-and-rmarkdown-documents">Serving Quarto and Rmarkdown documents
+&lt;a href="#serving-quarto-and-rmarkdown-documents">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>In the same vein as serving shiny applications, plumber2 also allows you to easily serve quarto or rmarkdown documents. The syntax for this follows that of the shiny functionality closely&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* @report /quarterly_report&lt;/span>&lt;/span>
+&lt;span>&lt;span class='s'>"./reports/my_amazing_report.qmd"&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>You provide the path to serve the report from with the &lt;code>@report&lt;/code> tag and then points to the quarto (or rmarkdown) file below the block. If you have a parameterized report you can pass in parameters through the query string, and if your report provides multiple output formats the client can choose between them, either through content negotiation or be appending the correct file extension to the url (e.g. requesting &lt;code>/quarterly_report.pdf&lt;/code> in the above will render a PDF version and requesting &lt;code>/quarterly_report.html&lt;/code> will render to HTML). Reports are cached so they are only rendered when needed.&lt;/p>
+&lt;h3 id="persistent-data-storage">Persistent data storage
+&lt;a href="#persistent-data-storage">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Keeping state between requests to a server can be done in multiple ways. Of course a REST api does away completely with state so if you follow that then it is simply not needed. But not everything is RESTful and sometimes state is required. In plumber, this could be done through an encrypted session cookie. This cookie was passed back and forth at every request ensuring that the same data was available at repeat visits. This is still possible in plumber2 through the &lt;code>session&lt;/code> field of the request and response object. However, as noted in the plumber documentation as well, this approach comes with certain downsides. First, the need to pass the data back and forth at every request limits how much data can feasibly be stored. Second, the use of a cookie means that e.g. websocket logic will not have access to the data. Lastly, sending it back and forth is a security liability even if encrypted. If someone got hold of your encryption key they could eavesdrop on everything going on between the server and client.&lt;/p>
+&lt;p>The alternative is to keep all the data on the server, in a persistent cross-session way. To that end plumber2 provides a persistent datastore build on the
+&lt;a href="https://richfitz.github.io/storr/" target="_blank" rel="noopener">storr&lt;/a> package. storr provides a unified frontend for a variety of different data stores, such as redis, postgresql, LMDB etc. Neither storr nor plumber2 takes care of setting up the data store so the onus for that is still on the developer. However, once setup plumber2 automatically provides a global and a client-scoped key-value store accessible for handlers.&lt;/p>
+&lt;p>The data store cannot be set up through annotations but uses the programmatic interface. However, this can be mixed in with annotations in a &lt;code>@plumber&lt;/code> block. Below is an example of setting it up as well as using it in a handler&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* @plumber&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>api&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>api&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>api_datastore&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>storr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://richfitz.github.io/storr/reference/storr_environment.html'>driver_environment&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'>#* Example of using the datastore&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @get /hello&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>datastore&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='kr'>if&lt;/span> &lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/length.html'>length&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>datastore&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>session&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>datastore&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>global&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>count&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='o'>(&lt;/span>&lt;span class='nv'>datastore&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>global&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>count&lt;/span> &lt;span class='o'>&lt;a href='https://rdrr.io/r/base/Control.html'>%||%&lt;/a>&lt;/span> &lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='m'>1&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>datastore&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>session&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>not_first_visit&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/paste.html'>paste0&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Welcome. You are visitor #"&lt;/span>, &lt;span class='nv'>datastore&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>global&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>count&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>&amp;#125;&lt;/span> &lt;span class='kr'>else&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>"Welcome back"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Above we set up a datastore based on an R environment. This is of course not a scalable solution but is easy to use for trying things out. The &lt;code>api_datastore()&lt;/code> most importantly takes a driver argument which is a storr compliant driver, as well as a number of other configurations that all have sensible defaults. After activating the datastore a new argument will be available in the handlers (the name defaults to &lt;code>datastore&lt;/code> but can be changed). This argument contains two elements: &lt;code>global&lt;/code> and &lt;code>session&lt;/code>. Both of these are list-like interfaces to the underlying datastore and allows you to read and write data, either to the global store or one scoped to the current session.&lt;/p>
+&lt;h3 id="security">Security
+&lt;a href="#security">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Whenever you opens up a server to the rest of the world, security should be a concern. This is both true for servers only used internally, but even more so for servers that communicate with the world wide web. plumber2 sets out to be a huge improvement over plumber in this regard. While no amount of tooling can substitute good understanding of the various attack vectors possible on the web, they can make it more ergonomic to have sensible security measures.&lt;/p>
+&lt;p>The key takeaway from the above is that the following functionality doesn&amp;rsquo;t negate the need for a security professional if your organization exposes a server to the web, but they can make said security professional more happy in their day-to-day work.&lt;/p>
+&lt;h4 id="security-headers">Security headers
+&lt;a href="#security-headers">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h4>&lt;p>A plumber2 API will predominantly use the HTTP protocol to communicate with the client. Over the cause of the internets existence there have been a cat-and-mouse game going on between bad actors that wish to scam or otherwise harm users, and the people developing the internet into being a safe experience. A lot of the improvements to security have been implemented as specific HTTP headers where the server opt into certain behavior that is safer for the client. plumber2 provides an easy way to set these headers and provides good sensible defaults as well.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>pa&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://plumber2.posit.co/reference/api.html'>api&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>api_security_headers&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>There are a lot of different headers being set by the above code. Some of it is only relevant if you serve HTML, while other is relevant predominantly if you are serving other assets. Some of it may even stop your web server from working properly because it gets too restricted. The golden path to walk is as tight settings as possible without breaking the api, so always start with tight settings and then gradually relax it (or find alternative ways to implement it) until things work.&lt;/p>
+&lt;h4 id="cors">CORS
+&lt;a href="#cors">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h4>&lt;p>CORS (Cross Origin Resource Sharing) is a way to allow sharing of content across domains, something that is otherwise restricted for safety. If you host your API on one domain and tries to access it from another domain you need to allow CORS. In plumber2 this is fairly straightforward using the &lt;code>@cors&lt;/code> tag:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* Get a weather forecast&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* This endpoint will provide the client with a forecast for a &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* specific city. You can modify the length of the forecast &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* through the query parameters&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @get /forecast/&amp;lt;city&amp;gt;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @cors https://my-trusted-weather-app.com&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* ...&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Continuing our weather forecast app from before, if we wish to allow a secondary app to use the api, we will need to turn on CORS and allow it for the domain (here, &lt;code>https://my-trusted-weather-app.com&lt;/code>). This is easily done with the &lt;code>@cors&lt;/code> tag as can be seen above.&lt;/p>
+&lt;h4 id="resource-isolation-policies">Resource Isolation Policies
+&lt;a href="#resource-isolation-policies">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h4>&lt;p>RIP (Resource Isolation Policies) is another way of ensuring that resources from your server is not used by other sites. It is build upon the &lt;code>Sec-Fetch-*&lt;/code> suite of request headers and allow you to block a request at the server level if it does not come from a trusted place or is being used for a valid reason. RIP can be configured much like CORS using the &lt;code>@rip&lt;/code> tag.&lt;/p>
+&lt;h2 id="future">Future
+&lt;a href="#future">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>So, plumber2 is here, it is great, and it contains a bunch of new stuff. What now?&lt;/p>
+&lt;p>Well, if you are already using plumber I hope you are excited. But, there is no rush. plumber will stay on CRAN in a superseded state and all your servers will continue to work. We hope you&amp;rsquo;ll take part in kicking the tires on plumber2 however, so that it can get some milage under its belt.&lt;/p>
+&lt;p>If you haven&amp;rsquo;t used plumber but still managed to reach this point of the blog post I think it is fair to assume that you are quite interested in creating web servers. Welcome! plumber2 will hopefully be a joyful experience for you but we can&amp;rsquo;t wait to learn where it could be even easier to use for a newcomer.&lt;/p>
+&lt;p>If you do maintain packages that build on top of plumber, I hope you&amp;rsquo;ll consider augmenting those to also work with plumber2. plumber2 has been build with extensibility in mind so hopefully you&amp;rsquo;ll feel empowered to make your tools even more amazing. If you do come across things that are hard, or impossible, to extend, let us know so we may look into it.&lt;/p>
+&lt;p>Happy plumbing!&lt;/p></description></item></channel></rss>

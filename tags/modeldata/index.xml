@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>modeldata | Tidyverse</title><link>https://www.tidyverse.org/tags/modeldata/</link><atom:link href="https://www.tidyverse.org/tags/modeldata/index.xml" rel="self" type="application/rss+xml"/><description>modeldata</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 28 Sep 2021 00:00:00 +0000</lastBuildDate><item><title>Q3 2021 tidymodels roundup</title><link>https://www.tidyverse.org/blog/2021/09/tidymodels-2021-q3/</link><pubDate>Tue, 28 Sep 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/09/tidymodels-2021-q3/</guid><description>&lt;p>The
+&lt;a href="https://www.tidymodels.org/" target="_blank" rel="noopener">tidymodels&lt;/a> framework is a collection of R packages for modeling and machine learning using tidyverse principles. We now publish
+&lt;a href="https://www.tidyverse.org/categories/roundup/" target="_blank" rel="noopener">regular updates&lt;/a> here on the tidyverse blog summarizing recent developments in the tidymodels ecosystem. You can check out the
+&lt;a href="https://www.tidyverse.org/tags/tidymodels/" target="_blank" rel="noopener">&lt;code>tidymodels&lt;/code> tag&lt;/a> to find all tidymodels blog posts here, including those that focus on a single package or more major releases. The purpose of these roundup posts is to keep you informed about any releases you may have missed and useful new functionality as we maintain these packages.&lt;/p>
+&lt;p>Since
+&lt;a href="https://www.tidyverse.org/blog/2021/07/tidymodels-july-2021/" target="_blank" rel="noopener">our last roundup post&lt;/a>, there have been 9 CRAN releases of tidymodels packages. You can install these updates from CRAN with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;baguette&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;broom&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;dials&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="s">&amp;#34;modeldata&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;poissonreg&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;recipes&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="s">&amp;#34;rules&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;stacks&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;textrecipes&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>NEWS&lt;/code> files are linked here for each package; you&amp;rsquo;ll notice that many of these releases involve small updates for CRAN policy or changes that are not user-facing. We write code in these smaller, modular packages that we can release frequently to make models easier to deploy and our software easier to maintain, but it can be a lot to keep up with as a user! We want to take the opportunity here to highlight a couple of more important changes in these releases.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://baguette.tidymodels.org/news/index.html#baguette-0-1-1-2021-07-14" target="_blank" rel="noopener">baguette&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://broom.tidymodels.org/news/index.html#broom-0-7-9-2021-07-27" target="_blank" rel="noopener">broom&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://dials.tidymodels.org/news/index.html#dials-0-0-10-2021-09-10" target="_blank" rel="noopener">dials&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://github.com/tidymodels/modeldata/blob/master/NEWS.md#modeldata-011" target="_blank" rel="noopener">modeldata&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://poissonreg.tidymodels.org/news/index.html#poissonreg-0-1-1-2021-08-07" target="_blank" rel="noopener">poissonreg&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://recipes.tidymodels.org/news/index.html#recipes-0-1-17-2021-09-27" target="_blank" rel="noopener">recipes&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://rules.tidymodels.org/news/index.html#rules-0-1-2-2021-08-07" target="_blank" rel="noopener">rules&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://github.com/tidymodels/stacks/blob/main/NEWS.md#v021" target="_blank" rel="noopener">stacks&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://textrecipes.tidymodels.org/news/index.html#textrecipes-0-4-1-2021-07-11" target="_blank" rel="noopener">textrecipes&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="new-parameter-objects">New parameter objects
+&lt;a href="#new-parameter-objects">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The
+&lt;a href="https://dials.tidymodels.org/" target="_blank" rel="noopener">dials&lt;/a> package is one that you might not have thought much about yet, even if you are a regular tidymodels user. It is an infrastructure package for creating and managing
+&lt;a href="https://www.tmwr.org/tuning.html#tuning-params-tidymodels" target="_blank" rel="noopener">hyperparameters&lt;/a> as well as grids (both
+&lt;a href="https://www.tmwr.org/grid-search.html#grids" target="_blank" rel="noopener">regular and non-regular&lt;/a>) of hyperparameters. The most recent release of dials includes several new parameters, and
+&lt;a href="https://www.frick.ws/" target="_blank" rel="noopener">Hannah Frick&lt;/a> is now the package maintainer.&lt;/p>
+&lt;p>One of the new parameters in this release is
+&lt;a href="https://dials.tidymodels.org/reference/stop_iter.html" target="_blank" rel="noopener">&lt;code>stop_iter()&lt;/code>&lt;/a>, the number of iterations without improvement before
+&lt;a href="https://en.wikipedia.org/wiki/Early_stopping" target="_blank" rel="noopener">&amp;ldquo;early stopping&amp;rdquo;&lt;/a>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidymodels&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; ── Attaching packages ──────────────────────────── tidymodels 0.1.3 ──&lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ broom 0.7.9 ✓ rsample 0.1.0 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ dials 0.0.10 ✓ tibble 3.1.4 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ dplyr 1.0.7 ✓ tidyr 1.1.3 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ infer 1.0.0 ✓ tune 0.1.6 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ modeldata 0.1.1 ✓ workflows 0.2.3 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ parsnip 0.1.7 ✓ workflowsets 0.1.0 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ purrr 0.3.4 ✓ yardstick 0.0.8 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ recipes 0.1.17&lt;/span>
+&lt;span class="c1">#&amp;gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──&lt;/span>
+&lt;span class="c1">#&amp;gt; x purrr::discard() masks scales::discard()&lt;/span>
+&lt;span class="c1">#&amp;gt; x dplyr::filter() masks stats::filter()&lt;/span>
+&lt;span class="c1">#&amp;gt; x dplyr::lag() masks stats::lag()&lt;/span>
+&lt;span class="c1">#&amp;gt; x recipes::step() masks stats::step()&lt;/span>
+&lt;span class="c1">#&amp;gt; • Use tidymodels_prefer() to resolve common conflicts.&lt;/span>
+&lt;span class="nf">stop_iter&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; # Iterations Before Stopping (quantitative)&lt;/span>
+&lt;span class="c1">#&amp;gt; Range: [3, 20]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You don&amp;rsquo;t typically use parameters from dials like this, though. Instead, the infrastructure these parameters provide is what allows us to fluently tune our hyperparameters. For example, we can use data on high-performance computing jobs to predict the class of those jobs with xgboost, choosing to try out different values for early stopping (along with another hyperparameter &lt;code>mtry&lt;/code>).&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hpc_data&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">hpc_folds&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">vfold_cv&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hpc_data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">strata&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">class&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">hpc_formula&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">class&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">compounds&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">input_fields&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">iterations&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">num_pending&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">hour&lt;/span>
+&lt;span class="n">stopping_spec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">boost_tree&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">trees&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">500&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">learn_rate&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.02&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">mtry&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">tune&lt;/span>&lt;span class="p">(),&lt;/span>
+&lt;span class="n">stop_iter&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">tune&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">set_engine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;xgboost&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">validation&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.2&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">set_mode&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;classification&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">early_stop_wf&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">workflow&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hpc_formula&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">stopping_spec&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>We can now tune this &lt;code>workflow()&lt;/code> over the resamples &lt;code>hpc_folds&lt;/code> and find out which values for the hyperparameters turned out best.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">doParallel&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">registerDoParallel&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">123&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">early_stop_rs&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">tune_grid&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">early_stop_wf&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">hpc_folds&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; i Creating pre-processing data to finalize unknown parameter: mtry&lt;/span>
+&lt;span class="nf">show_best&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">early_stop_rs&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;roc_auc&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 5 × 8&lt;/span>
+&lt;span class="c1">#&amp;gt; mtry stop_iter .metric .estimator mean n std_err .config &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;int&amp;gt; &amp;lt;int&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 3 13 roc_auc hand_till 0.887 10 0.00337 Preprocessor…&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 2 11 roc_auc hand_till 0.887 10 0.00414 Preprocessor…&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 2 15 roc_auc hand_till 0.886 10 0.00342 Preprocessor…&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 4 7 roc_auc hand_till 0.885 10 0.00365 Preprocessor…&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 4 9 roc_auc hand_till 0.884 10 0.00353 Preprocessor…&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>In this case, the best value for the early stopping parameter is 13.&lt;/p>
+&lt;p>
+&lt;a href="https://youtu.be/aXAafzOFyjk" target="_blank" rel="noopener">This recent screencast demonstrates&lt;/a> how to tune early stopping for xgboost as well.&lt;/p>
+&lt;p>Several of the new parameter objects in this version of dials are prep work for supporting more options in tidymodels, such as tuning yet more hyperparameters of xgboost (like L1 and L2 penalties and whether to balance classes), generalized additive models, discriminant analysis models, recursively partitioned models, and a recipe step for sparse PCA. Stay tuned for more on these new options!&lt;/p>
+&lt;h2 id="improvements-to-recipes">Improvements to recipes
+&lt;a href="#improvements-to-recipes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The most recent release of recipes is a robust one, including new recipe steps, bug fixes, documentation improvements, and better performance. You can dig into the
+&lt;a href="https://recipes.tidymodels.org/news/index.html" target="_blank" rel="noopener">NEWS file&lt;/a> for more details, but check out a few of the most important changes.&lt;/p>
+&lt;p>We added a new recipe step for creating sine and cosine features,
+&lt;a href="https://recipes.tidymodels.org/reference/step_harmonic.html" target="_blank" rel="noopener">&lt;code>step_harmonic()&lt;/code>&lt;/a>. We can use this to analyze data with periodic features, like
+&lt;a href="https://en.wikipedia.org/wiki/Solar_cycle" target="_blank" rel="noopener">the annual number of sunspots&lt;/a>. The &lt;code>sunspot.year&lt;/code> dataset has an observation every year, and the solar cycle is about 11 years long.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sunspot.year&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">sunspots&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">year&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1700&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">1988&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">n_sunspot&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">sunspot.year&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">sun_split&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">initial_time_split&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sunspots&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">sun_train&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">training&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sun_split&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">sun_test&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">testing&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sun_split&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">sunspots_rec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">n_sunspot&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">year&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">sun_train&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_harmonic&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">year&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">frequency&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span> &lt;span class="o">/&lt;/span> &lt;span class="m">11&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cycle_size&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">role&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;predictor&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">keep_original_cols&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">FALSE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">lm_spec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">linear_reg&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="n">sunspots_wf&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">workflow&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sunspots_rec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">lm_spec&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">sunspots_fit&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">fit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sunspots_wf&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">sun_train&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">sunspots_fit&lt;/span>
+&lt;span class="c1">#&amp;gt; ══ Workflow [trained] ════════════════════════════════════════════════&lt;/span>
+&lt;span class="c1">#&amp;gt; Preprocessor: Recipe&lt;/span>
+&lt;span class="c1">#&amp;gt; Model: linear_reg()&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; ── Preprocessor ──────────────────────────────────────────────────────&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 Recipe Step&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; • step_harmonic()&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; ── Model ─────────────────────────────────────────────────────────────&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Call:&lt;/span>
+&lt;span class="c1">#&amp;gt; stats::lm(formula = ..y ~ ., data = data)&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Coefficients:&lt;/span>
+&lt;span class="c1">#&amp;gt; (Intercept) year_sin_1 year_cos_1 &lt;/span>
+&lt;span class="c1">#&amp;gt; 42.904 9.691 20.504&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>We can now predict with this fitted linear model on the most recent years.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">sunspots_fit&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">augment&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sun_test&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">year&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">n_sunspot&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.pred&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">pivot_longer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">year&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">ggplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">year&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">value&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">color&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_line&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">alpha&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.8&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">size&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1.2&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">theme_minimal&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">labs&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">NULL&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;Number of sunspots&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">color&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">NULL&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figure/unnamed-chunk-7-1.png" alt="plot of chunk unnamed-chunk-7">&lt;/p>
+&lt;p>Looks like there have been
+&lt;a href="https://en.wikipedia.org/wiki/Solar_cycle#Cycle_history" target="_blank" rel="noopener">more sunspots in recent decades&lt;/a> compared to the past!&lt;/p>
+&lt;p>Another new recipe step is
+&lt;a href="https://recipes.tidymodels.org/reference/step_dummy_multi_choice.html" target="_blank" rel="noopener">&lt;code>step_dummy_multi_choice()&lt;/code>&lt;/a>, while
+&lt;a href="https://recipes.tidymodels.org/reference/step_kpca.html" target="_blank" rel="noopener">&lt;code>step_kpca()&lt;/code>&lt;/a> was &amp;ldquo;un-deprecated&amp;rdquo; and
+&lt;a href="https://recipes.tidymodels.org/reference/step_spatialsign.html" target="_blank" rel="noopener">&lt;code>step_spatialsign()&lt;/code>&lt;/a> and
+&lt;a href="https://recipes.tidymodels.org/reference/step_geodist.html" target="_blank" rel="noopener">&lt;code>step_geodist()&lt;/code>&lt;/a> were improved.&lt;/p>
+&lt;p>If you
+&lt;a href="https://www.tidymodels.org/learn/develop/recipes/" target="_blank" rel="noopener">build your own recipe steps&lt;/a>, the new
+&lt;a href="https://recipes.tidymodels.org/reference/recipes_eval_select.html" target="_blank" rel="noopener">&lt;code>recipes_eval_select()&lt;/code>&lt;/a> function is now available, powering the tidyselect semantics specific to recipes. The older &lt;code>terms_select()&lt;/code> function is now deprecated in favor of this new helper.&lt;/p>
+&lt;p>The recipes package is fairly extensive, and we have recently invested time and energy in refining
+&lt;a href="https://recipes.tidymodels.org/reference/" target="_blank" rel="noopener">the documentation&lt;/a> to make it more navigable and clear, as well as easier to maintain and contribute to. Specific documentation pages with recent updates you may find helpful include:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://recipes.tidymodels.org/reference/recipe.html" target="_blank" rel="noopener">how to create a &lt;code>recipe()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://recipes.tidymodels.org/reference/selections.html" target="_blank" rel="noopener">selecting variables for recipe steps&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://recipes.tidymodels.org/reference/tidy.recipe.html" target="_blank" rel="noopener">tidying recipes and recipe steps&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="reexamining-example-datasets">Reexamining example datasets
+&lt;a href="#reexamining-example-datasets">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>One of the tidymodels packages is
+&lt;a href="https://modeldata.tidymodels.org/" target="_blank" rel="noopener">modeldata&lt;/a>, where we keep example datasets for vignettes, examples, and other similar uses. We have included two datasets, &lt;code>okc&lt;/code> and &lt;code>okc_text&lt;/code>, in modeldata based on real user data from the dating website OkCupid.&lt;/p>
+&lt;p>This dataset was sourced from
+&lt;a href="https://doi.org/10.1080/26939169.2021.1924516" target="_blank" rel="noopener">Kim and Escobedo-Land (2015)&lt;/a>. Permission to use this dataset was explicitly granted by OkCupid, but since that time, concerns have been raised about the ethics of using this or similar data sets, for example to identify individuals.
+&lt;a href="https://doi.org/10.1080/26939169.2021.1930812" target="_blank" rel="noopener">Xiao and Ma (2021)&lt;/a> specifically address the possible misuse of this particular dataset, and we now agree that it isn&amp;rsquo;t a good option to use for examples or teaching. In the most recent release of modeldata, we have marked these datasets as deprecated. We have removed them from the
+&lt;a href="https://github.com/tidymodels/modeldata/" target="_blank" rel="noopener">development version of the package on GitHub&lt;/a>, and they will be removed entirely in the &lt;em>next&lt;/em> CRAN release. We especially want to thank Albert Kim, one of the authors of the original paper, for his
+&lt;a href="https://github.com/tidymodels/modeldata/issues/10" target="_blank" rel="noopener">thoughtful and helpful discussion&lt;/a>.&lt;/p>
+&lt;p>One of the reasons we found the OkCupid dataset useful was that it included multiple text columns per observation, so removing these two datasets motivated us to look for a new option to include instead. We landed on
+&lt;a href="https://modeldata.tidymodels.org/reference/tate_text.html" target="_blank" rel="noopener">metadata for modern artwork from the Tate Gallery&lt;/a>; if you used &lt;code>okc_text&lt;/code> in the past, we recommend switching to &lt;code>tate_text&lt;/code>. For example, we can count how many of these examples of artwork involve paper or canvas.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tate_text&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">textrecipes&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">paper_or_canvas&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;paper&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;canvas&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">tate_text&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_tokenize&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">medium&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_stopwords&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">medium&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">custom_stopword_source&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">paper_or_canvas&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">keep&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_tf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">medium&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">prep&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">bake&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">new_data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">NULL&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">artist&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">year&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">starts_with&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;tf&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 4,284 × 4&lt;/span>
+&lt;span class="c1">#&amp;gt; artist year tf_medium_canvas tf_medium_paper&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;fct&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 Absalon 1990 0 0&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 Auerbach, Frank 1990 0 1&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 Auerbach, Frank 1990 0 1&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 Auerbach, Frank 1990 0 1&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 Auerbach, Frank 1990 1 0&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 Ayres, OBE Gillian 1990 1 0&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 Barlow, Phyllida 1990 0 1&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 Baselitz, Georg 1990 0 1&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 Beattie, Basil 1990 1 0&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 Beuys, Joseph 1990 0 1&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 4,274 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This artwork metadata was a
+&lt;a href="https://github.com/rfordatascience/tidytuesday/blob/master/data/2021/2021-01-12/readme.md" target="_blank" rel="noopener">Tidy Tuesday dataset&lt;/a> earlier this year.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We’d like to extend our thanks to all of the contributors who helped make these releases during Q3 possible!&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>baguette:
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>broom:
+&lt;a href="https://github.com/bcallaway11" target="_blank" rel="noopener">@bcallaway11&lt;/a>,
+&lt;a href="https://github.com/billdenney" target="_blank" rel="noopener">@billdenney&lt;/a>,
+&lt;a href="https://github.com/brshallo" target="_blank" rel="noopener">@brshallo&lt;/a>,
+&lt;a href="https://github.com/corybrunson" target="_blank" rel="noopener">@corybrunson&lt;/a>,
+&lt;a href="https://github.com/crsh" target="_blank" rel="noopener">@crsh&lt;/a>,
+&lt;a href="https://github.com/gregmacfarlane" target="_blank" rel="noopener">@gregmacfarlane&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/ilapros" target="_blank" rel="noopener">@ilapros&lt;/a>,
+&lt;a href="https://github.com/jamesrrae" target="_blank" rel="noopener">@jamesrrae&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jthomasmock" target="_blank" rel="noopener">@jthomasmock&lt;/a>,
+&lt;a href="https://github.com/kaseyzapatka" target="_blank" rel="noopener">@kaseyzapatka&lt;/a>,
+&lt;a href="https://github.com/krivit" target="_blank" rel="noopener">@krivit&lt;/a>,
+&lt;a href="https://github.com/LukasWallrich" target="_blank" rel="noopener">@LukasWallrich&lt;/a>,
+&lt;a href="https://github.com/oskasf" target="_blank" rel="noopener">@oskasf&lt;/a>,
+&lt;a href="https://github.com/simonpcouch" target="_blank" rel="noopener">@simonpcouch&lt;/a>, and
+&lt;a href="https://github.com/tarensanders" target="_blank" rel="noopener">@tarensanders&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>dials:
+&lt;a href="https://github.com/camroberts" target="_blank" rel="noopener">@camroberts&lt;/a>,
+&lt;a href="https://github.com/driapitek" target="_blank" rel="noopener">@driapitek&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/joeycouse" target="_blank" rel="noopener">@joeycouse&lt;/a>,
+&lt;a href="https://github.com/Steviey" target="_blank" rel="noopener">@Steviey&lt;/a>,
+&lt;a href="https://github.com/tonyk7440" target="_blank" rel="noopener">@tonyk7440&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>modeldata:
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>poissonreg:
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>recipes:
+&lt;a href="https://github.com/AndrewKostandy" target="_blank" rel="noopener">@AndrewKostandy&lt;/a>,
+&lt;a href="https://github.com/asiripanich" target="_blank" rel="noopener">@asiripanich&lt;/a>,
+&lt;a href="https://github.com/atusy" target="_blank" rel="noopener">@atusy&lt;/a>,
+&lt;a href="https://github.com/avrenli2" target="_blank" rel="noopener">@avrenli2&lt;/a>,
+&lt;a href="https://github.com/czopluoglu" target="_blank" rel="noopener">@czopluoglu&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/DesmondChoy" target="_blank" rel="noopener">@DesmondChoy&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/felipeangelimvieira" target="_blank" rel="noopener">@felipeangelimvieira&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/joeycouse" target="_blank" rel="noopener">@joeycouse&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/kadyb" target="_blank" rel="noopener">@kadyb&lt;/a>,
+&lt;a href="https://github.com/mmp3" target="_blank" rel="noopener">@mmp3&lt;/a>,
+&lt;a href="https://github.com/MrFlick" target="_blank" rel="noopener">@MrFlick&lt;/a>,
+&lt;a href="https://github.com/NikKrieger" target="_blank" rel="noopener">@NikKrieger&lt;/a>,
+&lt;a href="https://github.com/PathosEthosLogos" target="_blank" rel="noopener">@PathosEthosLogos&lt;/a>,
+&lt;a href="https://github.com/simonschoe" target="_blank" rel="noopener">@simonschoe&lt;/a>,
+&lt;a href="https://github.com/SlowMo24" target="_blank" rel="noopener">@SlowMo24&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>,
+&lt;a href="https://github.com/vspinu" target="_blank" rel="noopener">@vspinu&lt;/a>, and
+&lt;a href="https://github.com/yyhyun64" target="_blank" rel="noopener">@yyhyun64&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>rules:
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>stacks:
+&lt;a href="https://github.com/bensoltoff" target="_blank" rel="noopener">@bensoltoff&lt;/a>,
+&lt;a href="https://github.com/dgrtwo" target="_blank" rel="noopener">@dgrtwo&lt;/a>,
+&lt;a href="https://github.com/JoeSydlowski" target="_blank" rel="noopener">@JoeSydlowski&lt;/a>,
+&lt;a href="https://github.com/PathosEthosLogos" target="_blank" rel="noopener">@PathosEthosLogos&lt;/a>, and
+&lt;a href="https://github.com/simonpcouch" target="_blank" rel="noopener">@simonpcouch&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>textrecipes:
+&lt;a href="https://github.com/dgrtwo" target="_blank" rel="noopener">@dgrtwo&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/jcragy" target="_blank" rel="noopener">@jcragy&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item></channel></rss>

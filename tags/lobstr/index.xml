@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>lobstr | Tidyverse</title><link>https://www.tidyverse.org/tags/lobstr/</link><atom:link href="https://www.tidyverse.org/tags/lobstr/index.xml" rel="self" type="application/rss+xml"/><description>lobstr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 21 Dec 2018 00:00:00 +0000</lastBuildDate><item><title>lobstr 1.0.0</title><link>https://www.tidyverse.org/blog/2018/12/lobstr/</link><pubDate>Fri, 21 Dec 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/12/lobstr/</guid><description>&lt;p>We&amp;rsquo;re so happy to announce the release of
+&lt;a href="https://lobstr.r-lib.org/" target="_blank" rel="noopener">lobstr&lt;/a> on CRAN. lobstr provides tools that allow you to dig into the internal representation and structure of R objects, in a similar vein to
+&lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/utils/html/str.html" target="_blank" rel="noopener">&lt;code>str()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>You can install it by running:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;lobstr&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="visualising-r-data-structures-with-trees">Visualising R data structures with trees
+&lt;a href="#visualising-r-data-structures-with-trees">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="abstract-syntax-trees">Abstract syntax trees
+&lt;a href="#abstract-syntax-trees">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>
+&lt;a href="https://lobstr.r-lib.org/reference/ast.html" target="_blank" rel="noopener">&lt;code>ast()&lt;/code>&lt;/a> draws the abstract syntax tree (AST) of R expressions. You can learn about these in greater detail in the
+&lt;a href="https://adv-r.hadley.nz/expressions.html#abstract-syntax-trees" target="_blank" rel="noopener">Abstract syntax trees&lt;/a> section of
+&lt;a href="https://adv-r.hadley.nz/" target="_blank" rel="noopener">Advanced R&lt;/a>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">ast&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">b&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">c&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; █─`+` &lt;/span>
+&lt;span class="c1">#&amp;gt; ├─█─`+` &lt;/span>
+&lt;span class="c1">#&amp;gt; │ ├─a &lt;/span>
+&lt;span class="c1">#&amp;gt; │ └─b &lt;/span>
+&lt;span class="c1">#&amp;gt; └─c&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="call-stack-trees">Call stack trees
+&lt;a href="#call-stack-trees">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>
+&lt;a href="https://lobstr.r-lib.org/reference/cst.html" target="_blank" rel="noopener">&lt;code>cst()&lt;/code>&lt;/a> shows how the frames of a call stack are connected:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">f&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">g&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">g&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">h&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">h&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">x&lt;/span>
+&lt;span class="nf">f&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">cst&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="c1">#&amp;gt; █&lt;/span>
+&lt;span class="c1">#&amp;gt; 1. ├─global::f(cst())&lt;/span>
+&lt;span class="c1">#&amp;gt; 2. │ └─global::g(x)&lt;/span>
+&lt;span class="c1">#&amp;gt; 3. │ └─global::h(x)&lt;/span>
+&lt;span class="c1">#&amp;gt; 4. └─lobstr::cst()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Learn more about this in
+&lt;a href="https://adv-r.hadley.nz/environments.html#call-stack" target="_blank" rel="noopener">The call stack&lt;/a>.&lt;/p>
+&lt;h3 id="references">References
+&lt;a href="#references">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>
+&lt;a href="https://lobstr.r-lib.org/reference/ref.html" target="_blank" rel="noopener">&lt;code>ref()&lt;/code>&lt;/a> shows the connection between shared references using a locally unique id by printing the memory address of each object (further discussed
+&lt;a href="https://adv-r.hadley.nz/names-values.html#copy-on-modify" target="_blank" rel="noopener">here&lt;/a>).&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">100&lt;/span>
+&lt;span class="nf">ref&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1:0x7fb19c66bbc8] &amp;lt;int&amp;gt;&lt;/span>
+&lt;span class="n">y&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">ref&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">y&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; █ [1:0x7fb19d0d5a28] &amp;lt;list&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; ├─[2:0x7fb19c66bbc8] &amp;lt;int&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; ├─[2:0x7fb19c66bbc8] &lt;/span>
+&lt;span class="c1">#&amp;gt; └─[2:0x7fb19c66bbc8]&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="object-inspection">Object inspection
+&lt;a href="#object-inspection">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The
+&lt;a href="https://lobstr.r-lib.org/reference/obj_addr.html" target="_blank" rel="noopener">&lt;code>obj_addr()&lt;/code>&lt;/a> function gives the address of the value that an object, &lt;code>x&lt;/code>, points to. In
+&lt;a href="https://adv-r.hadley.nz/names-values.html#binding-basics" target="_blank" rel="noopener">Binding basics&lt;/a>, this is used to illustrate the &amp;ldquo;lazy copying&amp;rdquo; used by R: when multiple names reference the same value, they point to the same identifier. The object itself is not duplicated.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">10&lt;/span>
+&lt;span class="n">y&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">x&lt;/span>
+&lt;span class="nf">obj_addr&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;0x7fb19c7aeeb0&amp;#34;&lt;/span>
+&lt;span class="nf">obj_addr&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">y&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;0x7fb19c7aeeb0&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>
+&lt;a href="https://lobstr.r-lib.org/reference/obj_size.html" target="_blank" rel="noopener">&lt;code>obj_size()&lt;/code>&lt;/a> computes the size of an object or set of objects. It is different to &lt;code>object.size()&lt;/code> in three ways. It:&lt;/p>
+&lt;ul>
+&lt;li>Accounts for all types of shared values, not just strings in the global string pool,&lt;/li>
+&lt;li>Includes the size of environments (up to &lt;code>env&lt;/code>), and&lt;/li>
+&lt;li>Accurately measures the size of ALTREP objects.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;code>obj_size()&lt;/code> attempts to take into account the size of the environments associated with an object. By default, it never counts the size of the global environment, the base environment, the empty environment, or any namespace. However, the optional &lt;code>env&lt;/code> argument allows you to specify another environment at which to stop.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">runif&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1e4&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">obj_size&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; 80,048 B&lt;/span>
+&lt;span class="n">z&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">b&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">c&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">obj_size&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">z&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; 80,488 B&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can use &lt;code>obj_sizes()&lt;/code> to see the unique contribution of each component:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">obj_sizes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">z&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; * 80,048 B&lt;/span>
+&lt;span class="c1">#&amp;gt; * 440 B&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>For more detail, see the
+&lt;a href="https://adv-r.hadley.nz/names-values.html#object-size" target="_blank" rel="noopener">Object size&lt;/a> section of Advanced R.&lt;/p>
+&lt;h2 id="memory-usage">Memory usage
+&lt;a href="#memory-usage">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://lobstr.r-lib.org/reference/mem_used.html" target="_blank" rel="noopener">&lt;code>mem_used()&lt;/code>&lt;/a> wraps around the base-R garbage collection function,
+&lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/base/html/gc.html" target="_blank" rel="noopener">&lt;code>gc()&lt;/code>&lt;/a>, and returns the exact number of bytes currently used by R. See
+&lt;a href="https://adv-r.hadley.nz/names-values.html#gc" target="_blank" rel="noopener">Unbinding and the garbage collector&lt;/a> for details.&lt;/p></description></item></channel></rss>

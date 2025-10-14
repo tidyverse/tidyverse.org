@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>stacks | Tidyverse</title><link>https://www.tidyverse.org/tags/stacks/</link><atom:link href="https://www.tidyverse.org/tags/stacks/index.xml" rel="self" type="application/rss+xml"/><description>stacks</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 30 Nov 2020 00:00:00 +0000</lastBuildDate><item><title>stacks 0.1.0</title><link>https://www.tidyverse.org/blog/2020/11/stacks-0-1-0/</link><pubDate>Mon, 30 Nov 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/11/stacks-0-1-0/</guid><description>&lt;p>A few months ago, the tidymodels team coordinated a
+&lt;a href="https://connect.rstudioservices.com/tidymodels-priorities-survey/README.html" target="_blank" rel="noopener">community survey&lt;/a> to get a sense for what users most wanted to see next in the
+&lt;a href="https://www.tidymodels.org/" target="_blank" rel="noopener">tidymodels&lt;/a> package ecosystem. One resounding theme from responses was that tidymodels users wanted a framework for tidymodels-aligned model stacking.&lt;/p>
+&lt;p>&lt;img src="https://education.rstudio.com/blog/2020/06/tidymodels-internship/priorities.png" alt="">&lt;/p>
+&lt;p>We&amp;rsquo;re excited to announce the release of
+&lt;a href="https://stacks.tidymodels.org" target="_blank" rel="noopener">stacks&lt;/a> 0.1.0, a package for model stacking that aligns with existing functionality in the tidymodels package ecosystem! Model stacking is an ensembling technique that combines the outputs of many models to generate a new model&amp;mdash;referred to as an &lt;em>ensemble&lt;/em> in this package&amp;mdash;that generates predictions informed by each of its &lt;em>members&lt;/em>.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>(&lt;span class='s'>"stacks"&lt;/span>)
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>To load the package:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>(&lt;span class='k'>stacks&lt;/span>)
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="a-brief-overview">A Brief Overview
+&lt;a href="#a-brief-overview">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The process of a building a model stack goes something like this:&lt;/p>
+&lt;div style="float:right;position: relative; top: -35px; width: 200px; padding-left: 30px; padding-bottom: 10px;">
+&lt;p>&lt;img src="https://github.com/tidymodels/stacks/raw/main/man/figures/logo.png" alt="">&lt;/p>
+&lt;/div>
+&lt;ol>
+&lt;li>Define candidate ensemble members using functionality from
+&lt;a href="https://rsample.tidymodels.org/" target="_blank" rel="noopener">rsample&lt;/a>,
+&lt;a href="https://parsnip.tidymodels.org/" target="_blank" rel="noopener">parsnip&lt;/a>,
+&lt;a href="https://workflows.tidymodels.org/" target="_blank" rel="noopener">workflows&lt;/a>,
+&lt;a href="https://recipes.tidymodels.org/" target="_blank" rel="noopener">recipes&lt;/a>, and
+&lt;a href="http://tune.tidymodels.org/" target="_blank" rel="noopener">tune&lt;/a>&lt;/li>
+&lt;li>Initialize a &lt;code>data_stack&lt;/code> object with
+&lt;a href="https://stacks.tidymodels.org/reference/stacks.html" target="_blank" rel="noopener">&lt;code>stacks()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>Iteratively add candidate ensemble members to the &lt;code>data_stack&lt;/code> with
+&lt;a href="https://stacks.tidymodels.org/reference/add_candidates.html" target="_blank" rel="noopener">&lt;code>add_candidates()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>Evaluate how to combine their predictions with
+&lt;a href="https://stacks.tidymodels.org/reference/blend_predictions.html" target="_blank" rel="noopener">&lt;code>blend_predictions()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>Fit candidate ensemble members with non-zero stacking coefficients with
+&lt;a href="https://stacks.tidymodels.org/reference/fit_members.html" target="_blank" rel="noopener">&lt;code>fit_members()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>Predict on new data with
+&lt;a href="https://stacks.tidymodels.org/reference/predict.model_stack.html" target="_blank" rel="noopener">&lt;code>predict()&lt;/code>&lt;/a>&lt;/li>
+&lt;/ol>
+&lt;p>For an example of using stacks to build a stacked ensemble model, see the
+&lt;a href="https://stacks.tidymodels.org/articles/basics.html" target="_blank" rel="noopener">package vignette&lt;/a>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thank you to
+&lt;a href="https://www.jungjulie.com/" target="_blank" rel="noopener">Julie Jung&lt;/a> for contributing the package&amp;rsquo;s hex sticker as well as research data used in examples throughout the package. Read more about the example data
+&lt;a href="https://stacks.tidymodels.org/reference/tree_frogs.html" target="_blank" rel="noopener">here&lt;/a>.&lt;/p>
+&lt;p>This release was made possible in part by the RStudio internship program, which allowed me (
+&lt;a href="https://twitter.com/simonpcouch" target="_blank" rel="noopener">Simon Couch&lt;/a>) to work on developing stacks full-time throughout July. I&amp;rsquo;m also grateful for support from Dr. Kelly McConville as well as the
+&lt;a href="https://www.reed.edu/math/" target="_blank" rel="noopener">Reed College Mathematics Department&lt;/a>, where this package will partially fulfill my undergraduate senior thesis requirement.&lt;/p>
+&lt;p>Also, we thank those who have tested and provided feedback on the developmental versions of the package over the last few months.&lt;/p></description></item></channel></rss>

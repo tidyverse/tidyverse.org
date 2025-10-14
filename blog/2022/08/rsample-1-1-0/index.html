@@ -1,0 +1,159 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>rsample 1.1.0</title><meta property="og:title" content="rsample 1.1.0"><meta property="og:description" content="rsample 1.1.0 is now on CRAN! This release provides a ton of new functions for grouped resampling, as well as a few long-awaited utility functions."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2022/08/rsample-1-1-0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="rsample 1.1.0 - Tidyverse"><meta property="description" content="rsample 1.1.0 is now on CRAN! This release provides a ton of new functions for grouped resampling, as well as a few long-awaited utility functions."><meta property="og:description" content="rsample 1.1.0 is now on CRAN! This release provides a ton of new functions for grouped resampling, as well as a few long-awaited utility functions."><meta property="og:image" content="https://www.tidyverse.org/blog/2022/08/rsample-1-1-0/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2022/08/rsample-1-1-0/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>rsample 1.1.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2022/08/rsample-1-1-0/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/bukjsECgmeU>Paul Teysen</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2022/08/08</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/tidymodels/>tidymodels</a>,
+<a href=/tags/rsample/>rsample</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Mike Mahoney</p><div class=article-content><p>We&rsquo;re downright exhilarated to announce the release of
+<a href=https://rsample.tidymodels.org/ target=_blank rel=noopener>rsample</a> 1.1.0. The rsample package makes it easy to create resamples for estimating distributions and assessing model performance.</p><p>You can install it from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span><span class=o>(</span><span class=s>"rsample"</span><span class=o>)</span></code></pre></div><p>This blog post will walk through some of the highlights from this newest release. You can see a full list of changes in the
+<a href=https://rsample.tidymodels.org/news/index.html#rsample-110 target=_blank rel=noopener>release notes</a>.</p><h2 id=grouped-resampling>Grouped resampling
+<a href=#grouped-resampling><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>By far and away the biggest addition in this version of rsample is the set of new functions for grouped resampling. Grouped resampling is a form of resampling where observations need to be assigned to the analysis or assessment sets as a &ldquo;group&rdquo;, not split between the two. This is a common need when some of your data is more closely related than would be expected under random chance: for instance, when taking multiple measurements of a single patient over time, or when your data is geographically clustered into distinct &ldquo;locations&rdquo; like different neighborhoods.</p><p>The rsample package has supported grouped v-fold cross-validation for a few years, through the
+<a href=https://rsample.tidymodels.org/reference/group_vfold_cv.html target=_blank rel=noopener><code>group_vfold_cv()</code></a> function:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=http://purrr.tidyverse.org>purrr</a></span><span class=o>)</span>
+<span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://rsample.tidymodels.org>rsample</a></span><span class=o>)</span>
+<span class=nf><a href=https://rdrr.io/r/utils/data.html>data</a></span><span class=o>(</span><span class=nv>ames</span>, package <span class=o>=</span> <span class=s>"modeldata"</span><span class=o>)</span>
+
+<span class=nv>resample</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rsample.tidymodels.org/reference/group_vfold_cv.html>group_vfold_cv</a></span><span class=o>(</span><span class=nv>ames</span>, group <span class=o>=</span> <span class=nv>Neighborhood</span>, v <span class=o>=</span> <span class=m>2</span><span class=o>)</span>
+
+<span class=nv>resample</span><span class=o>$</span><span class=nv>splits</span> <span class=o>%&gt;%</span>
+  <span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_lgl</a></span><span class=o>(</span><span class=kr>function</span><span class=o>(</span><span class=nv>x</span><span class=o>)</span> <span class=o>&#123;</span>
+    <span class=nf><a href=https://rdrr.io/r/base/any.html>any</a></span><span class=o>(</span><span class=nf><a href=https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html>assessment</a></span><span class=o>(</span><span class=nv>x</span><span class=o>)</span><span class=o>$</span><span class=nv>Neighborhood</span> <span class=o>%in%</span> <span class=nf><a href=https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html>analysis</a></span><span class=o>(</span><span class=nv>x</span><span class=o>)</span><span class=o>$</span><span class=nv>Neighborhood</span><span class=o>)</span>
+  <span class=o>&#125;</span>
+<span class=o>)</span>
+<span class=c>#&gt; [1] FALSE FALSE</span></code></pre></div><p>rsample 1.1.0 extends this support by adding four new functions for grouped resampling. The new functions
+<a href=https://rsample.tidymodels.org/reference/group_bootstraps.html target=_blank rel=noopener><code>group_bootstraps()</code></a>,
+<a href=https://rsample.tidymodels.org/reference/group_mc_cv.html target=_blank rel=noopener><code>group_mc_cv()</code></a>,
+<a href=https://rsample.tidymodels.org/reference/validation_split.html target=_blank rel=noopener><code>group_validation_split()</code></a>, and
+<a href=https://rsample.tidymodels.org/reference/initial_split.html target=_blank rel=noopener><code>group_initial_split()</code></a> all work like their ungrouped versions, but let you specify a grouping column to make sure related observations are all assigned to the same sets:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c># Bootstrap resampling with replacement:</span>
+<span class=nf><a href=https://rsample.tidymodels.org/reference/group_bootstraps.html>group_bootstraps</a></span><span class=o>(</span><span class=nv>ames</span>, <span class=nv>Neighborhood</span>, times <span class=o>=</span> <span class=m>1</span><span class=o>)</span>
+<span class=c>#&gt; # Group bootstrap sampling </span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 1 × 2</span></span>
+<span class=c>#&gt;   splits              id        </span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;list&gt;</span>              <span style=color:#555;font-style:italic>&lt;chr&gt;</span>     </span>
+<span class=c>#&gt; <span style=color:#555>1</span> <span style=color:#555>&lt;split [3050/1225]&gt;</span> Bootstrap1</span>
+
+
+<span class=c># Random resampling without replacement:</span>
+<span class=nf><a href=https://rsample.tidymodels.org/reference/group_mc_cv.html>group_mc_cv</a></span><span class=o>(</span><span class=nv>ames</span>, <span class=nv>Neighborhood</span>, times <span class=o>=</span> <span class=m>1</span><span class=o>)</span>
+<span class=c>#&gt; # Group Monte Carlo cross-validation (0.75/0.25) with 1 resamples  </span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 1 × 2</span></span>
+<span class=c>#&gt;   splits             id       </span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;list&gt;</span>             <span style=color:#555;font-style:italic>&lt;chr&gt;</span>    </span>
+<span class=c>#&gt; <span style=color:#555>1</span> <span style=color:#555>&lt;split [2198/732]&gt;</span> Resample1</span>
+
+
+<span class=c># Data splitting to create a validation set:</span>
+<span class=nf><a href=https://rsample.tidymodels.org/reference/validation_split.html>group_validation_split</a></span><span class=o>(</span><span class=nv>ames</span>, <span class=nv>Neighborhood</span><span class=o>)</span>
+<span class=c>#&gt; # Group Validation Set Split (0.75/0.25)  </span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 1 × 2</span></span>
+<span class=c>#&gt;   splits             id        </span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;list&gt;</span>             <span style=color:#555;font-style:italic>&lt;chr&gt;</span>     </span>
+<span class=c>#&gt; <span style=color:#555>1</span> <span style=color:#555>&lt;split [2201/729]&gt;</span> validation</span>
+
+
+<span class=c># Data splitting to create an initial training/testing split:</span>
+<span class=nf><a href=https://rsample.tidymodels.org/reference/initial_split.html>group_initial_split</a></span><span class=o>(</span><span class=nv>ames</span>, <span class=nv>Neighborhood</span><span class=o>)</span>
+<span class=c>#&gt; &lt;Training/Testing/Total&gt;</span>
+<span class=c>#&gt; &lt;2162/768/2930&gt;</span></code></pre></div><p>These functions all target assigning a certain proportion of your data to the assessment fold. Hitting that target can be tricky when your groups aren&rsquo;t all the same size, however. To work around this, these new functions create a list of all the groups in your data, randomly reshuffle it, and then select the first <em>n</em> groups in the list that results in splitting the data as close to that proportion as possible. The net effect of this on users is that your analysis and assessment folds won&rsquo;t always be precisely the size you&rsquo;re targeting (particularly if you have a few large groups), but all data in a single group will always be entirely assigned to the same set and the splits will be entirely randomly created.</p><p>The other big change to grouped resampling comes as a new argument to
+<a href=https://rsample.tidymodels.org/reference/group_vfold_cv.html target=_blank rel=noopener><code>group_vfold_cv()</code></a>. By default,
+<a href=https://rsample.tidymodels.org/reference/group_vfold_cv.html target=_blank rel=noopener><code>group_vfold_cv()</code></a> assigns roughly the same number of groups to each of your folds, so you wind up with the same number of patients, or neighborhoods, or whatever else you&rsquo;re grouping by in each assessment set. The new <code>balance</code> argument lets you instead assign roughly the same number of rows to each fold instead, if you set <code>balance = observations</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rsample.tidymodels.org/reference/group_vfold_cv.html>group_vfold_cv</a></span><span class=o>(</span><span class=nv>ames</span>, <span class=nv>Neighborhood</span>, balance <span class=o>=</span> <span class=s>"observations"</span><span class=o>)</span>
+<span class=c>#&gt; # Group 28-fold cross-validation </span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 28 × 2</span></span>
+<span class=c>#&gt;    splits             id        </span>
+<span class=c>#&gt;    <span style=color:#555;font-style:italic>&lt;list&gt;</span>             <span style=color:#555;font-style:italic>&lt;chr&gt;</span>     </span>
+<span class=c>#&gt; <span style=color:#555> 1</span> <span style=color:#555>&lt;split [2928/2]&gt;</span>   Resample01</span>
+<span class=c>#&gt; <span style=color:#555> 2</span> <span style=color:#555>&lt;split [2922/8]&gt;</span>   Resample02</span>
+<span class=c>#&gt; <span style=color:#555> 3</span> <span style=color:#555>&lt;split [2907/23]&gt;</span>  Resample03</span>
+<span class=c>#&gt; <span style=color:#555> 4</span> <span style=color:#555>&lt;split [2736/194]&gt;</span> Resample04</span>
+<span class=c>#&gt; <span style=color:#555> 5</span> <span style=color:#555>&lt;split [2886/44]&gt;</span>  Resample05</span>
+<span class=c>#&gt; <span style=color:#555> 6</span> <span style=color:#555>&lt;split [2893/37]&gt;</span>  Resample06</span>
+<span class=c>#&gt; <span style=color:#555> 7</span> <span style=color:#555>&lt;split [2929/1]&gt;</span>   Resample07</span>
+<span class=c>#&gt; <span style=color:#555> 8</span> <span style=color:#555>&lt;split [2663/267]&gt;</span> Resample08</span>
+<span class=c>#&gt; <span style=color:#555> 9</span> <span style=color:#555>&lt;split [2805/125]&gt;</span> Resample09</span>
+<span class=c>#&gt; <span style=color:#555>10</span> <span style=color:#555>&lt;split [2837/93]&gt;</span>  Resample10</span>
+<span class=c>#&gt; <span style=color:#555># … with 18 more rows</span></span>
+<span class=c>#&gt; <span style=color:#555># ℹ Use `print(n = ...)` to see more rows</span></span></code></pre></div><p>This approach works in a similar way to the new grouped resampling functions, attempting to assign roughly <code>1 / v</code> of your data to each fold. When working with unbalanced groups, this can result in much more even assignments of data to each fold:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://ggplot2.tidyverse.org>ggplot2</a></span><span class=o>)</span>
+<span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://dplyr.tidyverse.org>dplyr</a></span><span class=o>)</span>
+
+<span class=nv>analysis_sd</span> <span class=o>&lt;-</span> <span class=kr>function</span><span class=o>(</span><span class=nv>v</span>, <span class=nv>balance</span><span class=o>)</span> <span class=o>&#123;</span>
+  <span class=nf><a href=https://rsample.tidymodels.org/reference/group_vfold_cv.html>group_vfold_cv</a></span><span class=o>(</span>
+    <span class=nv>ames</span>, 
+    <span class=nv>Neighborhood</span>, 
+    <span class=nv>v</span>, 
+    balance <span class=o>=</span> <span class=nv>balance</span>
+  <span class=o>)</span><span class=o>$</span><span class=nv>splits</span> <span class=o>%&gt;%</span> 
+    <span class=nf>purrr</span><span class=nf>::</span><span class=nf><a href=https://purrr.tidyverse.org/reference/map.html>map_dbl</a></span><span class=o>(</span><span class=o>~</span> <span class=nf><a href=https://rdrr.io/r/base/nrow.html>nrow</a></span><span class=o>(</span><span class=nf><a href=https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html>analysis</a></span><span class=o>(</span><span class=nv>.x</span><span class=o>)</span><span class=o>)</span><span class=o>)</span> <span class=o>%&gt;%</span> 
+    <span class=nf><a href=https://rdrr.io/r/stats/sd.html>sd</a></span><span class=o>(</span><span class=o>)</span>
+<span class=o>&#125;</span>
+
+<span class=nv>resample</span> <span class=o>&lt;-</span> <span class=nf>tidyr</span><span class=nf>::</span><span class=nf><a href=https://tidyr.tidyverse.org/reference/expand.html>crossing</a></span><span class=o>(</span>
+  idx <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/seq.html>seq_len</a></span><span class=o>(</span><span class=m>100</span><span class=o>)</span>,
+  v <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>2</span>, <span class=m>5</span>, <span class=m>10</span>, <span class=m>15</span><span class=o>)</span>,
+  balance <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"groups"</span>, <span class=s>"observations"</span><span class=o>)</span>
+<span class=o>)</span>
+
+<span class=nv>resample</span> <span class=o>%&gt;%</span>
+  <span class=nf><a href=https://dplyr.tidyverse.org/reference/mutate.html>mutate</a></span><span class=o>(</span>sd <span class=o>=</span> <span class=nf>purrr</span><span class=nf>::</span><span class=nf><a href=https://purrr.tidyverse.org/reference/map2.html>pmap_dbl</a></span><span class=o>(</span>
+    <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=nv>v</span>, <span class=nv>balance</span><span class=o>)</span>,
+    <span class=nv>analysis_sd</span>
+  <span class=o>)</span><span class=o>)</span> <span class=o>%&gt;%</span>
+  <span class=nf><a href=https://ggplot2.tidyverse.org/reference/ggplot.html>ggplot</a></span><span class=o>(</span><span class=nf><a href=https://ggplot2.tidyverse.org/reference/aes.html>aes</a></span><span class=o>(</span><span class=nv>sd</span>, fill <span class=o>=</span> <span class=nv>balance</span><span class=o>)</span><span class=o>)</span> <span class=o>+</span> 
+  <span class=nf><a href=https://ggplot2.tidyverse.org/reference/geom_histogram.html>geom_histogram</a></span><span class=o>(</span>alpha <span class=o>=</span> <span class=m>0.6</span>, color <span class=o>=</span> <span class=s>"black"</span>, size <span class=o>=</span> <span class=m>0.3</span><span class=o>)</span> <span class=o>+</span> 
+  <span class=nf><a href=https://ggplot2.tidyverse.org/reference/facet_wrap.html>facet_wrap</a></span><span class=o>(</span><span class=o>~</span> <span class=nv>v</span><span class=o>)</span> <span class=o>+</span> 
+  <span class=nf><a href=https://ggplot2.tidyverse.org/reference/ggtheme.html>theme_minimal</a></span><span class=o>(</span><span class=o>)</span> <span class=o>+</span> 
+  <span class=nf><a href=https://ggplot2.tidyverse.org/reference/labs.html>labs</a></span><span class=o>(</span>title <span class=o>=</span> <span class=s>"sd() of nrow(analysis) by balance method"</span><span class=o>)</span>
+</code></pre><p><img src=figs/unnamed-chunk-4-1.png width=700px style=display:block;margin:auto></p></div><p>Right now, these grouping functions don&rsquo;t support stratification. If you have thoughts on how you&rsquo;d expect stratification to work with grouping, or have an example of how another implementation has handled it,
+<a href=https://github.com/tidymodels/rsample/issues/317 target=_blank rel=noopener>let us know on GitHub</a>!</p><h2 id=other-improvements>Other improvements
+<a href=#other-improvements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>This release also adds a few new utility functions to make it easier to work with the rsets produced by rsample functions.</p><p>For instance, the new
+<a href=https://rsample.tidymodels.org/reference/reshuffle_rset.html target=_blank rel=noopener><code>reshuffle_rset()</code></a> will re-generate an rset, using the same arguments as were used to originally create it, but with the current random seed:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/base/Random.html>set.seed</a></span><span class=o>(</span><span class=m>123</span><span class=o>)</span>
+<span class=nv>resample</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rsample.tidymodels.org/reference/vfold_cv.html>vfold_cv</a></span><span class=o>(</span><span class=nv>mtcars</span><span class=o>)</span>
+
+<span class=nv>resample</span><span class=o>$</span><span class=nv>splits</span><span class=o>[[</span><span class=m>1</span><span class=o>]</span><span class=o>]</span> <span class=o>%&gt;%</span>
+  <span class=nf><a href=https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html>analysis</a></span><span class=o>(</span><span class=o>)</span> <span class=o>%&gt;%</span>
+  <span class=nf><a href=https://rdrr.io/r/utils/head.html>head</a></span><span class=o>(</span><span class=o>)</span>
+<span class=c>#&gt;                    mpg cyl disp  hp drat    wt  qsec vs am gear carb</span>
+<span class=c>#&gt; Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4    4</span>
+<span class=c>#&gt; Datsun 710        22.8   4  108  93 3.85 2.320 18.61  1  1    4    1</span>
+<span class=c>#&gt; Hornet 4 Drive    21.4   6  258 110 3.08 3.215 19.44  1  0    3    1</span>
+<span class=c>#&gt; Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2</span>
+<span class=c>#&gt; Valiant           18.1   6  225 105 2.76 3.460 20.22  1  0    3    1</span>
+<span class=c>#&gt; Duster 360        14.3   8  360 245 3.21 3.570 15.84  0  0    3    4</span>
+
+
+<span class=nv>resample</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rsample.tidymodels.org/reference/reshuffle_rset.html>reshuffle_rset</a></span><span class=o>(</span><span class=nv>resample</span><span class=o>)</span>
+
+<span class=nv>resample</span><span class=o>$</span><span class=nv>splits</span><span class=o>[[</span><span class=m>1</span><span class=o>]</span><span class=o>]</span> <span class=o>%&gt;%</span>
+  <span class=nf><a href=https://rsample.tidymodels.org/reference/as.data.frame.rsplit.html>analysis</a></span><span class=o>(</span><span class=o>)</span> <span class=o>%&gt;%</span>
+  <span class=nf><a href=https://rdrr.io/r/utils/head.html>head</a></span><span class=o>(</span><span class=o>)</span>
+<span class=c>#&gt;                    mpg cyl disp  hp drat    wt  qsec vs am gear carb</span>
+<span class=c>#&gt; Mazda RX4         21.0   6  160 110 3.90 2.620 16.46  0  1    4    4</span>
+<span class=c>#&gt; Mazda RX4 Wag     21.0   6  160 110 3.90 2.875 17.02  0  1    4    4</span>
+<span class=c>#&gt; Datsun 710        22.8   4  108  93 3.85 2.320 18.61  1  1    4    1</span>
+<span class=c>#&gt; Hornet 4 Drive    21.4   6  258 110 3.08 3.215 19.44  1  0    3    1</span>
+<span class=c>#&gt; Hornet Sportabout 18.7   8  360 175 3.15 3.440 17.02  0  0    3    2</span>
+<span class=c>#&gt; Duster 360        14.3   8  360 245 3.21 3.570 15.84  0  0    3    4</span></code></pre></div><p>This works with repeated cross-validation, stratification, grouping &ndash; anything you did originally should be preserved when reshuffling the rset.</p><p>Additionally, the new
+<a href=https://rsample.tidymodels.org/reference/reverse_splits.html target=_blank rel=noopener><code>reverse_splits()</code></a> function will &ldquo;swap&rdquo; the assessment and analysis folds of any rsplit or rset object:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>resample</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rsample.tidymodels.org/reference/initial_split.html>initial_split</a></span><span class=o>(</span><span class=nv>mtcars</span><span class=o>)</span>
+<span class=nv>resample</span>
+<span class=c>#&gt; &lt;Training/Testing/Total&gt;</span>
+<span class=c>#&gt; &lt;24/8/32&gt;</span>
+
+
+<span class=nf><a href=https://rsample.tidymodels.org/reference/reverse_splits.html>reverse_splits</a></span><span class=o>(</span><span class=nv>resample</span><span class=o>)</span>
+<span class=c>#&gt; &lt;Training/Testing/Total&gt;</span>
+<span class=c>#&gt; &lt;8/24/32&gt;</span></code></pre></div><p>This is just scratching the surface of the new features and improvements in this release of rsample! You can see a full list of changes in the the
+<a href=https://rsample.tidymodels.org/news/index.html#rsample-110 target=_blank rel=noopener>release notes</a>.</p><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>We&rsquo;d like to thank everyone that has contributed since the last release:
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/mattwarkentin target=_blank rel=noopener>@mattwarkentin</a>,
+<a href=https://github.com/mikemahoney218 target=_blank rel=noopener>@mikemahoney218</a>, and
+<a href=https://github.com/sametsoekel target=_blank rel=noopener>@sametsoekel</a>.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#grouped-resampling>Grouped resampling</a></li><li><a href=#other-improvements>Other improvements</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

@@ -1,0 +1,259 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>Using case weights with tidymodels</title><meta property="og:title" content="Using case weights with tidymodels"><meta property="og:description" content="Support for case weights is now available across many tidymodels packages."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2022/05/case-weights/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="Using case weights with tidymodels - Tidyverse"><meta property="description" content="Support for case weights is now available across many tidymodels packages."><meta property="og:description" content="Support for case weights is now available across many tidymodels packages."><meta property="og:image" content="https://www.tidyverse.org/blog/2022/05/case-weights/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2022/05/case-weights/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>Using case weights with tidymodels</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2022/05/case-weights/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/iLKK0eFTywU>Graphic Node</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2022/05/05</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/tidymodels/>tidymodels</a>,
+<a href=/tags/parsnip/>parsnip</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Max Kuhn</p><div class=article-content><p>We are pleased to announce that tidymodels packages now support the use of case weights. There has been a ton of work and multiple technical hurdles to overcome. The diversity of the types of weights and how they should be used is very complex, but I think that we&rsquo;ve come up with a solution that is fairly straightforward for users.</p><p>Several packages are affected by these changes and we&rsquo;re keeping them on GitHub until everything is finalized. See the last section for instructions for installing the development versions.</p><h2 id=what-are-case-weights>What are case weights?
+<a href=#what-are-case-weights><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Case weights are non-negative numbers used to specify how much each observation influences the estimation of a model.</p><p>If you are new to this term, it is worth reading Thomas Lumley’s excellent post
+<a href=https://notstatschat.rbind.io/2020/08/04/weights-in-statistics/ target=_blank rel=noopener><em>Weights in statistics</em></a> as well as
+<a href=https://projecteuclid.org/journals/statistical-science/volume-22/issue-2/Struggles-with-Survey-Weighting-and-Regression-Modeling/10.1214/088342306000000691.full target=_blank rel=noopener>&ldquo;Struggles with Survey Weighting and Regression Modeling&rdquo;</a>. Although &ldquo;case weights&rdquo; isn&rsquo;t a universally used term, we&rsquo;ll use it to distinguish it from other types of weights, such as class weights in cost-sensitive learning and others.</p><p>There are different types of case weights whose terminology can be very different across problem domains. Here are some examples:</p><ul><li><strong>Frequency weights</strong> are integers that denote how many times a particular row of data has been observed. They help compress redundant rows into a single entry.</li><li><strong>Importance weights</strong> focus on how much each row of the data set should influence model estimation. These can be based on data or arbitrarily set to achieve some goal.</li><li>When survey respondents have different probabilities of selection, (inverse) <strong>probability weights</strong> can help reduce bias in the results of a data analysis.</li><li>If a data point has an associated precision, <strong>analytic weighting</strong> helps a model focus on the data points with less uncertainty (such as in meta-analysis).</li></ul><p>There are undoubtedly more types of weights in other domains. Quoting
+<a href=https://projecteuclid.org/journals/statistical-science/volume-22/issue-2/Struggles-with-Survey-Weighting-and-Regression-Modeling/10.1214/088342306000000691.full target=_blank rel=noopener>Andrew Gelman</a>:</p><blockquote><p>Weighting causes no end of confusion both in applied and theoretical statistics. People just assume because something has one name (&ldquo;weights&rdquo;), it is one thing. So then we get questions like, &ldquo;How do you do weighted regression in Stan,&rdquo; and we have to reply, &ldquo;What is it that you actually want to do?&rdquo;</p></blockquote><h2 id=how-are-they-used-in-traditional-modeling>How are they used in traditional modeling?
+<a href=#how-are-they-used-in-traditional-modeling><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>A traditional example is categorical data where a small number of possible categories are observed many times. For example, <code>UCBAdmissions</code> contains &ldquo;Aggregate data on applicants to graduate school at Berkeley for the six largest departments in 1973 classified by admission and sex.&rdquo;</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>data</span><span class=p>(</span><span class=s>&#34;UCBAdmissions&#34;</span><span class=p>)</span>
+<span class=n>UCBAdmissions</span>
+</code></pre></div><pre><code>## , , Dept = A
+## 
+##           Gender
+## Admit      Male Female
+##   Admitted  512     89
+##   Rejected  313     19
+## 
+## , , Dept = B
+## 
+##           Gender
+## Admit      Male Female
+##   Admitted  353     17
+##   Rejected  207      8
+## 
+## , , Dept = C
+## 
+##           Gender
+## Admit      Male Female
+##   Admitted  120    202
+##   Rejected  205    391
+## 
+## , , Dept = D
+## 
+##           Gender
+## Admit      Male Female
+##   Admitted  138    131
+##   Rejected  279    244
+## 
+## , , Dept = E
+## 
+##           Gender
+## Admit      Male Female
+##   Admitted   53     94
+##   Rejected  138    299
+## 
+## , , Dept = F
+## 
+##           Gender
+## Admit      Male Female
+##   Admitted   22     24
+##   Rejected  351    317
+</code></pre><p>This is a 3D array, so let&rsquo;s convert it to a rectangular data format:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>tidymodels</span><span class=p>)</span>
+
+<span class=n>ucb</span> <span class=o>&lt;-</span> 
+  <span class=nf>as_tibble</span><span class=p>(</span><span class=n>UCBAdmissions</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>mutate</span><span class=p>(</span><span class=nf>across</span><span class=p>(</span><span class=nf>where</span><span class=p>(</span><span class=n>is.character</span><span class=p>),</span> <span class=o>~</span> <span class=nf>as.factor</span><span class=p>(</span><span class=n>.)</span><span class=p>))</span>
+<span class=n>ucb</span>
+</code></pre></div><pre><code>## # A tibble: 24 × 4
+##    Admit    Gender Dept      n
+##    &lt;fct&gt;    &lt;fct&gt;  &lt;fct&gt; &lt;dbl&gt;
+##  1 Admitted Male   A       512
+##  2 Rejected Male   A       313
+##  3 Admitted Female A        89
+##  4 Rejected Female A        19
+##  5 Admitted Male   B       353
+##  6 Rejected Male   B       207
+##  7 Admitted Female B        17
+##  8 Rejected Female B         8
+##  9 Admitted Male   C       120
+## 10 Rejected Male   C       205
+## # … with 14 more rows
+</code></pre><p>There are 24 possible configurations of the variables but a total of 4526 observations. If we want to model the data in this format, we could use a logistic regression:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>glm_fit</span> <span class=o>&lt;-</span>
+  <span class=nf>glm</span><span class=p>(</span>
+    <span class=n>Admit</span> <span class=o>~</span> <span class=n>Gender</span> <span class=o>+</span> <span class=n>Dept</span><span class=p>,</span>
+    <span class=n>data</span> <span class=o>=</span> <span class=n>ucb</span><span class=p>,</span>
+    <span class=n>weights</span> <span class=o>=</span> <span class=n>n</span><span class=p>,</span>
+    <span class=n>family</span> <span class=o>=</span> <span class=s>&#34;binomial&#34;</span>
+  <span class=p>)</span>
+<span class=n>glm_fit</span>
+</code></pre></div><pre><code>## 
+## Call:  glm(formula = Admit ~ Gender + Dept, family = &quot;binomial&quot;, data = ucb, 
+##     weights = n)
+## 
+## Coefficients:
+## (Intercept)   GenderMale        DeptB        DeptC        DeptD        DeptE  
+##    -0.68192      0.09987      0.04340      1.26260      1.29461      1.73931  
+##       DeptF  
+##     3.30648  
+## 
+## Degrees of Freedom: 23 Total (i.e. Null);  17 Residual
+## Null Deviance:	    6044 
+## Residual Deviance: 5187 	AIC: 5201
+</code></pre><p><em>This is not quite right though</em>. There are 12 combinations of <code>Gender</code> and <code>Dept</code>. How can the model have 23 total degrees of freedom?</p><p>If we are treating our data as binomial, the traditional method for fitting this model is to convert the data to a format with columns for the number of events and non-events (per covariate pattern). Let&rsquo;s convert our data into that format:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>ucb_grouped_data</span> <span class=o>&lt;-</span> 
+  <span class=n>ucb</span> <span class=o>%&gt;%</span> 
+  <span class=nf>pivot_wider</span><span class=p>(</span>
+    <span class=n>id_cols</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=n>Gender</span><span class=p>,</span> <span class=n>Dept</span><span class=p>),</span>
+    <span class=n>names_from</span> <span class=o>=</span> <span class=n>Admit</span><span class=p>,</span>
+    <span class=n>values_from</span> <span class=o>=</span> <span class=n>n</span><span class=p>,</span>
+    <span class=n>values_fill</span> <span class=o>=</span> <span class=m>0L</span>
+  <span class=p>)</span>
+<span class=n>ucb_grouped_data</span>
+</code></pre></div><pre><code>## # A tibble: 12 × 4
+##    Gender Dept  Admitted Rejected
+##    &lt;fct&gt;  &lt;fct&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+##  1 Male   A          512      313
+##  2 Female A           89       19
+##  3 Male   B          353      207
+##  4 Female B           17        8
+##  5 Male   C          120      205
+##  6 Female C          202      391
+##  7 Male   D          138      279
+##  8 Female D          131      244
+##  9 Male   E           53      138
+## 10 Female E           94      299
+## 11 Male   F           22      351
+## 12 Female F           24      317
+</code></pre><p>Now, since there are really only 12 covariate combinations, the appropriate model can be created.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>glm</span><span class=p>(</span>
+  <span class=nf>cbind</span><span class=p>(</span><span class=n>Rejected</span><span class=p>,</span> <span class=n>Admitted</span><span class=p>)</span> <span class=o>~</span> <span class=n>Gender</span> <span class=o>+</span> <span class=n>Dept</span><span class=p>,</span>
+  <span class=n>data</span> <span class=o>=</span> <span class=n>ucb_grouped_data</span><span class=p>,</span>
+  <span class=n>family</span> <span class=o>=</span> <span class=n>binomial</span>
+<span class=p>)</span>
+</code></pre></div><pre><code>## 
+## Call:  glm(formula = cbind(Rejected, Admitted) ~ Gender + Dept, family = binomial, 
+##     data = ucb_grouped_data)
+## 
+## Coefficients:
+## (Intercept)   GenderMale        DeptB        DeptC        DeptD        DeptE  
+##    -0.68192      0.09987      0.04340      1.26260      1.29461      1.73931  
+##       DeptF  
+##     3.30648  
+## 
+## Degrees of Freedom: 11 Total (i.e. Null);  5 Residual
+## Null Deviance:	    877.1 
+## Residual Deviance: 20.2 	AIC: 103.1
+</code></pre><p>In both cases the model coefficients are the same but the standard errors and degrees of freedom are only correct for the model with grouped data.</p><h2 id=why-is-this-so-complicated>Why is this so complicated?
+<a href=#why-is-this-so-complicated><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Traditionally, weights in base R functions are used to fit the model and to report a few measures of model efficacy. Here, <code>glm()</code> reports the deviance while <code>lm()</code> shows estimates of the RMSE and adjusted-R<sup>2</sup>.</p><p>Believe it or not, the logistic regression code shown above, which is a typical example of using weights in a classical statistical setting, is much simpler than what we have to contend with in modern data analysis. There are a few things that we do in modern data analysis where correctly using weights is not so straightforward. These include:</p><ul><li>Resampling (e.g. bootstrap or cross-validation).</li><li>Preprocessing methods such as centering and scaling.</li><li>Additional measures of performance (e.g. area under the ROC curve, mean absolute deviations, Kohen&rsquo;s Kappa, and so on).</li></ul><p>A framework like tidymodels should enable users to utilize case weights across all phases of their data analysis.</p><p>Additionally, the type of case weights <strong>and their intent</strong> affect which of these operations should be affected.</p><p>For example, frequency weights should affect the estimation of the model, the preprocessing steps, and performance estimation. If the predictors require centering, a weighted mean should be used to appropriately ensure that the mean of that column is truly zero. Let&rsquo;s say that sensitivity and specificity estimates are required. The 2x2 table of observed and predicted results should have cell counts that reflect the case weights. If they did not, infrequently occurring data points have as much weight as the rows that have a high prevalence.</p><p>As a counter example, importance weights reflect the idea that they should only influence <em>the model fitting procedure</em>. It wouldn&rsquo;t make sense to use a weighted mean to center a predictor; the weight shouldn&rsquo;t influence an unsupervised operation in the same way as model estimation. More critically, any holdout data set used to quantify model efficacy should reflect the data as seen in the wild (without the impact of the weights).</p><h2 id=how-does-tidymodels-handle-weights>How does tidymodels handle weights?
+<a href=#how-does-tidymodels-handle-weights><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>We&rsquo;ve decided to add some additional vector data types that allow users to describe the type of weights. These data types also help tidymodels functions know what the intent of the analysis should be.</p><p>In parsnip, the functions <code>frequency_weights()</code> and <code>importance_weights()</code> can be used to set the weights:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c1># For the UC admissions data</span>
+<span class=n>ucb</span> <span class=o>&lt;-</span> <span class=n>ucb</span> <span class=o>%&gt;%</span> <span class=nf>mutate</span><span class=p>(</span><span class=n>n</span> <span class=o>=</span> <span class=nf>frequency_weights</span><span class=p>(</span><span class=n>n</span><span class=p>))</span>
+<span class=n>ucb</span><span class=o>$</span><span class=n>n</span>
+</code></pre></div><pre><code>## &lt;frequency_weights[24]&gt;
+##  [1] 512 313  89  19 353 207  17   8 120 205 202 391 138 279 131 244  53 138  94
+## [20] 299  22 351  24 317
+</code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c1># For a general vector of importance weights: </span>
+<span class=nf>importance_weights</span><span class=p>(</span><span class=nf>round</span><span class=p>(</span><span class=nf>runif</span><span class=p>(</span><span class=m>10</span><span class=p>),</span> <span class=m>2</span><span class=p>))</span>
+</code></pre></div><pre><code>## &lt;importance_weights[10]&gt;
+##  [1] 0.91 0.53 0.72 0.81 0.33 0.11 0.61 0.61 0.20 0.49
+</code></pre><p>The class of these objects tells packages like recipes and yardstick if their values should be used for preprocessing and performance metrics, respectively:</p><ul><li><p>Importance weights only affect the model estimation and <em>supervised</em> recipes steps. They are not used with yardstick functions for calculating measures of model performance.</p></li><li><p>Frequency weights are used for all parts of the preprocessing, model fitting, and performance estimation operations.</p></li></ul><p>Currently, these are the only classes implemented. We are doing a lot of reading on how the analysis of survey data should use case weights and how we can enable this and other data analysis use cases.
+<a href=https://community.rstudio.com/t/case-weight-blog-post-discussion/136281 target=_blank rel=noopener>We&rsquo;d love to hear from you</a> if you have expertise in this area.</p><h2 id=about-resampling>About resampling
+<a href=#about-resampling><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>This is a topic that we are still unsure about. We definitively think that importance weights should not affect how the data are split or resampled.</p><p>Frequency weights are more complex. Suppose we are using 10-fold cross-validation with the logistic regression on the UCB admission data, should we:</p><ul><li>Have all the case weights be placed into either the modeling or holdout set?</li><li>Fractionally, split the case weights into both the modeling and holdout data?</li></ul><p>For the latter case, suppose a row of data has a case weight of 100 and we use 10-fold cross-validation. We would always put 90 of those 100 into the modeling data set and the other 10 into the holdout. This seems to be consistent with the sampling of the data and is what would happen if there were actually 100 rows in the data (instead of one row with a case weight of 100). However, it does raise questions regarding data leakage by just re-predicting the same data that went into the model.</p><p>This is also an area where we&rsquo;d like
+<a href=https://community.rstudio.com/t/case-weight-blog-post-discussion/136281 target=_blank rel=noopener>community feedback</a>.</p><h2 id=tidymodels-syntax>Tidymodels syntax
+<a href=#tidymodels-syntax><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Let&rsquo;s work through an example. We&rsquo;ll use some data simulated with a severe class imbalance. These functions are in the
+<a href=https://modeldata.tidymodels.org/dev/reference/sim_classification.html target=_blank rel=noopener>development version of the modeldata package</a>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>set.seed</span><span class=p>(</span><span class=m>1</span><span class=p>)</span>
+<span class=n>training_sim</span> <span class=o>&lt;-</span> <span class=nf>sim_classification</span><span class=p>(</span><span class=m>5000</span><span class=p>,</span> <span class=n>intercept</span> <span class=o>=</span> <span class=m>-25</span><span class=p>)</span> 
+<span class=n>training_sim</span> <span class=o>%&gt;%</span> <span class=nf>count</span><span class=p>(</span><span class=n>class</span><span class=p>)</span>
+</code></pre></div><pre><code>## # A tibble: 2 × 2
+##   class       n
+##   &lt;fct&gt;   &lt;int&gt;
+## 1 class_1    80
+## 2 class_2  4920
+</code></pre><p>If we would like to encourage models to more accurately predict the minority class, we can give these samples a much larger weight in the analysis</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>training_sim</span> <span class=o>&lt;-</span>
+  <span class=n>training_sim</span> <span class=o>%&gt;%</span> 
+  <span class=nf>mutate</span><span class=p>(</span>
+    <span class=n>case_wts</span> <span class=o>=</span> <span class=nf>ifelse</span><span class=p>(</span><span class=n>class</span> <span class=o>==</span> <span class=s>&#34;class_1&#34;</span><span class=p>,</span> <span class=m>60</span><span class=p>,</span> <span class=m>1</span><span class=p>),</span>
+    <span class=n>case_wts</span> <span class=o>=</span> <span class=nf>importance_weights</span><span class=p>(</span><span class=n>case_wts</span><span class=p>)</span>
+  <span class=p>)</span>
+</code></pre></div><p>We strongly advise that users set the case weight column before any other tidymodels functions are used. This ensures that they are handled correctly in the analyses that follow. In some cases, such as recipes, we prohibit changing the case weight column. Since the intent of the weights is needed, errors could occur if that intent was changed during the analysis.</p><p>Let&rsquo;s use 10-fold cross-validation to resample the data. This case is unaffected by the presence of weights:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>set.seed</span><span class=p>(</span><span class=m>2</span><span class=p>)</span>
+<span class=n>sim_folds</span> <span class=o>&lt;-</span> <span class=nf>vfold_cv</span><span class=p>(</span><span class=n>training_sim</span><span class=p>,</span> <span class=n>strata</span> <span class=o>=</span> <span class=n>class</span><span class=p>)</span>
+</code></pre></div><p>We&rsquo;ll fit a regularized logistic regression model to the data using glmnet:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>lr_spec</span> <span class=o>&lt;-</span> 
+  <span class=nf>logistic_reg</span><span class=p>(</span><span class=n>penalty</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>(),</span> <span class=n>mixture</span> <span class=o>=</span> <span class=m>1</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>set_engine</span><span class=p>(</span><span class=s>&#34;glmnet&#34;</span><span class=p>)</span>
+</code></pre></div><p>For this model, we need to ensure that the predictors are in the same units. We&rsquo;ll use a recipe to center and scale the data and also add some spline terms for predictors that appear to have a nonlinear relationship with the outcome:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>sim_rec</span> <span class=o>&lt;-</span> 
+  <span class=nf>recipe</span><span class=p>(</span><span class=n>class</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>training_sim</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>step_ns</span><span class=p>(</span><span class=nf>starts_with</span><span class=p>(</span><span class=s>&#34;non_linear&#34;</span><span class=p>),</span> <span class=n>deg_free</span> <span class=o>=</span> <span class=m>10</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>step_normalize</span><span class=p>(</span><span class=nf>all_numeric_predictors</span><span class=p>())</span>
+  
+<span class=n>sim_rec</span>
+</code></pre></div><pre><code>## Recipe
+## 
+## Inputs:
+## 
+##          role #variables
+##  case_weights          1
+##       outcome          1
+##     predictor         15
+## 
+## Operations:
+## 
+## Natural splines on starts_with(&quot;non_linear&quot;)
+## Centering and scaling for all_numeric_predictors()
+</code></pre><p>There are a few things to point out here. The recipe automatically detects the case weights even though they are captured by the dot in the right-hand side of the formula. The recipe automatically sets their role and will error if that column is changed in any way.</p><p>As mentioned above, any unsupervised steps are unaffected by importance weights so neither <code>step_ns()</code> or <code>step_normalize()</code> use the weights in their calculations.</p><p>When using case weights, we would like to encourage users to keep their model and preprocessing tool within a workflow. The workflows package now has an <code>add_case_weights()</code> function to help here:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>lr_wflow</span> <span class=o>&lt;-</span> 
+  <span class=nf>workflow</span><span class=p>()</span> <span class=o>%&gt;%</span> 
+  <span class=nf>add_model</span><span class=p>(</span><span class=n>lr_spec</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>add_recipe</span><span class=p>(</span><span class=n>sim_rec</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>add_case_weights</span><span class=p>(</span><span class=n>case_wts</span><span class=p>)</span>
+<span class=n>lr_wflow</span>
+</code></pre></div><pre><code>## ══ Workflow ═════════════════════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: logistic_reg()
+## 
+## ── Preprocessor ─────────────────────────────────────────────────────────────────────
+## 2 Recipe Steps
+## 
+## • step_ns()
+## • step_normalize()
+## 
+## ── Case Weights ─────────────────────────────────────────────────────────────────────
+## case_wts
+## 
+## ── Model ────────────────────────────────────────────────────────────────────────────
+## Logistic Regression Model Specification (classification)
+## 
+## Main Arguments:
+##   penalty = tune()
+##   mixture = 1
+## 
+## Computational engine: glmnet
+</code></pre><p>Existing <code>add_*()</code> functions in workflows add objects (instead of data). Rather than specifying case weights in each preprocessor function (e.g. <code>add_formula()</code> and so on), this syntax is more simple and works with any type of preprocessor.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>cls_metrics</span> <span class=o>&lt;-</span> <span class=nf>metric_set</span><span class=p>(</span><span class=n>sensitivity</span><span class=p>,</span> <span class=n>specificity</span><span class=p>)</span>
+
+<span class=n>grid</span> <span class=o>&lt;-</span> <span class=nf>tibble</span><span class=p>(</span><span class=n>penalty</span> <span class=o>=</span> <span class=m>10</span><span class=nf>^seq</span><span class=p>(</span><span class=m>-3</span><span class=p>,</span> <span class=m>0</span><span class=p>,</span> <span class=n>length.out</span> <span class=o>=</span> <span class=m>20</span><span class=p>))</span>
+
+<span class=nf>set.seed</span><span class=p>(</span><span class=m>3</span><span class=p>)</span>
+<span class=n>lr_res</span> <span class=o>&lt;-</span> 
+  <span class=n>lr_wflow</span> <span class=o>%&gt;%</span> 
+  <span class=nf>tune_grid</span><span class=p>(</span><span class=n>resamples</span> <span class=o>=</span> <span class=n>sim_folds</span><span class=p>,</span> <span class=n>grid</span> <span class=o>=</span> <span class=n>grid</span><span class=p>,</span> <span class=n>metrics</span> <span class=o>=</span> <span class=n>cls_metrics</span><span class=p>)</span>
+
+<span class=nf>autoplot</span><span class=p>(</span><span class=n>lr_res</span><span class=p>)</span>
+</code></pre></div><p><img src=figure/sim-tune-1.svg title="plot of chunk sim-tune" alt="plot of chunk sim-tune" width=100%></p><p>In tidymodels, the default is that the first level of the outcome factor is the event of interest. Since the first level of the outcome has the fewest values, we would expect the sensitivity of the model to suffer. These results suggest that the weights are making the model focus on the majority class.</p><p>For comparison, let&rsquo;s remove the weights and then tune the same parameter values.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>lr_unwt_wflow</span> <span class=o>&lt;-</span> 
+  <span class=n>lr_wflow</span> <span class=o>%&gt;%</span> 
+  <span class=nf>remove_case_weights</span><span class=p>()</span>
+
+<span class=nf>set.seed</span><span class=p>(</span><span class=m>3</span><span class=p>)</span>
+<span class=n>lr_unwt_res</span> <span class=o>&lt;-</span> 
+  <span class=n>lr_unwt_wflow</span> <span class=o>%&gt;%</span> 
+  <span class=nf>tune_grid</span><span class=p>(</span><span class=n>resamples</span> <span class=o>=</span> <span class=n>sim_folds</span><span class=p>,</span> <span class=n>grid</span> <span class=o>=</span> <span class=n>grid</span><span class=p>,</span> <span class=n>metrics</span> <span class=o>=</span> <span class=n>cls_metrics</span><span class=p>)</span>
+</code></pre></div><p>How do the results compare?</p><p><img src=figure/plot-results-1.svg title="plot of chunk plot-results" alt="plot of chunk plot-results" width=100%></p><p>The importance weights certainly did their job since the weighted analysis has a better balance of sensitivity and specificity.</p><h2 id=getting-feedback>Getting feedback
+<a href=#getting-feedback><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>We&rsquo;ve laid the groundwork for using case weights holistically in tidymodels. For those of you who use case weights, we&rsquo;d like to know what you think of our approach and answer any questions that you have. We have an
+<a href=https://community.rstudio.com/t/case-weight-blog-post-discussion/136281 target=_blank rel=noopener>RStudio Community post</a> queued up to discuss this topic.</p><p>We&rsquo;ve waited to release packages with case weight support until the main pieces were in place. If you would like to play around with what we&rsquo;ve done, you can load the development versions of the packages using:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>if </span><span class=p>(</span><span class=o>!</span><span class=n>rlang</span><span class=o>::</span><span class=nf>is_installed</span><span class=p>(</span><span class=s>&#34;pak&#34;</span><span class=p>))</span> <span class=p>{</span>
+  <span class=nf>install.packages</span><span class=p>(</span><span class=s>&#34;pak&#34;</span><span class=p>)</span>
+<span class=p>}</span>
+
+<span class=n>pkgs</span> <span class=o>&lt;-</span> <span class=nf>c</span><span class=p>(</span><span class=s>&#34;hardhat&#34;</span><span class=p>,</span> <span class=s>&#34;parsnip&#34;</span><span class=p>,</span> <span class=s>&#34;recipes&#34;</span><span class=p>,</span>
+          <span class=s>&#34;modeldata&#34;</span><span class=p>,</span> <span class=s>&#34;tune&#34;</span><span class=p>,</span> <span class=s>&#34;workflows&#34;</span><span class=p>,</span> <span class=s>&#34;yardstick&#34;</span><span class=p>)</span>
+<span class=n>pkgs</span> <span class=o>&lt;-</span> <span class=nf>paste0</span><span class=p>(</span><span class=s>&#34;tidymodels/&#34;</span><span class=p>,</span> <span class=n>pkgs</span><span class=p>)</span>
+
+<span class=n>pak</span><span class=o>::</span><span class=nf>pak</span><span class=p>(</span><span class=n>pkgs</span><span class=p>)</span>
+</code></pre></div><p>If you use any of the parsnip extension packages (e.g. discrim, rules, etc), make sure to install the development versions of these too.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#what-are-case-weights>What are case weights?</a></li><li><a href=#how-are-they-used-in-traditional-modeling>How are they used in traditional modeling?</a></li><li><a href=#why-is-this-so-complicated>Why is this so complicated?</a></li><li><a href=#how-does-tidymodels-handle-weights>How does tidymodels handle weights?</a></li><li><a href=#about-resampling>About resampling</a></li><li><a href=#tidymodels-syntax>Tidymodels syntax</a></li><li><a href=#getting-feedback>Getting feedback</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

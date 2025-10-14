@@ -1,0 +1,791 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>parquet | Tidyverse</title><link>https://www.tidyverse.org/tags/parquet/</link><atom:link href="https://www.tidyverse.org/tags/parquet/index.xml" rel="self" type="application/rss+xml"/><description>parquet</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 28 Jan 2025 00:00:00 +0000</lastBuildDate><item><title>nanoparquet 0.4.0</title><link>https://www.tidyverse.org/blog/2025/01/nanoparquet-0-4-0/</link><pubDate>Tue, 28 Jan 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/01/nanoparquet-0-4-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re thrilled to announce the release of
+&lt;a href="https://nanoparquet.r-lib.org/" target="_blank" rel="noopener">nanoparquet&lt;/a> 0.4.0. nanoparquet is an R package that reads and writes Parquet files.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;nanoparquet&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This blog post will show the most important new features of nanoparquet 0.4.0: You can see a full list of changes in the
+&lt;a href="https://nanoparquet.r-lib.org/news/index.html#nanoparquet-040" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="brand-new-read_parquet">Brand new &lt;code>read_parquet()&lt;/code>
+&lt;a href="#brand-new-read_parquet">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>nanoparquet 0.4.0 comes with a completely rewritten Parquet reader. The new version has an architecture that is easier to embed into R, and facilitates fantastic new features, like
+&lt;a href="https://nanoparquet.r-lib.org/reference/append_parquet.html" target="_blank" rel="noopener">&lt;code>append_parquet()&lt;/code>&lt;/a> and the new &lt;code>col_select&lt;/code> argument. (More to come!) The new reader is also much faster, see the &amp;ldquo;Benchmarks&amp;rdquo; chapter.&lt;/p>
+&lt;h2 id="read-a-subset-of-columns">Read a subset of columns
+&lt;a href="#read-a-subset-of-columns">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://nanoparquet.r-lib.org/reference/read_parquet.html" target="_blank" rel="noopener">&lt;code>read_parquet()&lt;/code>&lt;/a> now has a new argument called &lt;code>col_select&lt;/code>, that lets you read a subset of the columns from the Parquet file. Unlike for row oriented file formats like CSV, this means that the reader never needs to touch the columns that are not needed for. The time required for reading a subset of columns is independent of how many more columns the Parquet file might have!&lt;/p>
+&lt;p>You can either use column indices or column names to specify the columns to read. Here is an example.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://github.com/r-lib/nanoparquet'>nanoparquet&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://pillar.r-lib.org/'>pillar&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This is the
+&lt;a href="https://rdrr.io/pkg/nycflights13/man/flights.html" target="_blank" rel="noopener">&lt;code>nycflights13::flights&lt;/code>&lt;/a> data set:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://nanoparquet.r-lib.org/reference/read_parquet.html'>read_parquet&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>"flights.parquet"&lt;/span>,&lt;/span>
+&lt;span> col_select &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"dep_time"&lt;/span>, &lt;span class='s'>"arr_time"&lt;/span>, &lt;span class='s'>"carrier"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A data frame: 336,776 × 3&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; dep_time arr_time carrier&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> 517 830 UA &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> 533 850 UA &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> 542 923 AA &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> 544 &lt;span style='text-decoration: underline;'>1&lt;/span>004 B6 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> 554 812 DL &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> 554 740 UA &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> 555 913 B6 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> 557 709 EV &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> 557 838 B6 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> 558 753 AA &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 336,766 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Use
+&lt;a href="https://nanoparquet.r-lib.org/reference/read_parquet_schema.html" target="_blank" rel="noopener">&lt;code>read_parquet_schema()&lt;/code>&lt;/a> if you want to see the structure of the Parquet file first:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://nanoparquet.r-lib.org/reference/read_parquet_schema.html'>read_parquet_schema&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"flights.parquet"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A data frame: 20 × 12&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; file_name name r_type type type_length repetition_type converted_type&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> flights.parquet sche… &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> flights.parquet year integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> flights.parquet month integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> flights.parquet day integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> flights.parquet dep_… integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> flights.parquet sche… integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> flights.parquet dep_… double DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> flights.parquet arr_… integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> flights.parquet sche… integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> flights.parquet arr_… double DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>11&lt;/span> flights.parquet carr… chara… BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED UTF8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>12&lt;/span> flights.parquet flig… integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>13&lt;/span> flights.parquet tail… chara… BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL UTF8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>14&lt;/span> flights.parquet orig… chara… BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED UTF8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>15&lt;/span> flights.parquet dest chara… BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED UTF8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>16&lt;/span> flights.parquet air_… double DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>17&lt;/span> flights.parquet dist… double DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>18&lt;/span> flights.parquet hour double DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>19&lt;/span> flights.parquet minu… double DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>20&lt;/span> flights.parquet time… POSIX… INT64 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED TIMESTAMP_MIC…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 5 more variables: logical_type &amp;lt;I&amp;lt;list&amp;gt;&amp;gt;, num_children &amp;lt;int&amp;gt;, scale &amp;lt;int&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># precision &amp;lt;int&amp;gt;, field_id &amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The output of
+&lt;a href="https://nanoparquet.r-lib.org/reference/read_parquet_schema.html" target="_blank" rel="noopener">&lt;code>read_parquet_schema()&lt;/code>&lt;/a> also shows you the R type that nanoparquet will use for each column.&lt;/p>
+&lt;h2 id="appending-to-parquet-files">Appending to Parquet files
+&lt;a href="#appending-to-parquet-files">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The new
+&lt;a href="https://nanoparquet.r-lib.org/reference/append_parquet.html" target="_blank" rel="noopener">&lt;code>append_parquet()&lt;/code>&lt;/a> function makes it easy to append new data to a Parquet file, without first reading the whole file into memory. The schema of the file and the schema new data must match of course. Lets merge
+&lt;a href="https://rdrr.io/pkg/nycflights13/man/flights.html" target="_blank" rel="noopener">&lt;code>nycflights13::flights&lt;/code>&lt;/a> and
+&lt;a href="https://moderndive.github.io/nycflights23/reference/flights.html" target="_blank" rel="noopener">&lt;code>nycflights23::flights&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/files.html'>file.copy&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"flights.parquet"&lt;/span>, &lt;span class='s'>"allflights.parquet"&lt;/span>, overwrite &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] TRUE&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nf'>&lt;a href='https://nanoparquet.r-lib.org/reference/append_parquet.html'>append_parquet&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>nycflights23&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nv'>&lt;a href='https://moderndive.github.io/nycflights23/reference/flights.html'>flights&lt;/a>&lt;/span>, &lt;span class='s'>"allflights.parquet"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>
+&lt;a href="https://nanoparquet.r-lib.org/reference/read_parquet_info.html" target="_blank" rel="noopener">&lt;code>read_parquet_info()&lt;/code>&lt;/a> returns the most basic information about a Parquet file:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://nanoparquet.r-lib.org/reference/read_parquet_info.html'>read_parquet_info&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"flights.parquet"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A data frame: 1 × 7&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; file_name num_cols num_rows num_row_groups file_size parquet_version&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> flights.parquet 19 &lt;span style='text-decoration: underline;'>336&lt;/span>776 1 5&lt;span style='text-decoration: underline;'>687&lt;/span>737 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 1 more variable: created_by &amp;lt;chr&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nf'>&lt;a href='https://nanoparquet.r-lib.org/reference/read_parquet_info.html'>read_parquet_info&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"allflights.parquet"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A data frame: 1 × 7&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; file_name num_cols num_rows num_row_groups file_size parquet_version&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> allflights.parquet 19 &lt;span style='text-decoration: underline;'>772&lt;/span>128 1 13&lt;span style='text-decoration: underline;'>490&lt;/span>997 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 1 more variable: created_by &amp;lt;chr&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Note that you should probably still create a backup copy of the original file when using
+&lt;a href="https://nanoparquet.r-lib.org/reference/append_parquet.html" target="_blank" rel="noopener">&lt;code>append_parquet()&lt;/code>&lt;/a>. If the appending process is interrupted by a power failure, then you might end up with an incomplete and invalid Parquet file.&lt;/p>
+&lt;h2 id="schemas-and-type-conversions">Schemas and type conversions
+&lt;a href="#schemas-and-type-conversions">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>In nanoparquet 0.4.0
+&lt;a href="https://nanoparquet.r-lib.org/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>write_parquet()&lt;/code>&lt;/a> takes a &lt;code>schema&lt;/code> argument that can customize the R to Parquet type mappings. For example by default
+&lt;a href="https://nanoparquet.r-lib.org/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>write_parquet()&lt;/code>&lt;/a> writes an R character vector as a &lt;code>STRING&lt;/code> Parquet type. If you&amp;rsquo;d like to write a certain character column as an &lt;code>ENUM&lt;/code> type&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> instead, you&amp;rsquo;ll need to specify that in &lt;code>schema&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://nanoparquet.r-lib.org/reference/write_parquet.html'>write_parquet&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>nycflights13&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nv'>&lt;a href='https://rdrr.io/pkg/nycflights13/man/flights.html'>flights&lt;/a>&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='s'>"newflights.parquet"&lt;/span>,&lt;/span>
+&lt;span> schema &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://nanoparquet.r-lib.org/reference/parquet_schema.html'>parquet_schema&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>carrier &lt;span class='o'>=&lt;/span> &lt;span class='s'>"ENUM"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://nanoparquet.r-lib.org/reference/read_parquet_schema.html'>read_parquet_schema&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"newflights.parquet"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A data frame: 20 × 12&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; file_name name r_type type type_length repetition_type converted_type&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> newflights.par… sche… &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> newflights.par… year integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> newflights.par… month integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> newflights.par… day integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> newflights.par… dep_… integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> newflights.par… sche… integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> newflights.par… dep_… double DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> newflights.par… arr_… integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> newflights.par… sche… integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> newflights.par… arr_… double DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>11&lt;/span> newflights.par… carr… chara… BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED ENUM &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>12&lt;/span> newflights.par… flig… integ… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>13&lt;/span> newflights.par… tail… chara… BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL UTF8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>14&lt;/span> newflights.par… orig… chara… BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED UTF8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>15&lt;/span> newflights.par… dest chara… BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED UTF8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>16&lt;/span> newflights.par… air_… double DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>17&lt;/span> newflights.par… dist… double DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>18&lt;/span> newflights.par… hour double DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>19&lt;/span> newflights.par… minu… double DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>20&lt;/span> newflights.par… time… POSIX… INT64 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED TIMESTAMP_MIC…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 5 more variables: logical_type &amp;lt;I&amp;lt;list&amp;gt;&amp;gt;, num_children &amp;lt;int&amp;gt;, scale &amp;lt;int&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># precision &amp;lt;int&amp;gt;, field_id &amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Here we wrote the &lt;code>carrier&lt;/code> column as &lt;code>ENUM&lt;/code>, and left the other other columns to use the default type mappings.&lt;/p>
+&lt;p>See the
+&lt;a href="https://nanoparquet.r-lib.org/reference/nanoparquet-types.html#r-s-data-types" target="_blank" rel="noopener">&lt;code>?nanoparquet-types&lt;/code>&lt;/a> manual page for the possible type mappings (lots of new ones!) and also for the default ones.&lt;/p>
+&lt;h2 id="encodings">Encodings
+&lt;a href="#encodings">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>It is now also possible to customize the encoding of each column in
+&lt;a href="https://nanoparquet.r-lib.org/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>write_parquet()&lt;/code>&lt;/a>, via the &lt;code>encoding&lt;/code> argument. By default
+&lt;a href="https://nanoparquet.r-lib.org/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>write_parquet()&lt;/code>&lt;/a> tries to choose a good encoding based on the type and the values of a column. E.g. it checks a small sample for repeated values to decide if it is worth using a dictionary encoding (&lt;code>RLE_DICTIONARY&lt;/code>).&lt;/p>
+&lt;p>If
+&lt;a href="https://nanoparquet.r-lib.org/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>write_parquet()&lt;/code>&lt;/a> gets it wrong, use the &lt;code>encoding&lt;/code> argument to force an encoding. The following forces the &lt;code>PLAIN&lt;/code> encoding for all columns. This encoding is very fast to write, but creates a larger file. You can also specify different encodings for different columns, see the
+&lt;a href="https://nanoparquet.r-lib.org/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>write_parquet()&lt;/code> manual page&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://nanoparquet.r-lib.org/reference/write_parquet.html'>write_parquet&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>nycflights13&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nv'>&lt;a href='https://rdrr.io/pkg/nycflights13/man/flights.html'>flights&lt;/a>&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='s'>"plainflights.parquet"&lt;/span>,&lt;/span>
+&lt;span> encoding &lt;span class='o'>=&lt;/span> &lt;span class='s'>"PLAIN"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/file.info.html'>file.size&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"flights.parquet"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 5687737&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/file.info.html'>file.size&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"plainflights.parquet"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 11954574&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>See more about the implemented encodings and how the defaults are selected in the
+&lt;a href="https://nanoparquet.r-lib.org/reference/parquet-encodings.html" target="_blank" rel="noopener">&lt;code>parquet-encodings&lt;/code> manual page&lt;/a>.&lt;/p>
+&lt;h2 id="api-changes">API changes
+&lt;a href="#api-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Some nanoparquet functions have new, better names in nanoparquet 0.4.0. In particular, all functions that read from a Parquet file have a &lt;code>read_parquet&lt;/code> prefix now. The old functions still work, with a warning.&lt;/p>
+&lt;p>Also, the
+&lt;a href="https://nanoparquet.r-lib.org/reference/parquet_schema.html" target="_blank" rel="noopener">&lt;code>parquet_schema()&lt;/code>&lt;/a> function is now for creating a new Parquet schema from scratch, and not for inferring a schema from a data frame (use
+&lt;a href="https://nanoparquet.r-lib.org/reference/infer_parquet_schema.html" target="_blank" rel="noopener">&lt;code>infer_parquet_schema()&lt;/code>&lt;/a>) or for reading the schema from a Parquet file (use
+&lt;a href="https://nanoparquet.r-lib.org/reference/read_parquet_schema.html" target="_blank" rel="noopener">&lt;code>read_parquet_schema()&lt;/code>&lt;/a>).
+&lt;a href="https://nanoparquet.r-lib.org/reference/parquet_schema.html" target="_blank" rel="noopener">&lt;code>parquet_schema()&lt;/code>&lt;/a> falls back to the old behaviour when called with a file name, with a warning, so this is not a breaking change (yet), and old code still works.&lt;/p>
+&lt;p>See the complete list of API changes in the
+&lt;a href="https://nanoparquet.r-lib.org/news/index.html" target="_blank" rel="noopener">Changelog&lt;/a>.&lt;/p>
+&lt;h2 id="benchmarks">Benchmarks
+&lt;a href="#benchmarks">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We are very excited about the performance of the new Parquet reader, and the Parquet writer was always quite speedy, so we ran a simple benchmark.&lt;/p>
+&lt;p>We compared nanoparquet to the Parquet implementations in Apache Arrow and DuckDB, and also to CSV readers and writers, on a real data set, for samples of 330k, 6.7 million and 67.4 million rows (40MB, 800MB and 8GB in memory). For these data nanoparquet is indeed very competitive with both Arrow and DuckDB.&lt;/p>
+&lt;p>You can see the full results
+&lt;a href="https://nanoparquet.r-lib.org/articles/benchmarks.html" target="_blank" rel="noopener">on the website&lt;/a>.&lt;/p>
+&lt;h2 id="other-changes">Other changes
+&lt;a href="#other-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Other important changes in nanoparquet 0.4.0 include:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://nanoparquet.r-lib.org/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>write_parquet()&lt;/code>&lt;/a> can now write multiple row groups. By default it puts at most 10 million rows in a single row group. (This is subject to &lt;a href="https://nanoparquet.r-lib.org/references/parquet_options.html">https://nanoparquet.r-lib.org/references/parquet_options.html&lt;/a> ) on how to change the default.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://nanoparquet.r-lib.org/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>write_parquet()&lt;/code>&lt;/a> now writes minimum and maximum statistics (by default) for most Parquet types. See the
+&lt;a href="https://nanoparquet.r-lib.org/reference/parquet_options.html" target="_blank" rel="noopener">&lt;code>parquet_options()&lt;/code> manual page&lt;/a> on how to turn this off, which will probably make the writer faster.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://nanoparquet.r-lib.org/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>write_parquet()&lt;/code>&lt;/a> can now write version 2 data pages. The default is still version 1, but it might change in the future.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>New &lt;code>compression_level&lt;/code> option to select the compression level manually.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://nanoparquet.r-lib.org/reference/read_parquet.html" target="_blank" rel="noopener">&lt;code>read_parquet()&lt;/code>&lt;/a> can now read from an R connection.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://github.com/alvarocombo" target="_blank" rel="noopener">@alvarocombo&lt;/a>,
+&lt;a href="https://github.com/D3SL" target="_blank" rel="noopener">@D3SL&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">@gaborcsardi&lt;/a>, and
+&lt;a href="https://github.com/RealTYPICAL" target="_blank" rel="noopener">@RealTYPICAL&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>A Parquet &lt;code>ENUM&lt;/code> type is very similar to a factor in R. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>nanoparquet 0.3.0</title><link>https://www.tidyverse.org/blog/2024/06/nanoparquet-0-3-0/</link><pubDate>Thu, 20 Jun 2024 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2024/06/nanoparquet-0-3-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] ~~[`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)~~
+-->
+&lt;p>We&amp;rsquo;re extremely pleased to announce the release of
+&lt;a href="https://r-lib.github.io/nanoparquet/" target="_blank" rel="noopener">nanoparquet&lt;/a> 0.3.0. nanoparquet is a new R package that reads Parquet files into data frames, and writes data frames to Parquet files.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"nanoparquet"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This blog post will cover the features and limitations of nanoparquet, and also our future plans.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://github.com/r-lib/nanoparquet'>nanoparquet&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="what-is-parquet">What is Parquet?
+&lt;a href="#what-is-parquet">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Parquet is a file format for storing data on disk. It is specifically designed for large data sets, read-heavy workloads and data analysis. The most important features of Parquet are:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>Columnar&lt;/strong>. Data is stored column-wise, so whole columns (or large chunks of columns) are easy to read quickly. Columnar storage allows better compression, fast operations on a subset of columns, and easy ways of removing columns or adding new columns to a data file.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Binary&lt;/strong>. A Parquet file is not a text file. Each Parquet data type is stored in a well-defined binary storage format, leaving no ambiguity about how fields are persed.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Rich types&lt;/strong>. Parquet supports a small set of &lt;em>low level&lt;/em> data types with well specified storage formats and encodings. On top of the low level types, it implemented several higher level logical types, like UTF-8 strings, time stamps, JSON strings, ENUM types (factors), etc.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Well supported&lt;/strong>. At this point Parquet is well supported across modern languages like R, Python, Rust, Java, Go, etc. In particular, Apache Arrow handles Parquet files very well, and has bindings to many languages. DuckDB is a very portable tool that reads and writes Parquet files, or even opens a set of Parquet files as a database.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Performant&lt;/strong>. Parquet columns may use various encodings and compression to ensure that the data files are kept as small as possible. When running an analytical query on the subset of the data, the Parquet format makes it easy to skip the columns and/or rows that are irrelevant.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Concurrency built in&lt;/strong>. A Parquet file can be divided into row groups. Parquet readers can read, uncompress and decode row groups in parallel. Parquet writes can encode and compress row groups in parallel. Even a single column may be divided into multiple pages, that can be (un)compressed, encode and decode in parallel.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Missing values&lt;/strong>. Support for missing values is built into the Parquet format.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="why-we-created-nanoparquet">Why we created nanoparquet?
+&lt;a href="#why-we-created-nanoparquet">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Although Parquet is well supported by modern languages, today the complexity of the Parquet format often outweighs its benefits for smaller data sets. Many tools that support Parquet are typically used for larger, out of memory data sets, so there is a perception that Parquet is only for big data. These tools typically take longer to compile or install, and often seem too heavy for in-memory data analysis.&lt;/p>
+&lt;p>With nanoparquet, we wanted to have a smaller tool that has no dependencies and is easy to install. Our goal is to facilitate the adoption of Parquet for smaller data sets, especially for teams that share data between multiple environments, e.g. R, Python, Java, etc.&lt;/p>
+&lt;h2 id="nanoparquet-features">nanoparquet Features
+&lt;a href="#nanoparquet-features">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>These are some of the nanoparquet features that we are most excited about.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>Lightweight&lt;/strong>. nanoparquet has no package or system dependencies other than a C++-11 compiler. It compiles in about 30 seconds into an R package that is less than a megabyte in size.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Reads many Parquet files&lt;/strong>.
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/read_parquet.html" target="_blank" rel="noopener">&lt;code>nanoparquet::read_parquet()&lt;/code>&lt;/a> supports reading most Parquet files. In particular, in supports all Parquet encodings and at the time of writing it supports three compression codecs: Snappy, Gzip and Zstd. Make sure you read &amp;ldquo;Limitations&amp;rdquo; below.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Writes many R data types&lt;/strong>.
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>nanoparquet::write_parquet()&lt;/code>&lt;/a> supports writing most R data frames. In particular, missing values are handled properly, factor columns are kept as factors, and temporal types are encoded correctly. Make sure you read &amp;ldquo;Limitations&amp;rdquo; below.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Type mappings&lt;/strong>. nanoparquet has a well defined set of
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/nanoparquet-types.html" target="_blank" rel="noopener">type mapping rules&lt;/a>. Use the
+&lt;a href="https://r-lib.github.io/nanoparquet/dev/reference/parquet_column_types.html" target="_blank" rel="noopener">&lt;code>parquet_column_types()&lt;/code>&lt;/a> function to see how
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/read_parquet.html" target="_blank" rel="noopener">&lt;code>read_parquet()&lt;/code>&lt;/a> and
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>write_parquet()&lt;/code>&lt;/a> maps Parquet and R types for a file or a data frame.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Metadata queries&lt;/strong>. nanoparquet has a
+&lt;a href="https://r-lib.github.io/nanoparquet/dev/reference/index.html#extract-parquet-metadata" target="_blank" rel="noopener">number of functions&lt;/a> that allow you to query the metadata and schema without reading in the full dataset.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="examples">Examples
+&lt;a href="#examples">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="reading-a-parquet-file">Reading a Parquet file
+&lt;a href="#reading-a-parquet-file">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The nanoparquet R package contains an example Parquet file. We are going to use it to demonstrate how the package works.&lt;/p>
+&lt;p>If the pillar package is loaded, then nanoparquet data frames are pretty-printed.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://github.com/r-lib/nanoparquet'>nanoparquet&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://pillar.r-lib.org/'>pillar&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>udf&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/system.file.html'>system.file&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"extdata/userdata1.parquet"&lt;/span>, package &lt;span class='o'>=&lt;/span> &lt;span class='s'>"nanoparquet"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Before actually reading the file, let&amp;rsquo;s look up some metadata about it, and also how its columns will be mapped to R types:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://r-lib.github.io/nanoparquet/reference/parquet_info.html'>parquet_info&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>udf&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A data frame: 1 × 7&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; file_name num_cols num_rows num_row_groups file_size parquet_version&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> /Users/gaborcsardi… 13 &lt;span style='text-decoration: underline;'>1&lt;/span>000 1 &lt;span style='text-decoration: underline;'>73&lt;/span>217 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 1 more variable: created_by &amp;lt;chr&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://r-lib.github.io/nanoparquet/reference/parquet_column_types.html'>parquet_column_types&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>udf&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A data frame: 13 × 6&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; file_name name type r_type repetition_type logical_type &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>*&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;I&amp;lt;list&amp;gt;&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> /Users/gaborcsa… regi… INT64 POSIX… REQUIRED &lt;span style='color: #555555;'>&amp;lt;TIMESTAMP(TRUE, micros)&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> /Users/gaborcsa… id INT32 integ… REQUIRED &lt;span style='color: #555555;'>&amp;lt;INT(32, TRUE)&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> /Users/gaborcsa… firs… BYTE… chara… OPTIONAL &lt;span style='color: #555555;'>&amp;lt;STRING&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> /Users/gaborcsa… last… BYTE… chara… REQUIRED &lt;span style='color: #555555;'>&amp;lt;STRING&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> /Users/gaborcsa… email BYTE… chara… OPTIONAL &lt;span style='color: #555555;'>&amp;lt;STRING&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> /Users/gaborcsa… gend… BYTE… factor OPTIONAL &lt;span style='color: #555555;'>&amp;lt;STRING&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> /Users/gaborcsa… ip_a… BYTE… chara… REQUIRED &lt;span style='color: #555555;'>&amp;lt;STRING&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> /Users/gaborcsa… cc BYTE… chara… OPTIONAL &lt;span style='color: #555555;'>&amp;lt;STRING&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> /Users/gaborcsa… coun… BYTE… chara… REQUIRED &lt;span style='color: #555555;'>&amp;lt;STRING&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> /Users/gaborcsa… birt… INT32 Date OPTIONAL &lt;span style='color: #555555;'>&amp;lt;DATE&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>11&lt;/span> /Users/gaborcsa… sala… DOUB… double OPTIONAL &lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>12&lt;/span> /Users/gaborcsa… title BYTE… chara… OPTIONAL &lt;span style='color: #555555;'>&amp;lt;STRING&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>13&lt;/span> /Users/gaborcsa… comm… BYTE… chara… OPTIONAL &lt;span style='color: #555555;'>&amp;lt;STRING&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>For every Parquet column we see its low level Parquet data type in &lt;code>type&lt;/code>, e.g. &lt;code>INT64&lt;/code> or &lt;code>BYTE_ARRAY&lt;/code>. &lt;code>r_type&lt;/code> the R type that
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/read_parquet.html" target="_blank" rel="noopener">&lt;code>read_parquet()&lt;/code>&lt;/a> will create for that column. If &lt;code>repetition_type&lt;/code> is &lt;code>REQUIRED&lt;/code>, then that column cannot contain missing values. &lt;code>OPTIONAL&lt;/code> columns may have missing values. &lt;code>logical_type&lt;/code> is the higher level Parquet data type.&lt;/p>
+&lt;p>E.g. the first column is an UTC (because of the &lt;code>TRUE&lt;/code>) timestamp, in microseconds. It is stored as a 64 bit integer in the file, and it will be converted to a &lt;code>POSIXct&lt;/code> object by
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/read_parquet.html" target="_blank" rel="noopener">&lt;code>read_parquet()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>To actually read the file into a data frame, call
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/read_parquet.html" target="_blank" rel="noopener">&lt;code>read_parquet()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>ud1&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://r-lib.github.io/nanoparquet/reference/read_parquet.html'>read_parquet&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>udf&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>ud1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A data frame: 1,000 × 13&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; registration id first_name last_name email gender ip_address cc &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dttm&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> 2016-02-03 &lt;span style='color: #555555;'>07:55:29&lt;/span> 1 Amanda Jordan ajord… Female 1.197.201… 6759…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> 2016-02-03 &lt;span style='color: #555555;'>17:04:03&lt;/span> 2 Albert Freeman afree… Male 218.111.1… &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> 2016-02-03 &lt;span style='color: #555555;'>01:09:31&lt;/span> 3 Evelyn Morgan emorg… Female 7.161.136… 6767…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> 2016-02-03 &lt;span style='color: #555555;'>00:36:21&lt;/span> 4 Denise Riley drile… Female 140.35.10… 3576…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> 2016-02-03 &lt;span style='color: #555555;'>05:05:31&lt;/span> 5 Carlos Burns cburn… &lt;span style='color: #BB0000;'>NA&lt;/span> 169.113.2… 5602…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> 2016-02-03 &lt;span style='color: #555555;'>07:22:34&lt;/span> 6 Kathryn White kwhit… Female 195.131.8… 3583…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> 2016-02-03 &lt;span style='color: #555555;'>08:33:08&lt;/span> 7 Samuel Holmes sholm… Male 232.234.8… 3582…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> 2016-02-03 &lt;span style='color: #555555;'>06:47:06&lt;/span> 8 Harry Howell hhowe… Male 91.235.51… &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> 2016-02-03 &lt;span style='color: #555555;'>03:52:53&lt;/span> 9 Jose Foster jfost… Male 132.31.53… &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> 2016-02-03 &lt;span style='color: #555555;'>18:29:47&lt;/span> 10 Emily Stewart estew… Female 143.28.25… 3574…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 990 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 5 more variables: country &amp;lt;chr&amp;gt;, birthdate &amp;lt;date&amp;gt;, salary &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># title &amp;lt;chr&amp;gt;, comments &amp;lt;chr&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h3 id="writing-a-parquet-file">Writing a Parquet file
+&lt;a href="#writing-a-parquet-file">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>To show
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>write_parquet()&lt;/code>&lt;/a>, we&amp;rsquo;ll use the &lt;code>flights&lt;/code> data in the nycflights13 package:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://github.com/hadley/nycflights13'>nycflights13&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>flights&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 336,776 × 19&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; year month day dep_time sched_dep_time dep_delay arr_time sched_arr_time&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> &lt;span style='text-decoration: underline;'>2&lt;/span>013 1 1 517 515 2 830 819&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> &lt;span style='text-decoration: underline;'>2&lt;/span>013 1 1 533 529 4 850 830&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> &lt;span style='text-decoration: underline;'>2&lt;/span>013 1 1 542 540 2 923 850&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> &lt;span style='text-decoration: underline;'>2&lt;/span>013 1 1 544 545 -&lt;span style='color: #BB0000;'>1&lt;/span> &lt;span style='text-decoration: underline;'>1&lt;/span>004 &lt;span style='text-decoration: underline;'>1&lt;/span>022&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> &lt;span style='text-decoration: underline;'>2&lt;/span>013 1 1 554 600 -&lt;span style='color: #BB0000;'>6&lt;/span> 812 837&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> &lt;span style='text-decoration: underline;'>2&lt;/span>013 1 1 554 558 -&lt;span style='color: #BB0000;'>4&lt;/span> 740 728&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> &lt;span style='text-decoration: underline;'>2&lt;/span>013 1 1 555 600 -&lt;span style='color: #BB0000;'>5&lt;/span> 913 854&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> &lt;span style='text-decoration: underline;'>2&lt;/span>013 1 1 557 600 -&lt;span style='color: #BB0000;'>3&lt;/span> 709 723&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> &lt;span style='text-decoration: underline;'>2&lt;/span>013 1 1 557 600 -&lt;span style='color: #BB0000;'>3&lt;/span> 838 846&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> &lt;span style='text-decoration: underline;'>2&lt;/span>013 1 1 558 600 -&lt;span style='color: #BB0000;'>2&lt;/span> 753 745&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 336,766 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 11 more variables: arr_delay &amp;lt;dbl&amp;gt;, carrier &amp;lt;chr&amp;gt;, flight &amp;lt;int&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># tailnum &amp;lt;chr&amp;gt;, origin &amp;lt;chr&amp;gt;, dest &amp;lt;chr&amp;gt;, air_time &amp;lt;dbl&amp;gt;, distance &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># hour &amp;lt;dbl&amp;gt;, minute &amp;lt;dbl&amp;gt;, time_hour &amp;lt;dttm&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>First we check how columns of &lt;code>flights&lt;/code> will be mapped to Parquet types:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://r-lib.github.io/nanoparquet/reference/parquet_column_types.html'>parquet_column_types&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>flights&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A data frame: 19 × 6&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; file_name name type r_type repetition_type logical_type &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;I&amp;lt;list&amp;gt;&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> year INT32 integ… REQUIRED &lt;span style='color: #555555;'>&amp;lt;INT(32, TRUE)&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> month INT32 integ… REQUIRED &lt;span style='color: #555555;'>&amp;lt;INT(32, TRUE)&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> day INT32 integ… REQUIRED &lt;span style='color: #555555;'>&amp;lt;INT(32, TRUE)&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> dep_time INT32 integ… OPTIONAL &lt;span style='color: #555555;'>&amp;lt;INT(32, TRUE)&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> sched_dep_t… INT32 integ… REQUIRED &lt;span style='color: #555555;'>&amp;lt;INT(32, TRUE)&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> dep_delay DOUB… double OPTIONAL &lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> arr_time INT32 integ… OPTIONAL &lt;span style='color: #555555;'>&amp;lt;INT(32, TRUE)&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> sched_arr_t… INT32 integ… REQUIRED &lt;span style='color: #555555;'>&amp;lt;INT(32, TRUE)&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> arr_delay DOUB… double OPTIONAL &lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> carrier BYTE… chara… REQUIRED &lt;span style='color: #555555;'>&amp;lt;STRING&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>11&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> flight INT32 integ… REQUIRED &lt;span style='color: #555555;'>&amp;lt;INT(32, TRUE)&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>12&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> tailnum BYTE… chara… OPTIONAL &lt;span style='color: #555555;'>&amp;lt;STRING&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>13&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> origin BYTE… chara… REQUIRED &lt;span style='color: #555555;'>&amp;lt;STRING&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>14&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> dest BYTE… chara… REQUIRED &lt;span style='color: #555555;'>&amp;lt;STRING&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>15&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> air_time DOUB… double OPTIONAL &lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>16&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> distance DOUB… double REQUIRED &lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>17&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> hour DOUB… double REQUIRED &lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>18&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> minute DOUB… double REQUIRED &lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>19&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> time_hour INT64 POSIX… REQUIRED &lt;span style='color: #555555;'>&amp;lt;TIMESTAMP(TRUE, micros)&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This looks fine, so we go ahead and write out the file. By default it will be Snappy-compressed, and many columns will be dictionary encoded.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://r-lib.github.io/nanoparquet/reference/write_parquet.html'>write_parquet&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>flights&lt;/span>, &lt;span class='s'>"flights.parquet"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h3 id="parquet-metadata">Parquet metadata
+&lt;a href="#parquet-metadata">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Use
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/parquet_schema.html" target="_blank" rel="noopener">&lt;code>parquet_schema()&lt;/code>&lt;/a> to see the schema of a Parquet file. The schema also includes &amp;ldquo;internal&amp;rdquo; parquet columns. Every Parquet file is a tree where columns may be part of an &amp;ldquo;internal&amp;rdquo; column. nanoparquet currently only supports flat files, that consist of a single internal root column and all other columns are leaf columns and are children of the root:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://r-lib.github.io/nanoparquet/reference/parquet_schema.html'>parquet_schema&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"flights.parquet"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A data frame: 20 × 11&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; file_name name type type_length repetition_type converted_type&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> flights.parquet schema &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> flights.parquet year INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> flights.parquet month INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> flights.parquet day INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> flights.parquet dep_time INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> flights.parquet sched_dep_t… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> flights.parquet dep_delay DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> flights.parquet arr_time INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> flights.parquet sched_arr_t… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> flights.parquet arr_delay DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>11&lt;/span> flights.parquet carrier BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED UTF8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>12&lt;/span> flights.parquet flight INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>13&lt;/span> flights.parquet tailnum BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL UTF8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>14&lt;/span> flights.parquet origin BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED UTF8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>15&lt;/span> flights.parquet dest BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED UTF8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>16&lt;/span> flights.parquet air_time DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>17&lt;/span> flights.parquet distance DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>18&lt;/span> flights.parquet hour DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>19&lt;/span> flights.parquet minute DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>20&lt;/span> flights.parquet time_hour INT64 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED TIMESTAMP_MIC…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 5 more variables: logical_type &amp;lt;I&amp;lt;list&amp;gt;&amp;gt;, num_children &amp;lt;int&amp;gt;, scale &amp;lt;int&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># precision &amp;lt;int&amp;gt;, field_id &amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>To see more information about a Parquet file, use
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/parquet_metadata.html" target="_blank" rel="noopener">&lt;code>parquet_metadata()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://r-lib.github.io/nanoparquet/reference/parquet_metadata.html'>parquet_metadata&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"flights.parquet"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $file_meta_data&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A data frame: 1 × 5&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; file_name version num_rows key_value_metadata created_by &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;I&amp;lt;list&amp;gt;&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> flights.parquet 1 &lt;span style='text-decoration: underline;'>336&lt;/span>776 &lt;span style='color: #555555;'>&amp;lt;tbl [1 × 2]&amp;gt;&lt;/span> https://github.com/gaborc…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $schema&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A data frame: 20 × 11&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; file_name name type type_length repetition_type converted_type&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> flights.parquet schema &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> flights.parquet year INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> flights.parquet month INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> flights.parquet day INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> flights.parquet dep_time INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> flights.parquet sched_dep_t… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> flights.parquet dep_delay DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> flights.parquet arr_time INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> flights.parquet sched_arr_t… INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> flights.parquet arr_delay DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>11&lt;/span> flights.parquet carrier BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED UTF8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>12&lt;/span> flights.parquet flight INT32 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED INT_32 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>13&lt;/span> flights.parquet tailnum BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL UTF8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>14&lt;/span> flights.parquet origin BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED UTF8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>15&lt;/span> flights.parquet dest BYTE… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED UTF8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>16&lt;/span> flights.parquet air_time DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> OPTIONAL &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>17&lt;/span> flights.parquet distance DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>18&lt;/span> flights.parquet hour DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>19&lt;/span> flights.parquet minute DOUB… &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>20&lt;/span> flights.parquet time_hour INT64 &lt;span style='color: #BB0000;'>NA&lt;/span> REQUIRED TIMESTAMP_MIC…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 5 more variables: logical_type &amp;lt;I&amp;lt;list&amp;gt;&amp;gt;, num_children &amp;lt;int&amp;gt;, scale &amp;lt;int&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># precision &amp;lt;int&amp;gt;, field_id &amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $row_groups&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A data frame: 1 × 7&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; file_name id total_byte_size num_rows file_offset total_compressed_size&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> flights.parq… 0 5&lt;span style='text-decoration: underline;'>732&lt;/span>430 &lt;span style='text-decoration: underline;'>336&lt;/span>776 &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 1 more variable: ordinal &amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $column_chunks&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A data frame: 19 × 19&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; file_name row_group column file_path file_offset offset_index_offset&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> flights.parquet 0 0 &lt;span style='color: #BB0000;'>NA&lt;/span> 23 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> flights.parquet 0 1 &lt;span style='color: #BB0000;'>NA&lt;/span> 111 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> flights.parquet 0 2 &lt;span style='color: #BB0000;'>NA&lt;/span> 323 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> flights.parquet 0 3 &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='text-decoration: underline;'>6&lt;/span>738 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> flights.parquet 0 4 &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='text-decoration: underline;'>468&lt;/span>008 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> flights.parquet 0 5 &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='text-decoration: underline;'>893&lt;/span>557 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> flights.parquet 0 6 &lt;span style='color: #BB0000;'>NA&lt;/span> 1&lt;span style='text-decoration: underline;'>312&lt;/span>660 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> flights.parquet 0 7 &lt;span style='color: #BB0000;'>NA&lt;/span> 1&lt;span style='text-decoration: underline;'>771&lt;/span>896 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> flights.parquet 0 8 &lt;span style='color: #BB0000;'>NA&lt;/span> 2&lt;span style='text-decoration: underline;'>237&lt;/span>931 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> flights.parquet 0 9 &lt;span style='color: #BB0000;'>NA&lt;/span> 2&lt;span style='text-decoration: underline;'>653&lt;/span>250 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>11&lt;/span> flights.parquet 0 10 &lt;span style='color: #BB0000;'>NA&lt;/span> 2&lt;span style='text-decoration: underline;'>847&lt;/span>249 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>12&lt;/span> flights.parquet 0 11 &lt;span style='color: #BB0000;'>NA&lt;/span> 3&lt;span style='text-decoration: underline;'>374&lt;/span>563 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>13&lt;/span> flights.parquet 0 12 &lt;span style='color: #BB0000;'>NA&lt;/span> 3&lt;span style='text-decoration: underline;'>877&lt;/span>832 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>14&lt;/span> flights.parquet 0 13 &lt;span style='color: #BB0000;'>NA&lt;/span> 3&lt;span style='text-decoration: underline;'>966&lt;/span>418 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>15&lt;/span> flights.parquet 0 14 &lt;span style='color: #BB0000;'>NA&lt;/span> 4&lt;span style='text-decoration: underline;'>264&lt;/span>662 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>16&lt;/span> flights.parquet 0 15 &lt;span style='color: #BB0000;'>NA&lt;/span> 4&lt;span style='text-decoration: underline;'>639&lt;/span>410 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>17&lt;/span> flights.parquet 0 16 &lt;span style='color: #BB0000;'>NA&lt;/span> 4&lt;span style='text-decoration: underline;'>976&lt;/span>781 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>18&lt;/span> flights.parquet 0 17 &lt;span style='color: #BB0000;'>NA&lt;/span> 5&lt;span style='text-decoration: underline;'>120&lt;/span>936 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>19&lt;/span> flights.parquet 0 18 &lt;span style='color: #BB0000;'>NA&lt;/span> 5&lt;span style='text-decoration: underline;'>427&lt;/span>022 &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 13 more variables: offset_index_length &amp;lt;int&amp;gt;, column_index_offset &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># column_index_length &amp;lt;int&amp;gt;, type &amp;lt;chr&amp;gt;, encodings &amp;lt;I&amp;lt;list&amp;gt;&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># path_in_schema &amp;lt;I&amp;lt;list&amp;gt;&amp;gt;, codec &amp;lt;chr&amp;gt;, num_values &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># total_uncompressed_size &amp;lt;dbl&amp;gt;, total_compressed_size &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># data_page_offset &amp;lt;dbl&amp;gt;, index_page_offset &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># dictionary_page_offset &amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The output will include the schema, as above, but also data about the row groups (
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>write_parquet()&lt;/code>&lt;/a> always writes a single row group currently), and column chunks. There is one column chunk per column in each row group.&lt;/p>
+&lt;p>The columns chunk information also tells you whether a column chunk is dictionary encoded, its encoding, its size, etc.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>cc&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://r-lib.github.io/nanoparquet/reference/parquet_metadata.html'>parquet_metadata&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"flights.parquet"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>column_chunks&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>cc&lt;/span>&lt;span class='o'>[&lt;/span>, &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"column"&lt;/span>, &lt;span class='s'>"encodings"&lt;/span>, &lt;span class='s'>"dictionary_page_offset"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A data frame: 19 × 3&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; column encodings dictionary_page_offset&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;I&amp;lt;list&amp;gt;&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> 0 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 4&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> 1 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 48&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> 2 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 181&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> 3 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> &lt;span style='text-decoration: underline;'>1&lt;/span>445&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> 4 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> &lt;span style='text-decoration: underline;'>463&lt;/span>903&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> 5 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> &lt;span style='text-decoration: underline;'>891&lt;/span>412&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> 6 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 1&lt;span style='text-decoration: underline;'>306&lt;/span>995&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> 7 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 1&lt;span style='text-decoration: underline;'>767&lt;/span>223&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> 8 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 2&lt;span style='text-decoration: underline;'>235&lt;/span>594&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> 9 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 2&lt;span style='text-decoration: underline;'>653&lt;/span>154&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>11&lt;/span> 10 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 2&lt;span style='text-decoration: underline;'>831&lt;/span>850&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>12&lt;/span> 11 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 3&lt;span style='text-decoration: underline;'>352&lt;/span>496&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>13&lt;/span> 12 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 3&lt;span style='text-decoration: underline;'>877&lt;/span>796&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>14&lt;/span> 13 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 3&lt;span style='text-decoration: underline;'>965&lt;/span>856&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>15&lt;/span> 14 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 4&lt;span style='text-decoration: underline;'>262&lt;/span>597&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>16&lt;/span> 15 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 4&lt;span style='text-decoration: underline;'>638&lt;/span>461&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>17&lt;/span> 16 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 4&lt;span style='text-decoration: underline;'>976&lt;/span>675&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>18&lt;/span> 17 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 5&lt;span style='text-decoration: underline;'>120&lt;/span>660&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>19&lt;/span> 18 &lt;span style='color: #555555;'>&amp;lt;chr [3]&amp;gt;&lt;/span> 5&lt;span style='text-decoration: underline;'>379&lt;/span>476&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>cc&lt;/span>&lt;span class='o'>[[&lt;/span>&lt;span class='s'>"encodings"&lt;/span>&lt;span class='o'>]&lt;/span>&lt;span class='o'>]&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>3&lt;/span>&lt;span class='o'>]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [[1]]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "PLAIN" "RLE" "RLE_DICTIONARY"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [[2]]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "PLAIN" "RLE" "RLE_DICTIONARY"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [[3]]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "PLAIN" "RLE" "RLE_DICTIONARY"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="limitations">Limitations
+&lt;a href="#limitations">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>nanoparquet 0.3.0 has a number of limitations.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>Only flat tables&lt;/strong>.
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/read_parquet.html" target="_blank" rel="noopener">&lt;code>read_parquet()&lt;/code>&lt;/a> can only read flat tables, i.e. Parquet files without nested columns. (Technically all Parquet files are nested, and nanoparquet supports exactly one level of nesting: a single meta column that contains all other columns.) Similarly,
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>write_parquet()&lt;/code>&lt;/a> will not write list columns.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Unsupported Parquet types&lt;/strong>.
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/read_parquet.html" target="_blank" rel="noopener">&lt;code>read_parquet()&lt;/code>&lt;/a> reads some Parquet types as raw vectors of a list column currently, e.g. &lt;code>FLOAT16&lt;/code>, &lt;code>INTERVAL&lt;/code>. See
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/nanoparquet-types.html" target="_blank" rel="noopener">the manual&lt;/a> for details.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>No encryption&lt;/strong>. Encrypted Parquet files are not supported.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Missing compression codecs&lt;/strong>. &lt;code>LZO&lt;/code>, &lt;code>BROTLI&lt;/code> and &lt;code>LZ4&lt;/code> compression is not yet supported.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>No statistics&lt;/strong>. nanoparquet does not read or write statistics, e.g. minimum and maximum values from and to Parquet files.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>No checksums&lt;/strong>. nanoparquet does not check or write checksums currently.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>No Bloom filters&lt;/strong>. nanoparquet does not currently support reading or writing Bloom filters from or to Parquet files.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>May be slow for large files&lt;/strong>. Being single-threaded and not fully optimized, nanoparquet is probably not suited well for large data sets. It should be fine for a couple of gigabytes. It may be fine if all the data fits into memory comfortably.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Single row group&lt;/strong>.
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>write_parquet()&lt;/code>&lt;/a> always creates a single row group, which is not optimal for large files.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Automatic encoding&lt;/strong>. It is currently not possible to choose encodings in
+&lt;a href="https://r-lib.github.io/nanoparquet/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>write_parquet()&lt;/code>&lt;/a> manually.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>We are planning on solving these limitations, while keeping nanoparquet as lean as possible. In particular, if you find a Parquet file that nanoparquet cannot read, please report an issue in our
+&lt;a href="https://github.com/r-lib/nanoparquet/issues" target="_blank" rel="noopener">issue tracker&lt;/a>!&lt;/p>
+&lt;h2 id="other-tools-for-parquet-files">Other tools for Parquet files
+&lt;a href="#other-tools-for-parquet-files">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If you run into some of these limitations, chances are you are dealing with a larget data set, and you will probably benefit from using tools geared towards larger Parquet files. Luckily you have several options.&lt;/p>
+&lt;h3 id="in-r">In R
+&lt;a href="#in-r">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>
+&lt;h4 id="apache-arrow">Apache Arrow
+&lt;a href="#apache-arrow">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h4>&lt;p>You can usually install the &lt;code>arrow&lt;/code> package from CRAN. Note, however, that some CRAN builds are suboptimal at the time of writing, e.g. the macOS builds lack Parquet support and it is best to install arrow from
+&lt;a href="https://apache.r-universe.dev/arrow" target="_blank" rel="noopener">R-universe&lt;/a> on these platforms.&lt;/p>
+&lt;p>Call
+&lt;a href="https://arrow.apache.org/docs/r/reference/read_parquet.html" target="_blank" rel="noopener">&lt;code>arrow::read_parquet()&lt;/code>&lt;/a> to read Parquet files, and
+&lt;a href="https://arrow.apache.org/docs/r/reference/write_parquet.html" target="_blank" rel="noopener">&lt;code>arrow::write_parquet()&lt;/code>&lt;/a> to write them. You can also use
+&lt;a href="https://arrow.apache.org/docs/r/reference/open_dataset.html" target="_blank" rel="noopener">&lt;code>arrow::open_dataset()&lt;/code>&lt;/a> to open (one or more) Parquet files and perform queries on them without loading all data into memory.&lt;/p>
+&lt;h4 id="duckdb">DuckDB
+&lt;a href="#duckdb">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h4>&lt;p>DuckDB is an excellent tool that handles Parquet files seemlessly. You can install the duckdb R package from CRAN.&lt;/p>
+&lt;p>To read a Parquet file into an R data frame with DuckDB, call&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">df&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">duckdb&lt;/span>&lt;span class="o">:::&lt;/span>&lt;span class="nf">sql&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;FROM &amp;#39;file.parquet&amp;#39;&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Alternatively, you can open (one or more) Parquet files and query them as a DuckDB database, potentially without reading all data into memory at once.&lt;/p>
+&lt;p>Here is an example that shows how to put an R data frame into a (temporary) DuckDB database, and how to export it to Parquet:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">drv&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">duckdb&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">duckdb&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="n">con&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">DBI&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">dbConnect&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">drv&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">on.exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">DBI&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">dbDisconnect&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">con&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">add&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">DBI&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">dbWriteTable&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">con&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;mtcars&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">DBI&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">dbExecute&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">con&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">DBI&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">sqlInterpolate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">con&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="s">&amp;#34;COPY mtcars TO ?filename (FORMAT &amp;#39;parquet&amp;#39;, COMPRESSION &amp;#39;snappy&amp;#39;)&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">filename&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#39;mtcars.parquet&amp;#39;&lt;/span>
+&lt;span class="p">))&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="in-python">In Python
+&lt;a href="#in-python">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>There are at least three good options to handle Parquet files in Python. Just like for R, the first two are
+&lt;a href="https://arrow.apache.org/docs/python/index.html" target="_blank" rel="noopener">Apache Arrow&lt;/a> and
+&lt;a href="https://duckdb.org/docs/api/python/overview.html" target="_blank" rel="noopener">DuckDB&lt;/a>. You can also try the
+&lt;a href="https://pypi.org/project/fastparquet/" target="_blank" rel="noopener">fastparquet&lt;/a> Python package for a potentially lighter solution.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>nanoparquet would not exist without the work of Hannes Mühleisen on
+&lt;a href="https://github.com/hannes/miniparquet" target="_blank" rel="noopener">miniparquet&lt;/a>, which had similar goals, but it is discontinued now. nanoparquet is a fork of miniparquet.&lt;/p>
+&lt;p>nanoparquet also contains code and test Parquet files from DuckDB, Apache Parquet, Apache Arrow, Apache Thrift, it contains libraries from Google, Facebook, etc. see the
+&lt;a href="https://github.com/r-lib/nanoparquet/blob/main/inst/COPYRIGHTS" target="_blank" rel="noopener">COPYRIGHTS file&lt;/a> in the repository for the full details.&lt;/p></description></item></channel></rss>

@@ -1,0 +1,100 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>bigrquery 1.0.0</title><meta property="og:title" content="bigrquery 1.0.0"><meta property="og:description" content="I’m very excited to announce that bigrquery 1.0.0 is now on CRAN. This package makes it easy to work with data stored in Google BigQuery, a hosted database for big data. The bigrquery package provides three levels of abstraction on top of BigQuery:
+ The low-level API provides thin wrappers over the underlying REST API. In this version, all the low-level functions start with bq_, and mostly have the form bq_noun_verb()."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2018/04/bigrquery-1-0-0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="bigrquery 1.0.0 - Tidyverse"><meta property="description" content><meta property="og:description" content><meta property="og:image" content="https://www.tidyverse.org/blog/2018/04/bigrquery-1-0-0/bigrquery-1-0-0-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2018/04/bigrquery-1-0-0/bigrquery-1-0-0-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>bigrquery 1.0.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2018/04/bigrquery-1-0-0/bigrquery-1-0-0-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/kmAAlcld6wA>Andrew Ruiz</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2018/04/24</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/dbplyr/>dbplyr</a>,
+<a href=/tags/bigrquery/>bigrquery</a>,
+<a href=/tags/databases/>databases</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Hadley Wickham</p><div class=article-content><p>I’m very excited to announce that bigrquery 1.0.0 is now on CRAN. This package makes it easy to work with data stored in <a href=https://developers.google.com/bigquery/>Google BigQuery</a>, a hosted database for big data. The bigrquery package provides three levels of abstraction on top of BigQuery:</p><ul><li><p>The low-level API provides thin wrappers over the underlying REST API. In
+this version, all the low-level functions start with <code>bq_</code>, and mostly have
+the form <code>bq_noun_verb()</code>. This level of abstraction is most appropriate if
+you’re familiar with the REST API and you want do something not supported in
+the higher-level APIs.</p></li><li><p>The <a href=http://www.r-dbi.org>DBI interface</a> wraps the low-level API and
+makes working with BigQuery like working with any other database system.
+This is the most convenient layer if you want to execute SQL queries in
+BigQuery or upload smaller amounts (i.e. &lt;100 MB) of data.</p></li><li><p>The <a href=http://dbplyr.tidyverse.org/>dplyr interface</a> lets you treat BigQuery
+tables as if they are in-memory data frames. This is the most convenient
+layer if you don’t want to write SQL, but instead want dbplyr to write it
+for you.</p></li></ul><p>Install it with:</p><pre class=r><code>install.packages(&quot;bigrquery&quot;)</code></pre><p>Four big changes in this version of bigrquery are described in detail below:</p><ul><li>Support for repeated and nested fields.</li><li>Easier cross-dataset queries.</li><li>Greatly improved download speeds.</li><li>A new low-level API.</li></ul><p>There are also many smaller improvements and bug fixes, as described in the <a href=https://github.com/r-dbi/bigrquery/releases/tag/v1.0.0>release notes</a>.</p><div id=nested-and-repeated-fields class="section level2"><h2>Nested and repeated fields</h2><p>One of the neatest things about BigQuery is that it supports nested and repeated fields, which are also called structs (or records) and arrays. bigrquery now supports those types of fields, reading them into list-columns:</p><ul><li>Repeated values become list-columns containing vectors.</li><li>Nested values become list-columns containing named lists.</li><li>Repeated nested values become list-columns containing data frames.</li></ul><p>The following code illustrates the output for the two most important types: an array, and an array of structs:</p><pre class=r><code>library(bigrquery)
+
+con &lt;- DBI::dbConnect(bigquery(), project = bq_test_project())
+sql &lt;- &quot;SELECT 
+  [1, 2, 3] as list,
+  [STRUCT(1 as a, &#39;a&#39; as b), STRUCT(2, &#39;b&#39;), STRUCT(3, &#39;c&#39;)] as df
+&quot;
+out &lt;- DBI::dbGetQuery(con, sql)
+#&gt; Auto-refreshing stale OAuth token.
+out
+#&gt; # A tibble: 1 x 2
+#&gt;   list      df              
+#&gt;   &lt;list&gt;    &lt;list&gt;          
+#&gt; 1 &lt;int [3]&gt; &lt;tibble [3 × 2]&gt;
+
+out$list[[1]]
+#&gt; [1] 1 2 3
+
+out$df[[1]]
+#&gt; # A tibble: 3 x 2
+#&gt;       a b    
+#&gt;   &lt;int&gt; &lt;chr&gt;
+#&gt; 1     1 a    
+#&gt; 2     2 b    
+#&gt; 3     3 c</code></pre><p>Note that results are now returned as tibbles, not data frames, because the base print method does not handle list columns well. If for some reason you do need a data frame, use <code>as.data.frame()</code> to convert back.</p><p>This work has made me think a bunch about list-colums and df-columns (which might be a better fit for non-repeated nested fields). The germination of these ideas is likely to have widespread (if subtle) infuence throughout the tidyverse, with initial impacts most likely to be felt in <a href=http://tidyr.tidyverse.org/>tidyr</a>.</p></div><div id=cross-dataset-queries class="section level2"><h2>Cross-dataset queries</h2><p>In the previous version of bigrquery it was difficult to perform queries across datasets because <code>dbConnect()</code> forced you to specify a <code>dataset</code> and only allowed you to reference tables within that dataset. Now the dataset is optional (the only required argument to <code>DBI::dbConnect()</code> is a project to bill) and both DBI and dplyr interfaces accept qualified table names: either <code>dataset.table</code> or <code>project.dataset.table</code>.</p><p>The following example demonstrates with my test project, which contains a <code>basedata</code> dataset containing the <code>mtcars</code> table:</p><pre class=r><code>library(bigrquery)
+con &lt;- DBI::dbConnect(bigquery(), project = bq_test_project())
+
+mtcars1 &lt;- DBI::dbReadTable(con, &quot;basedata.mtcars&quot;)
+head(mtcars1)
+#&gt; # A tibble: 6 x 11
+#&gt;     mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+#&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1  24.4    4.  147.   62.  3.69  3.19  20.0    1.    0.    4.    2.
+#&gt; 2  21.5    4.  120.   97.  3.70  2.46  20.0    1.    0.    3.    1.
+#&gt; 3  18.1    6.  225.  105.  2.76  3.46  20.2    1.    0.    3.    1.
+#&gt; 4  21.4    6.  258.  110.  3.08  3.22  19.4    1.    0.    3.    1.
+#&gt; 5  15.2    8.  276.  180.  3.07  3.78  18.0    0.    0.    3.    3.
+#&gt; 6  17.3    8.  276.  180.  3.07  3.73  17.6    0.    0.    3.    3.
+
+mtcars2 &lt;- dplyr::tbl(con, &quot;basedata.mtcars&quot;)
+head(mtcars2)
+#&gt; # Source:   lazy query [?? x 11]
+#&gt; # Database: BigQueryConnection
+#&gt;     mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+#&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1  24.4    4.  147.   62.  3.69  3.19  20.0    1.    0.    4.    2.
+#&gt; 2  21.5    4.  120.   97.  3.70  2.46  20.0    1.    0.    3.    1.
+#&gt; 3  18.1    6.  225.  105.  2.76  3.46  20.2    1.    0.    3.    1.
+#&gt; 4  21.4    6.  258.  110.  3.08  3.22  19.4    1.    0.    3.    1.
+#&gt; 5  15.2    8.  276.  180.  3.07  3.78  18.0    0.    0.    3.    3.
+#&gt; 6  17.3    8.  276.  180.  3.07  3.73  17.6    0.    0.    3.    3.</code></pre></div><div id=improved-download-speeds class="section level2"><h2>Improved download speeds</h2><p>The system for downloading data from BigQuery into R has been rewritten from the ground up to considerably improve performance:</p><ul><li><p>By default, data is downloaded from BigQuery in pages of 10,000 rows.
+Previously, bigrquery downloaded then parsed each page. Now, bigrquery
+downloads all pages, then parses all pages. This means that you’ll now see
+two progress bars: one for downloading JSON from BigQuery and one for parsing
+that JSON into a data frame.</p></li><li><p>Because all pages are downloaded in a single pass, we can now download in
+parallel, using up to 6 simultaneous connections by default. This generally
+doesn’t result in a six-fold speed up, but should at least double download
+speed.</p></li><li><p>The parsing code has been rewritten in C++. This eliminates several expensive
+intermediate computations, and means that bigrquery no longer requires
+<a href=http://readr.tidyverse.org/>readr</a>.</p></li></ul><p>All up, I can now download the first million rows of <code>publicdata.samples.natality</code> in about a minute, about 8x faster than the previous version. This data frame takes up 170 MB of space in BigQuery and 140 MB of memory in R, so a minute to download doesn’t seem unreasonable. The bottleneck for loading BigQuery data is now parsing BigQuery’s JSON format, which is difficult to optimise further because I’m already using the fastest C++ JSON parser, <a href=http://rapidjson.org>RapidJson</a>. If this is still too slow (because you download a lot of data), see <code>?bq_table_download</code> for an alternative approach.</p></div><div id=low-level-api class="section level2"><h2>Low-level API</h2><p>The low-level API has been completely overhauled to make it easier to use. The primary motivation was to make bigrquery development more enjoyable for me, but it should also be helpful to you when you need to go outside of the features provided by the higher-level DBI and dplyr interfaces.</p><ul><li><p><strong>Consistent naming scheme</strong>:
+All API functions now have the form <code>bq_object_verb()</code>, e.g.
+<code>bq_table_create()</code>, or <code>bq_dataset_delete()</code>.</p></li><li><p><strong>S3 classes</strong>:
+<code>bq_table()</code>, <code>bq_dataset()</code>, <code>bq_job()</code>, <code>bq_field()</code> and <code>bq_fields()</code>
+constructors create S3 objects corresponding to important BigQuery objects. T
+hese are paired with <code>as_</code> coercion functions and used throughout the new API.</p></li><li><p><strong>Easier local testing</strong>:
+New <code>bq_test_project()</code> and <code>bq_test_dataset()</code> make it easier to run
+bigrquery tests locally. To run the tests yourself, you need to create a
+BigQuery project, and then follow the instructions in <code>?bq_test_project</code>.</p></li><li><p><strong>More efficient data transfer</strong>:
+The new API makes extensive use of the <code>fields</code> query parameter, ensuring
+that functions only download data that they actually use.</p></li><li><p><strong>Tighter GCS connections</strong>:
+New <code>bq_table_load()</code> loads data from a Google Cloud Storage URI, pairing
+with <code>bq_table_save()</code> which saves data to a GCS URI.</p></li></ul><p>The old API has been soft-deprecated - it will continue to work, but no further development will occur (including bug fixes). It will be formally deprecated in the next version, and then removed in the version after that.</p></div><div id=acknowledgements class="section level2"><h2>Acknowledgements</h2><p>A big thanks goes out to all 41 users who contributed issues, pull requests, and comments since the last release: <a href=https://github.com/alex-danilin>@alex-danilin</a>, <a href=https://github.com/aschwartzSGI>@aschwartzSGI</a>, <a href=https://github.com/aumdavis>@aumdavis</a>, <a href=https://github.com/barnettjacob>@barnettjacob</a>, <a href=https://github.com/batpigandme>@batpigandme</a>, <a href=https://github.com/blakeyc>@blakeyc</a>, <a href=https://github.com/bulam>@bulam</a>, <a href=https://github.com/byapparov>@byapparov</a>, <a href=https://github.com/c3212218>@c3212218</a>, <a href=https://github.com/craigcitro>@craigcitro</a>, <a href=https://github.com/czeildi>@czeildi</a>, <a href=https://github.com/dan-booth>@dan-booth</a>, <a href=https://github.com/edgararuiz>@edgararuiz</a>, <a href=https://github.com/EricGoldsmith>@EricGoldsmith</a>, <a href=https://github.com/everron>@everron</a>, <a href=https://github.com/haavardw>@haavardw</a>, <a href=https://github.com/hadley>@hadley</a>, <a href=https://github.com/hidekoji>@hidekoji</a>, <a href=https://github.com/inkrement>@inkrement</a>, <a href=https://github.com/j450h1>@j450h1</a>, <a href=https://github.com/jarodmeng>@jarodmeng</a>, <a href=https://github.com/jennybc>@jennybc</a>, <a href=https://github.com/JHowix>@JHowix</a>, <a href=https://github.com/krlmlr>@krlmlr</a>, <a href=https://github.com/ldanai>@ldanai</a>, <a href=https://github.com/leggitta>@leggitta</a>, <a href=https://github.com/michaelquinn32>@michaelquinn32</a>, <a href=https://github.com/mpancia>@mpancia</a>, <a href=https://github.com/ned2>@ned2</a>, <a href=https://github.com/pcejrowski>@pcejrowski</a>, <a href=https://github.com/Praxiteles>@Praxiteles</a>, <a href=https://github.com/ras44>@ras44</a>, <a href=https://github.com/realAkhmed>@realAkhmed</a>, <a href=https://github.com/robincrlee>@robincrlee</a>, <a href=https://github.com/selesnow>@selesnow</a>, <a href=https://github.com/TerryZhangHL>@TerryZhangHL</a>, <a href=https://github.com/VictArt>@VictArt</a>, <a href=https://github.com/vivshume>@vivshume</a>, <a href=https://github.com/zippeurfou>@zippeurfou</a>, <a href=https://github.com/zkostitsyn>@zkostitsyn</a>, and <a href=https://github.com/Zsedo>@Zsedo</a></p></div></div></div><div class=column25><div class="section hideOnMobile"></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

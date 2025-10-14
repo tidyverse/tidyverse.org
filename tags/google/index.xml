@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>google | Tidyverse</title><link>https://www.tidyverse.org/tags/google/</link><atom:link href="https://www.tidyverse.org/tags/google/index.xml" rel="self" type="application/rss+xml"/><description>google</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Sun, 10 May 2020 00:00:00 +0000</lastBuildDate><item><title>googlesheets4 0.2.0</title><link>https://www.tidyverse.org/blog/2020/05/googlesheets4-0-2-0/</link><pubDate>Sun, 10 May 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/05/googlesheets4-0-2-0/</guid><description>&lt;p>We&amp;rsquo;re ecstatic to announce the release of googlesheets4 0.2.0 on CRAN:&lt;/p>
+&lt;p>
+&lt;a href="https://googlesheets4.tidyverse.org" target="_blank" rel="noopener">googlesheets4.tidyverse.org&lt;/a>&lt;/p>
+&lt;p>googlesheets4 is a package to work with Google Sheets from R. Although version 0.1.0 debuted on CRAN in late 2019, I&amp;rsquo;ve waited to blog about it until I considered googlesheet4 a replacement for an older package called googlesheets. That day is here! In particular, googlesheets 0.2.0 can create and edit Sheets.&lt;/p>
+&lt;p>Install googlesheets4 from CRAN like so:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;googlesheets4&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then attach it for use via:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">googlesheets4&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Below we give a brief overview of the basic read and write functionality of googlesheets4. The website has
+&lt;a href="https://googlesheets4.tidyverse.org/articles/index.html" target="_blank" rel="noopener">several articles&lt;/a> that document more advanced use and special topics, such as auth. As always, you can find detailed notes about all changes in the
+&lt;a href="https://googlesheets4.tidyverse.org/news/index.html" target="_blank" rel="noopener">change log&lt;/a>.&lt;/p>
+&lt;h2 id="googlesheets-is-dead-long-live-googlesheets4">googlesheets is dead! Long live googlesheets4!
+&lt;a href="#googlesheets-is-dead-long-live-googlesheets4">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>googlesheets4 is a reboot of an earlier package called googlesheets.&lt;/p>
+&lt;p>&lt;em>Why &lt;strong>4&lt;/strong>? Why googlesheets&lt;strong>4&lt;/strong>? Did I miss googlesheets1 through 3? No. The idea is to name the package after the corresponding version of the Sheets API. In hindsight, the original googlesheets should have been googlesheets&lt;strong>3&lt;/strong>.&lt;/em>&lt;/p>
+&lt;p>googlesheets4 wraps
+&lt;a href="https://developers.google.com/sheets" target="_blank" rel="noopener">v4 of the Sheets API&lt;/a>, whereas the original googlesheets wraps v3. The
+&lt;a href="https://developers.google.com/sheets/api/v3" target="_blank" rel="noopener">v3 API&lt;/a> has been deprecated for a long time. Its shut-off has been postponed several times, but its days are clearly numbered. Gradual shutdown of certain endpoints and scopes is already underway, with complete shutdown
+&lt;a href="https://cloud.google.com/blog/products/g-suite/migrate-your-apps-use-latest-sheets-api" target="_blank" rel="noopener">expected on September 30, 2020&lt;/a> at the time of writing. If you use googlesheets, you &lt;strong>must&lt;/strong> switch to googlesheets4 and the time is now.&lt;/p>
+&lt;p>Change is hard, but let&amp;rsquo;s focus on the positive:&lt;/p>
+&lt;ul>
+&lt;li>The v4 API has a better design, which makes it easier to wrap, which
+translates to a better user experience in client packages.&lt;/li>
+&lt;li>I have gotten a lot better at writing R packages. Some of the fiddly parts
+of the original googlesheets came from the awkward v3 API, but some of it
+came from me.&lt;/li>
+&lt;li>The gargle package (
+&lt;a href="https://gargle.r-lib.org" target="_blank" rel="noopener">gargle.r-lib.org&lt;/a>) provides
+infrastructure common to ~250 Google APIs, including Sheets, Drive, Gmail, and
+BigQuery. By using gargle for auth, we can provide a consistent auth
+experience across googlesheets4, googledrive, gmailr, and bigrquery.&lt;/li>
+&lt;li>The googledrive package (
+&lt;a href="https://googledrive.tidyverse.org" target="_blank" rel="noopener">googledrive.tidyverse.org&lt;/a>)
+provides a full-featured client for working with files on Google Drive, which
+allows googlesheets4 to focus on operations specific to spreadsheets. In the
+original googlesheets package, about half of the code and effort was actually
+related to Drive, not Sheets.&lt;/li>
+&lt;/ul>
+&lt;h2 id="read-a-sheet">Read a Sheet
+&lt;a href="#read-a-sheet">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Let&amp;rsquo;s say you&amp;rsquo;re staring at a Sheet&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> in the browser and you want to read it into R. Copy the URL to your clipboard and paste it into a call to &lt;code>read_sheet()&lt;/code> like this:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">read_sheet&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;https://docs.google.com/spreadsheets/d/1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY/edit#gid=780868077&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Reading from &amp;#34;gapminder&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; Range &amp;#34;Africa&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 624 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; country continent year lifeExp pop gdpPercap&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 Algeria Africa 1952 43.1 9279525 2449.&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 Algeria Africa 1957 45.7 10270856 3014.&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 Algeria Africa 1962 48.3 11000948 2551.&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 Algeria Africa 1967 51.4 12760499 3247.&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 Algeria Africa 1972 54.5 14760787 4183.&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 619 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;em>If you&amp;rsquo;re following along at home, you probably just got a prompt to log in with Google. That&amp;rsquo;s because, in general, you&amp;rsquo;ll want googlesheets4 to be able to do the same things you can do with Sheets in the browser. If you know you only want to read public Sheets, you can use &lt;code>gs4_deauth()&lt;/code> to tell googlesheets4 that it should not attempt auth.&lt;/em>&lt;/p>
+&lt;p>I&amp;rsquo;m reading from one of our public example Sheets &amp;mdash; specifically, a Sheet that holds Gapminder data. A browser URL is OK for quick-and-dirty work, but there are other ways to target a Sheet that are more robust and easier on the eyes.&lt;/p>
+&lt;p>You will often want to refer to your Sheets by ID or by name. For the public example Sheets, we offer convenience functions &lt;code>gs4_example()&lt;/code> and &lt;code>gs4_examples()&lt;/code> to get IDs based on name.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">gap_id&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">gs4_example&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;gapminder&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">class&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gap_id&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;sheets_id&amp;#34; &amp;#34;drive_id&amp;#34;&lt;/span>
+&lt;span class="nf">unclass&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gap_id&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; gapminder &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;#34;1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY&amp;#34;&lt;/span>
+&lt;span class="n">gap_id&lt;/span>
+&lt;span class="c1">#&amp;gt; Spreadsheet name: gapminder&lt;/span>
+&lt;span class="c1">#&amp;gt; ID: 1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY&lt;/span>
+&lt;span class="c1">#&amp;gt; Locale: en_US&lt;/span>
+&lt;span class="c1">#&amp;gt; Time zone: America/Los_Angeles&lt;/span>
+&lt;span class="c1">#&amp;gt; # of sheets: 5&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; (Sheet name): (Nominal extent in rows x columns)&lt;/span>
+&lt;span class="c1">#&amp;gt; Africa: 625 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; Americas: 301 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; Asia: 397 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; Europe: 361 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; Oceania: 25 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; (Named range): (A1 range) &lt;/span>
+&lt;span class="c1">#&amp;gt; canada: &amp;#39;Americas&amp;#39;!A38:F49&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The above demonstrates that printing a Sheet ID (literally, an instance of &lt;code>sheets_id&lt;/code>) reveals relevant metadata about the Sheet, such as its name and an overview of its worksheets and named ranges.&lt;/p>
+&lt;p>&lt;code>read_sheet()&lt;/code> is happy to accept a Sheet ID, instead of a URL. Such a Sheet ID might be an instance of &lt;code>sheets_id&lt;/code>, but you can also provide the ID as a string. Here we show piping a Sheet ID into &lt;code>read_sheet()&lt;/code> and we start to demonstrate other features, e.g. the use of a qualified A1-style &lt;code>range&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">gs4_example&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;gapminder&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">read_sheet&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">range&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;Asia!A:D&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Reading from &amp;#34;gapminder&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; Range &amp;#34;&amp;#39;Asia&amp;#39;!A:D&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 396 x 4&lt;/span>
+&lt;span class="c1">#&amp;gt; country continent year lifeExp&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 Afghanistan Asia 1952 28.8&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 Afghanistan Asia 1957 30.3&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 Afghanistan Asia 1962 32.0&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 Afghanistan Asia 1967 34.0&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 Afghanistan Asia 1972 36.1&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 391 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>But how do you get a Sheet ID for your &lt;em>own&lt;/em> Sheets? First, you can use &lt;code>as_sheets_id()&lt;/code> to extract the ID from various types of input, such as a browser URL. I use &lt;code>as.character()&lt;/code> here to suppress the default printing behaviour, so we can just stare at the plain string.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">as_sheets_id&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;https://docs.google.com/spreadsheets/d/1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY/edit#gid=780868077&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">as.character&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;1U6Cf_qEOhiR9AZqTqS3mbMF3zt2db48ZP5v3rkrAEJY&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>We can also use googledrive&amp;rsquo;s ability to address Drive files by &lt;strong>name&lt;/strong>&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup> to help us identify the Sheet of interest. The account I&amp;rsquo;m logged in with owns a Sheet named &amp;ldquo;deaths&amp;rdquo; and &lt;code>googledrive::drive_get()&lt;/code> retrieves its metadata as a &lt;code>dribble&lt;/code> (&amp;ldquo;Drive tibble&amp;rdquo;). &lt;code>as_sheets_id()&lt;/code> is also happy to take a &lt;code>dribble&lt;/code> as input, but it must contain exactly 1 row, describing a Drive file that is also a Sheet.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">deaths_dribble&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">googledrive&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">drive_get&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;deaths&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">deaths_dribble&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 4&lt;/span>
+&lt;span class="c1">#&amp;gt; name path id drive_resource &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;list&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 deaths ~/deaths 1VTJjWoP1nshbyxmL9JqXgdVsimaYty21LGxxs018H2Y &amp;lt;named list [35]&amp;gt;&lt;/span>
+&lt;span class="nf">as_sheets_id&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">deaths_dribble&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Spreadsheet name: deaths&lt;/span>
+&lt;span class="c1">#&amp;gt; ID: 1VTJjWoP1nshbyxmL9JqXgdVsimaYty21LGxxs018H2Y&lt;/span>
+&lt;span class="c1">#&amp;gt; Locale: en_US&lt;/span>
+&lt;span class="c1">#&amp;gt; Time zone: America/Los_Angeles&lt;/span>
+&lt;span class="c1">#&amp;gt; # of sheets: 2&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; (Sheet name): (Nominal extent in rows x columns)&lt;/span>
+&lt;span class="c1">#&amp;gt; arts: 1000 x 26&lt;/span>
+&lt;span class="c1">#&amp;gt; other: 1000 x 26&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; (Named range): (A1 range) &lt;/span>
+&lt;span class="c1">#&amp;gt; other_data: &amp;#39;other&amp;#39;!A5:F15&lt;/span>
+&lt;span class="c1">#&amp;gt; arts_data: &amp;#39;arts&amp;#39;!A5:F15&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>read_sheet()&lt;/code> also accepts a one-row &lt;code>dribble&lt;/code> as input. Here I also show the use of &lt;code>range&lt;/code> to target a &lt;em>named range&lt;/em> and specify some of the column types:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">deaths_dribble&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">read_sheet&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">range&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;arts_data&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">col_types&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;??i?DD&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Reading from &amp;#34;deaths&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; Range &amp;#34;arts_data&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 10 x 6&lt;/span>
+&lt;span class="c1">#&amp;gt; Name Profession Age `Has kids` `Date of birth` `Date of death`&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;int&amp;gt; &amp;lt;lgl&amp;gt; &amp;lt;date&amp;gt; &amp;lt;date&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 David Bowie musician 69 TRUE 1947-01-08 2016-01-10 &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 Carrie Fisher actor 60 TRUE 1956-10-21 2016-12-27 &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 Chuck Berry musician 90 TRUE 1926-10-18 2017-03-18 &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 Bill Paxton actor 61 TRUE 1955-05-17 2017-02-25 &lt;/span>
+&lt;span class="c1">#&amp;gt; 5 Prince musician 57 TRUE 1958-06-07 2016-04-21 &lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 5 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>read_sheet()&lt;/code> is the main &amp;ldquo;read&amp;rdquo; function of googlesheets4 and should remind you of other table-reading functions, like &lt;code>readr::read_csv()&lt;/code> and &lt;code>readxl::read_excel()&lt;/code>. It also goes by another name: &lt;code>range_read()&lt;/code>, which is the most correct name according to googlesheets4&amp;rsquo;s naming conventions. Either name is fine! It&amp;rsquo;s OK if you don&amp;rsquo;t care about this, I just want to give you a heads up. If you make extensive use of googlesheets4, you&amp;rsquo;ll notice there are 3 large families of functions, with the prefixes &lt;code>gs4_&lt;/code>, &lt;code>sheet_&lt;/code>, and &lt;code>range_&lt;/code>. The prefix conveys a function&amp;rsquo;s scope of operation.&lt;/p>
+&lt;p>Remember there are
+&lt;a href="https://googlesheets4.tidyverse.org/articles/index.html" target="_blank" rel="noopener">articles&lt;/a> that go into much more depth on reading Sheets, column types, and using googlesheets4 in concert with googledrive.&lt;/p>
+&lt;h2 id="write-and-modify-a-sheet">Write and modify a Sheet
+&lt;a href="#write-and-modify-a-sheet">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>I&amp;rsquo;ll go out in a blaze of glory, demonstrating just a few of the functions that can create and edit a Sheet.&lt;/p>
+&lt;p>First I create a new Sheet with &lt;code>gs4_create()&lt;/code> and send some initial data to two well-named worksheets:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">ss&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">gs4_create&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="s">&amp;#34;able-aardvark&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">sheets&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">flowers&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">head&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">iris&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">autos&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">head&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Creating new Sheet: &amp;#34;able-aardvark&amp;#34;&lt;/span>
+&lt;span class="n">ss&lt;/span>
+&lt;span class="c1">#&amp;gt; Spreadsheet name: able-aardvark&lt;/span>
+&lt;span class="c1">#&amp;gt; ID: 1OV9Mxf-NdTyB1ChmlVKEFy0e1AaPAJCahzcWBw1w3qQ&lt;/span>
+&lt;span class="c1">#&amp;gt; Locale: en_US&lt;/span>
+&lt;span class="c1">#&amp;gt; Time zone: Etc/GMT&lt;/span>
+&lt;span class="c1">#&amp;gt; # of sheets: 2&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; (Sheet name): (Nominal extent in rows x columns)&lt;/span>
+&lt;span class="c1">#&amp;gt; flowers: 7 x 5&lt;/span>
+&lt;span class="c1">#&amp;gt; autos: 7 x 11&lt;/span>
+&lt;span class="nf">read_sheet&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ss&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Reading from &amp;#34;able-aardvark&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; Range &amp;#34;flowers&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 6 x 5&lt;/span>
+&lt;span class="c1">#&amp;gt; Sepal.Length Sepal.Width Petal.Length Petal.Width Species&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 5.1 3.5 1.4 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 4.9 3 1.4 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 4.7 3.2 1.3 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 4.6 3.1 1.5 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 5 5 3.6 1.4 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 1 more row&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>If you&amp;rsquo;re following along at home, you can use &lt;code>gs4_browse()&lt;/code> to open a Sheet in your default web browser. This is especially helpful when you are developing code that writes to a Sheet.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">gs4_browse&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ss&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now I send a third data frame to an entirely new (work)sheet within this existing (spread)Sheet with &lt;code>write_sheet()&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">my_data&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">data.frame&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">numbers&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">6&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="kc">letters&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">letters&lt;/span>&lt;span class="n">[1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">6&lt;/span>&lt;span class="n">]&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="nf">write_sheet&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">my_data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">ss&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ss&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Writing to &amp;#34;able-aardvark&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; Writing to sheet &amp;#34;my_data&amp;#34;&lt;/span>
+&lt;span class="n">ss&lt;/span>
+&lt;span class="c1">#&amp;gt; Spreadsheet name: able-aardvark&lt;/span>
+&lt;span class="c1">#&amp;gt; ID: 1OV9Mxf-NdTyB1ChmlVKEFy0e1AaPAJCahzcWBw1w3qQ&lt;/span>
+&lt;span class="c1">#&amp;gt; Locale: en_US&lt;/span>
+&lt;span class="c1">#&amp;gt; Time zone: Etc/GMT&lt;/span>
+&lt;span class="c1">#&amp;gt; # of sheets: 3&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; (Sheet name): (Nominal extent in rows x columns)&lt;/span>
+&lt;span class="c1">#&amp;gt; flowers: 7 x 5&lt;/span>
+&lt;span class="c1">#&amp;gt; autos: 7 x 11&lt;/span>
+&lt;span class="c1">#&amp;gt; my_data: 7 x 2&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Let&amp;rsquo;s append a row to the bottom of &lt;code>my_data&lt;/code> and populate it with formulas that summarize the data in each column (hey, a sparkline!).&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">my_summaries&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">data.frame&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">gs4_formula&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#39;=SPARKLINE(A2:A7, {&amp;#34;color&amp;#34;, &amp;#34;blue&amp;#34;})&amp;#39;&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">gs4_formula&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#39;=JOIN(&amp;#34;-&amp;#34;, B2:B7)&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="n">ss&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">sheet_append&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">my_summaries&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">sheet&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;my_data&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Writing to &amp;#34;able-aardvark&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; Appending 1 row(s) to &amp;#34;my_data&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Notice that we did not have to specify which row to write the new values into. &lt;code>sheet_append()&lt;/code> uses an endpoint that knows how to add rows to the existing table of data. It&amp;rsquo;s true that we used some row knowledge in our formulas, but more often you will just be sending data. Also notice the use of &lt;code>gs4_formula()&lt;/code>. This is how you indicate that character data should be sent as Sheets formulas, as opposed to regular strings.&lt;/p>
+&lt;p>Let&amp;rsquo;s take one last glance at our creation.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">ss&lt;/span>
+&lt;span class="c1">#&amp;gt; Spreadsheet name: able-aardvark&lt;/span>
+&lt;span class="c1">#&amp;gt; ID: 1OV9Mxf-NdTyB1ChmlVKEFy0e1AaPAJCahzcWBw1w3qQ&lt;/span>
+&lt;span class="c1">#&amp;gt; Locale: en_US&lt;/span>
+&lt;span class="c1">#&amp;gt; Time zone: Etc/GMT&lt;/span>
+&lt;span class="c1">#&amp;gt; # of sheets: 3&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; (Sheet name): (Nominal extent in rows x columns)&lt;/span>
+&lt;span class="c1">#&amp;gt; flowers: 7 x 5&lt;/span>
+&lt;span class="c1">#&amp;gt; autos: 7 x 11&lt;/span>
+&lt;span class="c1">#&amp;gt; my_data: 8 x 2&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>In the browser, the &lt;code>my_data&lt;/code> sheet looks something like this at this point:&lt;/p>
+&lt;p>&lt;img src="append-formula-sparkline.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" width="40%" />&lt;/p>
+&lt;p>Finally, we clean up. Note that we (must) use googledrive for this. The Sheets API can create a Sheet, but alas it cannot delete one. For that (and most other &amp;ldquo;whole file&amp;rdquo; operations), we must use the Drive API, which is why googlesheets4 is designed to work &lt;em>with&lt;/em> googledrive.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">googledrive&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">drive_trash&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ss&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Files trashed:&lt;/span>
+&lt;span class="c1">#&amp;gt; * able-aardvark: 1OV9Mxf-NdTyB1ChmlVKEFy0e1AaPAJCahzcWBw1w3qQ&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Once again, the
+&lt;a href="https://googlesheets4.tidyverse.org/articles/index.html" target="_blank" rel="noopener">articles&lt;/a> provide much deeper coverage of topics like identifying and modifying Sheets.&lt;/p>
+&lt;h2 id="try-it-out">Try it out
+&lt;a href="#try-it-out">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The googlesheets4 package is marked as experimental, but it&amp;rsquo;s really somewhere between
+&lt;a href="https://www.tidyverse.org/lifecycle/#experimental" target="_blank" rel="noopener">experimental&lt;/a> and
+&lt;a href="https://www.tidyverse.org/lifecycle/#maturing" target="_blank" rel="noopener">maturing&lt;/a>. This is the first CRAN release that includes write and edit capability, so I want the flexibility to make some relatively quick, modest changes to the interface in response to user feedback. But such changes get more painful for everyone the longer we wait. Now is a great time to take googlesheets4 out for a test drive.&lt;/p>
+&lt;p>If you encounter ergonomic problems or spot tasks that were possible with googlesheets but are not yet possible with googlesheet4, please
+&lt;a href="https://github.com/tidyverse/googlesheets4/issues" target="_blank" rel="noopener">open an issue&lt;/a>.&lt;/p>
+&lt;h2 id="thank-you">Thank you!
+&lt;a href="#thank-you">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all 64 contributors who&amp;rsquo;ve helped to bring googlesheets4 to this point via their contributions on GitHub.
+&lt;a href="https://github.com/4marel" target="_blank" rel="noopener">@4marel&lt;/a>,
+&lt;a href="https://github.com/AaronGullickson" target="_blank" rel="noopener">@AaronGullickson&lt;/a>,
+&lt;a href="https://github.com/adisarid" target="_blank" rel="noopener">@adisarid&lt;/a>,
+&lt;a href="https://github.com/ahelgason" target="_blank" rel="noopener">@ahelgason&lt;/a>,
+&lt;a href="https://github.com/alex-steiner-next" target="_blank" rel="noopener">@alex-steiner-next&lt;/a>,
+&lt;a href="https://github.com/aljrico" target="_blank" rel="noopener">@aljrico&lt;/a>,
+&lt;a href="https://github.com/amir2cs" target="_blank" rel="noopener">@amir2cs&lt;/a>,
+&lt;a href="https://github.com/antoine-sachet" target="_blank" rel="noopener">@antoine-sachet&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/behrman" target="_blank" rel="noopener">@behrman&lt;/a>,
+&lt;a href="https://github.com/ben519" target="_blank" rel="noopener">@ben519&lt;/a>,
+&lt;a href="https://github.com/Biomiha" target="_blank" rel="noopener">@Biomiha&lt;/a>,
+&lt;a href="https://github.com/BriBecker" target="_blank" rel="noopener">@BriBecker&lt;/a>,
+&lt;a href="https://github.com/ceprdata" target="_blank" rel="noopener">@ceprdata&lt;/a>,
+&lt;a href="https://github.com/ChemiKyle" target="_blank" rel="noopener">@ChemiKyle&lt;/a>,
+&lt;a href="https://github.com/chrowe" target="_blank" rel="noopener">@chrowe&lt;/a>,
+&lt;a href="https://github.com/cneskey" target="_blank" rel="noopener">@cneskey&lt;/a>,
+&lt;a href="https://github.com/csnardi" target="_blank" rel="noopener">@csnardi&lt;/a>,
+&lt;a href="https://github.com/dan-reznik" target="_blank" rel="noopener">@dan-reznik&lt;/a>,
+&lt;a href="https://github.com/dcaley5005" target="_blank" rel="noopener">@dcaley5005&lt;/a>,
+&lt;a href="https://github.com/Flavjack" target="_blank" rel="noopener">@Flavjack&lt;/a>,
+&lt;a href="https://github.com/GitHubDoug" target="_blank" rel="noopener">@GitHubDoug&lt;/a>,
+&lt;a href="https://github.com/gloignon" target="_blank" rel="noopener">@gloignon&lt;/a>,
+&lt;a href="https://github.com/grwhumphries" target="_blank" rel="noopener">@grwhumphries&lt;/a>,
+&lt;a href="https://github.com/guhanrv" target="_blank" rel="noopener">@guhanrv&lt;/a>,
+&lt;a href="https://github.com/ianformanek" target="_blank" rel="noopener">@ianformanek&lt;/a>,
+&lt;a href="https://github.com/j-Rinehart" target="_blank" rel="noopener">@j-Rinehart&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jiaoshuo" target="_blank" rel="noopener">@jiaoshuo&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jjankowiak" target="_blank" rel="noopener">@jjankowiak&lt;/a>,
+&lt;a href="https://github.com/jpawlata" target="_blank" rel="noopener">@jpawlata&lt;/a>,
+&lt;a href="https://github.com/jperkel" target="_blank" rel="noopener">@jperkel&lt;/a>,
+&lt;a href="https://github.com/juliangilbey" target="_blank" rel="noopener">@juliangilbey&lt;/a>,
+&lt;a href="https://github.com/jzadra" target="_blank" rel="noopener">@jzadra&lt;/a>,
+&lt;a href="https://github.com/karawoo" target="_blank" rel="noopener">@karawoo&lt;/a>,
+&lt;a href="https://github.com/kaveh1000" target="_blank" rel="noopener">@kaveh1000&lt;/a>,
+&lt;a href="https://github.com/lucasmation" target="_blank" rel="noopener">@lucasmation&lt;/a>,
+&lt;a href="https://github.com/MarkEdmondson1234" target="_blank" rel="noopener">@MarkEdmondson1234&lt;/a>,
+&lt;a href="https://github.com/mikegunn" target="_blank" rel="noopener">@mikegunn&lt;/a>,
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>,
+&lt;a href="https://github.com/mitchelloharawild" target="_blank" rel="noopener">@mitchelloharawild&lt;/a>,
+&lt;a href="https://github.com/mlamias" target="_blank" rel="noopener">@mlamias&lt;/a>,
+&lt;a href="https://github.com/mountainMath" target="_blank" rel="noopener">@mountainMath&lt;/a>,
+&lt;a href="https://github.com/mssanjavickovic" target="_blank" rel="noopener">@mssanjavickovic&lt;/a>,
+&lt;a href="https://github.com/nacnudus" target="_blank" rel="noopener">@nacnudus&lt;/a>,
+&lt;a href="https://github.com/nathanhwangbo" target="_blank" rel="noopener">@nathanhwangbo&lt;/a>,
+&lt;a href="https://github.com/nicole-brewer" target="_blank" rel="noopener">@nicole-brewer&lt;/a>,
+&lt;a href="https://github.com/ogs22" target="_blank" rel="noopener">@ogs22&lt;/a>,
+&lt;a href="https://github.com/pachamaltese" target="_blank" rel="noopener">@pachamaltese&lt;/a>,
+&lt;a href="https://github.com/peeter-t2" target="_blank" rel="noopener">@peeter-t2&lt;/a>,
+&lt;a href="https://github.com/ramirobentes" target="_blank" rel="noopener">@ramirobentes&lt;/a>,
+&lt;a href="https://github.com/realauggieheschmeyer" target="_blank" rel="noopener">@realauggieheschmeyer&lt;/a>,
+&lt;a href="https://github.com/RSherwoodJr" target="_blank" rel="noopener">@RSherwoodJr&lt;/a>,
+&lt;a href="https://github.com/sam-watts" target="_blank" rel="noopener">@sam-watts&lt;/a>,
+&lt;a href="https://github.com/schmalte04" target="_blank" rel="noopener">@schmalte04&lt;/a>,
+&lt;a href="https://github.com/seanchrismurphy" target="_blank" rel="noopener">@seanchrismurphy&lt;/a>,
+&lt;a href="https://github.com/selesnow" target="_blank" rel="noopener">@selesnow&lt;/a>,
+&lt;a href="https://github.com/somnambWl" target="_blank" rel="noopener">@somnambWl&lt;/a>,
+&lt;a href="https://github.com/SridharJagannathan" target="_blank" rel="noopener">@SridharJagannathan&lt;/a>,
+&lt;a href="https://github.com/Tadge-Analytics" target="_blank" rel="noopener">@Tadge-Analytics&lt;/a>,
+&lt;a href="https://github.com/untergeekDE" target="_blank" rel="noopener">@untergeekDE&lt;/a>,
+&lt;a href="https://github.com/wildcat47" target="_blank" rel="noopener">@wildcat47&lt;/a>, and
+&lt;a href="https://github.com/yogat3ch" target="_blank" rel="noopener">@yogat3ch&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>It&amp;rsquo;s very easy to get confused about vocabulary when talking about spreadsheets and, especially, about Google Sheets. When we say capital-S &amp;ldquo;Sheet&amp;rdquo;, we mean a spreadsheet or (spread)Sheet, i.e. the Google equivalent of an Excel workbook or &lt;code>.xlsx&lt;/code> file. Indeed, the actual Sheets API uses the term &amp;ldquo;spreadsheet&amp;rdquo;. An individual &amp;ldquo;tab&amp;rdquo; inside a Sheet is a (work)sheet, i.e. small-s &amp;ldquo;sheet&amp;rdquo;. So one Sheet contains one or more sheets. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>Believe it or not, files on Drive don&amp;rsquo;t have to have a unique name. You can have multiple files named &amp;ldquo;foofy&amp;rdquo; on Drive, even in the same folder. In fact, historically, a file can also belong to multiple folders (although this is mercifully being phased out). The main takeaway is that your usual expectations about &amp;ldquo;a name or filepath identifies at most one file&amp;rdquo; and &amp;ldquo;a file is identified by exactly one name or filepath&amp;rdquo; don&amp;rsquo;t hold on Drive. &lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item></channel></rss>

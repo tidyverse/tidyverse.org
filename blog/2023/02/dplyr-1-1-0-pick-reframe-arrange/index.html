@@ -1,0 +1,295 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>dplyr 1.1.0: `pick()`, `reframe()`, and `arrange()`</title><meta property="og:title" content="dplyr 1.1.0: `pick()`, `reframe()`, and `arrange()`"><meta property="og:description" content="This final post contains a grab-bag of new features, including: `pick()` for column selection inside of data-masking functions, `reframe()` as the new home for `summarise()`'s multi-row behavior, and major performance improvements to `arrange()`."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2023/02/dplyr-1-1-0-pick-reframe-arrange/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="dplyr 1.1.0: `pick()`, `reframe()`, and `arrange()` - Tidyverse"><meta property="description" content="This final post contains a grab-bag of new features, including: `pick()` for column selection inside of data-masking functions, `reframe()` as the new home for `summarise()`'s multi-row behavior, and major performance improvements to `arrange()`."><meta property="og:description" content="This final post contains a grab-bag of new features, including: `pick()` for column selection inside of data-masking functions, `reframe()` as the new home for `summarise()`'s multi-row behavior, and major performance improvements to `arrange()`."><meta property="og:image" content="https://www.tidyverse.org/blog/2023/02/dplyr-1-1-0-pick-reframe-arrange/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2023/02/dplyr-1-1-0-pick-reframe-arrange/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>dplyr 1.1.0: <code>pick()</code>, <code>reframe()</code>, and <code>arrange()</code></h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2023/02/dplyr-1-1-0-pick-reframe-arrange/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/XgoHMMkE02I>Priscilla Du Preez</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2023/02/07</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/dplyr/>dplyr</a>,
+<a href=/tags/dplyr-1-1-0/>dplyr-1-1-0</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Davis Vaughan</p><div class=article-content><p>In this final
+<a href=https://dplyr.tidyverse.org/news/index.html#dplyr-110 target=_blank rel=noopener>dplyr 1.1.0</a> post, we&rsquo;ll take a look at two new verbs,
+<a href=https://dplyr.tidyverse.org/reference/pick.html target=_blank rel=noopener><code>pick()</code></a> and
+<a href=https://dplyr.tidyverse.org/reference/reframe.html target=_blank rel=noopener><code>reframe()</code></a>, along with some changes to
+<a href=https://dplyr.tidyverse.org/reference/arrange.html target=_blank rel=noopener><code>arrange()</code></a> that improve both reproducibility and performance. If you missed our previous posts, you should definitely go back and
+<a href=https://www.tidyverse.org/tags/dplyr-1-1-0/ target=_blank rel=noopener>check them out</a>!</p><p>You can install it from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span><span class=o>(</span><span class=s>"dplyr"</span><span class=o>)</span></span></code></pre></div><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://dplyr.tidyverse.org>dplyr</a></span><span class=o>)</span></span>
+<span><span class=nf><a href=https://rdrr.io/r/base/Random.html>set.seed</a></span><span class=o>(</span><span class=m>12345</span><span class=o>)</span></span></code></pre></div><h2 id=pick><code>pick()</code>
+<a href=#pick><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>One thing we noticed after dplyr 1.0.0 was released is that many people like to use
+<a href=https://dplyr.tidyverse.org/reference/across.html target=_blank rel=noopener><code>across()</code></a> for its column selection features while working inside a data-masking function like
+<a href=https://dplyr.tidyverse.org/reference/mutate.html target=_blank rel=noopener><code>mutate()</code></a> or
+<a href=https://dplyr.tidyverse.org/reference/summarise.html target=_blank rel=noopener><code>summarise()</code></a>. This is typically useful if you have a function that takes data frames as inputs, or if you need to compute features about a specific subset of columns.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>df</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span></span>
+<span>  x_1 <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>3</span>, <span class=m>2</span>, <span class=m>1</span>, <span class=m>2</span><span class=o>)</span>, </span>
+<span>  x_2 <span class=o>=</span> <span class=m>6</span><span class=o>:</span><span class=m>10</span>, </span>
+<span>  w_4 <span class=o>=</span> <span class=m>11</span><span class=o>:</span><span class=m>15</span>, </span>
+<span>  y_2 <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>5</span>, <span class=m>2</span>, <span class=m>4</span>, <span class=m>0</span>, <span class=m>6</span><span class=o>)</span></span>
+<span><span class=o>)</span></span>
+<span></span>
+<span><span class=nv>df</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/summarise.html>summarise</a></span><span class=o>(</span></span>
+<span>    n_x <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/nrow.html>ncol</a></span><span class=o>(</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/across.html>across</a></span><span class=o>(</span><span class=nf><a href=https://tidyselect.r-lib.org/reference/starts_with.html>starts_with</a></span><span class=o>(</span><span class=s>"x"</span><span class=o>)</span><span class=o>)</span><span class=o>)</span>,</span>
+<span>    n_y <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/nrow.html>ncol</a></span><span class=o>(</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/across.html>across</a></span><span class=o>(</span><span class=nf><a href=https://tidyselect.r-lib.org/reference/starts_with.html>starts_with</a></span><span class=o>(</span><span class=s>"y"</span><span class=o>)</span><span class=o>)</span><span class=o>)</span></span>
+<span>  <span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 1 × 2</span></span></span>
+<span><span class=c>#&gt;     n_x   n_y</span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;int&gt;</span> <span style=color:#555;font-style:italic>&lt;int&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     2     1</span></span>
+<span></span></code></pre></div><p><a href=https://dplyr.tidyverse.org/reference/across.html target=_blank rel=noopener><code>across()</code></a> is intended to apply a function to each of these columns, rather than just select them, which is why its name doesn&rsquo;t feel natural for this operation. In dplyr 1.1.0 we&rsquo;ve introduced
+<a href=https://dplyr.tidyverse.org/reference/pick.html target=_blank rel=noopener><code>pick()</code></a>, a specialized column selection variant with a more natural name:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>df</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/summarise.html>summarise</a></span><span class=o>(</span></span>
+<span>    n_x <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/nrow.html>ncol</a></span><span class=o>(</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/pick.html>pick</a></span><span class=o>(</span><span class=nf><a href=https://tidyselect.r-lib.org/reference/starts_with.html>starts_with</a></span><span class=o>(</span><span class=s>"x"</span><span class=o>)</span><span class=o>)</span><span class=o>)</span>,</span>
+<span>    n_y <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/nrow.html>ncol</a></span><span class=o>(</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/pick.html>pick</a></span><span class=o>(</span><span class=nf><a href=https://tidyselect.r-lib.org/reference/starts_with.html>starts_with</a></span><span class=o>(</span><span class=s>"y"</span><span class=o>)</span><span class=o>)</span><span class=o>)</span></span>
+<span>  <span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 1 × 2</span></span></span>
+<span><span class=c>#&gt;     n_x   n_y</span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;int&gt;</span> <span style=color:#555;font-style:italic>&lt;int&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     2     1</span></span>
+<span></span></code></pre></div><p><a href=https://dplyr.tidyverse.org/reference/pick.html target=_blank rel=noopener><code>pick()</code></a> is particularly useful in combination with ranking functions like
+<a href=https://dplyr.tidyverse.org/reference/row_number.html target=_blank rel=noopener><code>dense_rank()</code></a>, which have been upgraded in 1.1.0 to take data frames as inputs, serving as a way to jointly rank by multiple columns at once.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>df</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/mutate.html>mutate</a></span><span class=o>(</span></span>
+<span>    rank1 <span class=o>=</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/row_number.html>dense_rank</a></span><span class=o>(</span><span class=nv>x_1</span><span class=o>)</span>, </span>
+<span>    rank2 <span class=o>=</span> <span class=nf><a href=https://dplyr.tidyverse.org/reference/row_number.html>dense_rank</a></span><span class=o>(</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/pick.html>pick</a></span><span class=o>(</span><span class=nv>x_1</span>, <span class=nv>y_2</span><span class=o>)</span><span class=o>)</span> <span class=c># Using `y_2` to break ties in `x_1`</span></span>
+<span>  <span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 5 × 6</span></span></span>
+<span><span class=c>#&gt;     x_1   x_2   w_4   y_2 rank1 rank2</span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;int&gt;</span> <span style=color:#555;font-style:italic>&lt;int&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;int&gt;</span> <span style=color:#555;font-style:italic>&lt;int&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     1     6    11     5     1     2</span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>     3     7    12     2     3     5</span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>     2     8    13     4     2     3</span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span>     1     9    14     0     1     1</span></span>
+<span><span class=c>#&gt; <span style=color:#555>5</span>     2    10    15     6     2     4</span></span>
+<span></span></code></pre></div><p>We haven&rsquo;t deprecated using
+<a href=https://dplyr.tidyverse.org/reference/across.html target=_blank rel=noopener><code>across()</code></a> without supplying <code>.fns</code> yet, but we plan to in the future now that
+<a href=https://dplyr.tidyverse.org/reference/pick.html target=_blank rel=noopener><code>pick()</code></a> exists as a better alternative.</p><h2 id=reframe><code>reframe()</code>
+<a href=#reframe><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>As we mentioned in the
+<a href=https://www.tidyverse.org/blog/2022/11/dplyr-1-1-0-is-coming-soon/ target=_blank rel=noopener>coming soon</a> blog post, in dplyr 1.1.0 we&rsquo;ve decided to walk back the change we introduced to
+<a href=https://dplyr.tidyverse.org/reference/summarise.html target=_blank rel=noopener><code>summarise()</code></a> in dplyr 1.0.0 that allowed it to return per-group results of any length, rather than results of length 1. We think that the idea of multi-row results is extremely powerful, as it serves as a flexible way to apply arbitrary operations to each group, but we&rsquo;ve realized that
+<a href=https://dplyr.tidyverse.org/reference/summarise.html target=_blank rel=noopener><code>summarise()</code></a> wasn&rsquo;t the best home for it because it increases the chance for users to run into silent recycling bugs (thanks to
+<a href=https://github.com/tidyverse/dplyr/issues/6382 target=_blank rel=noopener>Kirill Müller</a> and
+<a href="https://twitter.com/drob/status/1563198515626770432?s=20&t=iTFWSCPNOGWalIrpXHx2qg" target=_blank rel=noopener>David Robinson</a> for bringing this to our attention).</p><p>As an example, here we&rsquo;re computing the mean and standard deviation of <code>x</code>, grouped by <code>g</code>. Unfortunately, I accidentally forgot to use <code>sd(x)</code> and instead just typed <code>x</code>. Because of how
+<a href=https://vctrs.r-lib.org/reference/vector_recycling_rules.html target=_blank rel=noopener>tidyverse recycling rules</a> work, the multi-row behavior silently recycled the size 1 mean values instead of erroring, so rather than 2 rows, we end up with 5.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>df</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span></span>
+<span>  g <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>1</span>, <span class=m>1</span>, <span class=m>2</span>, <span class=m>2</span><span class=o>)</span>,</span>
+<span>  x <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>4</span>, <span class=m>3</span>, <span class=m>6</span>, <span class=m>2</span>, <span class=m>8</span><span class=o>)</span>,</span>
+<span>  y <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>5</span>, <span class=m>1</span>, <span class=m>2</span>, <span class=m>8</span>, <span class=m>9</span><span class=o>)</span></span>
+<span><span class=o>)</span></span>
+<span></span>
+<span><span class=nv>df</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 5 × 3</span></span></span>
+<span><span class=c>#&gt;       g     x     y</span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     1     4     5</span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>     1     3     1</span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>     1     6     2</span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span>     2     2     8</span></span>
+<span><span class=c>#&gt; <span style=color:#555>5</span>     2     8     9</span></span>
+<span></span></code></pre></div><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>df</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/summarise.html>summarise</a></span><span class=o>(</span></span>
+<span>    x_average <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/mean.html>mean</a></span><span class=o>(</span><span class=nv>x</span><span class=o>)</span>,</span>
+<span>    x_sd <span class=o>=</span> <span class=nv>x</span>, <span class=c># Oops</span></span>
+<span>    .by <span class=o>=</span> <span class=nv>g</span></span>
+<span>  <span class=o>)</span></span>
+<span><span class=c>#&gt; Warning: Returning more (or less) than 1 row per `summarise()` group was deprecated in</span></span>
+<span><span class=c>#&gt; dplyr 1.1.0.</span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> Please use `reframe()` instead.</span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> When switching from `summarise()` to `reframe()`, remember that `reframe()`</span></span>
+<span><span class=c>#&gt;   always returns an ungrouped data frame and adjust accordingly.</span></span>
+<span></span><span><span class=c>#&gt; <span style=color:#555># A tibble: 5 × 3</span></span></span>
+<span><span class=c>#&gt;       g x_average  x_sd</span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>     <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     1      4.33     4</span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>     1      4.33     3</span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>     1      4.33     6</span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span>     2      5        2</span></span>
+<span><span class=c>#&gt; <span style=color:#555>5</span>     2      5        8</span></span>
+<span></span></code></pre></div><p><a href=https://dplyr.tidyverse.org/reference/summarise.html target=_blank rel=noopener><code>summarise()</code></a> now throws a warning when any group returns a result that isn&rsquo;t length 1. We expect to upgrade this to an error in the future to revert
+<a href=https://dplyr.tidyverse.org/reference/summarise.html target=_blank rel=noopener><code>summarise()</code></a> back to its &ldquo;safe&rdquo; behavior of requiring 1 row per group.</p><p><a href=https://dplyr.tidyverse.org/reference/summarise.html target=_blank rel=noopener><code>summarise()</code></a> also wasn&rsquo;t the best name for a function with this feature, as the name itself implies one row per group. After
+<a href=https://github.com/tidyverse/dplyr/issues/6565 target=_blank rel=noopener>gathering some feedback</a>, we&rsquo;ve settled on a new verb with a more appropriate name,
+<a href=https://dplyr.tidyverse.org/reference/reframe.html target=_blank rel=noopener><code>reframe()</code></a>. We think of
+<a href=https://dplyr.tidyverse.org/reference/reframe.html target=_blank rel=noopener><code>reframe()</code></a> as a way to &ldquo;do something&rdquo; to each group, with no restrictions on the number of rows returned per group. The name has a nice connection to the tibble functions
+<a href=https://tibble.tidyverse.org/reference/enframe.html target=_blank rel=noopener><code>tibble::enframe()</code></a> and
+<a href=https://tibble.tidyverse.org/reference/enframe.html target=_blank rel=noopener><code>tibble::deframe()</code></a>, which are used for converting vectors to data frames and vice versa:</p><ul><li><p><code>enframe()</code>: Takes a vector, returns a data frame</p></li><li><p><code>deframe()</code>: Takes a data frame, returns a vector</p></li><li><p><a href=https://dplyr.tidyverse.org/reference/reframe.html target=_blank rel=noopener><code>reframe()</code></a>: Takes a data frame, returns a data frame</p></li></ul><p>One nice application of
+<a href=https://dplyr.tidyverse.org/reference/reframe.html target=_blank rel=noopener><code>reframe()</code></a> is computing quantiles at various probability thresholds. It&rsquo;s particularly nice if we wrap
+<a href=https://rdrr.io/r/stats/quantile.html target=_blank rel=noopener><code>quantile()</code></a> into a helper that returns a data frame, which
+<a href=https://dplyr.tidyverse.org/reference/reframe.html target=_blank rel=noopener><code>reframe()</code></a> then automatically unpacks.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>quantile_df</span> <span class=o>&lt;-</span> <span class=kr>function</span><span class=o>(</span><span class=nv>x</span>, <span class=nv>probs</span> <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>0.25</span>, <span class=m>0.5</span>, <span class=m>0.75</span><span class=o>)</span><span class=o>)</span> <span class=o>&#123;</span></span>
+<span>  <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span></span>
+<span>    value <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/stats/quantile.html>quantile</a></span><span class=o>(</span><span class=nv>x</span>, <span class=nv>probs</span>, na.rm <span class=o>=</span> <span class=kc>TRUE</span><span class=o>)</span>,</span>
+<span>    prob <span class=o>=</span> <span class=nv>probs</span></span>
+<span>  <span class=o>)</span></span>
+<span><span class=o>&#125;</span></span></code></pre></div><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>df</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/reframe.html>reframe</a></span><span class=o>(</span><span class=nf>quantile_df</span><span class=o>(</span><span class=nv>x</span><span class=o>)</span>, .by <span class=o>=</span> <span class=nv>g</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 6 × 3</span></span></span>
+<span><span class=c>#&gt;       g value  prob</span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     1   3.5  0.25</span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>     1   4    0.5 </span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>     1   5    0.75</span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span>     2   3.5  0.25</span></span>
+<span><span class=c>#&gt; <span style=color:#555>5</span>     2   5    0.5 </span></span>
+<span><span class=c>#&gt; <span style=color:#555>6</span>     2   6.5  0.75</span></span>
+<span></span></code></pre></div><p>This also works well if you want to apply it to multiple columns using
+<a href=https://dplyr.tidyverse.org/reference/across.html target=_blank rel=noopener><code>across()</code></a>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>df</span> <span class=o><a href=https://magrittr.tidyverse.org/reference/pipe.html>%&gt;%</a></span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/reframe.html>reframe</a></span><span class=o>(</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/across.html>across</a></span><span class=o>(</span><span class=nv>x</span><span class=o>:</span><span class=nv>y</span>, <span class=nv>quantile_df</span><span class=o>)</span>, .by <span class=o>=</span> <span class=nv>g</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 6 × 3</span></span></span>
+<span><span class=c>#&gt;       g x$value $prob y$value $prob</span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     1     3.5  0.25    1.5   0.25</span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>     1     4    0.5     2     0.5 </span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>     1     5    0.75    3.5   0.75</span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span>     2     3.5  0.25    8.25  0.25</span></span>
+<span><span class=c>#&gt; <span style=color:#555>5</span>     2     5    0.5     8.5   0.5 </span></span>
+<span><span class=c>#&gt; <span style=color:#555>6</span>     2     6.5  0.75    8.75  0.75</span></span>
+<span></span></code></pre></div><p>Because <code>quantile_df()</code> returns a tibble, we end up with
+<a href=https://tidyr.tidyverse.org/reference/pack.html target=_blank rel=noopener><em>packed</em></a> data frame columns. You&rsquo;ll often want to unpack these into their individual columns, and
+<a href=https://dplyr.tidyverse.org/reference/across.html target=_blank rel=noopener><code>across()</code></a> has gained a new <code>.unpack</code> argument in 1.1.0 that helps you do exactly that:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>df</span> <span class=o><a href=https://magrittr.tidyverse.org/reference/pipe.html>%&gt;%</a></span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/reframe.html>reframe</a></span><span class=o>(</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/across.html>across</a></span><span class=o>(</span><span class=nv>x</span><span class=o>:</span><span class=nv>y</span>, <span class=nv>quantile_df</span>, .unpack <span class=o>=</span> <span class=kc>TRUE</span><span class=o>)</span>, .by <span class=o>=</span> <span class=nv>g</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 6 × 5</span></span></span>
+<span><span class=c>#&gt;       g x_value x_prob y_value y_prob</span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>  <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>  <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     1     3.5   0.25    1.5    0.25</span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>     1     4     0.5     2      0.5 </span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>     1     5     0.75    3.5    0.75</span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span>     2     3.5   0.25    8.25   0.25</span></span>
+<span><span class=c>#&gt; <span style=color:#555>5</span>     2     5     0.5     8.5    0.5 </span></span>
+<span><span class=c>#&gt; <span style=color:#555>6</span>     2     6.5   0.75    8.75   0.75</span></span>
+<span></span></code></pre></div><p>We expect that seeing
+<a href=https://dplyr.tidyverse.org/reference/reframe.html target=_blank rel=noopener><code>reframe()</code></a> in a colleague&rsquo;s code will serve as an extremely clear signal that something &ldquo;special&rdquo; is happening, because they&rsquo;ve made a conscious decision to opt-into the 1% case of returning multiple rows per group.</p><h2 id=arrange><code>arrange()</code>
+<a href=#arrange><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>We also mentioned in the
+<a href=https://www.tidyverse.org/blog/2022/11/dplyr-1-1-0-is-coming-soon/ target=_blank rel=noopener>coming soon</a> post that
+<a href=https://dplyr.tidyverse.org/reference/arrange.html target=_blank rel=noopener><code>arrange()</code></a> has undergone two user-facing changes:</p><ul><li><p>When sorting character vectors, the C locale is now the default, rather than the system locale</p></li><li><p>A new <code>.locale</code> argument, powered by stringi, allows you to explicitly request an alternative locale using a stringi locale identifier (like <code>"en"</code> for English, or <code>"fr"</code> for French)</p></li></ul><p>These changes were made for two reasons:</p><ul><li><p>Much faster performance by default, due to usage of a custom radix sort algorithm inspired by
+<a href=https://cran.r-project.org/web/packages/data.table/index.html target=_blank rel=noopener>data.table</a>&lsquo;s <code>forder()</code></p></li><li><p>Improved reproducibility across R sessions, where different computers might use different system locales and different operating systems have different ways to specify the same system locale</p></li></ul><p>If you use
+<a href=https://dplyr.tidyverse.org/reference/arrange.html target=_blank rel=noopener><code>arrange()</code></a> for the purpose of grouping similar values together (and don&rsquo;t care much about the specific locale that it uses to do so), then you&rsquo;ll likely see performance improvements of up to 100x in dplyr 1.1.0. If you do care about the locale and supply <code>.locale</code>, you should still see improvements of up to 10x.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=c># 10,000 random strings, sampled up to 1,000,000 rows</span></span>
+<span><span class=nv>dictionary</span> <span class=o>&lt;-</span> <span class=nf>stringi</span><span class=nf>::</span><span class=nf><a href=https://rdrr.io/pkg/stringi/man/stri_rand_strings.html>stri_rand_strings</a></span><span class=o>(</span><span class=m>10000</span>, length <span class=o>=</span> <span class=m>10</span>, pattern <span class=o>=</span> <span class=s>"[a-z]"</span><span class=o>)</span></span>
+<span><span class=nv>str</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span>x <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/sample.html>sample</a></span><span class=o>(</span><span class=nv>dictionary</span>, size <span class=o>=</span> <span class=m>1e6</span>, replace <span class=o>=</span> <span class=kc>TRUE</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=nv>str</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 1,000,000 × 1</span></span></span>
+<span><span class=c>#&gt;    x         </span></span>
+<span><span class=c>#&gt;    <span style=color:#555;font-style:italic>&lt;chr&gt;</span>     </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 1</span> slpqkdtpyr</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 2</span> xtoucpndhc</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 3</span> vsvfoqcyqm</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 4</span> gnbpkwcmse</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 5</span> xutzdqxpsi</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 6</span> gkolsrndrz</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 7</span> mitqahkkou</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 8</span> eehfrrimhd</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 9</span> ymxxjczjsv</span></span>
+<span><span class=c>#&gt; <span style=color:#555>10</span> svpvizfxwe</span></span>
+<span><span class=c>#&gt; <span style=color:#555># … with 999,990 more rows</span></span></span>
+<span></span></code></pre></div><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=c># dplyr 1.0.10 (American English system locale)</span></span>
+<span><span class=nf>bench</span><span class=nf>::</span><span class=nf><a href=http://bench.r-lib.org/reference/mark.html>mark</a></span><span class=o>(</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/arrange.html>arrange</a></span><span class=o>(</span><span class=nv>str</span>, <span class=nv>x</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; # A tibble: 1 × 6</span></span>
+<span><span class=c>#&gt;   expression          min   median `itr/sec` mem_alloc `gc/sec`</span></span>
+<span><span class=c>#&gt;   &lt;bch:expr&gt;     &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span></span>
+<span><span class=c>#&gt; 1 arrange(str, x)   4.38s    4.89s     0.204    12.7MB    0.148</span></span>
+<span></span>
+<span><span class=c># dplyr 1.1.0 (C locale default, 100x faster)</span></span>
+<span><span class=nf>bench</span><span class=nf>::</span><span class=nf><a href=http://bench.r-lib.org/reference/mark.html>mark</a></span><span class=o>(</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/arrange.html>arrange</a></span><span class=o>(</span><span class=nv>str</span>, <span class=nv>x</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; # A tibble: 1 × 6</span></span>
+<span><span class=c>#&gt;   expression          min   median `itr/sec` mem_alloc `gc/sec`</span></span>
+<span><span class=c>#&gt;   &lt;bch:expr&gt;     &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span></span>
+<span><span class=c>#&gt; 1 arrange(str, x)  42.3ms   46.6ms      20.8    22.4MB     46.0</span></span>
+<span></span>
+<span><span class=c># dplyr 1.1.0 (American English `.locale`, 10x faster)</span></span>
+<span><span class=nf>bench</span><span class=nf>::</span><span class=nf><a href=http://bench.r-lib.org/reference/mark.html>mark</a></span><span class=o>(</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/arrange.html>arrange</a></span><span class=o>(</span><span class=nv>str</span>, <span class=nv>x</span>, .locale <span class=o>=</span> <span class=s>"en"</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; # A tibble: 1 × 6</span></span>
+<span><span class=c>#&gt;   expression                           min median `itr/sec` mem_alloc</span></span>
+<span><span class=c>#&gt;   &lt;bch:expr&gt;                      &lt;bch:tm&gt; &lt;bch:&gt;     &lt;dbl&gt; &lt;bch:byt&gt;</span></span>
+<span><span class=c>#&gt; 1 arrange(str, x, .locale = "en")    377ms  430ms      2.21    27.9MB</span></span>
+<span><span class=c>#&gt; # … with 1 more variable: `gc/sec` &lt;dbl&gt;</span></span></code></pre></div><p>We are hopeful that switching to a C locale default will have a relatively small amount of impact in exchange for much faster performance. To read more about the exact differences between the C locale and locales like American English or Spanish, see the
+<a href=https://www.tidyverse.org/blog/2022/11/dplyr-1-1-0-is-coming-soon/#arrange-improvements-with-character-vectors target=_blank rel=noopener>coming soon</a> post or our detailed
+<a href=https://github.com/tidyverse/tidyups/blob/main/003-dplyr-radix-ordering.md target=_blank rel=noopener>tidyup</a>. If you are having trouble converting an existing script over to the new behavior, you can set the temporary global option <code>options(dplyr.legacy_locale = TRUE)</code>, which will revert to the pre-1.1.0 behavior of using the system locale. We expect to remove this option in a future release.</p><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>A big thanks to the 88 contributors who helped make the 1.1.0 release possible by opening issues, contributing features and documentation, and asking questions!
+<a href=https://github.com/7708801314520dym target=_blank rel=noopener>@7708801314520dym</a>,
+<a href=https://github.com/abalter target=_blank rel=noopener>@abalter</a>,
+<a href=https://github.com/aghaynes target=_blank rel=noopener>@aghaynes</a>,
+<a href=https://github.com/AlbertRapp target=_blank rel=noopener>@AlbertRapp</a>,
+<a href=https://github.com/AlexGaithuma target=_blank rel=noopener>@AlexGaithuma</a>,
+<a href=https://github.com/algsat target=_blank rel=noopener>@algsat</a>,
+<a href=https://github.com/andrewbaxter439 target=_blank rel=noopener>@andrewbaxter439</a>,
+<a href=https://github.com/andrewpbray target=_blank rel=noopener>@andrewpbray</a>,
+<a href=https://github.com/asadow target=_blank rel=noopener>@asadow</a>,
+<a href=https://github.com/asmlgkj target=_blank rel=noopener>@asmlgkj</a>,
+<a href=https://github.com/barbosawf target=_blank rel=noopener>@barbosawf</a>,
+<a href=https://github.com/barnabasharris target=_blank rel=noopener>@barnabasharris</a>,
+<a href=https://github.com/bart1 target=_blank rel=noopener>@bart1</a>,
+<a href=https://github.com/bergsmat target=_blank rel=noopener>@bergsmat</a>,
+<a href=https://github.com/chrisbrownlie target=_blank rel=noopener>@chrisbrownlie</a>,
+<a href=https://github.com/cjyetman target=_blank rel=noopener>@cjyetman</a>,
+<a href=https://github.com/CNUlichao target=_blank rel=noopener>@CNUlichao</a>,
+<a href=https://github.com/daattali target=_blank rel=noopener>@daattali</a>,
+<a href=https://github.com/DanChaltiel target=_blank rel=noopener>@DanChaltiel</a>,
+<a href=https://github.com/davidchall target=_blank rel=noopener>@davidchall</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/ddsjoberg target=_blank rel=noopener>@ddsjoberg</a>,
+<a href=https://github.com/donboyd5 target=_blank rel=noopener>@donboyd5</a>,
+<a href=https://github.com/drmowinckels target=_blank rel=noopener>@drmowinckels</a>,
+<a href=https://github.com/dxtxs1 target=_blank rel=noopener>@dxtxs1</a>,
+<a href=https://github.com/eitsupi target=_blank rel=noopener>@eitsupi</a>,
+<a href=https://github.com/eogoodwin target=_blank rel=noopener>@eogoodwin</a>,
+<a href=https://github.com/erhoppe target=_blank rel=noopener>@erhoppe</a>,
+<a href=https://github.com/eutwt target=_blank rel=noopener>@eutwt</a>,
+<a href=https://github.com/ggrothendieck target=_blank rel=noopener>@ggrothendieck</a>,
+<a href=https://github.com/grayskripko target=_blank rel=noopener>@grayskripko</a>,
+<a href=https://github.com/H-Mateus target=_blank rel=noopener>@H-Mateus</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/haozhou1988 target=_blank rel=noopener>@haozhou1988</a>,
+<a href=https://github.com/hassanjfry target=_blank rel=noopener>@hassanjfry</a>,
+<a href=https://github.com/Hesham999666 target=_blank rel=noopener>@Hesham999666</a>,
+<a href=https://github.com/hideaki target=_blank rel=noopener>@hideaki</a>,
+<a href=https://github.com/jeffreypullin target=_blank rel=noopener>@jeffreypullin</a>,
+<a href=https://github.com/jic007 target=_blank rel=noopener>@jic007</a>,
+<a href=https://github.com/jmbarbone target=_blank rel=noopener>@jmbarbone</a>,
+<a href=https://github.com/jonspring target=_blank rel=noopener>@jonspring</a>,
+<a href=https://github.com/jonthegeek target=_blank rel=noopener>@jonthegeek</a>,
+<a href=https://github.com/jpeacock29 target=_blank rel=noopener>@jpeacock29</a>,
+<a href=https://github.com/kendonB target=_blank rel=noopener>@kendonB</a>,
+<a href=https://github.com/kenkoonwong target=_blank rel=noopener>@kenkoonwong</a>,
+<a href=https://github.com/kevinushey target=_blank rel=noopener>@kevinushey</a>,
+<a href=https://github.com/krlmlr target=_blank rel=noopener>@krlmlr</a>,
+<a href=https://github.com/larry77 target=_blank rel=noopener>@larry77</a>,
+<a href=https://github.com/latot target=_blank rel=noopener>@latot</a>,
+<a href=https://github.com/lionel- target=_blank rel=noopener>@lionel-</a>,
+<a href=https://github.com/llayman12 target=_blank rel=noopener>@llayman12</a>,
+<a href=https://github.com/LukasWallrich target=_blank rel=noopener>@LukasWallrich</a>,
+<a href=https://github.com/m-sostero target=_blank rel=noopener>@m-sostero</a>,
+<a href=https://github.com/machow target=_blank rel=noopener>@machow</a>,
+<a href=https://github.com/mc-unimi target=_blank rel=noopener>@mc-unimi</a>,
+<a href=https://github.com/mgacc0 target=_blank rel=noopener>@mgacc0</a>,
+<a href=https://github.com/mgirlich target=_blank rel=noopener>@mgirlich</a>,
+<a href=https://github.com/MichelleSMA target=_blank rel=noopener>@MichelleSMA</a>,
+<a href=https://github.com/mine-cetinkaya-rundel target=_blank rel=noopener>@mine-cetinkaya-rundel</a>,
+<a href=https://github.com/moodymudskipper target=_blank rel=noopener>@moodymudskipper</a>,
+<a href=https://github.com/moriarais target=_blank rel=noopener>@moriarais</a>,
+<a href=https://github.com/NicChr target=_blank rel=noopener>@NicChr</a>,
+<a href=https://github.com/nstjhp target=_blank rel=noopener>@nstjhp</a>,
+<a href=https://github.com/omarwh target=_blank rel=noopener>@omarwh</a>,
+<a href=https://github.com/orgadish target=_blank rel=noopener>@orgadish</a>,
+<a href=https://github.com/rempsyc target=_blank rel=noopener>@rempsyc</a>,
+<a href=https://github.com/rorynolan target=_blank rel=noopener>@rorynolan</a>,
+<a href=https://github.com/ryanvoyack target=_blank rel=noopener>@ryanvoyack</a>,
+<a href=https://github.com/selkamand target=_blank rel=noopener>@selkamand</a>,
+<a href=https://github.com/seth-cp target=_blank rel=noopener>@seth-cp</a>,
+<a href=https://github.com/shalom-lab target=_blank rel=noopener>@shalom-lab</a>,
+<a href=https://github.com/shannonpileggi target=_blank rel=noopener>@shannonpileggi</a>,
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>,
+<a href=https://github.com/sjackson1997 target=_blank rel=noopener>@sjackson1997</a>,
+<a href=https://github.com/spono target=_blank rel=noopener>@spono</a>,
+<a href=https://github.com/stibu81 target=_blank rel=noopener>@stibu81</a>,
+<a href=https://github.com/tfehring target=_blank rel=noopener>@tfehring</a>,
+<a href=https://github.com/Theresaliu target=_blank rel=noopener>@Theresaliu</a>,
+<a href=https://github.com/TimBMK target=_blank rel=noopener>@TimBMK</a>,
+<a href=https://github.com/TimTeaFan target=_blank rel=noopener>@TimTeaFan</a>,
+<a href=https://github.com/Torvaney target=_blank rel=noopener>@Torvaney</a>,
+<a href=https://github.com/turbanisch target=_blank rel=noopener>@turbanisch</a>,
+<a href=https://github.com/weiyangtham target=_blank rel=noopener>@weiyangtham</a>,
+<a href=https://github.com/wurli target=_blank rel=noopener>@wurli</a>,
+<a href=https://github.com/xet869 target=_blank rel=noopener>@xet869</a>,
+<a href=https://github.com/yuliaUU target=_blank rel=noopener>@yuliaUU</a>,
+<a href=https://github.com/yutannihilation target=_blank rel=noopener>@yutannihilation</a>, and
+<a href=https://github.com/zeehio target=_blank rel=noopener>@zeehio</a>.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#pick><code>pick()</code></a></li><li><a href=#reframe><code>reframe()</code></a></li><li><a href=#arrange><code>arrange()</code></a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>fs | Tidyverse</title><link>https://www.tidyverse.org/tags/fs/</link><atom:link href="https://www.tidyverse.org/tags/fs/index.xml" rel="self" type="application/rss+xml"/><description>fs</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 26 May 2023 00:00:00 +0000</lastBuildDate><item><title>`purrr::walk()` this way</title><link>https://www.tidyverse.org/blog/2023/05/purrr-walk-this-way/</link><pubDate>Fri, 26 May 2023 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2023/05/purrr-walk-this-way/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;h2 id="meet-the-map-family">Meet the &lt;code>map()&lt;/code> family
+&lt;a href="#meet-the-map-family">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>purrr&amp;rsquo;s
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>map()&lt;/code>&lt;/a> family of functions are tools for &lt;strong>iteration&lt;/strong>, performing the same action on multiple inputs. If you&amp;rsquo;re new to purrr, the
+&lt;a href="https://r4ds.had.co.nz/iteration.html#iteration" target="_blank" rel="noopener">Iteration chapter&lt;/a> of R for Data Science is a good place to get started.&lt;/p>
+&lt;p>One of the benefits of using
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>map()&lt;/code>&lt;/a> is that the function has variants (e.g. 
+&lt;a href="https://purrr.tidyverse.org/reference/map2.html" target="_blank" rel="noopener">&lt;code>map2()&lt;/code>&lt;/a>,
+&lt;a href="https://purrr.tidyverse.org/reference/pmap.html" target="_blank" rel="noopener">&lt;code>pmap()&lt;/code>&lt;/a>, etc.) all of which work the same way. To borrow from Jennifer Thompson&amp;rsquo;s excellent
+&lt;a href="https://github.com/jenniferthompson/RLadiesIntroToPurrr" target="_blank" rel="noopener">Intro to purrr&lt;/a>,the arguments can be broken into two groups: what we&amp;rsquo;re iterating over, and what we&amp;rsquo;re doing each time. The adapted figure below shows what this looks like for
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>map()&lt;/code>&lt;/a>,
+&lt;a href="https://purrr.tidyverse.org/reference/map2.html" target="_blank" rel="noopener">&lt;code>map2()&lt;/code>&lt;/a>, and
+&lt;a href="https://purrr.tidyverse.org/reference/pmap.html" target="_blank" rel="noopener">&lt;code>pmap()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;div class="figure" style="text-align: center">
+&lt;p>&lt;img src="purrr-map-args.png" alt="Highlighted titles read: what we're iterating over, and what we're doing each time. For map(.x = , .f = ) .x is what we're iterating over and .f is what we're doing each time. For map2(.x = , .y = , .f = ) .x and .y are what we're iterating over and .f is what we're doing each time. For pmap(.l = list(), .f = ) .l is what we're iterating over and .f is what we're doing each time." width="700px" />&lt;/p>
+&lt;p class="caption">
+Grouped map function arguments, adapted from Intro to purrr by Jennifer Thompson
+&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;p>In addition to handling different input arguments, the map family of functions has variants that create different outputs. The following table from the
+&lt;a href="https://adv-r.hadley.nz/functionals.html#map-variants" target="_blank" rel="noopener">Map-variants section of Advanced R&lt;/a> shows how the orthogonal inputs and outputs can be used to organise the variants into a matrix:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>&lt;/th>
+&lt;th>List&lt;/th>
+&lt;th>Atomic&lt;/th>
+&lt;th>Same type&lt;/th>
+&lt;th>Nothing&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>One argument&lt;/td>
+&lt;td>
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>map()&lt;/code>&lt;/a>&lt;/td>
+&lt;td>
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>map_lgl()&lt;/code>&lt;/a>, &amp;hellip;&lt;/td>
+&lt;td>
+&lt;a href="https://purrr.tidyverse.org/reference/modify.html" target="_blank" rel="noopener">&lt;code>modify()&lt;/code>&lt;/a>&lt;/td>
+&lt;td>
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>walk()&lt;/code>&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Two arguments&lt;/td>
+&lt;td>
+&lt;a href="https://purrr.tidyverse.org/reference/map2.html" target="_blank" rel="noopener">&lt;code>map2()&lt;/code>&lt;/a>&lt;/td>
+&lt;td>
+&lt;a href="https://purrr.tidyverse.org/reference/map2.html" target="_blank" rel="noopener">&lt;code>map2_lgl()&lt;/code>&lt;/a>, &amp;hellip;&lt;/td>
+&lt;td>
+&lt;a href="https://purrr.tidyverse.org/reference/modify.html" target="_blank" rel="noopener">&lt;code>modify2()&lt;/code>&lt;/a>&lt;/td>
+&lt;td>
+&lt;a href="https://purrr.tidyverse.org/reference/map2.html" target="_blank" rel="noopener">&lt;code>walk2()&lt;/code>&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>One argument + index&lt;/td>
+&lt;td>
+&lt;a href="https://purrr.tidyverse.org/reference/imap.html" target="_blank" rel="noopener">&lt;code>imap()&lt;/code>&lt;/a>&lt;/td>
+&lt;td>
+&lt;a href="https://purrr.tidyverse.org/reference/imap.html" target="_blank" rel="noopener">&lt;code>imap_lgl()&lt;/code>&lt;/a>, &amp;hellip;&lt;/td>
+&lt;td>
+&lt;a href="https://purrr.tidyverse.org/reference/modify.html" target="_blank" rel="noopener">&lt;code>imodify()&lt;/code>&lt;/a>&lt;/td>
+&lt;td>
+&lt;a href="https://purrr.tidyverse.org/reference/imap.html" target="_blank" rel="noopener">&lt;code>iwalk()&lt;/code>&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>N arguments&lt;/td>
+&lt;td>
+&lt;a href="https://purrr.tidyverse.org/reference/pmap.html" target="_blank" rel="noopener">&lt;code>pmap()&lt;/code>&lt;/a>&lt;/td>
+&lt;td>
+&lt;a href="https://purrr.tidyverse.org/reference/pmap.html" target="_blank" rel="noopener">&lt;code>pmap_lgl()&lt;/code>&lt;/a>, &amp;hellip;&lt;/td>
+&lt;td>&amp;mdash;&lt;/td>
+&lt;td>
+&lt;a href="https://purrr.tidyverse.org/reference/pmap.html" target="_blank" rel="noopener">&lt;code>pwalk()&lt;/code>&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h2 id="whats-up-with-walk">What&amp;rsquo;s up with &lt;code>walk()&lt;/code>?
+&lt;a href="#whats-up-with-walk">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Based on the table above, you might think that
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>walk()&lt;/code>&lt;/a> isn&amp;rsquo;t very useful. Indeed,
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>walk()&lt;/code>&lt;/a>,
+&lt;a href="https://purrr.tidyverse.org/reference/map2.html" target="_blank" rel="noopener">&lt;code>walk2()&lt;/code>&lt;/a>, and
+&lt;a href="https://purrr.tidyverse.org/reference/pmap.html" target="_blank" rel="noopener">&lt;code>pwalk()&lt;/code>&lt;/a> all invisibly return &lt;code>.x&lt;/code>. However, they come in handy when you want to call a function for its &lt;em>&lt;strong>side effects&lt;/strong>&lt;/em> rather than its return value.&lt;/p>
+&lt;p>Here, we&amp;rsquo;ll go through two common use cases: saving multiple CSVs, and multiple plots. We&amp;rsquo;ll also make use of the
+&lt;a href="https://fs.r-lib.org/" target="_blank" rel="noopener">fs&lt;/a> package, a cross-platform interface to file system operations, to inspect our outputs.&lt;/p>
+&lt;p>If you want to try this out but don&amp;rsquo;t want to save files locally, there&amp;rsquo;s a
+&lt;a href="https://posit.cloud/content/5983147" target="_blank" rel="noopener">companion project on &lt;strong>Posit Cloud&lt;/strong>&lt;/a> where you can follow along.&lt;/p>
+&lt;div class="highlight">
+&lt;a class="test-drive-link" href="https://posit.cloud/content/5983147" target="_blank">
+&lt;button class="test-drive-btn">&lt;i class="fa fa-cloud" aria-hidden="true">&lt;/i> Test Drive on Posit Cloud&lt;/button>
+&lt;/a>
+&lt;/div>
+&lt;h2 id="writing-and-deleting-multiple-csvs">Writing (and deleting) multiple CSVs
+&lt;a href="#writing-and-deleting-multiple-csvs">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>To get started, we&amp;rsquo;ll need some data. Let&amp;rsquo;s use the
+&lt;a href="https://googlesheets4.tidyverse.org/reference/gs4_examples.html" target="_blank" rel="noopener">gapminder&lt;/a> example Sheet built into
+&lt;a href="https://googlesheets4.tidyverse.org/" target="_blank" rel="noopener">googlesheets4&lt;/a>. Because there are multiple worksheets (one for each continent), we&amp;rsquo;ll use
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>map()&lt;/code>&lt;/a> to apply
+&lt;a href="https://googlesheets4.tidyverse.org/reference/range_read.html" target="_blank" rel="noopener">&lt;code>read_sheet()&lt;/code>&lt;/a>&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> to each one, and get back a list of data frames.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://tidyverse.tidyverse.org'>tidyverse&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googlesheets4.tidyverse.org'>googlesheets4&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div class="highlight">
+&lt;/div>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>ss&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/gs4_examples.html'>gs4_example&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"gapminder"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='c'># get sheet id&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>sheets&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/sheet_properties.html'>sheet_names&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>ss&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='c'># get the names of individual sheets&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>gap_dfs&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://purrr.tidyverse.org/reference/map.html'>map&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>sheets&lt;/span>, .f &lt;span class='o'>=&lt;/span> \&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/range_read.html'>read_sheet&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>ss&lt;/span>, sheet &lt;span class='o'>=&lt;/span> &lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> Reading from &lt;span style='color: #00BBBB;'>gapminder&lt;/span>.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> Range '&lt;span style='color: #BBBB00;'>'Africa'&lt;/span>'.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> Reading from &lt;span style='color: #00BBBB;'>gapminder&lt;/span>.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> Range '&lt;span style='color: #BBBB00;'>'Americas'&lt;/span>'.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> Reading from &lt;span style='color: #00BBBB;'>gapminder&lt;/span>.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> Range '&lt;span style='color: #BBBB00;'>'Asia'&lt;/span>'.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> Reading from &lt;span style='color: #00BBBB;'>gapminder&lt;/span>.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> Range '&lt;span style='color: #BBBB00;'>'Europe'&lt;/span>'.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> Reading from &lt;span style='color: #00BBBB;'>gapminder&lt;/span>.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> Range '&lt;span style='color: #BBBB00;'>'Oceania'&lt;/span>'.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Note that the backslash syntax for anonymous functions (e.g. &lt;code>\(x) x + 1&lt;/code>) was introduced in base R version 4.1.0 as a shorthand for &lt;code>function(x) x + 1&lt;/code>. If you&amp;rsquo;re using an earlier version of R, you can use purrr&amp;rsquo;s shorthand: a formula (e.g. &lt;code>~ .x + 1&lt;/code>).&lt;/p>
+&lt;p>Typically, you&amp;rsquo;d want to combine these data frames into one to make it easier to work with your data. To do so, we&amp;rsquo;ll use
+&lt;a href="https://purrr.tidyverse.org/reference/list_c.html" target="_blank" rel="noopener">&lt;code>list_rbind()&lt;/code>&lt;/a> on &lt;code>gap_dfs&lt;/code>. I&amp;rsquo;ve kept the intermediary object, since we&amp;rsquo;ll use it in a moment with
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>walk()&lt;/code>&lt;/a>, but could have just as easily piped the output directly. The combination of
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>purrr::map()&lt;/code>&lt;/a> and
+&lt;a href="https://purrr.tidyverse.org/reference/list_c.html" target="_blank" rel="noopener">&lt;code>list_rbind()&lt;/code>&lt;/a> is a handy one that you can learn more about in the
+&lt;a href="https://r4ds.hadley.nz/iteration.html?#purrrmap-and-list_rbind" target="_blank" rel="noopener">R for Data Science&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>gap_combined&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>gap_dfs&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://purrr.tidyverse.org/reference/list_c.html'>list_rbind&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Now let&amp;rsquo;s say that, for whatever reason, you&amp;rsquo;d like to save the data from these sheets as individual CSVs. This is where
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>walk()&lt;/code>&lt;/a> comes into play&amp;mdash;writing out the file with
+&lt;a href="https://readr.tidyverse.org/reference/write_delim.html" target="_blank" rel="noopener">&lt;code>write_csv()&lt;/code>&lt;/a> is a &amp;ldquo;side effect.&amp;rdquo; We&amp;rsquo;ll use
+&lt;a href="https://fs.r-lib.org/reference/create.html" target="_blank" rel="noopener">&lt;code>fs::dir_create()&lt;/code>&lt;/a> to create a data folder to put our files into&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>, and build a vector of paths/file names. Since we have two arguments, the list of data frames, and the paths, we&amp;rsquo;ll use
+&lt;a href="https://purrr.tidyverse.org/reference/map2.html" target="_blank" rel="noopener">&lt;code>walk2()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>fs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://fs.r-lib.org/reference/create.html'>dir_create&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"data"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>paths&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://stringr.tidyverse.org/reference/str_glue.html'>str_glue&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"data/gapminder_&amp;#123;tolower(sheets)&amp;#125;.csv"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://purrr.tidyverse.org/reference/map2.html'>walk2&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>gap_dfs&lt;/span>, &lt;/span>
+&lt;span> &lt;span class='nv'>paths&lt;/span>,&lt;/span>
+&lt;span> \&lt;span class='o'>(&lt;/span>&lt;span class='nv'>df&lt;/span>, &lt;span class='nv'>name&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nf'>&lt;a href='https://readr.tidyverse.org/reference/write_delim.html'>write_csv&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>df&lt;/span>, &lt;span class='nv'>name&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>To see what we&amp;rsquo;ve done, we can use
+&lt;a href="https://fs.r-lib.org/reference/dir_tree.html" target="_blank" rel="noopener">&lt;code>fs::dir_tree()&lt;/code>&lt;/a> to see the contents of the directory as a tree, or
+&lt;a href="https://fs.r-lib.org/reference/dir_ls.html" target="_blank" rel="noopener">&lt;code>fs::dir_ls()&lt;/code>&lt;/a> to return the paths as a vector. These functions also take &lt;code>glob&lt;/code> and &lt;code>regexp&lt;/code> arguments, allowing you to filter paths by file type with globbing patterns (e.g. &lt;code>*.csv&lt;/code>) or using a regular expression passed on to
+&lt;a href="https://rdrr.io/r/base/grep.html" target="_blank" rel="noopener">&lt;code>grep()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>fs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://fs.r-lib.org/reference/dir_tree.html'>dir_tree&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"data"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #0000BB; font-weight: bold;'>data&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ├── gapminder_africa.csv&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ├── gapminder_americas.csv&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ├── gapminder_asia.csv&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ├── gapminder_europe.csv&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; └── gapminder_oceania.csv&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nf'>fs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://fs.r-lib.org/reference/dir_ls.html'>dir_ls&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"data"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; data/gapminder_africa.csv data/gapminder_americas.csv &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; data/gapminder_asia.csv data/gapminder_europe.csv &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; data/gapminder_oceania.csv&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>If you&amp;rsquo;re having regrets, or want to return your example project to its previous state, it&amp;rsquo;s just as easy to
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>walk()&lt;/code>&lt;/a>
+&lt;a href="https://fs.r-lib.org/reference/delete.html" target="_blank" rel="noopener">&lt;code>fs::file_delete()&lt;/code>&lt;/a> along those same paths.&lt;sup id="fnref:3">&lt;a href="#fn:3" class="footnote-ref" role="doc-noteref">3&lt;/a>&lt;/sup>&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://purrr.tidyverse.org/reference/map.html'>walk&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>paths&lt;/span>, \&lt;span class='o'>(&lt;/span>&lt;span class='nv'>paths&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nf'>fs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://fs.r-lib.org/reference/delete.html'>file_delete&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>paths&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="saving-multiple-plots">Saving multiple plots
+&lt;a href="#saving-multiple-plots">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Now, let&amp;rsquo;s say you want to create and save a bunch of plots. We&amp;rsquo;ll use a modified version of the
+&lt;a href="https://r4ds.hadley.nz/functions.html#combining-with-other-tidyverse" target="_blank" rel="noopener">&lt;code>conditional_bars()&lt;/code>&lt;/a>&lt;sup id="fnref:4">&lt;a href="#fn:4" class="footnote-ref" role="doc-noteref">4&lt;/a>&lt;/sup> function from the R for Data Science chapter on writing
+&lt;a href="https://r4ds.hadley.nz/functions.html" target="_blank" rel="noopener">functions&lt;/a>, and the built-in
+&lt;a href="https://ggplot2.tidyverse.org/reference/diamonds.html" target="_blank" rel="noopener">diamonds&lt;/a> dataset.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># modified conditional bars function from R4DS&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>conditional_bars&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>df&lt;/span>, &lt;span class='nv'>condition&lt;/span>, &lt;span class='nv'>var&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>df&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/filter.html'>filter&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>&amp;#123;&lt;/span>&lt;span class='o'>&amp;#123;&lt;/span> &lt;span class='nv'>condition&lt;/span> &lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;span class='o'>&amp;#123;&lt;/span> &lt;span class='nv'>var&lt;/span> &lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>rlang&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://rlang.r-lib.org/reference/englue.html'>englue&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Count of diamonds by &amp;#123;&amp;#123;var&amp;#125;&amp;#125; where &amp;#123;&amp;#123;condition&amp;#125;&amp;#125;"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>It&amp;rsquo;s easy enough to run this for one condition, for example for the diamonds with &lt;code>cut == &amp;quot;Good&amp;quot;&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>diamonds&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>conditional_bars&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>cut&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='s'>"Good"&lt;/span>, &lt;span class='nv'>clarity&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/goodclarity-1.png" alt="Bar chart showing count of diamonds by clarity in the diamonds dataset where the cut == Good." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>But what if we want to make and save a plot for each cut? Again, it&amp;rsquo;s
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>map()&lt;/code>&lt;/a> and
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>walk()&lt;/code>&lt;/a> to the rescue.&lt;/p>
+&lt;p>Because we&amp;rsquo;re using the same data (&lt;code>diamonds&lt;/code>) and conditioning on the same variable (&lt;code>cut&lt;/code>), we&amp;rsquo;ll only need to
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>map()&lt;/code>&lt;/a> across the levels of &lt;code>cut&lt;/code>, and can hard code the rest into the anonymous function.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># get the levels&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>cuts&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/levels.html'>levels&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>diamonds&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>cut&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># make the plots&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>plots&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://purrr.tidyverse.org/reference/map.html'>map&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>cuts&lt;/span>,&lt;/span>
+&lt;span> \&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nf'>conditional_bars&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> df &lt;span class='o'>=&lt;/span> &lt;span class='nv'>diamonds&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>cut&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;span class='o'>&amp;#123;&lt;/span> &lt;span class='nv'>x&lt;/span> &lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>&amp;#125;&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>clarity&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The plots are now saved in a list&amp;mdash;a fine format for storing ggplots. As we did when saving our CSVs, we&amp;rsquo;ll use fs to create a directory to store them in, and make a vector of paths for file names.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># make the folder to put them it (if exists, &amp;#123;fs&amp;#125; does nothing)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>fs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://fs.r-lib.org/reference/create.html'>dir_create&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"plots"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'># make the file names&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>plot_paths&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://stringr.tidyverse.org/reference/str_glue.html'>str_glue&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"plots/&amp;#123;tolower(cuts)&amp;#125;_clarity.png"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Now we can use the paths and plots with
+&lt;a href="https://purrr.tidyverse.org/reference/map2.html" target="_blank" rel="noopener">&lt;code>walk2()&lt;/code>&lt;/a> to pass them as arguments to
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://purrr.tidyverse.org/reference/map2.html'>walk2&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>plot_paths&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>plots&lt;/span>,&lt;/span>
+&lt;span> \&lt;span class='o'>(&lt;/span>&lt;span class='nv'>path&lt;/span>, &lt;span class='nv'>plot&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggsave.html'>ggsave&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>path&lt;/span>, &lt;span class='nv'>plot&lt;/span>, width &lt;span class='o'>=&lt;/span> &lt;span class='m'>6&lt;/span>, height &lt;span class='o'>=&lt;/span> &lt;span class='m'>6&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Again, we can use fs to see what we&amp;rsquo;ve done:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>fs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://fs.r-lib.org/reference/dir_tree.html'>dir_tree&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"plots"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #0000BB; font-weight: bold;'>plots&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ├── &lt;span style='color: #BB00BB; font-weight: bold;'>fair_clarity.png&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ├── &lt;span style='color: #BB00BB; font-weight: bold;'>good_clarity.png&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ├── &lt;span style='color: #BB00BB; font-weight: bold;'>ideal_clarity.png&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ├── &lt;span style='color: #BB00BB; font-weight: bold;'>premium_clarity.png&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; └── &lt;span style='color: #BB00BB; font-weight: bold;'>very good_clarity.png&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>And, clean up after ourselves if we didn&amp;rsquo;t &lt;em>really&lt;/em> want those plots after all.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://purrr.tidyverse.org/reference/map.html'>walk&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>plot_paths&lt;/span>, \&lt;span class='o'>(&lt;/span>&lt;span class='nv'>paths&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nf'>fs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://fs.r-lib.org/reference/delete.html'>file_delete&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>paths&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="fin">Fin
+&lt;a href="#fin">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Hopefully this gave you a taste for some of what
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>walk()&lt;/code>&lt;/a> can do. To learn more, see
+&lt;a href="https://r4ds.hadley.nz/iteration.html#saving-multiple-outputs" target="_blank" rel="noopener">Saving multiple outputs&lt;/a> in the Iteration chapter of R for Data Science.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>See
+&lt;a href="https://googlesheets4.tidyverse.org/articles/googlesheets4.html" target="_blank" rel="noopener">Getting started with googlesheets4&lt;/a> to learn more about the basics of reading and writing sheets. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>If the directory already exists, it will be left unchanged. &lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:3" role="doc-endnote">
+&lt;p>There&amp;rsquo;s also a function in fs called
+&lt;a href="https://fs.r-lib.org/reference/dir_ls.html" target="_blank" rel="noopener">&lt;code>dir_walk()&lt;/code>&lt;/a>, which you can feel free to explore on your own. &lt;a href="#fnref:3" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:4" role="doc-endnote">
+&lt;p>I&amp;rsquo;ve added a title that reflects the variable name and condition with
+&lt;a href="https://rlang.r-lib.org/reference/englue.html" target="_blank" rel="noopener">&lt;code>rlang::englue()&lt;/code>&lt;/a>, which you can learn more about in the
+&lt;a href="https://r4ds.hadley.nz/functions.html#labeling" target="_blank" rel="noopener">Labeling&lt;/a> section of the same R4DS chapter. &lt;a href="#fnref:4" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>fs 1.0.0</title><link>https://www.tidyverse.org/blog/2018/01/fs-1.0.0/</link><pubDate>Mon, 22 Jan 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/01/fs-1.0.0/</guid><description>
+&lt;p>&lt;a href="http://fs.r-lib.org">fs 1.0.0&lt;/a> is now available on CRAN! &lt;a href="http://fs.r-lib.org">fs&lt;/a> provides a cross-platform, uniform interface to file system operations. &lt;a href="http://fs.r-lib.org">fs&lt;/a> uses &lt;a href="http://docs.libuv.org/en/v1.x/fs.html">libuv&lt;/a> under the hood, which gives a rock solid cross-platform interface to the filesystem.&lt;/p>
+&lt;p>Install the latest version with:&lt;/p>
+&lt;pre class="r">&lt;code>install.packages(&amp;quot;fs&amp;quot;)&lt;/code>&lt;/pre>
+&lt;section id="comparison-vs-base-equivalents" class="level3">
+&lt;h3>Comparison vs base equivalents&lt;/h3>
+&lt;p>&lt;strong>fs&lt;/strong> functions smooth over some of the idiosyncrasies of file handling with base R functions:&lt;/p>
+&lt;ul>
+&lt;li>&lt;p>Vectorization. All &lt;strong>fs&lt;/strong> functions are vectorized, accepting multiple paths as input. Base functions are inconsistently vectorized.&lt;/p>&lt;/li>
+&lt;li>&lt;p>Predictable return values that always convey a path. All &lt;strong>fs&lt;/strong> functions return a character vector of paths, a named integer or a logical vector, where the names give the paths. Base return values are more varied: they are often logical or contain error codes which require downstream processing.&lt;/p>&lt;/li>
+&lt;li>&lt;p>Explicit failure. If &lt;strong>fs&lt;/strong> operations fail, they throw an error. Base functions tend to generate a warning and a system dependent error code. This makes it easy to miss a failure.&lt;/p>&lt;/li>
+&lt;li>&lt;p>UTF-8 all the things! &lt;strong>fs&lt;/strong> functions always convert input paths to UTF-8 and return results as UTF-8. This gives you path encoding consistency across OSes. Base functions rely on the native system encoding.&lt;/p>&lt;/li>
+&lt;li>&lt;p>Naming convention. &lt;strong>fs&lt;/strong> functions use a consistent naming convention. Because base R’s functions were gradually added over time there are a number of different conventions used (e.g. &lt;code>path.expand()&lt;/code> vs &lt;code>normalizePath()&lt;/code>; &lt;code>Sys.chmod()&lt;/code> vs &lt;code>file.access()&lt;/code>).&lt;/p>&lt;/li>
+&lt;/ul>
+&lt;/section>
+&lt;section id="tidy-paths" class="level3">
+&lt;h3>Tidy paths&lt;/h3>
+&lt;p>&lt;strong>fs&lt;/strong> functions always return ‘tidy’ paths. Tidy paths&lt;/p>
+&lt;ul>
+&lt;li>always expand &lt;code>~&lt;/code>&lt;/li>
+&lt;li>use &lt;code>/&lt;/code> to delimit directories&lt;/li>
+&lt;li>never have multiple &lt;code>/&lt;/code> or trailing &lt;code>/&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>Tidy paths are also coloured (if your terminal supports it) based on the file permissions and file type. This colouring can be customised or extended by setting the &lt;code>LS_COLORS&lt;/code> environment variable, in the same output format as &lt;a href="http://www.bigsoft.co.uk/blog/index.php/2008/04/11/configuring-ls_colors">GNU dircolors&lt;/a>.&lt;/p>
+&lt;p>&lt;img src="https://www.tidyverse.org/images/fs-1.0.0/colour.png" />&lt;/p>
+&lt;/section>
+&lt;section id="usage" class="level3">
+&lt;h3>Usage&lt;/h3>
+&lt;p>&lt;strong>fs&lt;/strong> functions are divided into four main categories:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>path_&lt;/code> for manipulating paths&lt;/li>
+&lt;li>&lt;code>file_&lt;/code> for files&lt;/li>
+&lt;li>&lt;code>dir_&lt;/code> for directories&lt;/li>
+&lt;li>&lt;code>link_&lt;/code> for links&lt;/li>
+&lt;/ul>
+&lt;p>Directories and links are special types of files, so &lt;code>file_&lt;/code> functions will generally also work when applied to a directory or link.&lt;/p>
+&lt;pre class="r">&lt;code>library(fs)
+# list files in the current directory
+dir_ls()
+#&amp;gt; COPYRIGHTS DESCRIPTION INDEX Meta NAMESPACE NEWS.md
+#&amp;gt; R help html libs tests
+# create a new directory
+tmp &amp;lt;- dir_create(file_temp())
+tmp
+#&amp;gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpmTqzrq/filed45419bda5e2
+# create new files in that directory
+file_create(path(tmp, &amp;quot;my-file.txt&amp;quot;))
+dir_ls(tmp)
+#&amp;gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpmTqzrq/filed45419bda5e2/my-file.txt
+# remove files from the directory
+file_delete(path(tmp, &amp;quot;my-file.txt&amp;quot;))
+dir_ls(tmp)
+#&amp;gt; character(0)
+# remove the directory
+dir_delete(tmp)&lt;/code>&lt;/pre>
+&lt;p>&lt;strong>fs&lt;/strong> is designed to work well with the pipe, though because it is a minimal-dependency infrastructure package it doesn’t provide the pipe itself. You will need to attach &lt;a href="http://magrittr.tidyverse.org">magrittr&lt;/a> or similar.&lt;/p>
+&lt;pre class="r">&lt;code>library(magrittr)
+paths &amp;lt;- file_temp() %&amp;gt;%
+dir_create() %&amp;gt;%
+path(letters[1:5]) %&amp;gt;%
+file_create()
+paths
+#&amp;gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpmTqzrq/filed45416d276a/a
+#&amp;gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpmTqzrq/filed45416d276a/b
+#&amp;gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpmTqzrq/filed45416d276a/c
+#&amp;gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpmTqzrq/filed45416d276a/d
+#&amp;gt; /var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T/RtmpmTqzrq/filed45416d276a/e
+paths %&amp;gt;% file_delete()&lt;/code>&lt;/pre>
+&lt;p>&lt;strong>fs&lt;/strong> functions also work well in conjunction with other &lt;a href="https://www.tidyverse.org/">tidyverse&lt;/a> packages, like &lt;a href="http://dplyr.tidyverse.org">dplyr&lt;/a> and &lt;a href="http://purrr.tidyverse.org">purrr&lt;/a>.&lt;/p>
+&lt;p>Some examples…&lt;/p>
+&lt;pre class="r">&lt;code>suppressMessages(
+library(tidyverse))&lt;/code>&lt;/pre>
+&lt;p>Filter files by type, permission, size and 15 other attributes.&lt;/p>
+&lt;pre class="r">&lt;code>dir_info(recursive = TRUE) %&amp;gt;%
+filter(type == &amp;quot;file&amp;quot;, permissions == &amp;quot;u+r&amp;quot;, size &amp;gt; &amp;quot;10KB&amp;quot;) %&amp;gt;%
+arrange(desc(size)) %&amp;gt;%
+select(path, permissions, size, modification_time)
+#&amp;gt; # A tibble: 5 x 4
+#&amp;gt; path permissions size modification_time
+#&amp;gt; &amp;lt;fs::path&amp;gt; &amp;lt;fs::perms&amp;gt; &amp;lt;fs::bytes&amp;gt; &amp;lt;dttm&amp;gt;
+#&amp;gt; 1 libs/fs.so rwxr-xr-x 328.6K 2018-01-19 08:32:18
+#&amp;gt; 2 R/fs.rdb rw-r--r-- 214.7K 2018-01-19 08:32:18
+#&amp;gt; 3 help/fs.rdb rw-r--r-- 45.1K 2018-01-19 08:32:19
+#&amp;gt; 4 COPYRIGHTS rw-r--r-- 24.1K 2018-01-19 08:32:18
+#&amp;gt; 5 tests/testthat/test-path.R rw-r--r-- 11.2K 2018-01-19 08:32:18&lt;/code>&lt;/pre>
+&lt;p>Tabulate and display folder size.&lt;/p>
+&lt;pre class="r">&lt;code>dir_info(recursive = TRUE) %&amp;gt;%
+group_by(directory = path_dir(path)) %&amp;gt;%
+tally(wt = size, sort = TRUE)
+#&amp;gt; # A tibble: 8 x 2
+#&amp;gt; directory n
+#&amp;gt; &amp;lt;fs::path&amp;gt; &amp;lt;fs::bytes&amp;gt;
+#&amp;gt; 1 libs 328.62K
+#&amp;gt; 2 R 217.8K
+#&amp;gt; 3 tests/testthat 48.18K
+#&amp;gt; 4 help 47.67K
+#&amp;gt; 5 . 29.96K
+#&amp;gt; 6 html 9.25K
+#&amp;gt; 7 Meta 4.82K
+#&amp;gt; 8 tests 728&lt;/code>&lt;/pre>
+&lt;p>Read a collection of files into one data frame.&lt;/p>
+&lt;p>&lt;code>dir_ls()&lt;/code> returns a named vector, so it can be used directly with &lt;code>purrr::map_df(.id)&lt;/code>.&lt;/p>
+&lt;pre class="r">&lt;code># Create separate files for each species
+iris %&amp;gt;%
+split(.$Species) %&amp;gt;%
+map(select, -Species) %&amp;gt;%
+iwalk(~ write_tsv(.x, paste0(.y, &amp;quot;.tsv&amp;quot;)))
+# Show the files
+iris_files &amp;lt;- dir_ls(glob = &amp;quot;*.tsv&amp;quot;)
+iris_files
+#&amp;gt; setosa.tsv versicolor.tsv virginica.tsv
+# Read the data into a single table, including the filenames
+iris_files %&amp;gt;%
+map_df(read_tsv, .id = &amp;quot;file&amp;quot;, col_types = cols(), n_max = 2)
+#&amp;gt; # A tibble: 6 x 5
+#&amp;gt; file Sepal.Length Sepal.Width Petal.Length Petal.Width
+#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+#&amp;gt; 1 setosa.tsv 5.10 3.50 1.40 0.200
+#&amp;gt; 2 setosa.tsv 4.90 3.00 1.40 0.200
+#&amp;gt; 3 versicolor.tsv 7.00 3.20 4.70 1.40
+#&amp;gt; 4 versicolor.tsv 6.40 3.20 4.50 1.50
+#&amp;gt; 5 virginica.tsv 6.30 3.30 6.00 2.50
+#&amp;gt; 6 virginica.tsv 5.80 2.70 5.10 1.90
+file_delete(iris_files)&lt;/code>&lt;/pre>
+&lt;/section>
+&lt;section id="feedback-wanted" class="level3">
+&lt;h3>Feedback wanted!&lt;/h3>
+&lt;p>We hope &lt;strong>fs&lt;/strong> is a useful tool for both analysis scripts and packages. Please open &lt;a href="https://github.com/r-lib/fs">GitHub issues&lt;/a> for any feature requests or bugs.&lt;/p>
+&lt;p>In particular, we have found non-ASCII filenames in non-English locales on Windows to be especially tricky to reproduce and handle correctly. There is already &lt;a href="https://github.com/r-lib/fs/commit/b0b7a88de708300fd48273b0824e9bb265a0ee7b">one fix&lt;/a> for this issue since &lt;strong>fs&lt;/strong> was submitted to CRAN. Additional Feedback from users is greatly appreciated!&lt;/p>
+&lt;p>Learn more about &lt;strong>fs&lt;/strong> at - &lt;a href="http://fs.r-lib.org" class="uri">http://fs.r-lib.org&lt;/a>&lt;/p>
+&lt;/section></description></item></channel></rss>

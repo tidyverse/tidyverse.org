@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>book | Tidyverse</title><link>https://www.tidyverse.org/tags/book/</link><atom:link href="https://www.tidyverse.org/tags/book/index.xml" rel="self" type="application/rss+xml"/><description>book</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 02 Aug 2023 00:00:00 +0000</lastBuildDate><item><title>Solutions for R4DS, 2e with Data Trail</title><link>https://www.tidyverse.org/blog/2023/08/data-trail/</link><pubDate>Wed, 02 Aug 2023 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2023/08/data-trail/</guid><description>&lt;!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [ ] Find photo &amp; update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>Last year at rstudio::conf(2022) Jeff Leek
+&lt;a href="https://youtu.be/Vf301YCxP1Q" target="_blank" rel="noopener">shared about the Data Trail program&lt;/a>.&lt;/p>
+&lt;blockquote>
+&lt;p>DataTrail is a no-cost, paid 14-week educational initiative for young-adult, high school and GED-graduates. DataTrail aims to equip members of underserved communities with the necessary skills and support required to work in the booming field of data science. DataTrail is a fresh take on workforce development that focuses on training both Black, Indigenous, and other people of color (BIPOC) interested in the data science industry &lt;em>&lt;strong>and&lt;/strong>&lt;/em> their potential employers.&lt;/p>
+&lt;/blockquote>
+&lt;p>We have been so excited then to have the opportunity to work with two Data Trail interns this year!
+&lt;a href="https://jabirghaffar.quarto.pub/jabir/" target="_blank" rel="noopener">Jabir Ghaffar&lt;/a> went through the Data Trail program June 2022, and
+&lt;a href="https://www.linkedin.com/in/davon-person-1ba973194/" target="_blank" rel="noopener">Davon Person&lt;/a> went through the Data Trail program in 2019, and now works as a Data Programming Specialist with the project. Jabir and Davon worked on solutions for the R for Data Science book, explored some Tidy Tuesday datasets, created their own Quarto websites, and their perspectives helped us learn more about how our tools and documentation can better support emerging data scientists.&lt;/p>
+&lt;p>Jabir&amp;rsquo;s primary project was to work on the
+&lt;a href="https://mine-cetinkaya-rundel.github.io/r4ds-solutions/" target="_blank" rel="noopener">R for Data Science solutions&lt;/a>. The R for Data Science, 2nd Edition was released in June 2023. In this edition there is a lot of new content, and revisions and additions to exercises. We saw that
+&lt;a href="https://jrnold.github.io/r4ds-exercise-solutions/" target="_blank" rel="noopener">Jeffrey Arnold&amp;rsquo;s solutions to the 1st edition&lt;/a> are such a useful resource for the community. Therefore, this project aimed to both create a similar resource for 2nd edition and serve as an educational resource for the interns to help sharpen their tidyverse and general data science skills.&lt;/p>
+&lt;p>Some learning highlights for Jabir included faceting (as a solution to overplotting), consistent code styling (which helps make the code more pleasing to read), and, making maps! Specifically, Jabir mentioned that he has always wondered &amp;ldquo;how did they do that?!&amp;rdquo; with maps and found them to be quite intimidating, so it was especially satisfying to create his first heatmap of US states and chance of getting a tornado (&lt;a href="https://jabirghaffar.quarto.pub/jabir/posts/tornado_mapping_exploration">https://jabirghaffar.quarto.pub/jabir/posts/tornado_mapping_exploration&lt;/a>). This was not just a satisfying visualization exercise, but also a great opportunity to dig into unfamiliar data wrangling functions like
+&lt;a href="https://dplyr.tidyverse.org/reference/recode.html" target="_blank" rel="noopener">&lt;code>recode()&lt;/code>&lt;/a> for converting 2-letter state abbreviations to state names.&lt;/p>
+&lt;p>The exercises in R4DS range from quick, almost obvious, drills to ones that can really make you think and spin your wheels for a bit. One such exercise for Jabir was the one on changing the display of presidential terms from
+&lt;a href="https://r4ds.hadley.nz/communication.html#exercises-2" target="_blank" rel="noopener">Section 12.4.6&lt;/a>. The exercise asks:&lt;/p>
+&lt;blockquote>
+&lt;p>Change the display of the presidential terms by:&lt;/p>
+&lt;ul>
+&lt;li>Combining the two variants that customize colors and x axis breaks.&lt;/li>
+&lt;li>Improving the display of the y axis.&lt;/li>
+&lt;li>Labelling each term with the name of the president.&lt;/li>
+&lt;li>Adding informative plot labels.&lt;/li>
+&lt;li>Placing breaks every 4 years (this is trickier than it seems!).&lt;/li>
+&lt;/ul>
+&lt;/blockquote>
+&lt;p>The starting points for the exercise are the following plots from the text:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://tidyverse.tidyverse.org'>tidyverse&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>presidential&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>id &lt;span class='o'>=&lt;/span> &lt;span class='m'>33&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/row_number.html'>row_number&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nv'>start&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>id&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_segment.html'>geom_segment&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>xend &lt;span class='o'>=&lt;/span> &lt;span class='nv'>end&lt;/span>, yend &lt;span class='o'>=&lt;/span> &lt;span class='nv'>id&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_date.html'>scale_x_date&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>name &lt;span class='o'>=&lt;/span> &lt;span class='kc'>NULL&lt;/span>, breaks &lt;span class='o'>=&lt;/span> &lt;span class='nv'>presidential&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>start&lt;/span>, date_labels &lt;span class='o'>=&lt;/span> &lt;span class='s'>"'%y"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>presidential&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>id &lt;span class='o'>=&lt;/span> &lt;span class='m'>33&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/row_number.html'>row_number&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nv'>start&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>id&lt;/span>, color &lt;span class='o'>=&lt;/span> &lt;span class='nv'>party&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_segment.html'>geom_segment&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>xend &lt;span class='o'>=&lt;/span> &lt;span class='nv'>end&lt;/span>, yend &lt;span class='o'>=&lt;/span> &lt;span class='nv'>id&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>scale_color_manual&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>values &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>Republican &lt;span class='o'>=&lt;/span> &lt;span class='s'>"#E81B23"&lt;/span>, Democratic &lt;span class='o'>=&lt;/span> &lt;span class='s'>"#00AEF3"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/presidential-terms-start-1.png" width="50%" style="display: block; margin: auto;" />&lt;img src="figs/presidential-terms-start-2.png" width="50%" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Jabir says &amp;ldquo;This question completely puzzled me. I&amp;rsquo;d say good luck, and if you&amp;rsquo;re new and you get to this question, I recommend you look at the solution manual.&amp;rdquo;&lt;/p>
+&lt;p>The first challenge was identifying where in the text the original plot was developed, and the code associated with it. And then, the most challenging part of this exercise was labeling the y-axis with the names of presidents. It took lots of Googling, but ultimately Jabir used suggestions from ChatGPT to get this over the finish line. And, perhaps, the frustrating and satisfying part is that the answer was pretty obvious in hindsight:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>presidential&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>presidential&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>id &lt;span class='o'>=&lt;/span> &lt;span class='m'>33&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/row_number.html'>row_number&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>presidential&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nv'>start&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>id&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>color &lt;span class='o'>=&lt;/span> &lt;span class='nv'>party&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_segment.html'>geom_segment&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>xend &lt;span class='o'>=&lt;/span> &lt;span class='nv'>end&lt;/span>, yend &lt;span class='o'>=&lt;/span> &lt;span class='nv'>id&lt;/span>, color &lt;span class='o'>=&lt;/span> &lt;span class='nv'>party&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>geom_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>label &lt;span class='o'>=&lt;/span> &lt;span class='nv'>name&lt;/span>&lt;span class='o'>)&lt;/span>, hjust &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>, vjust &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>, nudge_y &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.1&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>scale_color_manual&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>values &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>Republican &lt;span class='o'>=&lt;/span> &lt;span class='s'>"#E81B23"&lt;/span>, Democratic &lt;span class='o'>=&lt;/span> &lt;span class='s'>"#00AEF3"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_date.html'>scale_x_date&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> name &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Term"&lt;/span>,&lt;/span>
+&lt;span> breaks &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/seq.html'>seq&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>from &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://lubridate.tidyverse.org/reference/ymd.html'>ymd&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"1953-01-20"&lt;/span>&lt;span class='o'>)&lt;/span>, to &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://lubridate.tidyverse.org/reference/ymd.html'>ymd&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"2021-01-20"&lt;/span>&lt;span class='o'>)&lt;/span>, by &lt;span class='o'>=&lt;/span> &lt;span class='s'>"4 years"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> date_labels &lt;span class='o'>=&lt;/span> &lt;span class='s'>"'%y"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_y_continuous&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>breaks &lt;span class='o'>=&lt;/span> &lt;span class='m'>34&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>45&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> panel.grid.minor &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_blank&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> axis.ticks.y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_blank&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> x &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Term"&lt;/span>,&lt;/span>
+&lt;span> y &lt;span class='o'>=&lt;/span> &lt;span class='s'>"President"&lt;/span>,&lt;/span>
+&lt;span> title &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Terms of US Presidents"&lt;/span>,&lt;/span>
+&lt;span> subtitle &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Eisenhower (34th) to Trump (45th)"&lt;/span>,&lt;/span>
+&lt;span> color &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Party"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/presidential-terms-end-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Jabir felt like moments when he knew what to do and how to answer each question were very satisfying, but the moments where he felt stuck and went into rabbit holes looking for answers made him question whether he wanted to continue becoming a data scientist. Ultimately, though, the project was enjoyable, and not just a great learning experience for Jabir, but also a very meaningful one because it created a resource that can help future data scientists.&lt;/p>
+&lt;p>We felt like Jabir and Davon advanced their data science skills, and familiarity with working in open source, throughout the project. It was particularly exciting to see Jabir create his own data science portfolio as a Quarto website with posts on the Tidy Tuesday datasets, and we really appreciated his work on the R4DS Solutions. In going through those, he helped better refine the book, and created a resource that so many people are going to be able to use and learn from. We could see how he learned not just data science, but also grew as a leader who will continue to support others in their learning as he moves on to work as a developer with the Data Trail program. Davon too focused not just on data science, but was a part of our team, and the Data Trail team, providing mentorship to Jabir and bringing teaching approaches, like using Tidy Tuesday datasets, to his community. We are so grateful to have had the opportunity to work with them both, and see this as the beginning of continued collaborations.&lt;/p>
+&lt;p>Just like most open-source projects, the
+&lt;a href="https://mine-cetinkaya-rundel.github.io/r4ds-solutions/" target="_blank" rel="noopener">R4DS Solutions&lt;/a> is a living and breathing project, still a work-in-progress. We would welcome any community contributions! All perspectives are important here, and it&amp;rsquo;s a great project if you&amp;rsquo;re a first-time contributor.&lt;/p></description></item><item><title>R for Data Science, 2nd edition</title><link>https://www.tidyverse.org/blog/2023/07/r4ds-2e/</link><pubDate>Tue, 11 Jul 2023 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2023/07/r4ds-2e/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re thrilled to announce the publication of the 2nd edition of
+&lt;a href="https://r4ds.hadley.nz/" target="_blank" rel="noopener">R for Data Science&lt;/a>.&lt;/p>
+&lt;p>The second edition is a major reworking of the first edition, removing material we no longer think is useful, adding material we wish we included in the first edition, and generally updating the text and code to reflect changes in best practices.&lt;/p>
+&lt;p>You can read the book online for free at &lt;a href="https://r4ds.hadley.nz/" class="uri">&lt;a href="https://r4ds.hadley.nz">https://r4ds.hadley.nz&lt;/a>&lt;/a>, or
+&lt;a href="https://www.amazon.com/dp/1492097403?&amp;amp;tag=hadlwick-20" target="_blank" rel="noopener">buy a physical copy&lt;/a>.&lt;/p>
+&lt;p>Read below to find out what&amp;rsquo;s new and what&amp;rsquo;s gone compared to the first edition.&lt;/p>
+&lt;h2 id="whats-new">What&amp;rsquo;s new?
+&lt;a href="#whats-new">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We have renamed the first part of the book to
+&lt;a href="https://r4ds.hadley.nz/whole-game.html" target="_blank" rel="noopener">&amp;ldquo;Whole game&amp;rdquo;&lt;/a>, with the goal of giving you the rough details of the &amp;quot;whole game&amp;quot; of data science, including data visualization, transformation, tidying, and import, before we dive into the details. The data visualization chapter has gained a new section written with the
+&lt;a href="https://datasciencebox.org/01-design-principles.html" target="_blank" rel="noopener">&amp;ldquo;cake first&amp;rdquo;&lt;/a> approach, which starts with the final visualization you will learn to make, and then builds up to it layer-by-layer. The data tidying chapter introduces the basics of lengthening and widening data and the data import chapter introduces reading tabular data.&lt;/p>
+&lt;p>The second part of the book is
+&lt;a href="https://r4ds.hadley.nz/visualize.html" target="_blank" rel="noopener">&amp;quot;Visualize&amp;quot;&lt;/a>, which gives data visualization tools and best practices a more thorough coverage compared to the first edition.&lt;/p>
+&lt;p>The third part of the book is now called
+&lt;a href="https://r4ds.hadley.nz/transform.html" target="_blank" rel="noopener">&amp;quot;Transform&amp;quot;&lt;/a>and gains new chapters on numbers, logical vectors, and missing values. Much of this content was previously part of the data transformation chapter. In this edition we have expanded them to cover all the details.&lt;/p>
+&lt;p>The fourth part of the book is called
+&lt;a href="https://r4ds.hadley.nz/import.html" target="_blank" rel="noopener">&amp;quot;Import&amp;quot;&lt;/a>, it's a new set of chapters that goes beyond reading flat text files to working with spreadsheets (Excel and GoogleSheets), databases, and big data (with Arrow) as well as rectangling hierarchical data and scraping data from web sites.&lt;/p>
+&lt;p>The
+&lt;a href="https://r4ds.hadley.nz/program.html" target="_blank" rel="noopener">&amp;quot;Program&amp;quot;&lt;/a> part has been rewritten from scratch to focus on the most important parts of function writing and iteration. Function writing now includes details on how to wrap tidyverse functions (dealing with the challenges of tidy evaluation), since this has become much easier and more important over the last few years. We have also added a new chapter on important base R functions that you're likely to see in wild-caught R code.&lt;/p>
+&lt;p>Finally, the
+&lt;a href="https://r4ds.hadley.nz/communicate.html" target="_blank" rel="noopener">&amp;quot;Communicate&amp;quot;&lt;/a> part remains, but has been thoroughly updated to feature
+&lt;a href="https://quarto.org/" target="_blank" rel="noopener">Quarto&lt;/a> instead of R Markdown. This edition of the book has been written in Quarto, and it's clearly the tool of the future.&lt;/p>
+&lt;h2 id="whats-gone">What&amp;rsquo;s gone?
+&lt;a href="#whats-gone">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The first edition of the book featured a part on modeling, which has now been removed. We never had enough room to fully do modelling justice, and there are now much better resources available. We generally recommend using the
+&lt;a href="https://www.tidymodels.org/" target="_blank" rel="noopener">tidymodels&lt;/a> packages and reading
+&lt;a href="https://www.tmwr.org/" target="_blank" rel="noopener">Tidy Modeling with R&lt;/a> by Max Kuhn and Julia Silge.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This book isn't just the product of Hadley, Mine, and Garrett, but is the result of many conversations (in person and online) that we've had with many people in the R community. Huge thanks to
+&lt;a href="https://r4ds.hadley.nz/intro.html#acknowledgments" target="_blank" rel="noopener">all contributors&lt;/a> for the conversations, issues, and pull requests. And, as always, feedback and suggestions are welcome on the
+&lt;a href="https://github.com/hadley/r4ds/" target="_blank" rel="noopener">book repository&lt;/a>.&lt;/p></description></item></channel></rss>

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>reprex | Tidyverse</title><link>https://www.tidyverse.org/tags/reprex/</link><atom:link href="https://www.tidyverse.org/tags/reprex/index.xml" rel="self" type="application/rss+xml"/><description>reprex</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 01 Feb 2021 00:00:00 +0000</lastBuildDate><item><title>reprex 1.0.0</title><link>https://www.tidyverse.org/blog/2021/02/reprex-1-0-0/</link><pubDate>Mon, 01 Feb 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/02/reprex-1-0-0/</guid><description>&lt;p>We&amp;rsquo;re exhilarated to announce the release of reprex 1.0.0 (
+&lt;a href="https://reprex.tidyverse.org" target="_blank" rel="noopener">reprex.tidyverse.org&lt;/a>). reprex is a package that helps you prepare &lt;strong>REPR&lt;/strong>oducible &lt;strong>EX&lt;/strong>amples to share in places where people talk about code, e.g., on GitHub, on Stack Overflow, and in Slack or email messages.&lt;/p>
+&lt;p>You can install the current version of reprex from CRAN with&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"reprex"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>It turns out we&amp;rsquo;ve never blogged about reprex here on
+&lt;a href="https://www.tidyverse.org" target="_blank" rel="noopener">tidyverse.org&lt;/a>, so we start with a general overview for newcomers, then close with a summary of recent changes of interest to existing users.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://reprex.tidyverse.org/news/index.html#reprex-1-0-0-2021-01-27" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="why-reprex-exists">Why reprex exists
+&lt;a href="#why-reprex-exists">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>reprex is a convenience package that combines the power of R Markdown with conventional wisdom about what makes a good reproducible example. We believe that conversations about code are more productive with:&lt;/p>
+&lt;ul>
+&lt;li>Code that &lt;strong>actually runs&lt;/strong>&lt;/li>
+&lt;li>Code that the reader &lt;strong>doesn&amp;rsquo;t necessarily have to run&lt;/strong>&lt;/li>
+&lt;li>Code that the reader &lt;strong>can easily run&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>Someone new to R might be puzzled by this code and want to discuss it:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>x&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Hello, "&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>y&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"world!"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>x&lt;/span>
+&lt;span class='c'>#&amp;gt; [1] Hello, &lt;/span>
+&lt;span class='c'>#&amp;gt; Levels: Hello,&lt;/span>
+&lt;span class='nv'>y&lt;/span>
+&lt;span class='c'>#&amp;gt; [1] world!&lt;/span>
+&lt;span class='c'>#&amp;gt; Levels: world!&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>, &lt;span class='nv'>y&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; [1] 1 1&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>You, as a reader, just benefited from a few things:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>The code was actually executed by the R interpreter, because this post is generated from an &lt;code>.Rmd&lt;/code> document. I am probably not misleading you, intentionally or by accident, with fictional or incomplete code.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>You got to see the actual result without firing up R yourself and executing this code locally. Many R veterans will instantly recognize what&amp;rsquo;s going on and be able to provide some useful explanation at this point.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>If you do want to execute the code yourself, you can easily copy the entire chunk, paste it into R, and press enter&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>. Compare that with the fussy edits you&amp;rsquo;d have to make with this copy/paste from the R Console:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="o">&amp;gt;&lt;/span> &lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">factor&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Hello, &amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="o">&amp;gt;&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">factor&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;world!&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="o">&amp;gt;&lt;/span> &lt;span class="n">x&lt;/span>
+&lt;span class="n">[1]&lt;/span> &lt;span class="n">Hello&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">Levels&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="n">Hello&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="o">&amp;gt;&lt;/span> &lt;span class="n">y&lt;/span>
+&lt;span class="n">[1]&lt;/span> &lt;span class="n">world&lt;/span>&lt;span class="o">!&lt;/span>
+&lt;span class="n">Levels&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="n">world&lt;/span>&lt;span class="o">!&lt;/span>
+&lt;span class="o">&amp;gt;&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">[1]&lt;/span> &lt;span class="m">1&lt;/span> &lt;span class="m">1&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You need to remove the
+&lt;a href="https://rdrr.io/r/base/Comparison.html" target="_blank" rel="noopener">&lt;code>&amp;gt;&lt;/code>&lt;/a> prompts and delete all output. And don&amp;rsquo;t get me started on the problem of screenshots.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;p>All of this is entirely possible without reprex. People just need to create a suitable &lt;code>.R&lt;/code> or &lt;code>.Rmd&lt;/code> file, render it to an appropriate output format, in a fresh R session, with working directory set to session temp directory. And also send me a pony!&lt;/p>
+&lt;p>For any given code snippet, this feels like way too much work. But if you read, write, and talk about R often, this problem can easily come up multiple times per day.
+&lt;a href="https://reprex.tidyverse.org/reference/reprex.html" target="_blank" rel="noopener">&lt;code>reprex::reprex()&lt;/code>&lt;/a> aims to make doing the right thing so easy that people stop taking photos of broken code with their cell phone.&lt;/p>
+&lt;h2 id="reprexreprex">&lt;code>reprex::reprex()&lt;/code>
+&lt;a href="#reprexreprex">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://reprex.tidyverse.org/reference/reprex.html" target="_blank" rel="noopener">&lt;code>reprex::reprex()&lt;/code>&lt;/a> is the main function in the package. It takes a little bit of R code, probably from the clipboard or current selection, and does all the fiddly things we mentioned:&lt;/p>
+&lt;ul>
+&lt;li>Writes it to a file. By default, to a file below the session temp directory.&lt;/li>
+&lt;li>Sets various R and knitr options that are especially favorable for reprexes, such as the &lt;code>error = TRUE&lt;/code> chunk option.&lt;/li>
+&lt;li>Renders the code in a fresh R session to ruthlessly expose missing
+&lt;a href="https://rdrr.io/r/base/library.html" target="_blank" rel="noopener">&lt;code>library()&lt;/code>&lt;/a> calls and the use of objects that haven&amp;rsquo;t been defined.&lt;/li>
+&lt;li>Ensures the output is optimized for the target venue, e.g. GitHub-flavored Markdown vs. commented R code vs. Rich Text Format.&lt;/li>
+&lt;/ul>
+&lt;p>By default, the result is waiting on your clipboard and you&amp;rsquo;ll also see an HTML preview of it.&lt;/p>
+&lt;p>Here is a 50 second video that shows an entire roundtrip: copying local code, &lt;code>reprex()&lt;/code>ing, opening a GitHub issue, copying reprex from the issue, and re-executing the code in a local R session:&lt;/p>
+&lt;iframe width="560" height="315" src="https://www.youtube.com/embed/35suhGR53wQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+&lt;/iframe>
+&lt;p>There are many other handy features:&lt;/p>
+&lt;ul>
+&lt;li>Optionally include session info&lt;/li>
+&lt;li>Post a figure to
+&lt;a href="https://imgur.com" target="_blank" rel="noopener">imgur.com&lt;/a> and embed its link in the reprex&lt;/li>
+&lt;li>Handy RStudio addin and gadget for even more convenience&lt;/li>
+&lt;li>More ways to provide input and get output&lt;/li>
+&lt;/ul>
+&lt;p>Head over to
+&lt;a href="https://reprex.tidyverse.org" target="_blank" rel="noopener">reprex.tidyverse.org&lt;/a> to learn more. In addition to the articles there, reprex &amp;mdash; as a lifestyle 🤓 and a package 📦 &amp;mdash; features in my
+&lt;a href="https://github.com/jennybc/debugging#readme" target="_blank" rel="noopener">rstudio::global(2020) keynote about debugging&lt;/a>. The reprex section starts around the 14:11 mark in
+&lt;a href="https://rstudio.com/resources/rstudioconf-2020/object-of-type-closure-is-not-subsettable/" target="_blank" rel="noopener">the video&lt;/a>.&lt;/p>
+&lt;h2 id="whats-new-in-v100">What&amp;rsquo;s new in v1.0.0
+&lt;a href="#whats-new-in-v100">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>For those who have been using reprex for a while, here are the most exciting developments in v1.0.0&lt;/p>
+&lt;h3 id="venues">Venues
+&lt;a href="#venues">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>We&amp;rsquo;ve added &lt;code>venue&lt;/code>-specific convenience wrappers. Instead of &lt;code>reprex(..., venue = &amp;quot;r&amp;quot;)&lt;/code>, you can now do &lt;code>reprex_r(...)&lt;/code>. This makes non-default &lt;code>venue&lt;/code>s easier to access with IDE autocompletion.&lt;/p>
+&lt;p>&lt;code>&amp;quot;slack&amp;quot;&lt;/code> is a new venue that tweaks the default Markdown output for pasting into Slack messages. Slack&amp;rsquo;s markup is a frustrating variant of the Markdown we use elsewhere and it&amp;rsquo;s important to remove the &lt;code>r&lt;/code> language identifier from the opening code fence. We also simplify image links and, by default, suppress the ad. Note that &lt;code>venue = &amp;quot;slack&amp;quot;&lt;/code> or &lt;code>reprex_slack()&lt;/code> work best for people who opt-out of the WYSIWYG message editor&lt;sup id="fnref:3">&lt;a href="#fn:3" class="footnote-ref" role="doc-noteref">3&lt;/a>&lt;/sup>. While working on this, I appreciated for the first time that the default behaviour for figures (uploading to
+&lt;a href="https://imgur.com" target="_blank" rel="noopener">imgur.com&lt;/a> and auto-linking) actually works pretty well for Slack messages. Who knew? 🤷‍♀ This is also a good time to remind everyone that &lt;code>venue = &amp;quot;r&amp;quot;&lt;/code> or &lt;code>reprex_r()&lt;/code> are great ways to create larger Slack code snippets. Before you finish by clicking &amp;ldquo;Create snippet&amp;rdquo;, select &lt;code>R&lt;/code> from the &amp;ldquo;Type&amp;rdquo; dropdown to get nice syntax highlighting.&lt;/p>
+&lt;p>Stack Overflow now supports fenced code blocks, which means that the &lt;code>&amp;quot;so&amp;quot;&lt;/code> venue is no longer necessary. You can still request it, but it&amp;rsquo;s just an alias for the default GitHub (&lt;code>&amp;quot;gh&amp;quot;&lt;/code>) venue and we&amp;rsquo;re going to tell you that every time you do it.&lt;/p>
+&lt;p>The experimental-but-oh-so-handy &lt;code>venue = &amp;quot;rtf&amp;quot;&lt;/code> now works about as well on Windows as it does on macOS. It is experimental (and shall remain so) because we still shell out to the
+&lt;a href="http://www.andre-simon.de/doku/highlight/en/highlight.php" target="_blank" rel="noopener">highlight command line tool&lt;/a>, the installation of which is left as an exercise for the motivated user. This is a great way to get (un)rendered, syntax-highlighted code snippets into applications like PowerPoint, Keynote, and Word, when you aren&amp;rsquo;t generating the whole document with R Markdown. This special &lt;code>venue&lt;/code> is documented in
+&lt;a href="https://reprex.tidyverse.org/articles/articles/rtf.html" target="_blank" rel="noopener">its own article&lt;/a>.&lt;/p>
+&lt;h3 id="internal-changes">Internal changes
+&lt;a href="#internal-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>This should have no impact on most users, but &lt;code>reprex()&lt;/code> has been internally refactored to achieve its goals by applying the new &lt;code>reprex_render()&lt;/code> to an &lt;code>.Rmd&lt;/code> file that uses the new &lt;code>reprex_document()&lt;/code> output format. The motivation was mostly to make maintenance easier by using more official mechanisms for extending R Markdown and knitr.&lt;/p>
+&lt;p>We have eagerly followed knitr&amp;rsquo;s lead and use UTF-8 everywhere internally.&lt;/p>
+&lt;p>The &lt;code>tidyverse_quiet&lt;/code> argument and &lt;code>reprex.tidyverse_quiet&lt;/code> option, which default to &lt;code>TRUE&lt;/code>, also suppress startup messages from the tidymodels meta-package.&lt;/p>
+&lt;p>Remember you can see a full list of changes in the
+&lt;a href="https://reprex.tidyverse.org/news/index.html#reprex-1-0-0-2021-01-27" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;ve never blogged about reprex here, so we&amp;rsquo;ll take this chance to thank all 116 people who have helped get reprex to this point. There have been 47 contributors since the previous release (v0.3.0).&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/1029YanMa" target="_blank" rel="noopener">@1029YanMa&lt;/a>,
+&lt;a href="https://github.com/Abhijitsj" target="_blank" rel="noopener">@Abhijitsj&lt;/a>,
+&lt;a href="https://github.com/aegerton" target="_blank" rel="noopener">@aegerton&lt;/a>,
+&lt;a href="https://github.com/alexpghayes" target="_blank" rel="noopener">@alexpghayes&lt;/a>,
+&lt;a href="https://github.com/alistaire47" target="_blank" rel="noopener">@alistaire47&lt;/a>,
+&lt;a href="https://github.com/andresrcs" target="_blank" rel="noopener">@andresrcs&lt;/a>,
+&lt;a href="https://github.com/assignUser" target="_blank" rel="noopener">@assignUser&lt;/a>,
+&lt;a href="https://github.com/atusy" target="_blank" rel="noopener">@atusy&lt;/a>,
+&lt;a href="https://github.com/baptiste" target="_blank" rel="noopener">@baptiste&lt;/a>,
+&lt;a href="https://github.com/barryrowlingson" target="_blank" rel="noopener">@barryrowlingson&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/billdenney" target="_blank" rel="noopener">@billdenney&lt;/a>,
+&lt;a href="https://github.com/blairj09" target="_blank" rel="noopener">@blairj09&lt;/a>,
+&lt;a href="https://github.com/brshallo" target="_blank" rel="noopener">@brshallo&lt;/a>,
+&lt;a href="https://github.com/brunocarlin" target="_blank" rel="noopener">@brunocarlin&lt;/a>,
+&lt;a href="https://github.com/carlmorgenstern" target="_blank" rel="noopener">@carlmorgenstern&lt;/a>,
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/chester-gan" target="_blank" rel="noopener">@chester-gan&lt;/a>,
+&lt;a href="https://github.com/chris-prener" target="_blank" rel="noopener">@chris-prener&lt;/a>,
+&lt;a href="https://github.com/chsafouane" target="_blank" rel="noopener">@chsafouane&lt;/a>,
+&lt;a href="https://github.com/coatless" target="_blank" rel="noopener">@coatless&lt;/a>,
+&lt;a href="https://github.com/ColinFay" target="_blank" rel="noopener">@ColinFay&lt;/a>,
+&lt;a href="https://github.com/cooknl" target="_blank" rel="noopener">@cooknl&lt;/a>,
+&lt;a href="https://github.com/crew102" target="_blank" rel="noopener">@crew102&lt;/a>,
+&lt;a href="https://github.com/cstepper" target="_blank" rel="noopener">@cstepper&lt;/a>,
+&lt;a href="https://github.com/cwickham" target="_blank" rel="noopener">@cwickham&lt;/a>,
+&lt;a href="https://github.com/daattali" target="_blank" rel="noopener">@daattali&lt;/a>,
+&lt;a href="https://github.com/david-romano" target="_blank" rel="noopener">@david-romano&lt;/a>,
+&lt;a href="https://github.com/davidbody" target="_blank" rel="noopener">@davidbody&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dchiu911" target="_blank" rel="noopener">@dchiu911&lt;/a>,
+&lt;a href="https://github.com/dgrtwo" target="_blank" rel="noopener">@dgrtwo&lt;/a>,
+&lt;a href="https://github.com/dpprdan" target="_blank" rel="noopener">@dpprdan&lt;/a>,
+&lt;a href="https://github.com/dskard" target="_blank" rel="noopener">@dskard&lt;/a>,
+&lt;a href="https://github.com/ellessenne" target="_blank" rel="noopener">@ellessenne&lt;/a>,
+&lt;a href="https://github.com/emiltb" target="_blank" rel="noopener">@emiltb&lt;/a>,
+&lt;a href="https://github.com/filipwastberg" target="_blank" rel="noopener">@filipwastberg&lt;/a>,
+&lt;a href="https://github.com/franknarf1" target="_blank" rel="noopener">@franknarf1&lt;/a>,
+&lt;a href="https://github.com/friendly" target="_blank" rel="noopener">@friendly&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">@gaborcsardi&lt;/a>,
+&lt;a href="https://github.com/GegznaV" target="_blank" rel="noopener">@GegznaV&lt;/a>,
+&lt;a href="https://github.com/gergness" target="_blank" rel="noopener">@gergness&lt;/a>,
+&lt;a href="https://github.com/gvdr" target="_blank" rel="noopener">@gvdr&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/harrismcgehee" target="_blank" rel="noopener">@harrismcgehee&lt;/a>,
+&lt;a href="https://github.com/HeidiSeibold" target="_blank" rel="noopener">@HeidiSeibold&lt;/a>,
+&lt;a href="https://github.com/helix123" target="_blank" rel="noopener">@helix123&lt;/a>,
+&lt;a href="https://github.com/Henrik-P" target="_blank" rel="noopener">@Henrik-P&lt;/a>,
+&lt;a href="https://github.com/HughParsonage" target="_blank" rel="noopener">@HughParsonage&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/isteves" target="_blank" rel="noopener">@isteves&lt;/a>,
+&lt;a href="https://github.com/j450h1" target="_blank" rel="noopener">@j450h1&lt;/a>,
+&lt;a href="https://github.com/jasonmtroos" target="_blank" rel="noopener">@jasonmtroos&lt;/a>,
+&lt;a href="https://github.com/jayhesselberth" target="_blank" rel="noopener">@jayhesselberth&lt;/a>,
+&lt;a href="https://github.com/jemus42" target="_blank" rel="noopener">@jemus42&lt;/a>,
+&lt;a href="https://github.com/jennformatics" target="_blank" rel="noopener">@jennformatics&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/JiaxiangBU" target="_blank" rel="noopener">@JiaxiangBU&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/joelgombin" target="_blank" rel="noopener">@joelgombin&lt;/a>,
+&lt;a href="https://github.com/JohnMount" target="_blank" rel="noopener">@JohnMount&lt;/a>,
+&lt;a href="https://github.com/jooyoungseo" target="_blank" rel="noopener">@jooyoungseo&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/jzadra" target="_blank" rel="noopener">@jzadra&lt;/a>,
+&lt;a href="https://github.com/karawoo" target="_blank" rel="noopener">@karawoo&lt;/a>,
+&lt;a href="https://github.com/kevinushey" target="_blank" rel="noopener">@kevinushey&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/lbusett" target="_blank" rel="noopener">@lbusett&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/lizhiwei1994" target="_blank" rel="noopener">@lizhiwei1994&lt;/a>,
+&lt;a href="https://github.com/llrs" target="_blank" rel="noopener">@llrs&lt;/a>,
+&lt;a href="https://github.com/lorenzwalthert" target="_blank" rel="noopener">@lorenzwalthert&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/marionlouveaux" target="_blank" rel="noopener">@marionlouveaux&lt;/a>,
+&lt;a href="https://github.com/markdly" target="_blank" rel="noopener">@markdly&lt;/a>,
+&lt;a href="https://github.com/mattfidler" target="_blank" rel="noopener">@mattfidler&lt;/a>,
+&lt;a href="https://github.com/maurolepore" target="_blank" rel="noopener">@maurolepore&lt;/a>,
+&lt;a href="https://github.com/mcanouil" target="_blank" rel="noopener">@mcanouil&lt;/a>,
+&lt;a href="https://github.com/mdlincoln" target="_blank" rel="noopener">@mdlincoln&lt;/a>,
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>,
+&lt;a href="https://github.com/missaugustina" target="_blank" rel="noopener">@missaugustina&lt;/a>,
+&lt;a href="https://github.com/moodymudskipper" target="_blank" rel="noopener">@moodymudskipper&lt;/a>,
+&lt;a href="https://github.com/mrchypark" target="_blank" rel="noopener">@mrchypark&lt;/a>,
+&lt;a href="https://github.com/mrdwab" target="_blank" rel="noopener">@mrdwab&lt;/a>,
+&lt;a href="https://github.com/njtierney" target="_blank" rel="noopener">@njtierney&lt;/a>,
+&lt;a href="https://github.com/no-reply" target="_blank" rel="noopener">@no-reply&lt;/a>,
+&lt;a href="https://github.com/noamross" target="_blank" rel="noopener">@noamross&lt;/a>,
+&lt;a href="https://github.com/npjc" target="_blank" rel="noopener">@npjc&lt;/a>,
+&lt;a href="https://github.com/paleolimbot" target="_blank" rel="noopener">@paleolimbot&lt;/a>,
+&lt;a href="https://github.com/pat-s" target="_blank" rel="noopener">@pat-s&lt;/a>,
+&lt;a href="https://github.com/paternogbc" target="_blank" rel="noopener">@paternogbc&lt;/a>,
+&lt;a href="https://github.com/PeteHaitch" target="_blank" rel="noopener">@PeteHaitch&lt;/a>,
+&lt;a href="https://github.com/pgensler" target="_blank" rel="noopener">@pgensler&lt;/a>,
+&lt;a href="https://github.com/PiotrKoller" target="_blank" rel="noopener">@PiotrKoller&lt;/a>,
+&lt;a href="https://github.com/PMassicotte" target="_blank" rel="noopener">@PMassicotte&lt;/a>,
+&lt;a href="https://github.com/prosoitos" target="_blank" rel="noopener">@prosoitos&lt;/a>,
+&lt;a href="https://github.com/PublicHealthDataGeek" target="_blank" rel="noopener">@PublicHealthDataGeek&lt;/a>,
+&lt;a href="https://github.com/r2evans" target="_blank" rel="noopener">@r2evans&lt;/a>,
+&lt;a href="https://github.com/rcorty" target="_blank" rel="noopener">@rcorty&lt;/a>,
+&lt;a href="https://github.com/restonslacker" target="_blank" rel="noopener">@restonslacker&lt;/a>,
+&lt;a href="https://github.com/RLesur" target="_blank" rel="noopener">@RLesur&lt;/a>,
+&lt;a href="https://github.com/robjhyndman" target="_blank" rel="noopener">@robjhyndman&lt;/a>,
+&lt;a href="https://github.com/romainfrancois" target="_blank" rel="noopener">@romainfrancois&lt;/a>,
+&lt;a href="https://github.com/rpruim" target="_blank" rel="noopener">@rpruim&lt;/a>,
+&lt;a href="https://github.com/sckott" target="_blank" rel="noopener">@sckott&lt;/a>,
+&lt;a href="https://github.com/scottcame" target="_blank" rel="noopener">@scottcame&lt;/a>,
+&lt;a href="https://github.com/sfirke" target="_blank" rel="noopener">@sfirke&lt;/a>,
+&lt;a href="https://github.com/sjspielman" target="_blank" rel="noopener">@sjspielman&lt;/a>,
+&lt;a href="https://github.com/Tugsdelger" target="_blank" rel="noopener">@Tugsdelger&lt;/a>,
+&lt;a href="https://github.com/tungmilan" target="_blank" rel="noopener">@tungmilan&lt;/a>,
+&lt;a href="https://github.com/uribo" target="_blank" rel="noopener">@uribo&lt;/a>,
+&lt;a href="https://github.com/wlandau" target="_blank" rel="noopener">@wlandau&lt;/a>,
+&lt;a href="https://github.com/yonicd" target="_blank" rel="noopener">@yonicd&lt;/a>,
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>,
+&lt;a href="https://github.com/zkamvar" target="_blank" rel="noopener">@zkamvar&lt;/a>, and
+&lt;a href="https://github.com/zx8754" target="_blank" rel="noopener">@zx8754&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>Another way you might get reprex is by installing the tidyverse meta-package. reprex is one of the packages installed by
+&lt;a href="https://rdrr.io/r/utils/install.packages.html" target="_blank" rel="noopener">&lt;code>install.packages(&amp;quot;tidyverse&amp;quot;)&lt;/code>&lt;/a>, however it is &lt;strong>not&lt;/strong> among the core packages attached by
+&lt;a href="http://tidyverse.tidyverse.org" target="_blank" rel="noopener">&lt;code>library(tidyverse)&lt;/code>&lt;/a>. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>Since the output is commented out, its presence is harmless. But you can even use
+&lt;a href="https://reprex.tidyverse.org/reference/un-reprex.html" target="_blank" rel="noopener">&lt;code>reprex::reprex_clean()&lt;/code>&lt;/a> and friends to un-reprex code, if you like. &lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:3" role="doc-endnote">
+&lt;p>You can disable the WYSIWYG Slack message interface in &lt;strong>Preferences &amp;gt; Advanced&lt;/strong>. Select the &lt;strong>Format messages with markup setting&lt;/strong>. The
+&lt;a href="https://www.markdownguide.org/tools/slack/" target="_blank" rel="noopener">Slack section of The Markdown Guide&lt;/a> is helpful for figuring out which subsets of Markdown are supported in different parts of Slack. &lt;a href="#fnref:3" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item></channel></rss>

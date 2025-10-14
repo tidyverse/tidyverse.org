@@ -1,0 +1,862 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>scales | Tidyverse</title><link>https://www.tidyverse.org/tags/scales/</link><atom:link href="https://www.tidyverse.org/tags/scales/index.xml" rel="self" type="application/rss+xml"/><description>scales</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 23 Apr 2025 00:00:00 +0000</lastBuildDate><item><title>scales 1.4.0</title><link>https://www.tidyverse.org/blog/2025/04/scales-1-4-0/</link><pubDate>Wed, 23 Apr 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/04/scales-1-4-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re stoked to announce the release of
+&lt;a href="https://scales.r-lib.org/" target="_blank" rel="noopener">scales&lt;/a> 1.4.0. scales is a package that provides much of the scaling logic that is used in ggplot2 to a general framework, along with utility functions for e.g. formatting labels or creating colour palettes.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"scales"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This blog post will give an overview of the 1.4.0 release, which has some nifty upgrades for working with colours and labels.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://scales.r-lib.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://scales.r-lib.org'>scales&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="colour-manipulation">Colour manipulation
+&lt;a href="#colour-manipulation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The
+&lt;a href="https://scales.r-lib.org/reference/alpha.html" target="_blank" rel="noopener">&lt;code>alpha()&lt;/code>&lt;/a> and
+&lt;a href="https://scales.r-lib.org/reference/muted.html" target="_blank" rel="noopener">&lt;code>muted()&lt;/code>&lt;/a> functions have been part of scales for a long time. Back in the 1.1.0 release we swapped to
+&lt;a href="https://farver.data-imaginist.com/" target="_blank" rel="noopener">farver&lt;/a> to power these functions. We felt it was appropriate to use this package for other common colour tasks, and so
+&lt;a href="https://scales.r-lib.org/reference/colour_manip.html" target="_blank" rel="noopener">&lt;code>col_shift()&lt;/code>&lt;/a>,
+&lt;a href="https://scales.r-lib.org/reference/colour_manip.html" target="_blank" rel="noopener">&lt;code>col_lighter()&lt;/code>&lt;/a>,
+&lt;a href="https://scales.r-lib.org/reference/colour_manip.html" target="_blank" rel="noopener">&lt;code>col_darker()&lt;/code>&lt;/a>,
+&lt;a href="https://scales.r-lib.org/reference/colour_manip.html" target="_blank" rel="noopener">&lt;code>col_saturate()&lt;/code>&lt;/a> and
+&lt;a href="https://scales.r-lib.org/reference/col_mix.html" target="_blank" rel="noopener">&lt;code>col_mix()&lt;/code>&lt;/a> were born.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>my_colours&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"red"&lt;/span>, &lt;span class='s'>"green"&lt;/span>, &lt;span class='s'>"blue"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>m&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/cbind.html'>rbind&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> original &lt;span class='o'>=&lt;/span> &lt;span class='nv'>my_colours&lt;/span>,&lt;/span>
+&lt;span> shift &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/colour_manip.html'>col_shift&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>my_colours&lt;/span>, &lt;span class='m'>90&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> lighter &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/colour_manip.html'>col_lighter&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>my_colours&lt;/span>, &lt;span class='m'>20&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> darker &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/colour_manip.html'>col_darker&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>my_colours&lt;/span>, &lt;span class='m'>20&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> duller &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/colour_manip.html'>col_saturate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>my_colours&lt;/span>, &lt;span class='o'>-&lt;/span>&lt;span class='m'>50&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> mixed &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/col_mix.html'>col_mix&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>my_colours&lt;/span>, &lt;span class='s'>"orchid"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/show_col.html'>show_col&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/t.html'>t&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>m&lt;/span>&lt;span class='o'>)&lt;/span>, ncol &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/nrow.html'>ncol&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>m&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/graphics/text.html'>text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/nrow.html'>ncol&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>m&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='m'>0.25&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='o'>-&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/nrow.html'>nrow&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>m&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='m'>0.5&lt;/span>, &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/colnames.html'>rownames&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>m&lt;/span>&lt;span class='o'>)&lt;/span>, adj &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-2-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="palettes">Palettes
+&lt;a href="#palettes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Palettes have also been reworked in this release to include some useful properties. Palettes now come in one of two classes: &amp;lsquo;pal_discrete&amp;rsquo; or &amp;lsquo;pal_continuous&amp;rsquo;.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>my_palette&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/pal_manual.html'>manual_pal&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"palegreen"&lt;/span>, &lt;span class='s'>"deepskyblue"&lt;/span>, &lt;span class='s'>"magenta"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/class.html'>class&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>my_palette&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "pal_discrete" "scales_pal" "function"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Having palettes as a class rather than as plain functions, allows us to store useful metadata about the palette which can be used downstream. In addition, most colour palette functions also allow the aforementioned colour manipulation functions to work on the palette output.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>palette_type&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>my_palette&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "colour"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>palette_nlevels&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>my_palette&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 3&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/colour_manip.html'>col_shift&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>my_palette&lt;/span>, &lt;span class='m'>180&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>3&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "#FFC3FF" "#E4A735" "#00B100"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>With the new setup it is now possible to expand discrete palettes to continuous palettes with
+&lt;a href="https://scales.r-lib.org/reference/new_continuous_palette.html" target="_blank" rel="noopener">&lt;code>as_continuous_pal()&lt;/code>&lt;/a> or vise versa to chop up continuous palettes into discrete palettes with
+&lt;a href="https://scales.r-lib.org/reference/new_continuous_palette.html" target="_blank" rel="noopener">&lt;code>as_discrete_pal()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/graphics/plot.default.html'>plot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>as_continuous_pal&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>my_palette&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-5-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Another quality of life improvement for palettes, is that the &amp;lsquo;scales&amp;rsquo; package now keeps track of some named palettes. By default, the collection of &amp;lsquo;known&amp;rsquo; palettes is pre-populated with colour palettes from the grDevices, RColorBrewer and viridisLite packages.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>as_discrete_pal&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Okabe-Ito"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>8&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "#000000" "#E69F00" "#56B4E9" "#009E73" "#F0E442" "#0072B2" "#D55E00"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [8] "#CC79A7"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h3 id="providing-palettes-as-package">Providing palettes as package
+&lt;a href="#providing-palettes-as-package">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>For those that are interested in developing R packages with palettes, there are a few recommendations we make in &lt;code>?palette-recommendations&lt;/code> to smoothly interface with the scales package.&lt;/p>
+&lt;p>If your palettes are vectors of colour values, we recommend simply exporting the naked vector.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#' @export&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>aurora&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"palegreen"&lt;/span>, &lt;span class='s'>"deepskyblue"&lt;/span>, &lt;span class='s'>"magenta"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>That way, they can easily be accessed and used in
+&lt;a href="https://scales.r-lib.org/reference/new_continuous_palette.html" target="_blank" rel="noopener">&lt;code>as_discrete_pal()&lt;/code>&lt;/a> and
+&lt;a href="https://scales.r-lib.org/reference/new_continuous_palette.html" target="_blank" rel="noopener">&lt;code>as_continuous_pal()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>as_continuous_pal&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>aurora&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>as_discrete_pal&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>aurora&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Alternatively, if you have functions that generate colours that is not predefined, we recommend wrapping the function in
+&lt;a href="https://scales.r-lib.org/reference/new_continuous_palette.html" target="_blank" rel="noopener">&lt;code>new_discrete_palette()&lt;/code>&lt;/a> and
+&lt;a href="https://scales.r-lib.org/reference/new_continuous_palette.html" target="_blank" rel="noopener">&lt;code>new_continuous_palette()&lt;/code>&lt;/a>. For predefined palettes, you can also use
+&lt;a href="https://scales.r-lib.org/reference/pal_manual.html" target="_blank" rel="noopener">&lt;code>pal_manual()&lt;/code>&lt;/a> or
+&lt;a href="https://scales.r-lib.org/reference/pal_gradient_n.html" target="_blank" rel="noopener">&lt;code>pal_gradient_n()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>pal_random&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>fun&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>n&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/grDevices/colors.html'>colours&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>distinct &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='nv'>n&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>new_discrete_palette&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>fun&lt;/span>, type &lt;span class='o'>=&lt;/span> &lt;span class='s'>"colour"&lt;/span>, nlevels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/length.html'>length&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/grDevices/colors.html'>colours&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Populating the metadata in
+&lt;a href="https://scales.r-lib.org/reference/new_continuous_palette.html" target="_blank" rel="noopener">&lt;code>new_discrete_palette()&lt;/code>&lt;/a>/
+&lt;a href="https://scales.r-lib.org/reference/new_continuous_palette.html" target="_blank" rel="noopener">&lt;code>new_continuous_palette()&lt;/code>&lt;/a> helps to make converting between palette types less painful.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>as_continuous_pal&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>pal_random&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/new_continuous_palette.html'>as_discrete_pal&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>pal_random&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="labels">Labels
+&lt;a href="#labels">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This release also provides improvements to labelling in the form of two new labelling functions and two new convenience functions for labels. In contrast to most of scales&amp;rsquo; label functions, these label functions are great for discrete input. First up is
+&lt;a href="https://scales.r-lib.org/reference/label_glue.html" target="_blank" rel="noopener">&lt;code>label_glue()&lt;/code>&lt;/a>, which uses the string interpolation from the glue package to format your labels.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_glue.html'>label_glue&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"The &amp;#123;x&amp;#125; penguin"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Gentoo"&lt;/span>, &lt;span class='s'>"Chinstrap"&lt;/span>, &lt;span class='s'>"Adelie"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; The Gentoo penguin&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; The Chinstrap penguin&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; The Adelie penguin&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The other labelling function,
+&lt;a href="https://scales.r-lib.org/reference/label_dictionary.html" target="_blank" rel="noopener">&lt;code>label_dictionary()&lt;/code>&lt;/a>, is convenient when some variable you use consists of short-codes or abbreviations. You can provide
+&lt;a href="https://scales.r-lib.org/reference/label_dictionary.html" target="_blank" rel="noopener">&lt;code>label_dictionary()&lt;/code>&lt;/a> with a named vector that translates the values to prettier labels. If one or more of your values doesn&amp;rsquo;t exist in the dictionary, they stay as-is by default.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>dict&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> diy &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Do it yourself"&lt;/span>, eta &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Estimated time of arrival"&lt;/span>,&lt;/span>
+&lt;span> asap &lt;span class='o'>=&lt;/span> &lt;span class='s'>"As soon as possible"&lt;/span>, tldr &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Too long; didn't read"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_dictionary.html'>label_dictionary&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>dict&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"diy"&lt;/span>, &lt;span class='s'>"tldr"&lt;/span>, &lt;span class='s'>"bff"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "Do it yourself" "Too long; didn't read" "bff"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>
+&lt;a href="https://scales.r-lib.org/reference/compose_label.html" target="_blank" rel="noopener">&lt;code>compose_label()&lt;/code>&lt;/a> is a useful convenience function we&amp;rsquo;ve added which will help you to create custom labelling behaviour without needing to write a labelling function from scratch. Similar to
+&lt;a href="https://scales.r-lib.org/reference/transform_compose.html" target="_blank" rel="noopener">&lt;code>compose_trans()&lt;/code>&lt;/a>, it allows you to chain together different labelling functions.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>screaming_flowers&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/compose_label.html'>compose_label&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_glue.html'>label_glue&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"The &amp;#123;x&amp;#125; flower"&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='nv'>toupper&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>screaming_flowers&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"daffodil"&lt;/span>, &lt;span class='s'>"orchid"&lt;/span>, &lt;span class='s'>"tulip"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; THE DAFFODIL FLOWER&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; THE ORCHID FLOWER&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; THE TULIP FLOWER&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Lastly, we haven&amp;rsquo;t completely forgotton about numeric labels either. We have introduced the
+&lt;a href="https://scales.r-lib.org/reference/number_options.html" target="_blank" rel="noopener">&lt;code>number_options()&lt;/code>&lt;/a> functions to globally populate defaults for functions such as
+&lt;a href="https://scales.r-lib.org/reference/label_number.html" target="_blank" rel="noopener">&lt;code>label_number()&lt;/code>&lt;/a> and
+&lt;a href="https://scales.r-lib.org/reference/label_currency.html" target="_blank" rel="noopener">&lt;code>label_currency()&lt;/code>&lt;/a>. This can be convenient if you produce statistical reports in non-English languages.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/number_options.html'>number_options&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> decimal.mark &lt;span class='o'>=&lt;/span> &lt;span class='s'>","&lt;/span>,&lt;/span>
+&lt;span> big.mark &lt;span class='o'>=&lt;/span> &lt;span class='s'>"."&lt;/span>,&lt;/span>
+&lt;span> style_negative &lt;span class='o'>=&lt;/span> &lt;span class='s'>"minus"&lt;/span>,&lt;/span>
+&lt;span> currency.prefix &lt;span class='o'>=&lt;/span> &lt;span class='s'>""&lt;/span>,&lt;/span>
+&lt;span> currency.suffix &lt;span class='o'>=&lt;/span> &lt;span class='s'>"€"&lt;/span>,&lt;/span>
+&lt;span> currency.decimal.mark &lt;span class='o'>=&lt;/span> &lt;span class='s'>","&lt;/span>,&lt;/span>
+&lt;span> currency.big.mark &lt;span class='o'>=&lt;/span> &lt;span class='s'>" "&lt;/span>,&lt;/span>
+&lt;span> ordinal.rules &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_ordinal.html'>ordinal_french&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_currency.html'>label_currency&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>accuracy &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.01&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.1&lt;/span>, &lt;span class='m'>10&lt;/span>, &lt;span class='m'>1000000&lt;/span>, &lt;span class='o'>-&lt;/span>&lt;span class='m'>1000&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "0,10€" "10,00€" "1 000 000,00€" "-1 000,00€"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_ordinal.html'>label_ordinal&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>4&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "1er" "2e" "3e" "4e"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank all people who have contributed in some way, whether it was filing issues, participating in discussion or contributing to code and documentation:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/Aariq" target="_blank" rel="noopener">@Aariq&lt;/a>,
+&lt;a href="https://github.com/Aehmlo" target="_blank" rel="noopener">@Aehmlo&lt;/a>,
+&lt;a href="https://github.com/Ali-Hudson" target="_blank" rel="noopener">@Ali-Hudson&lt;/a>,
+&lt;a href="https://github.com/cb12991" target="_blank" rel="noopener">@cb12991&lt;/a>,
+&lt;a href="https://github.com/colindouglas" target="_blank" rel="noopener">@colindouglas&lt;/a>,
+&lt;a href="https://github.com/d-morrison" target="_blank" rel="noopener">@d-morrison&lt;/a>,
+&lt;a href="https://github.com/davidhodge931" target="_blank" rel="noopener">@davidhodge931&lt;/a>,
+&lt;a href="https://github.com/EricMarcon" target="_blank" rel="noopener">@EricMarcon&lt;/a>,
+&lt;a href="https://github.com/kellijohnson-NOAA" target="_blank" rel="noopener">@kellijohnson-NOAA&lt;/a>,
+&lt;a href="https://github.com/kmcd39" target="_blank" rel="noopener">@kmcd39&lt;/a>,
+&lt;a href="https://github.com/lz1nwm" target="_blank" rel="noopener">@lz1nwm&lt;/a>,
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>,
+&lt;a href="https://github.com/mjskay" target="_blank" rel="noopener">@mjskay&lt;/a>,
+&lt;a href="https://github.com/Moohan" target="_blank" rel="noopener">@Moohan&lt;/a>,
+&lt;a href="https://github.com/muschellij2" target="_blank" rel="noopener">@muschellij2&lt;/a>,
+&lt;a href="https://github.com/ppreshant" target="_blank" rel="noopener">@ppreshant&lt;/a>,
+&lt;a href="https://github.com/rawktheuniversemon" target="_blank" rel="noopener">@rawktheuniversemon&lt;/a>,
+&lt;a href="https://github.com/rogiersbart" target="_blank" rel="noopener">@rogiersbart&lt;/a>,
+&lt;a href="https://github.com/SchmidtPaul" target="_blank" rel="noopener">@SchmidtPaul&lt;/a>,
+&lt;a href="https://github.com/teunbrand" target="_blank" rel="noopener">@teunbrand&lt;/a>, and
+&lt;a href="https://github.com/thomasp85" target="_blank" rel="noopener">@thomasp85&lt;/a>.&lt;/p></description></item><item><title>scales 1.3.0</title><link>https://www.tidyverse.org/blog/2023/11/scales-1-3-0/</link><pubDate>Mon, 27 Nov 2023 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2023/11/scales-1-3-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re delighted to announce the release of
+&lt;a href="https://scales.r-lib.org" target="_blank" rel="noopener">scales&lt;/a> 1.3.0. scales is a packages that extracts much of the scaling logic that is used in ggplot2 to a general framework, along with utility functions for e.g. formatting labels or creating color palettes.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"scales"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This blog post will give a quick overview of the 1.3.0 release, which is mainly an upkeep release but does contain a few interesting tidbits.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://scales.r-lib.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://scales.r-lib.org'>scales&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="proper-support-for-difftime-objects">Proper support for difftime objects
+&lt;a href="#proper-support-for-difftime-objects">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>While scales had rudimentary support for objects from the hms package, I did not support the more common base R difftime objects. This is now rectified with the introduction of
+&lt;a href="https://scales.r-lib.org/reference/label_date.html" target="_blank" rel="noopener">&lt;code>label_timespan()&lt;/code>&lt;/a>,
+&lt;a href="https://scales.r-lib.org/reference/breaks_timespan.html" target="_blank" rel="noopener">&lt;code>breaks_timespan()&lt;/code>&lt;/a>, and
+&lt;a href="https://scales.r-lib.org/reference/transform_timespan.html" target="_blank" rel="noopener">&lt;code>transform_timespan()&lt;/code>&lt;/a>. While the labels and breaks function can be used on their own, all the behavior is encapsulated in the timespan transform object which is kin to
+&lt;a href="https://scales.r-lib.org/reference/transform_timespan.html" target="_blank" rel="noopener">&lt;code>transform_hms()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://ggplot2.tidyverse.org'>ggplot2&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>events&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/data.frame.html'>data.frame&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+time &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/difftime.html'>as.difftime&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/Uniform.html'>runif&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>30&lt;/span>, max &lt;span class='o'>=&lt;/span> &lt;span class='m'>200&lt;/span>&lt;span class='o'>)&lt;/span>, units &lt;span class='o'>=&lt;/span> &lt;span class='s'>"secs"&lt;/span>&lt;span class='o'>)&lt;/span>,
+magnitude &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/Normal.html'>rnorm&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>30&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='m'>2&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>events&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>time&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='nv'>magnitude&lt;/span>&lt;span class='o'>)&lt;/span>,
+position &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/position_jitter.html'>position_jitter&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>width &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>trans &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/transform_timespan.html'>transform_timespan&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-2-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>As we can see the timespan transform automatically picks the unit of the difftime object. Further it identifies that for this range, adding breaks for minutes makes most sense.&lt;/p>
+&lt;p>If we had recorded time as hours rather than seconds, we can see how that affects the labelling:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>events&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>time&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/difftime.html'>as.difftime&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/Uniform.html'>runif&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>30&lt;/span>, max &lt;span class='o'>=&lt;/span> &lt;span class='m'>200&lt;/span>&lt;span class='o'>)&lt;/span>, units &lt;span class='o'>=&lt;/span> &lt;span class='s'>"hours"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>events&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>time&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='nv'>magnitude&lt;/span>&lt;span class='o'>)&lt;/span>,
+position &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/position_jitter.html'>position_jitter&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>width &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>trans &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/transform_timespan.html'>transform_timespan&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-3-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="api-brush-up">API brush-up
+&lt;a href="#api-brush-up">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>scales has gone through a number of touch-ups on its API, such as revamping the labels functions to all start with &lt;code>label_&lt;/code>. This release we continue (and hopefully conclude) the touch-ups by using a common prefix for the transformation utilities (&lt;code>transform_&lt;/code>) and palettes (&lt;code>pal_&lt;/code>). We have also rename
+&lt;a href="https://scales.r-lib.org/reference/dollar_format.html" target="_blank" rel="noopener">&lt;code>label_dollar()&lt;/code>&lt;/a> to
+&lt;a href="https://scales.r-lib.org/reference/label_currency.html" target="_blank" rel="noopener">&lt;code>label_currency()&lt;/code>&lt;/a> to make it clear that this can be used for any type of currency, not just dollars (US or otherwise). All the old functions have been kept around with no plan of deprecation but we advise you to update your code to use the new names.&lt;/p>
+&lt;h2 id="more-transformation-power">More transformation power
+&lt;a href="#more-transformation-power">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This release also includes some other updates to the transformations. They have received a fair amount of bug fixes and a new built-in transformation type has joined the group:
+&lt;a href="https://scales.r-lib.org/reference/transform_asinh.html" target="_blank" rel="noopener">&lt;code>transform_asinh()&lt;/code>&lt;/a>, the inverse hyperbolic sine transformation, can be used much like log transformations, but it also supports negative values.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/graphics/plot.default.html'>plot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/transform_asinh.html'>transform_asinh&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, xlim &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>-&lt;/span>&lt;span class='m'>100&lt;/span>, &lt;span class='m'>100&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/graphics/lines.html'>lines&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/seq.html'>seq&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>-&lt;/span>&lt;span class='m'>100&lt;/span>, &lt;span class='m'>100&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/transform_log.html'>transform_log&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nf'>transform&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/seq.html'>seq&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>-&lt;/span>&lt;span class='m'>100&lt;/span>, &lt;span class='m'>100&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>, col &lt;span class='o'>=&lt;/span> &lt;span class='s'>"red"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/graphics/text.html'>text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>50&lt;/span>, &lt;span class='m'>3&lt;/span>, label &lt;span class='o'>=&lt;/span> &lt;span class='s'>"log-transform"&lt;/span>, col &lt;span class='o'>=&lt;/span> &lt;span class='s'>"red"&lt;/span>, adj &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-4-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Transformation objects can now also (optionally) record the derivatives and inverse derivative which makes it possible to properly correct density estimations of transformed values.&lt;/p>
+&lt;h2 id="fixes-to-range-training-in-discrete-scales">Fixes to range training in discrete scales
+&lt;a href="#fixes-to-range-training-in-discrete-scales">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The training of discrete ranges has seen a few changes that hopefully makes it more predictable what happens when you train a range based on factors or character vectors. When training based on factors the ordering of the range will follow the order of the levels in the factor as they are encountered. New values will be appended to the end of the range. For character vectors the range will always stay sorted alphanumerically. Mixing of character and factors during training will lead to undefined ordering. This has always been the advertised behavior but it was not applied consistently up until now. As a result you may see the occational reordering of e.g. legends in ggplot2 after upgrading scales.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://github.com/AndreeWarby" target="_blank" rel="noopener">@AndreeWarby&lt;/a>,
+&lt;a href="https://github.com/ari-nz" target="_blank" rel="noopener">@ari-nz&lt;/a>,
+&lt;a href="https://github.com/BioinformaNicks" target="_blank" rel="noopener">@BioinformaNicks&lt;/a>,
+&lt;a href="https://github.com/bwiernik" target="_blank" rel="noopener">@bwiernik&lt;/a>,
+&lt;a href="https://github.com/ccsarapas" target="_blank" rel="noopener">@ccsarapas&lt;/a>,
+&lt;a href="https://github.com/CMKnott" target="_blank" rel="noopener">@CMKnott&lt;/a>,
+&lt;a href="https://github.com/DanChaltiel" target="_blank" rel="noopener">@DanChaltiel&lt;/a>,
+&lt;a href="https://github.com/davidhodge931" target="_blank" rel="noopener">@davidhodge931&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dmurdoch" target="_blank" rel="noopener">@dmurdoch&lt;/a>,
+&lt;a href="https://github.com/EricMarcon" target="_blank" rel="noopener">@EricMarcon&lt;/a>,
+&lt;a href="https://github.com/Generalized" target="_blank" rel="noopener">@Generalized&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/JJHelly" target="_blank" rel="noopener">@JJHelly&lt;/a>,
+&lt;a href="https://github.com/joshuaylevy" target="_blank" rel="noopener">@joshuaylevy&lt;/a>,
+&lt;a href="https://github.com/jzadra" target="_blank" rel="noopener">@jzadra&lt;/a>,
+&lt;a href="https://github.com/kuriwaki" target="_blank" rel="noopener">@kuriwaki&lt;/a>,
+&lt;a href="https://github.com/larmarange" target="_blank" rel="noopener">@larmarange&lt;/a>,
+&lt;a href="https://github.com/laurejo1" target="_blank" rel="noopener">@laurejo1&lt;/a>,
+&lt;a href="https://github.com/lz1nwm" target="_blank" rel="noopener">@lz1nwm&lt;/a>,
+&lt;a href="https://github.com/MikkoVihtakari" target="_blank" rel="noopener">@MikkoVihtakari&lt;/a>,
+&lt;a href="https://github.com/mjskay" target="_blank" rel="noopener">@mjskay&lt;/a>,
+&lt;a href="https://github.com/pearsonca" target="_blank" rel="noopener">@pearsonca&lt;/a>,
+&lt;a href="https://github.com/Saadi4469" target="_blank" rel="noopener">@Saadi4469&lt;/a>,
+&lt;a href="https://github.com/teunbrand" target="_blank" rel="noopener">@teunbrand&lt;/a>,
+&lt;a href="https://github.com/thomasp85" target="_blank" rel="noopener">@thomasp85&lt;/a>, and
+&lt;a href="https://github.com/zeehio" target="_blank" rel="noopener">@zeehio&lt;/a>.&lt;/p></description></item><item><title>scales 1.2.0</title><link>https://www.tidyverse.org/blog/2022/04/scales-1-2-0/</link><pubDate>Wed, 13 Apr 2022 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2022/04/scales-1-2-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re very pleased to announce the release of
+&lt;a href="https://scales.r-lib.org" target="_blank" rel="noopener">scales&lt;/a> 1.2.0. The scales package provides much of the infrastructure that underlies ggplot2&amp;rsquo;s scales, and using it allow you to customize the transformations, breaks, and labels used by ggplot2. You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"scales"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This blog post will show off a few new features for labeling numbers, log scales, and currencies. You can see a full list of changes in the
+&lt;a href="https://github.com/r-lib/scales/blob/main/NEWS.md" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://ggplot2.tidyverse.org'>ggplot2&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://scales.r-lib.org'>scales&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="numbers">Numbers
+&lt;a href="#numbers">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://scales.r-lib.org/reference/label_number.html" target="_blank" rel="noopener">&lt;code>label_number()&lt;/code>&lt;/a> is the workhorse that powers ggplot2&amp;rsquo;s formatting of numbers, including
+&lt;a href="https://scales.r-lib.org/reference/label_dollar.html" target="_blank" rel="noopener">&lt;code>label_dollar()&lt;/code>&lt;/a> and
+&lt;a href="https://scales.r-lib.org/reference/label_number.html" target="_blank" rel="noopener">&lt;code>label_comma()&lt;/code>&lt;/a>. This release added a number of useful new features.&lt;/p>
+&lt;p>The most important is a new &lt;code>scale_cut&lt;/code> argument that makes it possible to independently scales different parts of the range. This is useful for scales which span multiple orders of magnitude. Take the following two examples which don&amp;rsquo;t get great labels by default:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>df1&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/data.frame.html'>data.frame&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+x &lt;span class='o'>=&lt;/span> &lt;span class='m'>10&lt;/span> &lt;span class='o'>^&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/Uniform.html'>runif&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1000&lt;/span>, &lt;span class='m'>2&lt;/span>, &lt;span class='m'>9&lt;/span>&lt;span class='o'>)&lt;/span>,
+y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/Uniform.html'>runif&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1000&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>df2&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>df1&lt;/span> |&amp;gt; &lt;span class='nf'>dplyr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/filter.html'>filter&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span> &lt;span class='o'>&amp;lt;=&lt;/span> &lt;span class='m'>1.25&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='m'>10&lt;/span>&lt;span class='o'>^&lt;/span>&lt;span class='m'>6&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>plot1&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>df1&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>, &lt;span class='nv'>y&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='kc'>NULL&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='kc'>NULL&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>plot1&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_log10&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-3-1.png" title="Scatterplot with x-axis labels 1e+03, 1e+05, 1e+07, and 1e+09." alt="Scatterplot with x-axis labels 1e+03, 1e+05, 1e+07, and 1e+09." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>plot2&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>df2&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>, &lt;span class='nv'>y&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='kc'>NULL&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='kc'>NULL&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>plot2&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-4-1.png" title="Scatterplot with x-axis labels 0, 250000, 500000, 750000, 1000000, 12500000." alt="Scatterplot with x-axis labels 0, 250000, 500000, 750000, 1000000, 12500000." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>You can use
+&lt;a href="https://scales.r-lib.org/reference/number.html" target="_blank" rel="noopener">&lt;code>cut_short_scale()&lt;/code>&lt;/a> to show thousands with a K suffix, millions with a M suffix, and billions with a B suffix:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>plot1&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_log10&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_number.html'>label_number&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>scale_cut &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/number.html'>cut_short_scale&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-5-1.png" title="Scatterplot with x-axis labels 1K, 100K, 10M, 1B." alt="Scatterplot with x-axis labels 1K, 100K, 10M, 1B." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>plot2&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_number.html'>label_number&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>scale_cut &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/number.html'>cut_short_scale&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-6-1.png" title="Scatterplot with x-axis labels 0, 250K, 500K, 750K, 1.00M, 1.25M" alt="Scatterplot with x-axis labels 0, 250K, 500K, 750K, 1.00M, 1.25M" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>(If your country uses 1 billion to mean 1 million million, then you can use
+&lt;a href="https://scales.r-lib.org/reference/number.html" target="_blank" rel="noopener">&lt;code>cut_long_scale()&lt;/code>&lt;/a> instead of
+&lt;a href="https://scales.r-lib.org/reference/number.html" target="_blank" rel="noopener">&lt;code>cut_short_scale()&lt;/code>&lt;/a>.)&lt;/p>
+&lt;p>You can use
+&lt;a href="https://scales.r-lib.org/reference/number.html" target="_blank" rel="noopener">&lt;code>cut_si()&lt;/code>&lt;/a> for SI labels:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>plot1&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_log10&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_number.html'>label_number&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>scale_cut &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/number.html'>cut_si&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"g"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-7-1.png" title="Scatterplot with x-axis labels 1 kg, 100 kg, 10 Mg, 1 Gg." alt="Scatterplot with x-axis labels 1 kg, 100 kg, 10 Mg, 1 Gg." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>plot2&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_number.html'>label_number&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>scale_cut &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/number.html'>cut_si&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Hz"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-8-1.png" title="Scatterplot with x-axis labels 0, 250 KMz, 500 KHz, 750 KHz, 1.00 MHz, 1.25 MHz" alt="Scatterplot with x-axis labels 0, 250 KMz, 500 KHz, 750 KHz, 1.00 MHz, 1.25 MHz" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>This replaces
+&lt;a href="https://scales.r-lib.org/reference/label_number_si.html" target="_blank" rel="noopener">&lt;code>label_number_si()&lt;/code>&lt;/a> because it incorrectly used the
+&lt;a href="https://en.wikipedia.org/wiki/Long_and_short_scales" target="_blank" rel="noopener">short-scale abbreviations&lt;/a> instead of the correct
+&lt;a href="https://en.wikipedia.org/wiki/Metric_prefix" target="_blank" rel="noopener">SI prefixes&lt;/a>.&lt;/p>
+&lt;h2 id="log-labels">Log labels
+&lt;a href="#log-labels">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Another way to label logs scales, thanks to
+&lt;a href="https://github.com/davidchall" target="_blank" rel="noopener">David C Hall&lt;/a>, you can now use &lt;code>scales::label_log()&lt;/code> to display&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>plot1&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_log10&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>scales&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_log.html'>label_log&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-9-1.png" title="Scatterplot with x-axis labels in mathematical notation: 10^3, 10^5, 10^7, 10^9." alt="Scatterplot with x-axis labels in mathematical notation: 10^3, 10^5, 10^7, 10^9." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>You can use the &lt;code>base&lt;/code> argument if you need a different base for the a logarithm:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>plot1&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+trans &lt;span class='o'>=&lt;/span> &lt;span class='nf'>scales&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/log_trans.html'>log_trans&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>2&lt;/span>&lt;span class='o'>)&lt;/span>,
+labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>scales&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_log.html'>label_log&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>2&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-10-1.png" title="Scatterplot with x-axis labels in mathematical notation: 2^11, 2^17, 2^23, 2^29." alt="Scatterplot with x-axis labels in mathematical notation: 2^11, 2^17, 2^23, 2^29." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="currency">Currency
+&lt;a href="#currency">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Finally,
+&lt;a href="https://scales.r-lib.org/reference/label_dollar.html" target="_blank" rel="noopener">&lt;code>label_dollar()&lt;/code>&lt;/a> receives a couple of small improvements. The &lt;code>prefix&lt;/code> is now placed before the negative sign, rather than after it, yielding (e.g) the correct &lt;code>-$1&lt;/code> instead of &lt;code>$-1&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>df3&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/data.frame.html'>data.frame&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+date &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/as.Date.html'>as.Date&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"2022-01-01"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>1e3&lt;/span>,
+balance &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/cumsum.html'>cumsum&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/Uniform.html'>runif&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1e3&lt;/span>, &lt;span class='o'>-&lt;/span>&lt;span class='m'>1e3&lt;/span>, &lt;span class='m'>1e3&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>plot3&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>df3&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>date&lt;/span>, &lt;span class='nv'>balance&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='kc'>NULL&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='kc'>NULL&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>plot3&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-11-1.png" title="Line with y-axis labels in mathematical notation: 0, -10000, -20000, -30000, -40000." alt="Line with y-axis labels in mathematical notation: 0, -10000, -20000, -30000, -40000." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>plot3&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_y_continuous&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_dollar.html'>label_dollar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>scale_cut &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/number.html'>cut_short_scale&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-12-1.png" title="Line with y-axis labels in mathematical notation: $0, -$10K, -$20K, -$30K, -$40K." alt="Line with y-axis labels in mathematical notation: $0, -$10K, -$20K, -$30K, -$40K." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>It also no longer uses its own &lt;code>negative_parens&lt;/code> argument, but instead inherits the new &lt;code>style_negative&lt;/code> argument from
+&lt;a href="https://scales.r-lib.org/reference/label_number.html" target="_blank" rel="noopener">&lt;code>label_number()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>plot3&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_y_continuous&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_dollar.html'>label_dollar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+scale_cut &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/number.html'>cut_short_scale&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>,
+style_negative &lt;span class='o'>=&lt;/span> &lt;span class='s'>"parens"&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-13-1.png" title="Line with y-axis labels in mathematical notation: $0, ($10K), ($20K), ($30K), ($40K)." alt="Line with y-axis labels in mathematical notation: $0, ($10K), ($20K), ($30K), ($40K)." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks goes to
+&lt;a href="https://github.com/davidchall" target="_blank" rel="noopener">David C Hall&lt;/a>, who contributed to the majority of new features in this version. 40 others contributed by asking questions, identifying bugs, and suggesting patches:
+&lt;a href="https://github.com/aalucaci" target="_blank" rel="noopener">@aalucaci&lt;/a>,
+&lt;a href="https://github.com/adamkemberling" target="_blank" rel="noopener">@adamkemberling&lt;/a>,
+&lt;a href="https://github.com/akonkel-aek" target="_blank" rel="noopener">@akonkel-aek&lt;/a>,
+&lt;a href="https://github.com/billdenney" target="_blank" rel="noopener">@billdenney&lt;/a>,
+&lt;a href="https://github.com/brunocarlin" target="_blank" rel="noopener">@brunocarlin&lt;/a>,
+&lt;a href="https://github.com/campbead" target="_blank" rel="noopener">@campbead&lt;/a>,
+&lt;a href="https://github.com/cawthm" target="_blank" rel="noopener">@cawthm&lt;/a>,
+&lt;a href="https://github.com/DanChaltiel" target="_blank" rel="noopener">@DanChaltiel&lt;/a>,
+&lt;a href="https://github.com/davidhodge931" target="_blank" rel="noopener">@davidhodge931&lt;/a>,
+&lt;a href="https://github.com/davidski" target="_blank" rel="noopener">@davidski&lt;/a>,
+&lt;a href="https://github.com/dkahle" target="_blank" rel="noopener">@dkahle&lt;/a>,
+&lt;a href="https://github.com/donboyd5" target="_blank" rel="noopener">@donboyd5&lt;/a>,
+&lt;a href="https://github.com/dpseidel" target="_blank" rel="noopener">@dpseidel&lt;/a>,
+&lt;a href="https://github.com/ds-jim" target="_blank" rel="noopener">@ds-jim&lt;/a>,
+&lt;a href="https://github.com/EBukin" target="_blank" rel="noopener">@EBukin&lt;/a>,
+&lt;a href="https://github.com/elong0527" target="_blank" rel="noopener">@elong0527&lt;/a>,
+&lt;a href="https://github.com/eutwt" target="_blank" rel="noopener">@eutwt&lt;/a>,
+&lt;a href="https://github.com/ewenme" target="_blank" rel="noopener">@ewenme&lt;/a>,
+&lt;a href="https://github.com/fontikar" target="_blank" rel="noopener">@fontikar&lt;/a>,
+&lt;a href="https://github.com/frederikziebell" target="_blank" rel="noopener">@frederikziebell&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/karawoo" target="_blank" rel="noopener">@karawoo&lt;/a>,
+&lt;a href="https://github.com/mfherman" target="_blank" rel="noopener">@mfherman&lt;/a>,
+&lt;a href="https://github.com/mikmart" target="_blank" rel="noopener">@mikmart&lt;/a>,
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>,
+&lt;a href="https://github.com/mjskay" target="_blank" rel="noopener">@mjskay&lt;/a>,
+&lt;a href="https://github.com/nicolaspayette" target="_blank" rel="noopener">@nicolaspayette&lt;/a>,
+&lt;a href="https://github.com/NunoSempere" target="_blank" rel="noopener">@NunoSempere&lt;/a>,
+&lt;a href="https://github.com/SimonDedman" target="_blank" rel="noopener">@SimonDedman&lt;/a>,
+&lt;a href="https://github.com/sjackman" target="_blank" rel="noopener">@sjackman&lt;/a>,
+&lt;a href="https://github.com/stragu" target="_blank" rel="noopener">@stragu&lt;/a>,
+&lt;a href="https://github.com/teunbrand" target="_blank" rel="noopener">@teunbrand&lt;/a>,
+&lt;a href="https://github.com/thomasp85" target="_blank" rel="noopener">@thomasp85&lt;/a>,
+&lt;a href="https://github.com/TonyLadson" target="_blank" rel="noopener">@TonyLadson&lt;/a>,
+&lt;a href="https://github.com/tuoheyd" target="_blank" rel="noopener">@tuoheyd&lt;/a>,
+&lt;a href="https://github.com/vinhtantran" target="_blank" rel="noopener">@vinhtantran&lt;/a>,
+&lt;a href="https://github.com/vsocrates" target="_blank" rel="noopener">@vsocrates&lt;/a>, and
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>.&lt;/p></description></item><item><title>scales 1.1.0</title><link>https://www.tidyverse.org/blog/2019/11/scales-1-1-0/</link><pubDate>Mon, 18 Nov 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/11/scales-1-1-0/</guid><description>&lt;p>We&amp;rsquo;re thrilled to announce the release of
+&lt;a href="https://scales.r-lib.org/" target="_blank" rel="noopener">scales&lt;/a> 1.1.0.
+The scales package provides much of the infrastructure that underlies ggplot2&amp;rsquo;s scales, and using it allow you to customize the transformations, breaks, and labels used by ggplot2. Get the latest version with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;scales&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The biggest improvements in this release are related to usability and documentation:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Axis breaks and labels have a new naming scheme: functions that generate
+breaks from limits are called &lt;code>breaks_&lt;/code>; functions that generate labels
+from breaks are called &lt;code>labels_&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>All the examples for breaks and labels have been overhauled to use new
+&lt;code>demo_continuous()&lt;/code>, &lt;code>demo_discrete()&lt;/code>, and &lt;code>demo_log10()&lt;/code>. These make
+it much easier to see how you&amp;rsquo;d use scales functions with ggplot2, so
+when you&amp;rsquo;re
+&lt;a href="https://scales.r-lib.org/reference/index.html" target="_blank" rel="noopener">browsing the documentation&lt;/a>,
+you can immediately see how the functions work with ggplot2.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">scales&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>There are also a few new breaks and labels functions:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>New
+&lt;a href="https://scales.r-lib.org/reference/breaks_width.html" target="_blank" rel="noopener">&lt;code>breaks_width()&lt;/code>&lt;/a>
+allows you to specify the distance between breaks rather than the number
+of them.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">demo_continuous&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">100&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">breaks&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">breaks_width&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">10&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; scale_x_continuous(breaks = breaks_width(10))&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figs/unnamed-chunk-3-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://scales.r-lib.org/reference/label_number.html" target="_blank" rel="noopener">&lt;code>label_number()&lt;/code>&lt;/a> and
+&lt;a href="https://scales.r-lib.org/reference/label_percent.html" target="_blank" rel="noopener">&lt;code>label_percent()&lt;/code>&lt;/a>
+do a better job of picking the default &lt;code>accuracy&lt;/code>, which means that you
+should generally get the correct number of decimal place by default.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">demo_continuous&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">0.1&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">labels&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">label_number&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="c1">#&amp;gt; scale_x_continuous(labels = label_number())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figs/unnamed-chunk-4-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">demo_continuous&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">0.1&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">labels&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">label_percent&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="c1">#&amp;gt; scale_x_continuous(labels = label_percent())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figs/unnamed-chunk-4-2.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>New
+&lt;a href="https://scales.r-lib.org/reference/label_bytes.html" target="_blank" rel="noopener">&lt;code>label_bytes()&lt;/code>&lt;/a>
+replaces &lt;code>number_bytes_format()&lt;/code> with a more convenient interface. It takes
+a single &lt;code>unit&lt;/code> argument which can either be an SI unit (e.g. &amp;ldquo;kB&amp;rdquo;), a
+binary unit (e.g. &amp;ldquo;kIB&amp;rdquo;), or an automatic unit (either &amp;ldquo;auto_si&amp;rdquo; or
+&amp;ldquo;auto_binary&amp;rdquo;).&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># default is &amp;#34;auto_si&amp;#34;&lt;/span>
+&lt;span class="nf">demo_continuous&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">1e6&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">label&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">label_bytes&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="c1">#&amp;gt; scale_x_continuous(label = label_bytes())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figs/unnamed-chunk-5-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># supply a unit if you want all labels to use the same unit&lt;/span>
+&lt;span class="nf">demo_continuous&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">1e6&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">label&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">label_bytes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;kB&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; scale_x_continuous(label = label_bytes(&amp;#34;kB&amp;#34;))&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figs/unnamed-chunk-5-2.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>New
+&lt;a href="https://scales.r-lib.org/reference/label_number_auto.html" target="_blank" rel="noopener">&lt;code>label_number_auto()&lt;/code>&lt;/a>
+automatically picks between &lt;code>label_number()&lt;/code> and &lt;code>label_scientific()&lt;/code> based
+on the range of the input. It should produce compact labels over a very wide
+range of inputs. We are considering making this the default labeller for
+a future version of ggplot2.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">demo_continuous&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">1e5&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">labels&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">label_number_auto&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="c1">#&amp;gt; scale_x_continuous(labels = label_number_auto())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figs/unnamed-chunk-6-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">demo_continuous&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">1e10&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">labels&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">label_number_auto&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="c1">#&amp;gt; scale_x_continuous(labels = label_number_auto())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figs/unnamed-chunk-6-2.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>New
+&lt;a href="https://scales.r-lib.org/reference/label_number_si.html" target="_blank" rel="noopener">&lt;code>label_number_si()&lt;/code>&lt;/a>
+formats numeric vectors with SI units.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">demo_continuous&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">1e9&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">label&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">label_number_si&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="c1">#&amp;gt; scale_x_continuous(label = label_number_si())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figs/unnamed-chunk-7-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">demo_log10&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">1e9&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">breaks&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">log_breaks&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">10&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">labels&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">label_number_si&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="c1">#&amp;gt; scale_x_log10(breaks = log_breaks(10), labels = label_number_si())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figs/unnamed-chunk-7-2.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>New
+&lt;a href="https://scales.r-lib.org/reference/label_date.html" target="_blank" rel="noopener">&lt;code>label_date_short()&lt;/code>&lt;/a>
+creates labels for a date axis that only show the components of the date
+that have changed since the previous label.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">five_months&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">as.POSIXct&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;2019-11-01&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;2020-03-01&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="nf">demo_datetime&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">five_months&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; scale_x_datetime()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figs/unnamed-chunk-8-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">demo_datetime&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">five_months&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">labels&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">label_date_short&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="c1">#&amp;gt; scale_x_datetime(labels = label_date_short())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figs/unnamed-chunk-8-2.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>See the
+&lt;a href="https://scales.r-lib.org/news/index.html#scales-1-1-0" target="_blank" rel="noopener">change log&lt;/a> for a full list of changes and bug fixes in this version.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all the GitHub contributors who helped make this release happen!
+&lt;a href="https://github.com/agila5" target="_blank" rel="noopener">@agila5&lt;/a>,
+&lt;a href="https://github.com/Anirudhsekar96" target="_blank" rel="noopener">@Anirudhsekar96&lt;/a>,
+&lt;a href="https://github.com/apsalverda" target="_blank" rel="noopener">@apsalverda&lt;/a>,
+&lt;a href="https://github.com/b-lev" target="_blank" rel="noopener">@b-lev&lt;/a>,
+&lt;a href="https://github.com/bhogan-mitre" target="_blank" rel="noopener">@bhogan-mitre&lt;/a>,
+&lt;a href="https://github.com/billdenney" target="_blank" rel="noopener">@billdenney&lt;/a>,
+&lt;a href="https://github.com/bjedwards" target="_blank" rel="noopener">@bjedwards&lt;/a>,
+&lt;a href="https://github.com/bkkkk" target="_blank" rel="noopener">@bkkkk&lt;/a>,
+&lt;a href="https://github.com/blairj09" target="_blank" rel="noopener">@blairj09&lt;/a>,
+&lt;a href="https://github.com/clauswilke" target="_blank" rel="noopener">@clauswilke&lt;/a>,
+&lt;a href="https://github.com/const-ae" target="_blank" rel="noopener">@const-ae&lt;/a>,
+&lt;a href="https://github.com/davidmasp" target="_blank" rel="noopener">@davidmasp&lt;/a>,
+&lt;a href="https://github.com/dpseidel" target="_blank" rel="noopener">@dpseidel&lt;/a>,
+&lt;a href="https://github.com/eliocamp" target="_blank" rel="noopener">@eliocamp&lt;/a>,
+&lt;a href="https://github.com/GegznaV" target="_blank" rel="noopener">@GegznaV&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/HenrikBengtsson" target="_blank" rel="noopener">@HenrikBengtsson&lt;/a>,
+&lt;a href="https://github.com/hvaret" target="_blank" rel="noopener">@hvaret&lt;/a>,
+&lt;a href="https://github.com/jcheng5" target="_blank" rel="noopener">@jcheng5&lt;/a>,
+&lt;a href="https://github.com/kiernann" target="_blank" rel="noopener">@kiernann&lt;/a>,
+&lt;a href="https://github.com/kuriwaki" target="_blank" rel="noopener">@kuriwaki&lt;/a>,
+&lt;a href="https://github.com/mikmart" target="_blank" rel="noopener">@mikmart&lt;/a>,
+&lt;a href="https://github.com/njtierney" target="_blank" rel="noopener">@njtierney&lt;/a>,
+&lt;a href="https://github.com/paleolimbot" target="_blank" rel="noopener">@paleolimbot&lt;/a>,
+&lt;a href="https://github.com/sada1993" target="_blank" rel="noopener">@sada1993&lt;/a>,
+&lt;a href="https://github.com/schloerke" target="_blank" rel="noopener">@schloerke&lt;/a>,
+&lt;a href="https://github.com/sflippl" target="_blank" rel="noopener">@sflippl&lt;/a>,
+&lt;a href="https://github.com/slowkow" target="_blank" rel="noopener">@slowkow&lt;/a>,
+&lt;a href="https://github.com/sobrietie" target="_blank" rel="noopener">@sobrietie&lt;/a>,
+&lt;a href="https://github.com/tdawry" target="_blank" rel="noopener">@tdawry&lt;/a>,
+&lt;a href="https://github.com/teramonagi" target="_blank" rel="noopener">@teramonagi&lt;/a>,
+&lt;a href="https://github.com/thomasp85" target="_blank" rel="noopener">@thomasp85&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>,
+&lt;a href="https://github.com/tungmilan" target="_blank" rel="noopener">@tungmilan&lt;/a>,
+&lt;a href="https://github.com/turgeonmaxime" target="_blank" rel="noopener">@turgeonmaxime&lt;/a>,
+&lt;a href="https://github.com/wibeasley" target="_blank" rel="noopener">@wibeasley&lt;/a>,
+&lt;a href="https://github.com/woodwards" target="_blank" rel="noopener">@woodwards&lt;/a>, and
+&lt;a href="https://github.com/zamorarr" target="_blank" rel="noopener">@zamorarr&lt;/a>.&lt;/p></description></item><item><title>scales 1.0.0</title><link>https://www.tidyverse.org/blog/2018/08/scales-1-0-0/</link><pubDate>Thu, 09 Aug 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/08/scales-1-0-0/</guid><description>&lt;p>We&amp;rsquo;re delighted to announce the release of
+&lt;a href="https://scales.r-lib.org/" target="_blank" rel="noopener">scales&lt;/a> 1.0.0.
+The scales packages provides the internal scaling infrastructure to ggplot2 and its functions allow users to customize the transformations, breaks, guides and palettes used in visualizations in ggplot2 and beyond.&lt;/p>
+&lt;p>This is a major release with significant changes to the popular formatter
+functions, and added transformations. Below we demonstrate some of the biggest
+changes in this release including:&lt;/p>
+&lt;ul>
+&lt;li>updated formatter functions&lt;/li>
+&lt;li>new transformations&lt;/li>
+&lt;li>improved breaks on log-transformed scales&lt;/li>
+&lt;/ul>
+&lt;p>See the
+&lt;a href="https://scales.r-lib.org/news/index.html" target="_blank" rel="noopener">News&lt;/a> for a detailed list of changes
+and visit
+&lt;a href="https://scales.r-lib.org/" target="_blank" rel="noopener">the new website&lt;/a> for complete documentation and
+additional usage examples.&lt;/p>
+&lt;p>Install the latest version with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;scales&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="formatter-changes">Formatter changes
+&lt;a href="#formatter-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thanks to the help of
+&lt;a href="https://github.com/larmarange" target="_blank" rel="noopener">@larmarange&lt;/a>, scales has
+now added a generic formatter function, &lt;code>number_format()&lt;/code>, that powers the majority
+of the formatters in the package.&lt;/p>
+&lt;p>This change altered the arguments of most of the formatters:
+&lt;code>comma_format()&lt;/code>, &lt;code>percent_format()&lt;/code>, &lt;code>unit_format()&lt;/code>, &lt;code>dollar_format()&lt;/code>,
+&lt;code>ordinal_format()&lt;/code>, and &lt;code>scientific_format()&lt;/code>. All gained new arguments &lt;code>accuracy&lt;/code>,
+&lt;code>scale&lt;/code>, &lt;code>prefix&lt;/code>, and &lt;code>suffix&lt;/code>, allowing users to specify rounding accuracy,
+a scaling value, a prefix, and a suffix to
+customize output. Furthermore, all of these functions now allow user
+specification of the thousands separator, &lt;code>big.mark&lt;/code>, and the decimal separator,
+&lt;code>decimal.mark&lt;/code>. Users of these formatters will notice that the default thousands
+separator is now a space. This default was chosen as a useful compromise for
+an international audience (a space for thousands separator and a dot for decimal
+separator) and is officially endorsed by SI/ISO 31-0 standard, as well as by the
+International Bureau of Weights and Measures and the International Union of
+Pure and Applied Chemistry (IUPAC), the American Medical Association&amp;rsquo;s widely
+followed AMA Manual of Style, and the Metrication Board, among others
+(
+&lt;a href="https://www.wikiwand.com/en/Decimal_separator#/Digit_grouping" target="_blank" rel="noopener">read more here&lt;/a>).
+Those interested in number formatting with no separator can simply define
+&lt;code>big.mark = &amp;quot;&amp;quot;&lt;/code> to revert to the previous behaviour.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">scales&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">number&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">12.3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">12345.789&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">0.0002&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;12&amp;#34; &amp;#34;4&amp;#34; &amp;#34;12 346&amp;#34; &amp;#34;0&amp;#34;&lt;/span>
+&lt;span class="c1"># these functions round by default, but you can set the accuracy&lt;/span>
+&lt;span class="nf">number&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">12.3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">12345.789&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">0.0002&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">big.mark&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">accuracy&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">.01&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;12.30&amp;#34; &amp;#34;4.00&amp;#34; &amp;#34;12345.79&amp;#34; &amp;#34;0.00&amp;#34;&lt;/span>
+&lt;span class="c1"># percent() function takes a numeric and does your division and labelling for you&lt;/span>
+&lt;span class="nf">percent&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0.1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">1&lt;/span> &lt;span class="o">/&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">0.56&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;10.0%&amp;#34; &amp;#34;33.3%&amp;#34; &amp;#34;56.0%&amp;#34;&lt;/span>
+&lt;span class="c1"># comma() adds commas into large numbers for easier readability&lt;/span>
+&lt;span class="nf">comma&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">10e6&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;10,000,000&amp;#34;&lt;/span>
+&lt;span class="c1"># dollar() adds currency symbols speficifed by `prefix` or `suffix`&lt;/span>
+&lt;span class="nf">dollar&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">125&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">3000&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;$100&amp;#34; &amp;#34;$125&amp;#34; &amp;#34;$3,000&amp;#34;&lt;/span>
+&lt;span class="nf">dollar&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">100&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">125&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">3000&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">suffix&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;€&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">prefix&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;100€&amp;#34; &amp;#34;125€&amp;#34; &amp;#34;3,000€&amp;#34;&lt;/span>
+&lt;span class="c1"># unit_format() adds unique units&lt;/span>
+&lt;span class="c1"># the scale argument can do simple conversion on the fly&lt;/span>
+&lt;span class="nf">unit_format&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">unit&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;ha&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">scale&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1e-4&lt;/span>&lt;span class="p">)(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">10e6&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">10e4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">8e3&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;1 000 ha&amp;#34; &amp;#34;10 ha&amp;#34; &amp;#34;1 ha&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Three additional formatters have been added: &lt;code>pvalue_format()&lt;/code> formats p-values, &lt;code>number_bytes_format()&lt;/code> formats numeric vectors into byte measurements, and
+&lt;code>time_format()&lt;/code> provides support for formatting POSIXt and hms objects. Finally, &lt;code>ordinal_format()&lt;/code> has gained new rules for French and Spanish formatting.&lt;/p>
+&lt;h2 id="new-transformations">New transformations
+&lt;a href="#new-transformations">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Two new transformations were added to the package for this release: &lt;code>psuedo_log_trans()&lt;/code>,
+and &lt;code>modulus_trans()&lt;/code>. &lt;code>pseudo_log_trans()&lt;/code> transforms data on a signed
+logarithmic scale with a smooth transition to a linear scale around 0. The
+&lt;code>modulus_trans()&lt;/code> was added along with a refactored &lt;code>boxcox_trans()&lt;/code> to
+provide a better option for negative numbers. Both &lt;code>modulus_trans()&lt;/code> and
+&lt;code>boxcox_trans()&lt;/code> gained an argument &lt;code>offset&lt;/code> which now allows users to fit both
+type-1 and type-2 Box-Cox transformations.&lt;/p>
+&lt;h2 id="better-breaks">Better breaks
+&lt;a href="#better-breaks">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>In a long awaited fix, &lt;code>log_breaks()&lt;/code> now returns integer multiples of
+integer powers of base when finer breaks are needed on the log scale.
+This will change all ggplot graphics with log-transformed axes.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ggplot2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dplyr&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">5678&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">dsamp&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">sample_n&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1000&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">tbl&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">diamonds&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">ggplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dsamp&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">price&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">carat&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_point&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="nf">scale_x_log10&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="nf">scale_y_log10&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://www.tidyverse.org/articles/2018-08-scales-1-0-0_files/figure-html/logbreaks-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We’re grateful to the 24 people who contributed issues, code and comments:
+&lt;a href="https://github.com/alexandreliborio" target="_blank" rel="noopener">@alexandreliborio&lt;/a>,
+&lt;a href="https://github.com/AndreaCirilloAC" target="_blank" rel="noopener">@AndreaCirilloAC&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/BenOnEarth" target="_blank" rel="noopener">@BenOnEarth&lt;/a>,
+&lt;a href="https://github.com/billdenney" target="_blank" rel="noopener">@billdenney&lt;/a>,
+&lt;a href="https://github.com/Bisaloo" target="_blank" rel="noopener">@Bisaloo&lt;/a>,
+&lt;a href="https://github.com/CesarSancho" target="_blank" rel="noopener">@CesarSancho&lt;/a>,
+&lt;a href="https://github.com/christianhomberg" target="_blank" rel="noopener">@christianhomberg&lt;/a>,
+&lt;a href="https://github.com/clauswilke" target="_blank" rel="noopener">@clauswilke&lt;/a>,
+&lt;a href="https://github.com/cwickham" target="_blank" rel="noopener">@cwickham&lt;/a>,
+&lt;a href="https://github.com/dpseidel" target="_blank" rel="noopener">@dpseidel&lt;/a>,
+&lt;a href="https://github.com/foo-bar-baz-qux" target="_blank" rel="noopener">@foo-bar-baz-qux&lt;/a>,
+&lt;a href="https://github.com/graciecorgi" target="_blank" rel="noopener">@graciecorgi&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jnolis" target="_blank" rel="noopener">@jnolis&lt;/a>,
+&lt;a href="https://github.com/larmarange" target="_blank" rel="noopener">@larmarange&lt;/a>,
+&lt;a href="https://github.com/lepennec" target="_blank" rel="noopener">@lepennec&lt;/a>,
+&lt;a href="https://github.com/markvanderloo" target="_blank" rel="noopener">@markvanderloo&lt;/a>,
+&lt;a href="https://github.com/ptoche" target="_blank" rel="noopener">@ptoche&lt;/a>,
+&lt;a href="https://github.com/RobertMyles" target="_blank" rel="noopener">@RobertMyles&lt;/a>,
+&lt;a href="https://github.com/statist7" target="_blank" rel="noopener">@statist7&lt;/a>,
+&lt;a href="https://github.com/ThierryO" target="_blank" rel="noopener">@ThierryO&lt;/a>, and
+&lt;a href="https://github.com/zeehio" target="_blank" rel="noopener">@zeehio&lt;/a>.&lt;/p></description></item></channel></rss>

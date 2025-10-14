@@ -1,0 +1,359 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>tidyr 1.3.0</title><meta property="og:title" content="tidyr 1.3.0"><meta property="og:description" content="tidyr 1.3.0 brings a new family of string separating functions, along with improvements to `unnest_longer()`, `unnest_wider()`, `pivot_longer()`, and `nest()`."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2023/01/tidyr-1-3-0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="tidyr 1.3.0 - Tidyverse"><meta property="description" content="tidyr 1.3.0 brings a new family of string separating functions, along with improvements to `unnest_longer()`, `unnest_wider()`, `pivot_longer()`, and `nest()`."><meta property="og:description" content="tidyr 1.3.0 brings a new family of string separating functions, along with improvements to `unnest_longer()`, `unnest_wider()`, `pivot_longer()`, and `nest()`."><meta property="og:image" content="https://www.tidyverse.org/blog/2023/01/tidyr-1-3-0/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2023/01/tidyr-1-3-0/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>tidyr 1.3.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2023/01/tidyr-1-3-0/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/TEDo1eO8te4>Jan Kopřiva</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2023/01/24</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/tidyr/>tidyr</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Hadley Wickham</p><div class=article-content><p>We&rsquo;re pleased to announce the release of
+<a href=https://tidyr.tidyverse.org target=_blank rel=noopener>tidyr</a> 1.3.0. tidyr provides a set of tools for transforming data frames to and from tidy data, where each variable is a column and each observation is a row. Tidy data is a convention for matching the semantics and structure of your data that makes using the rest of the tidyverse (and many other R packages) much easier.</p><p>You can install it from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span><span class=o>(</span><span class=s>"tidyr"</span><span class=o>)</span></span></code></pre></div><p>This post highlights the biggest changes in this release:</p><ul><li><p>A new family of <code>separate_*()</code> functions supersede
+<a href=https://tidyr.tidyverse.org/reference/separate.html target=_blank rel=noopener><code>separate()</code></a> and
+<a href=https://tidyr.tidyverse.org/reference/extract.html target=_blank rel=noopener><code>extract()</code></a> and come with useful debugging features.</p></li><li><p><a href=https://tidyr.tidyverse.org/reference/unnest_wider.html target=_blank rel=noopener><code>unnest_wider()</code></a> and
+<a href=https://tidyr.tidyverse.org/reference/unnest_longer.html target=_blank rel=noopener><code>unnest_longer()</code></a> gain a bundle of useful improvements.</p></li><li><p><a href=https://tidyr.tidyverse.org/reference/pivot_longer.html target=_blank rel=noopener><code>pivot_longer()</code></a> gets a new <code>cols_vary</code> argument.</p></li><li><p><code>nest(.by)</code> provides a new (and hopefully final) way to create nested datasets.</p></li></ul><p>You should also notice generally improved errors with this release: we check function arguments more aggressively, and take care to always report the name of the function that you called, not some internal helper. As usual, you can find a full set of changes in the
+<a href=http://github.com/tidyverse/tidyr/releases/tag/v1.3.0 target=_blank rel=noopener>release notes</a>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://tidyr.tidyverse.org>tidyr</a></span><span class=o>)</span></span>
+<span><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://dplyr.tidyverse.org>dplyr</a></span>, warn.conflicts <span class=o>=</span> <span class=kc>FALSE</span><span class=o>)</span></span></code></pre></div><h2 id=separate_-family-of-functions><code>separate_*()</code> family of functions
+<a href=#separate_-family-of-functions><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The biggest feature of this release is a new, experimental family of functions for separating string columns:</p><table><thead><tr><th></th><th>Make columns</th><th>Make rows</th></tr></thead><tbody><tr><td>Separate with delimiter</td><td><a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html target=_blank rel=noopener><code>separate_wider_delim()</code></a></td><td><a href=https://tidyr.tidyverse.org/reference/separate_longer_delim.html target=_blank rel=noopener><code>separate_longer_delim()</code></a></td></tr><tr><td>Separate by position</td><td><a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html target=_blank rel=noopener><code>separate_wider_position()</code></a></td><td><a href=https://tidyr.tidyverse.org/reference/separate_longer_delim.html target=_blank rel=noopener><code>separate_longer_position()</code></a></td></tr><tr><td>Separate with regular expression</td><td><a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html target=_blank rel=noopener><code>separate_wider_regex()</code></a></td><td></td></tr></tbody></table><p>These functions collectively supersede
+<a href=https://tidyr.tidyverse.org/reference/extract.html target=_blank rel=noopener><code>extract()</code></a>,
+<a href=https://tidyr.tidyverse.org/reference/separate.html target=_blank rel=noopener><code>separate()</code></a>, and
+<a href=https://tidyr.tidyverse.org/reference/separate_rows.html target=_blank rel=noopener><code>separate_rows()</code></a> because they have more consistent names and arguments, have better performance (thanks to stringr), and provide a new approach for handling problems.</p><table><thead><tr><th></th><th>Make columns</th><th>Make rows</th></tr></thead><tbody><tr><td>Separate with delimiter</td><td><code>separate(sep = string)</code></td><td><a href=https://tidyr.tidyverse.org/reference/separate_rows.html target=_blank rel=noopener><code>separate_rows()</code></a></td></tr><tr><td>Separate by position</td><td><code>separate(sep = integer vector)</code></td><td>N/A</td></tr><tr><td>Separate with regular expression</td><td><a href=https://tidyr.tidyverse.org/reference/extract.html target=_blank rel=noopener><code>extract()</code></a></td><td></td></tr></tbody></table><p>Here I&rsquo;ll focus on the <code>wider</code> functions because they generally present the most interesting challenges. Let&rsquo;s start by grabbing some census data with the
+<a href=https://walker-data.com/tidycensus/ target=_blank rel=noopener>tidycensus</a> package:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>vt_census</span> <span class=o>&lt;-</span> <span class=nf>tidycensus</span><span class=nf>::</span><span class=nf><a href=https://walker-data.com/tidycensus/reference/get_decennial.html>get_decennial</a></span><span class=o>(</span></span>
+<span>  geography <span class=o>=</span> <span class=s>"block"</span>,</span>
+<span>  state <span class=o>=</span> <span class=s>"VT"</span>,</span>
+<span>  county <span class=o>=</span> <span class=s>"Washington"</span>,</span>
+<span>  variables <span class=o>=</span> <span class=s>"P1_001N"</span>,</span>
+<span>  year <span class=o>=</span> <span class=m>2020</span></span>
+<span><span class=o>)</span></span>
+<span><span class=c>#&gt; Getting data from the 2020 decennial Census</span></span>
+<span></span><span><span class=c>#&gt; Using the PL 94-171 Redistricting Data summary file</span></span>
+<span></span><span><span class=c>#&gt; <span style=color:#0bb>Note: 2020 decennial Census data use differential privacy, a technique that</span></span></span>
+<span><span class=c><span style=color:#0bb>#&gt; introduces errors into data to preserve respondent confidentiality.</span></span></span>
+<span><span class=c>#&gt; <span style=color:#00b>ℹ</span> <span style=color:#b0b>Small counts should be interpreted with caution.</span></span></span>
+<span><span class=c>#&gt; <span style=color:#00b>ℹ</span> <span style=color:#b0b>See https://www.census.gov/library/fact-sheets/2021/protecting-the-confidentiality-of-the-2020-census-redistricting-data.html for additional guidance.</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>This message is displayed once per session.</span></span></span>
+<span></span><span><span class=nv>vt_census</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 2,150 × 4</span></span></span>
+<span><span class=c>#&gt;    <span style=font-weight:700>GEOID</span>           <span style=font-weight:700>NAME</span>                                           <span style=font-weight:700>variable</span> <span style=font-weight:700>value</span></span></span>
+<span><span class=c>#&gt;    <span style=color:#555;font-style:italic>&lt;chr&gt;</span>           <span style=color:#555;font-style:italic>&lt;chr&gt;</span>                                          <span style=color:#555;font-style:italic>&lt;chr&gt;</span>    <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555> 1</span> 500239555021014 Block 1014, Block Group 1, Census Tract 9555.… P1_001N     21</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 2</span> 500239555021015 Block 1015, Block Group 1, Census Tract 9555.… P1_001N     19</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 3</span> 500239555021016 Block 1016, Block Group 1, Census Tract 9555.… P1_001N      0</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 4</span> 500239555021017 Block 1017, Block Group 1, Census Tract 9555.… P1_001N      0</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 5</span> 500239555021018 Block 1018, Block Group 1, Census Tract 9555.… P1_001N     43</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 6</span> 500239555021019 Block 1019, Block Group 1, Census Tract 9555.… P1_001N     68</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 7</span> 500239555021020 Block 1020, Block Group 1, Census Tract 9555.… P1_001N     30</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 8</span> 500239555021021 Block 1021, Block Group 1, Census Tract 9555.… P1_001N      0</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 9</span> 500239555021022 Block 1022, Block Group 1, Census Tract 9555.… P1_001N     18</span></span>
+<span><span class=c>#&gt; <span style=color:#555>10</span> 500239555021023 Block 1023, Block Group 1, Census Tract 9555.… P1_001N     93</span></span>
+<span><span class=c>#&gt; <span style=color:#555># … with 2,140 more rows</span></span></span>
+<span></span></code></pre></div><p>The <code>GEOID</code> column is made up of four components: a 2-digit state identifier, a 3-digit county identifier, a 6-digit tract identifier, and a 4-digit block identifier. We can use
+<a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html target=_blank rel=noopener><code>separate_wider_position()</code></a> to extract these into their own variables:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>vt_census</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/select.html>select</a></span><span class=o>(</span><span class=nv>GEOID</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html>separate_wider_position</a></span><span class=o>(</span></span>
+<span>    <span class=nv>GEOID</span>,</span>
+<span>    widths <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span>state <span class=o>=</span> <span class=m>2</span>, county <span class=o>=</span> <span class=m>3</span>, tract <span class=o>=</span> <span class=m>6</span>, block <span class=o>=</span> <span class=m>4</span><span class=o>)</span></span>
+<span>  <span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 2,150 × 4</span></span></span>
+<span><span class=c>#&gt;    <span style=font-weight:700>state</span> <span style=font-weight:700>county</span> <span style=font-weight:700>tract</span>  <span style=font-weight:700>block</span></span></span>
+<span><span class=c>#&gt;    <span style=color:#555;font-style:italic>&lt;chr&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span>  <span style=color:#555;font-style:italic>&lt;chr&gt;</span>  <span style=color:#555;font-style:italic>&lt;chr&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555> 1</span> 50    023    955502 1014 </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 2</span> 50    023    955502 1015 </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 3</span> 50    023    955502 1016 </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 4</span> 50    023    955502 1017 </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 5</span> 50    023    955502 1018 </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 6</span> 50    023    955502 1019 </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 7</span> 50    023    955502 1020 </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 8</span> 50    023    955502 1021 </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 9</span> 50    023    955502 1022 </span></span>
+<span><span class=c>#&gt; <span style=color:#555>10</span> 50    023    955502 1023 </span></span>
+<span><span class=c>#&gt; <span style=color:#555># … with 2,140 more rows</span></span></span>
+<span></span></code></pre></div><p>The <code>name</code> column contains this same information in a text form, with each component separated by a comma. We can use
+<a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html target=_blank rel=noopener><code>separate_wider_delim()</code></a> to break up this sort of data into individual variables:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>vt_census</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/select.html>select</a></span><span class=o>(</span><span class=nv>NAME</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html>separate_wider_delim</a></span><span class=o>(</span></span>
+<span>    <span class=nv>NAME</span>,</span>
+<span>    delim <span class=o>=</span> <span class=s>", "</span>,</span>
+<span>    names <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"block"</span>, <span class=s>"block_group"</span>, <span class=s>"tract"</span>, <span class=s>"county"</span>, <span class=s>"state"</span><span class=o>)</span></span>
+<span>  <span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 2,150 × 5</span></span></span>
+<span><span class=c>#&gt;    <span style=font-weight:700>block</span>      <span style=font-weight:700>block_group</span>   <span style=font-weight:700>tract</span>                <span style=font-weight:700>county</span>            <span style=font-weight:700>state</span>  </span></span>
+<span><span class=c>#&gt;    <span style=color:#555;font-style:italic>&lt;chr&gt;</span>      <span style=color:#555;font-style:italic>&lt;chr&gt;</span>         <span style=color:#555;font-style:italic>&lt;chr&gt;</span>                <span style=color:#555;font-style:italic>&lt;chr&gt;</span>             <span style=color:#555;font-style:italic>&lt;chr&gt;</span>  </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 1</span> Block 1014 Block Group 1 Census Tract 9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 2</span> Block 1015 Block Group 1 Census Tract 9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 3</span> Block 1016 Block Group 1 Census Tract 9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 4</span> Block 1017 Block Group 1 Census Tract 9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 5</span> Block 1018 Block Group 1 Census Tract 9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 6</span> Block 1019 Block Group 1 Census Tract 9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 7</span> Block 1020 Block Group 1 Census Tract 9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 8</span> Block 1021 Block Group 1 Census Tract 9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 9</span> Block 1022 Block Group 1 Census Tract 9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555>10</span> Block 1023 Block Group 1 Census Tract 9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555># … with 2,140 more rows</span></span></span>
+<span></span></code></pre></div><p>You&rsquo;ll notice that each row contains a lot of duplicated information (&ldquo;Block&rdquo;, &ldquo;Block Group&rdquo;, &mldr;). You could certainly use
+<a href=https://dplyr.tidyverse.org/reference/mutate.html target=_blank rel=noopener><code>mutate()</code></a> and string manipulation to clean this up, but there&rsquo;s a more direct approach that you can use if you&rsquo;re familiar with regular expressions. The new
+<a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html target=_blank rel=noopener><code>separate_wider_regex()</code></a> takes a vector of regular expressions that are matched in order, from left to right. If you name the regular expression, it will appear in the output; otherwise, it will be dropped. I think this leads to a particularly elegant solution to many problems.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>vt_census</span> <span class=o>|&gt;</span></span>
+<span>  <span class=nf><a href=https://dplyr.tidyverse.org/reference/select.html>select</a></span><span class=o>(</span><span class=nv>NAME</span><span class=o>)</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html>separate_wider_regex</a></span><span class=o>(</span></span>
+<span>    <span class=nv>NAME</span>,</span>
+<span>    patterns <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span></span>
+<span>      <span class=s>"Block "</span>, block <span class=o>=</span> <span class=s>"\\d+"</span>, <span class=s>", "</span>,</span>
+<span>      <span class=s>"Block Group "</span>, block_group <span class=o>=</span> <span class=s>"\\d+"</span>, <span class=s>", "</span>,</span>
+<span>      <span class=s>"Census Tract "</span>, tract <span class=o>=</span> <span class=s>"\\d+.\\d+"</span>, <span class=s>", "</span>,</span>
+<span>      county <span class=o>=</span> <span class=s>"[^,]+"</span>, <span class=s>", "</span>,</span>
+<span>      state <span class=o>=</span> <span class=s>".*"</span></span>
+<span>    <span class=o>)</span></span>
+<span>  <span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 2,150 × 5</span></span></span>
+<span><span class=c>#&gt;    <span style=font-weight:700>block</span> <span style=font-weight:700>block_group</span> <span style=font-weight:700>tract</span>   <span style=font-weight:700>county</span>            <span style=font-weight:700>state</span>  </span></span>
+<span><span class=c>#&gt;    <span style=color:#555;font-style:italic>&lt;chr&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span>       <span style=color:#555;font-style:italic>&lt;chr&gt;</span>   <span style=color:#555;font-style:italic>&lt;chr&gt;</span>             <span style=color:#555;font-style:italic>&lt;chr&gt;</span>  </span></span>
+<span><span class=c>#&gt; <span style=color:#555> 1</span> 1014  1           9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 2</span> 1015  1           9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 3</span> 1016  1           9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 4</span> 1017  1           9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 5</span> 1018  1           9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 6</span> 1019  1           9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 7</span> 1020  1           9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 8</span> 1021  1           9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555> 9</span> 1022  1           9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555>10</span> 1023  1           9555.02 Washington County Vermont</span></span>
+<span><span class=c>#&gt; <span style=color:#555># … with 2,140 more rows</span></span></span>
+<span></span></code></pre></div><p>These functions also have a new way to report problems. Let&rsquo;s start with a very simple example:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>df</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span></span>
+<span>  id <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>3</span>,</span>
+<span>  x <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"a-b"</span>, <span class=s>"a-b-c"</span><span class=o>)</span></span>
+<span><span class=o>)</span></span>
+<span></span>
+<span><span class=nv>df</span> <span class=o>|&gt;</span> <span class=nf><a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html>separate_wider_delim</a></span><span class=o>(</span><span class=nv>x</span>, delim <span class=o>=</span> <span class=s>"-"</span>, names <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"x"</span>, <span class=s>"y"</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `separate_wider_delim()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> Expected 2 pieces in each element of `x`.</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> 1 value was too short.</span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> Use `too_few = "debug"` to diagnose the problem.</span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> Use `too_few = "align_start"/"align_end"` to silence this message.</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> 1 value was too long.</span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> Use `too_many = "debug"` to diagnose the problem.</span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> Use `too_many = "drop"/"merge"` to silence this message.</span></span>
+<span></span></code></pre></div><p>We&rsquo;ve requested two columns in the output (<code>x</code> and <code>y</code>), but the first row has only one element and the last row has three elements, so
+<a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html target=_blank rel=noopener><code>separate_wider_delim()</code></a> can&rsquo;t do what we&rsquo;ve asked. The error lays out your options for resolving the problem using the <code>too_few</code> and <code>too_many</code> arguments. I&rsquo;d recommend always starting with <code>"debug"</code> to get more information about the problem:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>probs</span> <span class=o>&lt;-</span> <span class=nv>df</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html>separate_wider_delim</a></span><span class=o>(</span></span>
+<span>    <span class=nv>x</span>,</span>
+<span>    delim <span class=o>=</span> <span class=s>"-"</span>,</span>
+<span>    names <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"b"</span><span class=o>)</span>,</span>
+<span>    too_few <span class=o>=</span> <span class=s>"debug"</span>,</span>
+<span>    too_many <span class=o>=</span> <span class=s>"debug"</span></span>
+<span>  <span class=o>)</span></span>
+<span><span class=c>#&gt; Warning: Debug mode activated: adding variables `x_ok`, `x_pieces`, and `x_remainder`.</span></span>
+<span></span><span><span class=nv>probs</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 3 × 7</span></span></span>
+<span><span class=c>#&gt;      <span style=font-weight:700>id</span> <span style=font-weight:700>a</span>     <span style=font-weight:700>b</span>     <span style=font-weight:700>x</span>     <span style=font-weight:700>x_ok</span>  <span style=font-weight:700>x_pieces</span> <span style=font-weight:700>x_remainder</span></span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;int&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span> <span style=color:#555;font-style:italic>&lt;lgl&gt;</span>    <span style=color:#555;font-style:italic>&lt;int&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span>      </span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     1 a     <span style=color:#b00>NA</span>    a     FALSE        1 <span style=color:#555>""</span>         </span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>     2 a     b     a-b   TRUE         2 <span style=color:#555>""</span>         </span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>     3 a     b     a-b-c FALSE        3 <span style=color:#555>"</span>-c<span style=color:#555>"</span></span></span>
+<span></span></code></pre></div><p>This adds three new variables: <code>x_ok</code> tells you if the <code>x</code> could be separated as you requested, <code>x_pieces</code> tells you the actual number of pieces, and <code>x_remainder</code> shows you anything that remains after the columns you asked for. You can use this information to fix the problems in the input, or you can use the other options to <code>too_few</code> and <code>too_many</code> to tell
+<a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html target=_blank rel=noopener><code>separate_wider_delim()</code></a> to fix them for you:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>df</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html>separate_wider_delim</a></span><span class=o>(</span></span>
+<span>    <span class=nv>x</span>,</span>
+<span>    delim <span class=o>=</span> <span class=s>"-"</span>,</span>
+<span>    names <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"b"</span><span class=o>)</span>,</span>
+<span>    too_few <span class=o>=</span> <span class=s>"align_start"</span>,</span>
+<span>    too_many <span class=o>=</span> <span class=s>"drop"</span></span>
+<span>  <span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 3 × 3</span></span></span>
+<span><span class=c>#&gt;      <span style=font-weight:700>id</span> <span style=font-weight:700>a</span>     <span style=font-weight:700>b</span>    </span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;int&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     1 a     <span style=color:#b00>NA</span>   </span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>     2 a     b    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>     3 a     b</span></span>
+<span></span></code></pre></div><p><code>too_few</code> and <code>too_many</code> also work with
+<a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html target=_blank rel=noopener><code>separate_wider_position()</code></a>, and <code>too_few</code> works with
+<a href=https://tidyr.tidyverse.org/reference/separate_wider_delim.html target=_blank rel=noopener><code>separate_wider_regex()</code></a>. The <code>longer</code> variants don&rsquo;t need these arguments because varying numbers of rows don&rsquo;t matter in the same way that varying numbers of columns do:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>df</span> <span class=o>|&gt;</span> <span class=nf><a href=https://tidyr.tidyverse.org/reference/separate_longer_delim.html>separate_longer_delim</a></span><span class=o>(</span><span class=nv>x</span>, delim <span class=o>=</span> <span class=s>"-"</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 6 × 2</span></span></span>
+<span><span class=c>#&gt;      <span style=font-weight:700>id</span> <span style=font-weight:700>x</span>    </span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;int&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     1 a    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>     2 a    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>     2 b    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span>     3 a    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>5</span>     3 b    </span></span>
+<span><span class=c>#&gt; <span style=color:#555>6</span>     3 c</span></span>
+<span></span></code></pre></div><p>These functions are still experimental so we are actively seeking feedback. Please try them out and let us know if you find them useful or if there are other features you&rsquo;d like to see.</p><h2 id=unnest_wider-and-unnest_longer-improvements><code>unnest_wider()</code> and <code>unnest_longer()</code> improvements
+<a href=#unnest_wider-and-unnest_longer-improvements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><a href=https://tidyr.tidyverse.org/reference/unnest_longer.html target=_blank rel=noopener><code>unnest_longer()</code></a> and
+<a href=https://tidyr.tidyverse.org/reference/unnest_wider.html target=_blank rel=noopener><code>unnest_wider()</code></a> have both received some quality of life and consistency improvements. Most importantly:</p><ul><li><p><a href=https://tidyr.tidyverse.org/reference/unnest_wider.html target=_blank rel=noopener><code>unnest_wider()</code></a> now gives a better error when unnesting an unnamed vector:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>df</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span></span>
+<span>  id <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>2</span>,</span>
+<span>  x <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"b"</span><span class=o>)</span>, <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"d"</span>, <span class=s>"e"</span>, <span class=s>"f"</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=o>)</span></span>
+<span><span class=nv>df</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://tidyr.tidyverse.org/reference/unnest_wider.html>unnest_wider</a></span><span class=o>(</span><span class=nv>x</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `unnest_wider()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> In column: `x`.</span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> In row: 1.</span></span>
+<span><span class=c>#&gt; <span style=font-weight:700>Caused by error:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> Can't unnest elements with missing names.</span></span>
+<span><span class=c>#&gt; <span style=color:#0bb>ℹ</span> Supply `names_sep` to generate automatic names.</span></span>
+<span></span><span></span>
+<span><span class=nv>df</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://tidyr.tidyverse.org/reference/unnest_wider.html>unnest_wider</a></span><span class=o>(</span><span class=nv>x</span>, names_sep <span class=o>=</span> <span class=s>"_"</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 2 × 4</span></span></span>
+<span><span class=c>#&gt;      <span style=font-weight:700>id</span> <span style=font-weight:700>x_1</span>   <span style=font-weight:700>x_2</span>   <span style=font-weight:700>x_3</span>  </span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;int&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     1 a     b     <span style=color:#b00>NA</span>   </span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>     2 d     e     f</span></span>
+<span></span></code></pre></div><p>And this same behaviour now also applies to partially named vectors.</p></li><li><p><a href=https://tidyr.tidyverse.org/reference/unnest_longer.html target=_blank rel=noopener><code>unnest_longer()</code></a> has gained a <code>keep_empty</code> argument like
+<a href=https://tidyr.tidyverse.org/reference/unnest.html target=_blank rel=noopener><code>unnest()</code></a>, and it now treats <code>NULL</code> and empty vectors the same way:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>df</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span></span>
+<span>  id <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>3</span>,</span>
+<span>  x <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=kc>NULL</span>, <span class=nf><a href=https://rdrr.io/r/base/integer.html>integer</a></span><span class=o>(</span><span class=o>)</span>, <span class=m>1</span><span class=o>:</span><span class=m>3</span><span class=o>)</span></span>
+<span><span class=o>)</span></span>
+<span></span>
+<span><span class=nv>df</span> <span class=o>|&gt;</span> <span class=nf><a href=https://tidyr.tidyverse.org/reference/unnest_longer.html>unnest_longer</a></span><span class=o>(</span><span class=nv>x</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 3 × 2</span></span></span>
+<span><span class=c>#&gt;      <span style=font-weight:700>id</span>     <span style=font-weight:700>x</span></span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;int&gt;</span> <span style=color:#555;font-style:italic>&lt;int&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     3     1</span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>     3     2</span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>     3     3</span></span>
+<span></span><span><span class=nv>df</span> <span class=o>|&gt;</span> <span class=nf><a href=https://tidyr.tidyverse.org/reference/unnest_longer.html>unnest_longer</a></span><span class=o>(</span><span class=nv>x</span>, keep_empty <span class=o>=</span> <span class=kc>TRUE</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 5 × 2</span></span></span>
+<span><span class=c>#&gt;      <span style=font-weight:700>id</span>     <span style=font-weight:700>x</span></span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;int&gt;</span> <span style=color:#555;font-style:italic>&lt;int&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     1    <span style=color:#b00>NA</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>     2    <span style=color:#b00>NA</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>     3     1</span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span>     3     2</span></span>
+<span><span class=c>#&gt; <span style=color:#555>5</span>     3     3</span></span>
+<span></span></code></pre></div></li></ul><h2 id=pivot_longercols_vary><code>pivot_longer(cols_vary)</code>
+<a href=#pivot_longercols_vary><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>By default,
+<a href=https://tidyr.tidyverse.org/reference/pivot_longer.html target=_blank rel=noopener><code>pivot_longer()</code></a> creates its output row-by-row:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>df</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span></span>
+<span>  x <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>2</span>,</span>
+<span>  y <span class=o>=</span> <span class=m>3</span><span class=o>:</span><span class=m>4</span>,</span>
+<span>  z <span class=o>=</span> <span class=m>5</span><span class=o>:</span><span class=m>6</span></span>
+<span><span class=o>)</span></span>
+<span></span>
+<span><span class=nv>df</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://tidyr.tidyverse.org/reference/pivot_longer.html>pivot_longer</a></span><span class=o>(</span></span>
+<span>    <span class=nf><a href=https://tidyselect.r-lib.org/reference/everything.html>everything</a></span><span class=o>(</span><span class=o>)</span>,</span>
+<span>    names_to <span class=o>=</span> <span class=s>"name"</span>,</span>
+<span>    values_to <span class=o>=</span> <span class=s>"value"</span></span>
+<span>  <span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 6 × 2</span></span></span>
+<span><span class=c>#&gt;   <span style=font-weight:700>name</span>  <span style=font-weight:700>value</span></span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;chr&gt;</span> <span style=color:#555;font-style:italic>&lt;int&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span> x         1</span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span> y         3</span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span> z         5</span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span> x         2</span></span>
+<span><span class=c>#&gt; <span style=color:#555>5</span> y         4</span></span>
+<span><span class=c>#&gt; <span style=color:#555>6</span> z         6</span></span>
+<span></span></code></pre></div><p>You can now request to create the output column-by-column with <code>cols_vary = "slowest":</code></p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>df</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://tidyr.tidyverse.org/reference/pivot_longer.html>pivot_longer</a></span><span class=o>(</span></span>
+<span>    <span class=nf><a href=https://tidyselect.r-lib.org/reference/everything.html>everything</a></span><span class=o>(</span><span class=o>)</span>,</span>
+<span>    names_to <span class=o>=</span> <span class=s>"name"</span>,</span>
+<span>    values_to <span class=o>=</span> <span class=s>"value"</span>,</span>
+<span>    cols_vary <span class=o>=</span> <span class=s>"slowest"</span></span>
+<span>  <span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 6 × 2</span></span></span>
+<span><span class=c>#&gt;   <span style=font-weight:700>name</span>  <span style=font-weight:700>value</span></span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;chr&gt;</span> <span style=color:#555;font-style:italic>&lt;int&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span> x         1</span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span> x         2</span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span> y         3</span></span>
+<span><span class=c>#&gt; <span style=color:#555>4</span> y         4</span></span>
+<span><span class=c>#&gt; <span style=color:#555>5</span> z         5</span></span>
+<span><span class=c>#&gt; <span style=color:#555>6</span> z         6</span></span>
+<span></span></code></pre></div><h2 id=nestby><code>nest(.by)</code>
+<a href=#nestby><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>A nested data frame is a data frame where one (or more) columns is a list of data frames. Nested data frames are a powerful tool that allow you to turn groups into rows and can facilitate certain types of data manipulation that would be very tricky otherwise. (One place to learn more about them is my 2016 talk &ldquo;
+<a href="https://www.youtube.com/watch?v=rz3_FDVt9eg" target=_blank rel=noopener>Managing many models with R</a>".)</p><p>Over the years we&rsquo;ve made a number of attempts at getting the correct interface for nesting, including
+<a href=https://tidyr.tidyverse.org/reference/nest.html target=_blank rel=noopener><code>tidyr::nest()</code></a>,
+<a href=https://dplyr.tidyverse.org/reference/nest_by.html target=_blank rel=noopener><code>dplyr::nest_by()</code></a>, and
+<a href=https://dplyr.tidyverse.org/reference/group_nest.html target=_blank rel=noopener><code>dplyr::group_nest()</code></a>. In this version of tidyr we&rsquo;ve taken one more stab at it by adding a new argument to
+<a href=https://tidyr.tidyverse.org/reference/nest.html target=_blank rel=noopener><code>nest()</code></a>: <code>.by</code>, inspired by the upcoming
+<a href=https://www.tidyverse.org/blog/2022/11/dplyr-1-1-0-is-coming-soon/ target=_blank rel=noopener>dplyr 1.1.0</a> release. This means that
+<a href=https://tidyr.tidyverse.org/reference/nest.html target=_blank rel=noopener><code>nest()</code></a> now allows you to specify the variables you want to nest by as an alternative to specifying the variables that appear in the nested data.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=c># Specify what to nest by</span></span>
+<span><span class=nv>mtcars</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://tidyr.tidyverse.org/reference/nest.html>nest</a></span><span class=o>(</span>.by <span class=o>=</span> <span class=nv>cyl</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 3 × 2</span></span></span>
+<span><span class=c>#&gt;     <span style=font-weight:700>cyl</span> <span style=font-weight:700>data</span>              </span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;list&gt;</span>            </span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     6 <span style=color:#555>&lt;tibble [7 × 10]&gt;</span> </span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>     4 <span style=color:#555>&lt;tibble [11 × 10]&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>     8 <span style=color:#555>&lt;tibble [14 × 10]&gt;</span></span></span>
+<span></span><span></span>
+<span><span class=c># Specify what should be nested</span></span>
+<span><span class=nv>mtcars</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://tidyr.tidyverse.org/reference/nest.html>nest</a></span><span class=o>(</span>data <span class=o>=</span> <span class=o>-</span><span class=nv>cyl</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 3 × 2</span></span></span>
+<span><span class=c>#&gt;     <span style=font-weight:700>cyl</span> <span style=font-weight:700>data</span>              </span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;list&gt;</span>            </span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     6 <span style=color:#555>&lt;tibble [7 × 10]&gt;</span> </span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>     4 <span style=color:#555>&lt;tibble [11 × 10]&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>     8 <span style=color:#555>&lt;tibble [14 × 10]&gt;</span></span></span>
+<span></span><span></span>
+<span><span class=c># Specify both (to drop variables)</span></span>
+<span><span class=nv>mtcars</span> <span class=o>|&gt;</span> </span>
+<span>  <span class=nf><a href=https://tidyr.tidyverse.org/reference/nest.html>nest</a></span><span class=o>(</span>data <span class=o>=</span> <span class=nv>mpg</span><span class=o>:</span><span class=nv>drat</span>, .by <span class=o>=</span> <span class=nv>cyl</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555># A tibble: 3 × 2</span></span></span>
+<span><span class=c>#&gt;     <span style=font-weight:700>cyl</span> <span style=font-weight:700>data</span>             </span></span>
+<span><span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;list&gt;</span>           </span></span>
+<span><span class=c>#&gt; <span style=color:#555>1</span>     6 <span style=color:#555>&lt;tibble [7 × 5]&gt;</span> </span></span>
+<span><span class=c>#&gt; <span style=color:#555>2</span>     4 <span style=color:#555>&lt;tibble [11 × 5]&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>3</span>     8 <span style=color:#555>&lt;tibble [14 × 5]&gt;</span></span></span>
+<span></span></code></pre></div><p>If this function is all we hope it to be, we&rsquo;re likely to supersede
+<a href=https://dplyr.tidyverse.org/reference/nest_by.html target=_blank rel=noopener><code>dplyr::nest_by()</code></a> and
+<a href=https://dplyr.tidyverse.org/reference/group_nest.html target=_blank rel=noopener><code>dplyr::group_nest()</code></a> in the future. This has the nice property of placing the functions for nesting and unnesting in the same package (tidyr).</p><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>A big thanks to all 51 contributors who helped make this release possible, by writing code and documentating, asking questions, and reporting bugs!
+<a href=https://github.com/AdrianS85 target=_blank rel=noopener>@AdrianS85</a>,
+<a href=https://github.com/ahcyip target=_blank rel=noopener>@ahcyip</a>,
+<a href=https://github.com/allenbaron target=_blank rel=noopener>@allenbaron</a>,
+<a href=https://github.com/AnBarbosaBr target=_blank rel=noopener>@AnBarbosaBr</a>,
+<a href=https://github.com/ArthurAndrews target=_blank rel=noopener>@ArthurAndrews</a>,
+<a href=https://github.com/bart1 target=_blank rel=noopener>@bart1</a>,
+<a href=https://github.com/billdenney target=_blank rel=noopener>@billdenney</a>,
+<a href=https://github.com/bknakker target=_blank rel=noopener>@bknakker</a>,
+<a href=https://github.com/bwiernik target=_blank rel=noopener>@bwiernik</a>,
+<a href=https://github.com/crissthiandi target=_blank rel=noopener>@crissthiandi</a>,
+<a href=https://github.com/daattali target=_blank rel=noopener>@daattali</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/dcaud target=_blank rel=noopener>@dcaud</a>,
+<a href=https://github.com/DSLituiev target=_blank rel=noopener>@DSLituiev</a>,
+<a href=https://github.com/elgabbas target=_blank rel=noopener>@elgabbas</a>,
+<a href=https://github.com/fabiangehring target=_blank rel=noopener>@fabiangehring</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/ilikegitlab target=_blank rel=noopener>@ilikegitlab</a>,
+<a href=https://github.com/jennybc target=_blank rel=noopener>@jennybc</a>,
+<a href=https://github.com/jic007 target=_blank rel=noopener>@jic007</a>,
+<a href=https://github.com/Joao-O-Santos target=_blank rel=noopener>@Joao-O-Santos</a>,
+<a href=https://github.com/joeycouse target=_blank rel=noopener>@joeycouse</a>,
+<a href=https://github.com/jonspring target=_blank rel=noopener>@jonspring</a>,
+<a href=https://github.com/kevinushey target=_blank rel=noopener>@kevinushey</a>,
+<a href=https://github.com/krlmlr target=_blank rel=noopener>@krlmlr</a>,
+<a href=https://github.com/lionel- target=_blank rel=noopener>@lionel-</a>,
+<a href=https://github.com/lotard target=_blank rel=noopener>@lotard</a>,
+<a href=https://github.com/lschneiderbauer target=_blank rel=noopener>@lschneiderbauer</a>,
+<a href=https://github.com/lucylgao target=_blank rel=noopener>@lucylgao</a>,
+<a href=https://github.com/markfairbanks target=_blank rel=noopener>@markfairbanks</a>,
+<a href=https://github.com/martina-starc target=_blank rel=noopener>@martina-starc</a>,
+<a href=https://github.com/MatthieuStigler target=_blank rel=noopener>@MatthieuStigler</a>,
+<a href=https://github.com/mattnolan001 target=_blank rel=noopener>@mattnolan001</a>,
+<a href=https://github.com/mattroumaya target=_blank rel=noopener>@mattroumaya</a>,
+<a href=https://github.com/mdkrause target=_blank rel=noopener>@mdkrause</a>,
+<a href=https://github.com/mgirlich target=_blank rel=noopener>@mgirlich</a>,
+<a href=https://github.com/millermc38 target=_blank rel=noopener>@millermc38</a>,
+<a href=https://github.com/modche target=_blank rel=noopener>@modche</a>,
+<a href=https://github.com/moodymudskipper target=_blank rel=noopener>@moodymudskipper</a>,
+<a href=https://github.com/mspittler target=_blank rel=noopener>@mspittler</a>,
+<a href=https://github.com/olivroy target=_blank rel=noopener>@olivroy</a>,
+<a href=https://github.com/piokol23 target=_blank rel=noopener>@piokol23</a>,
+<a href=https://github.com/ppreshant target=_blank rel=noopener>@ppreshant</a>,
+<a href=https://github.com/ramiromagno target=_blank rel=noopener>@ramiromagno</a>,
+<a href=https://github.com/Rengervn target=_blank rel=noopener>@Rengervn</a>,
+<a href=https://github.com/rjake target=_blank rel=noopener>@rjake</a>,
+<a href=https://github.com/roohitk target=_blank rel=noopener>@roohitk</a>,
+<a href=https://github.com/struckma target=_blank rel=noopener>@struckma</a>,
+<a href=https://github.com/tjmahr target=_blank rel=noopener>@tjmahr</a>,
+<a href=https://github.com/weirichs target=_blank rel=noopener>@weirichs</a>, and
+<a href=https://github.com/wurli target=_blank rel=noopener>@wurli</a>.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#separate_-family-of-functions><code>separate_*()</code> family of functions</a></li><li><a href=#unnest_wider-and-unnest_longer-improvements><code>unnest_wider()</code> and <code>unnest_longer()</code> improvements</a></li><li><a href=#pivot_longercols_vary><code>pivot_longer(cols_vary)</code></a></li><li><a href=#nestby><code>nest(.by)</code></a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

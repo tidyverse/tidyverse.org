@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>lintr | Tidyverse</title><link>https://www.tidyverse.org/tags/lintr/</link><atom:link href="https://www.tidyverse.org/tags/lintr/index.xml" rel="self" type="application/rss+xml"/><description>lintr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 15 Jul 2022 00:00:00 +0000</lastBuildDate><item><title>lintr 3.0.0</title><link>https://www.tidyverse.org/blog/2022/07/lintr-3-0-0/</link><pubDate>Fri, 15 Jul 2022 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2022/07/lintr-3-0-0/</guid><description>&lt;p>We are very excited to announce the release of
+&lt;a href="https://lintr.r-lib.org" target="_blank" rel="noopener">lintr&lt;/a> 3.0.0! lintr
+is maintained by
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">Jim Hester&lt;/a> and contributors, including three new package authors:
+&lt;a href="https://github.com/AshesITR" target="_blank" rel="noopener">Alexander Rosenstock&lt;/a>,
+&lt;a href="https://github.com/renkun-ken" target="_blank" rel="noopener">Kun Ren&lt;/a>, and
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">Michael Chirico&lt;/a>.
+lintr provides both a framework for
+&lt;a href="https://www.perforce.com/blog/sca/what-static-analysis" target="_blank" rel="noopener">static analysis&lt;/a> of R packages
+and scripts and a variety of linters, e.g. to enforce the
+&lt;a href="https://style.tidyverse.org/" target="_blank" rel="noopener">tidyverse style guide&lt;/a>.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;lintr&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Check our vignettes for a quick introduction to the package:&lt;/p>
+&lt;ul>
+&lt;li>Getting started (&lt;code>vignette(&amp;quot;lintr&amp;quot;)&lt;/code>)&lt;/li>
+&lt;li>Integrating lintr with your preferred IDE (&lt;code>vignette(&amp;quot;editors&amp;quot;)&lt;/code>)&lt;/li>
+&lt;li>Integrating lintr with your preferred CI tools (&lt;code>vignette(&amp;quot;continuous-integration&amp;quot;)&lt;/code>)&lt;/li>
+&lt;/ul>
+&lt;p>We&amp;rsquo;ve also added &lt;code>lintr::use_lintr()&lt;/code> for a usethis-inspired interactive tool to configure lintr for your package/repo.&lt;/p>
+&lt;p>This blog post will highlight the biggest changes coming in this update which drove us to declare it a major release.&lt;/p>
+&lt;h1 id="selective-exclusions">Selective exclusions
+&lt;a href="#selective-exclusions">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h1>&lt;p>lintr now supports targeted exclusions of specific linters through an extension of the &lt;code># nolint&lt;/code> syntax.&lt;/p>
+&lt;p>Consider the following example:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">T_and_F_symbol_linter&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nf">function&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;span class="nf">list&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This snippet generates 5 lints:&lt;/p>
+&lt;ol>
+&lt;li>&lt;code>object_name_linter()&lt;/code> because the uppercase &lt;code>T&lt;/code> and &lt;code>F&lt;/code> in the function name do not match &lt;code>lower_snake_case&lt;/code>.&lt;/li>
+&lt;li>&lt;code>brace_linter()&lt;/code> because &lt;code>{&lt;/code> should be separated from &lt;code>)&lt;/code> by a space.&lt;/li>
+&lt;li>&lt;code>paren_body_linter()&lt;/code> because &lt;code>)&lt;/code> should be separated from the function body (starting at &lt;code>{&lt;/code>) by a space.&lt;/li>
+&lt;li>&lt;code>infix_spaces_linter()&lt;/code> because &lt;code>=&lt;/code> should be surrounded by spaces on both sides.&lt;/li>
+&lt;li>&lt;code>assignment_linter()&lt;/code> because &lt;code>&amp;lt;-&lt;/code> should be used for assignment.&lt;/li>
+&lt;/ol>
+&lt;p>The first lint is spurious because &lt;code>t&lt;/code> and &lt;code>f&lt;/code> do not correctly convey that this linter targets
+the symbols &lt;code>T&lt;/code> and &lt;code>F&lt;/code>, so we want to ignore it. Prior to this release, we would have to
+throw the baby out with the bathwater by suppressing &lt;em>all five lints&lt;/em> like so:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">T_and_F_symbol_linter&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nf">function&lt;/span>&lt;span class="p">(){&lt;/span> &lt;span class="c1"># nolint. T and F are OK here.&lt;/span>
+&lt;span class="nf">list&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This hides the other four lints and prevents any new lints from being detected on this line in the future,
+which on average allows the overall quality of your projects/scripts to dip.&lt;/p>
+&lt;p>With the new feature, you&amp;rsquo;d write the exclusion like this instead:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">T_and_F_symbol_linter&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nf">function&lt;/span>&lt;span class="p">(){&lt;/span> &lt;span class="c1"># nolint: object_name_linter. T and F are OK here.&lt;/span>
+&lt;span class="nf">list&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>By qualifying the exclusion, the other 4 lints will be detected and exposed by &lt;code>lint()&lt;/code> so
+that you can fix them! See &lt;code>?exclude&lt;/code> for more details.&lt;/p>
+&lt;h1 id="linter-factories">Linter factories
+&lt;a href="#linter-factories">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h1>&lt;p>As of lintr 3.0.0, &lt;em>all&lt;/em> linters must be
+&lt;a href="https://adv-r.hadley.nz/function-factories.html" target="_blank" rel="noopener">function factories&lt;/a>.&lt;/p>
+&lt;p>Previously, only parameterizable linters (such as &lt;code>line_length_linter()&lt;/code>, which takes a parameter controlling how
+wide lines are allowed to be without triggering a lint) were factories, but this led to some problems:&lt;/p>
+&lt;ol>
+&lt;li>Inconsistency&amp;mdash;some linters were designated as calls, like &lt;code>line_length_linter(120)&lt;/code>, while others were
+designated as names, like &lt;code>no_tab_linter&lt;/code>.&lt;/li>
+&lt;li>Brittleness&amp;mdash;some linters evolve to gain (or lose) parameters over time, e.g. in this release
+&lt;code>assignment_linter&lt;/code> gained two arguments, &lt;code>allow_cascading_assign&lt;/code> and &lt;code>allow_right_assign&lt;/code>,
+to fine-tune the handling of the cascading assignment operators &lt;code>&amp;lt;&amp;lt;-&lt;/code>/&lt;code>-&amp;gt;&amp;gt;&lt;/code> and
+right assignment operators &lt;code>-&amp;gt;&lt;/code>/&lt;code>-&amp;gt;&amp;gt;&lt;/code>, respectively.&lt;/li>
+&lt;li>Performance&amp;mdash;factories can run some fixed computations at declaration and store them in the
+function environment, whereas previously the calculation would need to be repeated on every
+expression of every file being linted.&lt;/li>
+&lt;/ol>
+&lt;p>This has two significant practical implications and are the main reason this is a major release.&lt;/p>
+&lt;p>First, lintr invocations should always use the call form, so old usages like:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">lint_package&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">linters&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">assignment_linter&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>should be replaced with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">lint_package&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">linters&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">assignment_linter&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>We expect this to show up in most cases through users&amp;rsquo; &lt;code>.lintr&lt;/code> configuration files.&lt;/p>
+&lt;p>Second, users implementing custom linters need to convert to function factories.&lt;/p>
+&lt;p>That means replacing:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">my_custom_linter&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">source_expression&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="kc">...&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>With:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">my_custom_linter&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="nf">Linter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">source_expression&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span> &lt;span class="kc">...&lt;/span> &lt;span class="p">}))&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>Linter()&lt;/code> is a wrapper to construct the &lt;code>linter&lt;/code> S3 class.&lt;/p>
+&lt;h1 id="linter-metadatabase-linter-documentation-and-pkgdown">Linter metadatabase, linter documentation, and pkgdown
+&lt;a href="#linter-metadatabase-linter-documentation-and-pkgdown">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h1>&lt;p>We have also overhauled how linters are documented. Previously, all linters
+were documented on a single page and described in a quick blurb. This has
+gotten unwieldy as lintr has grown to export 72 linters! Now, each linter gets its own
+page, which will make it easier to document any parameters, enumerate edge cases/
+known false positives, add links to external resources, etc.&lt;/p>
+&lt;p>To make linter discovery even more navigable, we&amp;rsquo;ve also added &lt;code>available_linters()&lt;/code>, a
+database with known linters and some associated metadata tags for each.
+For example, &lt;code>brace_linter&lt;/code> has tags &lt;code>style&lt;/code>, &lt;code>readability&lt;/code>, &lt;code>default&lt;/code>, and &lt;code>configurable&lt;/code>.
+Each tag also gets its own documentation page (e.g. &lt;code>?readability_linters&lt;/code>) which describes the tag
+and lists all of the known associated linters. The tags are available in another database:
+&lt;code>available_tags()&lt;/code>. These databases can be extended to include custom linters in your package;
+see &lt;code>?available_linters&lt;/code>.&lt;/p>
+&lt;p>Moreover, lintr&amp;rsquo;s documentation is now available as a website thanks to
+Hadley Wickham&amp;rsquo;s contribution to create a pkgdown website for the package:
+&lt;a href="https://lintr.r-lib.org" target="_blank" rel="noopener">lintr.r-lib.org&lt;/a>.&lt;/p>
+&lt;h1 id="google-linters">Google linters
+&lt;a href="#google-linters">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h1>&lt;p>This release also features more than 30 new linters originally authored by Google developers.
+Google adheres mostly to the tidyverse style guide and uses lintr to improve the quality
+of its considerable internal R code base. These linters detect common issues with
+readability, consistency, and performance. Here are some examples:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>any_is_na_linter()&lt;/code> detects the usage of &lt;code>any(is.na(x))&lt;/code>; &lt;code>anyNA(x)&lt;/code> is nearly always a better choice,
+both for performance and for readability.&lt;/li>
+&lt;li>&lt;code>expect_named_linter()&lt;/code> detects usage in
+&lt;a href="http://testthat.r-lib.org/" target="_blank" rel="noopener">testthat&lt;/a> suites like
+&lt;code>expect_equal(names(x), c(&amp;quot;a&amp;quot;, &amp;quot;b&amp;quot;, &amp;quot;c&amp;quot;))&lt;/code>; &lt;code>testthat&lt;/code> also exports &lt;code>expect_named()&lt;/code> which is
+tailor made to make more readable tests like &lt;code>expect_named(x, c(&amp;quot;a&amp;quot;, &amp;quot;b&amp;quot;, &amp;quot;c&amp;quot;))&lt;/code>.&lt;/li>
+&lt;li>&lt;code>vector_logic_linter()&lt;/code> detects usage of vector logic operators &lt;code>|&lt;/code> and &lt;code>&amp;amp;&lt;/code> in situations where
+scalar logic applies, e.g. &lt;code>if (x | y) { ... }&lt;/code> should be &lt;code>if (x || y) { ... }&lt;/code>. The latter
+is more efficient and less error-prone.&lt;/li>
+&lt;li>&lt;code>strings_as_factors_linter()&lt;/code> helps developers maintaining code that straddles the R 4.0.0 boundary,
+where the default value of &lt;code>stringsAsFactors&lt;/code>
+&lt;a href="https://developer.r-project.org/Blog/public/2020/02/16/stringsasfactors/" target="_blank" rel="noopener">changed from &lt;code>TRUE&lt;/code> to &lt;code>FALSE&lt;/code>&lt;/a>,
+by identifying usages of &lt;code>data.frame()&lt;/code> that (1) have known string columns and (2) don&amp;rsquo;t declare
+a value for &lt;code>stringsAsFactors&lt;/code>, and thus rely on the R version-dependent default.&lt;/li>
+&lt;/ul>
+&lt;p>See the
+&lt;a href="https://lintr.r-lib.org/news/index.html#google-linters-3-0-0" target="_blank" rel="noopener">NEWS&lt;/a> for the complete list.&lt;/p>
+&lt;h1 id="other-improvements">Other improvements
+&lt;a href="#other-improvements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h1>&lt;p>This is a big release&amp;mdash;almost 2 years in the making&amp;mdash;and includes a plethora of smaller
+but nonetheless important changes to lintr. Please check the
+&lt;a href="https://lintr.r-lib.org/news/index.html#lintr-300" target="_blank" rel="noopener">NEWS&lt;/a>
+for a complete enumeration of these. Here are a few more new linters as a highlight:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>sprintf_linter()&lt;/code>: a new linter for detecting potentially problematic calls to &lt;code>sprintf()&lt;/code> (e.g.
+using too many or too few arguments as compared to the number of template fields).&lt;/li>
+&lt;li>&lt;code>package_hooks_linter()&lt;/code>: a new linter to check consistency of &lt;code>.onLoad()&lt;/code> functions and
+other namespace hooks, as required by &lt;code>R CMD check&lt;/code>.&lt;/li>
+&lt;li>&lt;code>namespace_linter()&lt;/code>: a new linter to check for common mistakes in &lt;code>pkg::symbol&lt;/code> usage, e.g.
+if &lt;code>symbol&lt;/code> is not an exported object from &lt;code>pkg&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;p>Google has developed and tested many more broad-purpose linters that it plans to share, e.g. for
+detecting &lt;code>length(which(x == y)) &amp;gt; 0&lt;/code> (i.e., &lt;code>any(x == y)&lt;/code>), &lt;code>lapply(x, function(xi) sum(xi))&lt;/code>
+(i.e., &lt;code>lapply(x, sum)&lt;/code>), &lt;code>c(&amp;quot;key_name&amp;quot; = &amp;quot;value_name&amp;quot;)&lt;/code> (i.e., &lt;code>c(key_name = &amp;quot;value_name&amp;quot;)&lt;/code>),
+and more! Follow
+&lt;a href="https://github.com/r-lib/lintr/issues/884" target="_blank" rel="noopener">#884&lt;/a> for updates.&lt;/p>
+&lt;p>Moreover, with the decision to accept a bevy of linters from Google that are not strictly related to the tidyverse
+style guide, we also opened the door to hosting linters for enforcing other style guides, for example
+the
+&lt;a href="https://contributions.bioconductor.org/r-code.html" target="_blank" rel="noopener">Bioconductor R code guide&lt;/a>. We look forward to
+community contributions in this vein.&lt;/p>
+&lt;h1 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h1>&lt;p>A great big thanks to the 97 people who have contributed to this release of lintr:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/1beb" target="_blank" rel="noopener">@1beb&lt;/a>,
+&lt;a href="https://github.com/albert-ying" target="_blank" rel="noopener">@albert-ying&lt;/a>,
+&lt;a href="https://github.com/aronatkins" target="_blank" rel="noopener">@aronatkins&lt;/a>,
+&lt;a href="https://github.com/AshesITR" target="_blank" rel="noopener">@AshesITR&lt;/a>,
+&lt;a href="https://github.com/assignUser" target="_blank" rel="noopener">@assignUser&lt;/a>,
+&lt;a href="https://github.com/barryrowlingson" target="_blank" rel="noopener">@barryrowlingson&lt;/a>,
+&lt;a href="https://github.com/belokoch" target="_blank" rel="noopener">@belokoch&lt;/a>,
+&lt;a href="https://github.com/bersbersbers" target="_blank" rel="noopener">@bersbersbers&lt;/a>,
+&lt;a href="https://github.com/bsolomon1124" target="_blank" rel="noopener">@bsolomon1124&lt;/a>,
+&lt;a href="https://github.com/chrisumphlett" target="_blank" rel="noopener">@chrisumphlett&lt;/a>,
+&lt;a href="https://github.com/csgillespie" target="_blank" rel="noopener">@csgillespie&lt;/a>,
+&lt;a href="https://github.com/danielinteractive" target="_blank" rel="noopener">@danielinteractive&lt;/a>,
+&lt;a href="https://github.com/dankessler" target="_blank" rel="noopener">@dankessler&lt;/a>,
+&lt;a href="https://github.com/dgkf" target="_blank" rel="noopener">@dgkf&lt;/a>,
+&lt;a href="https://github.com/dinakar29" target="_blank" rel="noopener">@dinakar29&lt;/a>,
+&lt;a href="https://github.com/dmurdoch" target="_blank" rel="noopener">@dmurdoch&lt;/a>,
+&lt;a href="https://github.com/dpprdan" target="_blank" rel="noopener">@dpprdan&lt;/a>,
+&lt;a href="https://github.com/dragosmg" target="_blank" rel="noopener">@dragosmg&lt;/a>,
+&lt;a href="https://github.com/dschlaep" target="_blank" rel="noopener">@dschlaep&lt;/a>,
+&lt;a href="https://github.com/eitsupi" target="_blank" rel="noopener">@eitsupi&lt;/a>,
+&lt;a href="https://github.com/ElsLommelen" target="_blank" rel="noopener">@ElsLommelen&lt;/a>,
+&lt;a href="https://github.com/f-ritter" target="_blank" rel="noopener">@f-ritter&lt;/a>,
+&lt;a href="https://github.com/fabian-s" target="_blank" rel="noopener">@fabian-s&lt;/a>,
+&lt;a href="https://github.com/fdlk" target="_blank" rel="noopener">@fdlk&lt;/a>,
+&lt;a href="https://github.com/fornaeffe" target="_blank" rel="noopener">@fornaeffe&lt;/a>,
+&lt;a href="https://github.com/frederic-mahe" target="_blank" rel="noopener">@frederic-mahe&lt;/a>,
+&lt;a href="https://github.com/GiuseppeTT" target="_blank" rel="noopener">@GiuseppeTT&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hhoeflin" target="_blank" rel="noopener">@hhoeflin&lt;/a>,
+&lt;a href="https://github.com/hrvg" target="_blank" rel="noopener">@hrvg&lt;/a>,
+&lt;a href="https://github.com/huisman" target="_blank" rel="noopener">@huisman&lt;/a>,
+&lt;a href="https://github.com/iago-pssjd" target="_blank" rel="noopener">@iago-pssjd&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/inventionate" target="_blank" rel="noopener">@inventionate&lt;/a>,
+&lt;a href="https://github.com/ishaar226" target="_blank" rel="noopener">@ishaar226&lt;/a>,
+&lt;a href="https://github.com/jabenninghoff" target="_blank" rel="noopener">@jabenninghoff&lt;/a>,
+&lt;a href="https://github.com/jameslamb" target="_blank" rel="noopener">@jameslamb&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jeremymiles" target="_blank" rel="noopener">@jeremymiles&lt;/a>,
+&lt;a href="https://github.com/jhgoebbert" target="_blank" rel="noopener">@jhgoebbert&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/johanneswerner" target="_blank" rel="noopener">@johanneswerner&lt;/a>,
+&lt;a href="https://github.com/jonkeane" target="_blank" rel="noopener">@jonkeane&lt;/a>,
+&lt;a href="https://github.com/JSchoenbachler" target="_blank" rel="noopener">@JSchoenbachler&lt;/a>,
+&lt;a href="https://github.com/JWiley" target="_blank" rel="noopener">@JWiley&lt;/a>,
+&lt;a href="https://github.com/karlvurdst" target="_blank" rel="noopener">@karlvurdst&lt;/a>,
+&lt;a href="https://github.com/klmr" target="_blank" rel="noopener">@klmr&lt;/a>,
+&lt;a href="https://github.com/Kotsakis" target="_blank" rel="noopener">@Kotsakis&lt;/a>,
+&lt;a href="https://github.com/kpagacz" target="_blank" rel="noopener">@kpagacz&lt;/a>,
+&lt;a href="https://github.com/kpj" target="_blank" rel="noopener">@kpj&lt;/a>,
+&lt;a href="https://github.com/latot" target="_blank" rel="noopener">@latot&lt;/a>,
+&lt;a href="https://github.com/leogama" target="_blank" rel="noopener">@leogama&lt;/a>,
+&lt;a href="https://github.com/liar666" target="_blank" rel="noopener">@liar666&lt;/a>,
+&lt;a href="https://github.com/logstar" target="_blank" rel="noopener">@logstar&lt;/a>,
+&lt;a href="https://github.com/lorenzwalthert" target="_blank" rel="noopener">@lorenzwalthert&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/markromanmiller" target="_blank" rel="noopener">@markromanmiller&lt;/a>,
+&lt;a href="https://github.com/mattwarkentin" target="_blank" rel="noopener">@mattwarkentin&lt;/a>,
+&lt;a href="https://github.com/maxheld83" target="_blank" rel="noopener">@maxheld83&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/michaelquinn32" target="_blank" rel="noopener">@michaelquinn32&lt;/a>,
+&lt;a href="https://github.com/mikekaminsky" target="_blank" rel="noopener">@mikekaminsky&lt;/a>,
+&lt;a href="https://github.com/milanglacier" target="_blank" rel="noopener">@milanglacier&lt;/a>,
+&lt;a href="https://github.com/minimenchmuncher" target="_blank" rel="noopener">@minimenchmuncher&lt;/a>,
+&lt;a href="https://github.com/mjsteinbaugh" target="_blank" rel="noopener">@mjsteinbaugh&lt;/a>,
+&lt;a href="https://github.com/nathaneastwood" target="_blank" rel="noopener">@nathaneastwood&lt;/a>,
+&lt;a href="https://github.com/nlarusstone" target="_blank" rel="noopener">@nlarusstone&lt;/a>,
+&lt;a href="https://github.com/nsoranzo" target="_blank" rel="noopener">@nsoranzo&lt;/a>,
+&lt;a href="https://github.com/nvuillam" target="_blank" rel="noopener">@nvuillam&lt;/a>,
+&lt;a href="https://github.com/pakjiddat" target="_blank" rel="noopener">@pakjiddat&lt;/a>,
+&lt;a href="https://github.com/pat-s" target="_blank" rel="noopener">@pat-s&lt;/a>,
+&lt;a href="https://github.com/prncevince" target="_blank" rel="noopener">@prncevince&lt;/a>,
+&lt;a href="https://github.com/QiStats-Joel" target="_blank" rel="noopener">@QiStats-Joel&lt;/a>,
+&lt;a href="https://github.com/rahulrachh" target="_blank" rel="noopener">@rahulrachh&lt;/a>,
+&lt;a href="https://github.com/razz-matazz" target="_blank" rel="noopener">@razz-matazz&lt;/a>,
+&lt;a href="https://github.com/renkun-ken" target="_blank" rel="noopener">@renkun-ken&lt;/a>,
+&lt;a href="https://github.com/rfalke" target="_blank" rel="noopener">@rfalke&lt;/a>,
+&lt;a href="https://github.com/richfitz" target="_blank" rel="noopener">@richfitz&lt;/a>,
+&lt;a href="https://github.com/russHyde" target="_blank" rel="noopener">@russHyde&lt;/a>,
+&lt;a href="https://github.com/salim-b" target="_blank" rel="noopener">@salim-b&lt;/a>,
+&lt;a href="https://github.com/schaffstein" target="_blank" rel="noopener">@schaffstein&lt;/a>,
+&lt;a href="https://github.com/scottmmjackson" target="_blank" rel="noopener">@scottmmjackson&lt;/a>,
+&lt;a href="https://github.com/sgvignali" target="_blank" rel="noopener">@sgvignali&lt;/a>,
+&lt;a href="https://github.com/shaopeng-gh" target="_blank" rel="noopener">@shaopeng-gh&lt;/a>,
+&lt;a href="https://github.com/StefanBRas" target="_blank" rel="noopener">@StefanBRas&lt;/a>,
+&lt;a href="https://github.com/stefaneng" target="_blank" rel="noopener">@stefaneng&lt;/a>,
+&lt;a href="https://github.com/stefanocoretta" target="_blank" rel="noopener">@stefanocoretta&lt;/a>,
+&lt;a href="https://github.com/stufield" target="_blank" rel="noopener">@stufield&lt;/a>,
+&lt;a href="https://github.com/TCABJ" target="_blank" rel="noopener">@TCABJ&lt;/a>,
+&lt;a href="https://github.com/telegott" target="_blank" rel="noopener">@telegott&lt;/a>,
+&lt;a href="https://github.com/ThierryO" target="_blank" rel="noopener">@ThierryO&lt;/a>,
+&lt;a href="https://github.com/thisisnic" target="_blank" rel="noopener">@thisisnic&lt;/a>,
+&lt;a href="https://github.com/tonyk7440" target="_blank" rel="noopener">@tonyk7440&lt;/a>,
+&lt;a href="https://github.com/wfmueller29" target="_blank" rel="noopener">@wfmueller29&lt;/a>,
+&lt;a href="https://github.com/wibeasley" target="_blank" rel="noopener">@wibeasley&lt;/a>,
+&lt;a href="https://github.com/yannickwurm" target="_blank" rel="noopener">@yannickwurm&lt;/a>, and
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>.&lt;/p></description></item></channel></rss>

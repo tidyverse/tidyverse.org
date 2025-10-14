@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>withr | Tidyverse</title><link>https://www.tidyverse.org/tags/withr/</link><atom:link href="https://www.tidyverse.org/tags/withr/index.xml" rel="self" type="application/rss+xml"/><description>withr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 18 Jan 2024 00:00:00 +0000</lastBuildDate><item><title>withr 3.0.0</title><link>https://www.tidyverse.org/blog/2024/01/withr-3-0-0/</link><pubDate>Thu, 18 Jan 2024 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2024/01/withr-3-0-0/</guid><description>&lt;p>It&amp;rsquo;s not without jubilant bearing that we announce the release of the 3.0.0 version of
+&lt;a href="https://withr.r-lib.org/" target="_blank" rel="noopener">withr&lt;/a>, the tidyverse solution for automatic cleanup of resources! In this release, the internals of withr were rewritten to improve the performance and increase the compatibility with base R&amp;rsquo;s
+&lt;a href="https://rdrr.io/r/base/on.exit.html" target="_blank" rel="noopener">&lt;code>on.exit()&lt;/code>&lt;/a> mechanism.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"withr"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>In this blog post we&amp;rsquo;ll go over the changes that made this rewrite possible, but first we&amp;rsquo;ll review the cleanup strategies made possible by withr.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://withr.r-lib.org/news/index.html#withr-300" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;/div>
+&lt;h2 id="cleaning-up-resources-with-base-r-and-with-withr">Cleaning up resources with base R and with withr
+&lt;a href="#cleaning-up-resources-with-base-r-and-with-withr">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Traditionally, resource cleanup in R is done with
+&lt;a href="https://rdrr.io/r/base/on.exit.html" target="_blank" rel="noopener">&lt;code>base::on.exit()&lt;/code>&lt;/a>. Cleaning up in the on-exit hook ensures that the cleanup happens both in the normal case, when the code has finished running without error, and in the error case, when something went wrong and execution is interrupted.&lt;/p>
+&lt;p>
+&lt;a href="https://rdrr.io/r/base/on.exit.html" target="_blank" rel="noopener">&lt;code>on.exit()&lt;/code>&lt;/a> is meant to be used inside functions but it also works within
+&lt;a href="https://rdrr.io/r/base/eval.html" target="_blank" rel="noopener">&lt;code>local()&lt;/code>&lt;/a>, which we&amp;rsquo;ll use here for our examples:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/eval.html'>local&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/on.exit.html'>on.exit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/message.html'>message&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Cleaning time!"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/print.html'>print&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='m'>2&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 3&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; Cleaning time!&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/eval.html'>local&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/on.exit.html'>on.exit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/message.html'>message&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Cleaning time!"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/stop.html'>stop&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"uh oh"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/print.html'>print&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='m'>2&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00; font-weight: bold;'>Error&lt;/span>&lt;span style='font-weight: bold;'>:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>!&lt;/span> uh oh&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; Cleaning time!&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>
+&lt;a href="https://rdrr.io/r/base/on.exit.html" target="_blank" rel="noopener">&lt;code>on.exit()&lt;/code>&lt;/a> is guaranteed to run no matter what and this property makes it invaluable for resource cleaning. No more accidental littering!&lt;/p>
+&lt;p>However the process of cleaning up this way can be a bit verbose and feel too manual. Here is how you&amp;rsquo;d create and clean up a temporary file for instance:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/eval.html'>local&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>my_file&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/tempfile.html'>tempfile&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/files.html'>file.create&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>my_file&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/on.exit.html'>on.exit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/files.html'>file.remove&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>my_file&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/writeLines.html'>writeLines&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"a"&lt;/span>, &lt;span class='s'>"b"&lt;/span>&lt;span class='o'>)&lt;/span>, con &lt;span class='o'>=&lt;/span> &lt;span class='nv'>my_file&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Wouldn&amp;rsquo;t it be great if we could wrap this code up in a function? That&amp;rsquo;s the goal of withr&amp;rsquo;s &lt;code>local_&lt;/code>-prefixed functions. They combine both the creation or modification of a resource and its (eventual) restoration to the original state into a single function:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/eval.html'>local&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>my_file&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>withr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://withr.r-lib.org/reference/with_tempfile.html'>local_tempfile&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/writeLines.html'>writeLines&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"a"&lt;/span>, &lt;span class='s'>"b"&lt;/span>&lt;span class='o'>)&lt;/span>, con &lt;span class='o'>=&lt;/span> &lt;span class='nv'>my_file&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>In this case we have created a resource (a file), but the same principle applies to modifying resources such as global options:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/eval.html'>local&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='c'># Let's temporarily print with a single decimal place&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>withr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://withr.r-lib.org/reference/with_options.html'>local_options&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>digits &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/print.html'>print&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>/&lt;/span>&lt;span class='m'>3&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 0.3&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># The original option value has been restored&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/options.html'>getOption&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"digits"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 7&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/print.html'>print&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>/&lt;/span>&lt;span class='m'>3&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 0.3333333&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>And you can equivalently use the &lt;code>with_&lt;/code>-prefixed variants (from which the package takes its name!), this way you don&amp;rsquo;t need to wrap in
+&lt;a href="https://rdrr.io/r/base/eval.html" target="_blank" rel="noopener">&lt;code>local()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>withr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://withr.r-lib.org/reference/with_options.html'>with_options&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/list.html'>list&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>digits &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/print.html'>print&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>/&lt;/span>&lt;span class='m'>3&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 0.3&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The &lt;code>with_&lt;/code> functions are useful for creating very small scopes for given resources, inside or outside a function.&lt;/p>
+&lt;h2 id="the-withr-300-rewrite">The withr 3.0.0 rewrite
+&lt;a href="#the-withr-300-rewrite">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Traditionally, withr implemented its own exit event system on top of
+&lt;a href="https://rdrr.io/r/base/on.exit.html" target="_blank" rel="noopener">&lt;code>on.exit()&lt;/code>&lt;/a>. We needed an extra layer because of a couple of missing features:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>When multiple resources are managed by a piece of code, the order in which these resources are restored or cleaned up sometimes matter. The most consistent order for cleanup is last-in first-out (LIFO). In other words the oldest resource, on which younger resources might depend, is cleaned up last. But historically R only supported first-in first-out (FIFO) order.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The other missing piece was being able to inspect the contents of the exit hook. The
+&lt;a href="https://rdrr.io/r/base/sys.parent.html" target="_blank" rel="noopener">&lt;code>sys.on.exit()&lt;/code>&lt;/a> R helper was created for this purpose but was affected by a bug that prevented it from working inside functions.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>We contributed two changes to R 3.5.0 that filled these missing pieces, fixing the
+&lt;a href="https://rdrr.io/r/base/sys.parent.html" target="_blank" rel="noopener">&lt;code>sys.on.exit()&lt;/code>&lt;/a> bug and adding an &lt;code>after&lt;/code> argument to
+&lt;a href="https://rdrr.io/r/base/on.exit.html" target="_blank" rel="noopener">&lt;code>on.exit()&lt;/code>&lt;/a> to allow last-in first-out ordering.&lt;/p>
+&lt;p>Until now, we haven&amp;rsquo;t been able to leverage these contributions because of our policy of
+&lt;a href="https://www.tidyverse.org/blog/2019/04/r-version-support" target="_blank" rel="noopener">supporting the current and previous four versions of R&lt;/a>. Now that enough time has passed, it was time for a rewrite! Our version of
+&lt;a href="https://rdrr.io/r/base/on.exit.html" target="_blank" rel="noopener">&lt;code>base::on.exit()&lt;/code>&lt;/a> is
+&lt;a href="https://withr.r-lib.org/reference/defer.html" target="_blank" rel="noopener">&lt;code>withr::defer()&lt;/code>&lt;/a>. Along with better default behaviour,
+&lt;a href="https://withr.r-lib.org/reference/defer.html" target="_blank" rel="noopener">&lt;code>withr::defer()&lt;/code>&lt;/a> allows the clean up of resources non-locally (ironically an essential feature for implementing &lt;code>local_&lt;/code> functions). Given the changes in R 3.5.0,
+&lt;a href="https://withr.r-lib.org/reference/defer.html" target="_blank" rel="noopener">&lt;code>withr::defer()&lt;/code>&lt;/a> can now be implemented as a simple wrapper around
+&lt;a href="https://rdrr.io/r/base/on.exit.html" target="_blank" rel="noopener">&lt;code>on.exit()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>One benefit of the rewrite is that mixing withr tools and
+&lt;a href="https://rdrr.io/r/base/on.exit.html" target="_blank" rel="noopener">&lt;code>on.exit()&lt;/code>&lt;/a> in the same function now correctly interleaves cleanup:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/eval.html'>local&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/on.exit.html'>on.exit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/print.html'>print&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='nf'>withr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://withr.r-lib.org/reference/defer.html'>defer&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/print.html'>print&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>2&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/on.exit.html'>on.exit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/print.html'>print&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>3&lt;/span>&lt;span class='o'>)&lt;/span>, add &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>, after &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='nf'>withr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://withr.r-lib.org/reference/defer.html'>defer&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/print.html'>print&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>4&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/print.html'>print&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>5&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 5&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 4&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 3&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 1&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>But the main benefit is increased performance. Here is how &lt;code>defer()&lt;/code> compared to
+&lt;a href="https://rdrr.io/r/base/on.exit.html" target="_blank" rel="noopener">&lt;code>on.exit()&lt;/code>&lt;/a> in the previous version:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>base&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/on.exit.html'>on.exit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='kc'>NULL&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>withr&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nf'>defer&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='kc'>NULL&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># withr 2.5.2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>bench&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='http://bench.r-lib.org/reference/mark.html'>mark&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>base&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='nf'>withr&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, check &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>8&lt;/span>&lt;span class='o'>]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; # A tibble: 2 × 8&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; expression min median `itr/sec` mem_alloc `gc/sec` n_itr n_gc&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;lt;bch:expr&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;bch:&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;bch:byt&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 1 base() 0 82ns 6954952. 0B 696. 9999 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 2 withr() 26.2µs 27.9µs 35172. 88.4KB 52.8 9985 15&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>withr 3.0.0 has now caught up to
+&lt;a href="https://rdrr.io/r/base/on.exit.html" target="_blank" rel="noopener">&lt;code>on.exit()&lt;/code>&lt;/a> quite a bit:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># withr 3.0.0&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>bench&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='http://bench.r-lib.org/reference/mark.html'>mark&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>base&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='nf'>withr&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, check &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>8&lt;/span>&lt;span class='o'>]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; # A tibble: 2 × 8&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; expression min median `itr/sec` mem_alloc `gc/sec` n_itr n_gc&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;lt;bch:expr&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;bch:&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;bch:byt&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 1 base() 0 82ns 7329829. 0B 0 10000 0&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 2 withr() 2.95µs 3.4µs 280858. 0B 225. 9992 8&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Of course
+&lt;a href="https://rdrr.io/r/base/on.exit.html" target="_blank" rel="noopener">&lt;code>on.exit()&lt;/code>&lt;/a> is still much faster, in part because &lt;code>defer()&lt;/code> supports more features (more on that below), but mostly because &lt;code>on.exit&lt;/code> is a primitive function whereas &lt;code>defer()&lt;/code> is implemented as a normal R function. That said, we hope that we now have made &lt;code>defer()&lt;/code> (and the &lt;code>local_&lt;/code> and &lt;code>with_&lt;/code> functions that use it) sufficiently fast to be used even in performance-critical micro-tools.&lt;/p>
+&lt;h2 id="improved-withr-features">Improved withr features
+&lt;a href="#improved-withr-features">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Over the successive releases of withr we&amp;rsquo;ve improved the behaviour of cleanup expressions interactively, in scripts executed with
+&lt;a href="https://rdrr.io/r/base/source.html" target="_blank" rel="noopener">&lt;code>source()&lt;/code>&lt;/a>, and in knitr.
+&lt;a href="https://rdrr.io/r/base/on.exit.html" target="_blank" rel="noopener">&lt;code>on.exit()&lt;/code>&lt;/a> is a bit inconsistent when it is used outside of a function:&lt;/p>
+&lt;ul>
+&lt;li>Interactively, it doesn&amp;rsquo;t do anything.&lt;/li>
+&lt;li>In
+&lt;a href="https://rdrr.io/r/base/source.html" target="_blank" rel="noopener">&lt;code>source()&lt;/code>&lt;/a> and in knitr, it runs immediately instead of a the end of the script&lt;/li>
+&lt;/ul>
+&lt;p>
+&lt;a href="https://withr.r-lib.org/reference/defer.html" target="_blank" rel="noopener">&lt;code>withr::defer()&lt;/code>&lt;/a> and the
+&lt;a href="https://withr.r-lib.org/reference/with_.html" target="_blank" rel="noopener">&lt;code>withr::local_&lt;/code>&lt;/a> helpers try to be more helpful for these cases.&lt;/p>
+&lt;p>Interactively, it saves the cleanup action in a special global hook and you get information about how to actually perform the cleanup:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>file&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>withr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://withr.r-lib.org/reference/with_tempfile.html'>local_tempfile&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Setting global deferred event(s).&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; i These will be run:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; * Automatically, when the R session ends.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; * On demand, if you call `withr::deferred_run()`.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; i Use `withr::deferred_clear()` to clear them without executing.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Clean up now&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>withr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://withr.r-lib.org/reference/defer.html'>deferred_run&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Ran 1/1 deferred expressions&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>In knitr or
+&lt;a href="https://rdrr.io/r/base/source.html" target="_blank" rel="noopener">&lt;code>source()&lt;/code>&lt;/a>&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>, the cleanup is performed at the end of the document or of the script. If you need chunk-level cleanup, use
+&lt;a href="https://rdrr.io/r/base/eval.html" target="_blank" rel="noopener">&lt;code>local()&lt;/code>&lt;/a> as we&amp;rsquo;ve been doing in the examples of this blog post:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-md" data-lang="md">Cleaning up at the end of the document:
+&lt;span class="s">```r
+&lt;/span>&lt;span class="s">&lt;/span>&lt;span class="n">document_wide_file&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">withr&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">local_tempfile&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="s">```&lt;/span>
+Cleaning up at the end of the chunk:
+&lt;span class="s">```r
+&lt;/span>&lt;span class="s">&lt;/span>&lt;span class="nf">local&lt;/span>&lt;span class="p">({&lt;/span>
+&lt;span class="n">local_file&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">withr&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">local_tempfile&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="p">})&lt;/span>
+&lt;span class="s">```&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Starting from withr 3.0.0, you can also run &lt;code>deferred_run()&lt;/code> inside of a chunk:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-md" data-lang="md">&lt;span class="s">```r
+&lt;/span>&lt;span class="s">&lt;/span>&lt;span class="n">withr&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">deferred_run&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; Ran 1/1 deferred expressions&lt;/span>
+&lt;span class="s">```&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thanks to the github contributors who helped us with this release!&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/ashbythorpe" target="_blank" rel="noopener">@ashbythorpe&lt;/a>,
+&lt;a href="https://github.com/bastistician" target="_blank" rel="noopener">@bastistician&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/fkohrt" target="_blank" rel="noopener">@fkohrt&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">@gaborcsardi&lt;/a>,
+&lt;a href="https://github.com/gdurif" target="_blank" rel="noopener">@gdurif&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/HenrikBengtsson" target="_blank" rel="noopener">@HenrikBengtsson&lt;/a>,
+&lt;a href="https://github.com/honghaoli42" target="_blank" rel="noopener">@honghaoli42&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/jameslairdsmith" target="_blank" rel="noopener">@jameslairdsmith&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jonkeane" target="_blank" rel="noopener">@jonkeane&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/MLopez-Ibanez" target="_blank" rel="noopener">@MLopez-Ibanez&lt;/a>,
+&lt;a href="https://github.com/moodymudskipper" target="_blank" rel="noopener">@moodymudskipper&lt;/a>,
+&lt;a href="https://github.com/multimeric" target="_blank" rel="noopener">@multimeric&lt;/a>,
+&lt;a href="https://github.com/orichters" target="_blank" rel="noopener">@orichters&lt;/a>,
+&lt;a href="https://github.com/pfuehrlich-pik" target="_blank" rel="noopener">@pfuehrlich-pik&lt;/a>,
+&lt;a href="https://github.com/solmos" target="_blank" rel="noopener">@solmos&lt;/a>,
+&lt;a href="https://github.com/tillea" target="_blank" rel="noopener">@tillea&lt;/a>, and
+&lt;a href="https://github.com/vanhry" target="_blank" rel="noopener">@vanhry&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>
+&lt;a href="https://rdrr.io/r/base/source.html" target="_blank" rel="noopener">&lt;code>source()&lt;/code>&lt;/a> is only supported by default when running in the global environment, which is usually the case. For the special case of sourcing in a local environment, you need to set &lt;code>options(withr.hook_source = TRUE)&lt;/code> first. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>withr 2.1.0</title><link>https://www.tidyverse.org/blog/2017/11/withr-2.1.0/</link><pubDate>Thu, 16 Nov 2017 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2017/11/withr-2.1.0/</guid><description>
+&lt;p>&lt;a href="http://withr.r-lib.org/news/index.html">withr 2.1.0&lt;/a> is now available on CRAN! &lt;a href="http://withr.r-lib.org">withr&lt;/a> makes working with global state in R safer and less error prone. It has only base package dependencies so is easily included in packages.&lt;/p>
+&lt;p>Install the latest version with:&lt;/p>
+&lt;pre class="r">&lt;code>install.packages(&amp;quot;withr&amp;quot;)&lt;/code>&lt;/pre>
+&lt;div id="whither-withr" class="section level1">
+&lt;h1>Whither withr?&lt;/h1>
+&lt;p>Many functions in R modify global state in some fashion. Some common examples are &lt;code>par()&lt;/code> for graphics parameters, &lt;code>dir()&lt;/code> to change the current directory and &lt;code>options()&lt;/code> to set a global option. Using these functions is handy when using R interactively, because you can set them early in your experimentation and they will remain set for the duration of the session. However this makes programming with these settings difficult, because they make your function impure by modifying a global state. Therefore you should always strive to reset the previous state when the function exists.&lt;/p>
+&lt;p>One common idiom for dealing with this problem is to save the current state, make your change, then restore the previous state.&lt;/p>
+&lt;pre class="r">&lt;code>par(&amp;quot;col&amp;quot; = &amp;quot;black&amp;quot;)
+my_plot &amp;lt;- function(new) {
+old &amp;lt;- par(col = &amp;quot;red&amp;quot;, pch = 19)
+plot(mtcars$hp, mtcars$wt)
+par(old)
+}
+my_plot()&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="https://www.tidyverse.org/articles/2017-11-16-withr-2.1.0_files/figure-html/unnamed-chunk-2-1.png" width="672" />&lt;/p>
+&lt;pre class="r">&lt;code>par(&amp;quot;col&amp;quot;)
+#&amp;gt; [1] &amp;quot;black&amp;quot;&lt;/code>&lt;/pre>
+&lt;p>However this approach can fail if there’s an error before you are able to reset the options.&lt;/p>
+&lt;pre class="r">&lt;code>par(&amp;quot;col&amp;quot; = &amp;quot;black&amp;quot;)
+my_plot &amp;lt;- function(new) {
+old &amp;lt;- par(col = &amp;quot;red&amp;quot;, pch = 19)
+plot(mtcars$hpp, mtcars$wt)
+par(old)
+}
+my_plot()
+#&amp;gt; Error in xy.coords(x, y, xlabel, ylabel, log): &amp;#39;x&amp;#39; and &amp;#39;y&amp;#39; lengths differ
+par(&amp;quot;col&amp;quot;)
+#&amp;gt; [1] &amp;quot;red&amp;quot;&lt;/code>&lt;/pre>
+&lt;p>Using the base function &lt;code>on.exit()&lt;/code> is a robust solution to this problem. &lt;code>on.exit()&lt;/code> will run the code when the function is exited, regardless whether it exits normally or with an error.&lt;/p>
+&lt;pre class="r">&lt;code>par(&amp;quot;col&amp;quot; = &amp;quot;black&amp;quot;)
+my_plot &amp;lt;- function(new) {
+old &amp;lt;- par(col = &amp;quot;red&amp;quot;, pch = 19)
+on.exit(par(old))
+plot(mtcars$hpp, mtcars$wt)
+}
+my_plot()
+#&amp;gt; Error in xy.coords(x, y, xlabel, ylabel, log): &amp;#39;x&amp;#39; and &amp;#39;y&amp;#39; lengths differ
+par(&amp;quot;col&amp;quot;)
+#&amp;gt; [1] &amp;quot;black&amp;quot;
+options(test = 1)
+{
+print(getOption(&amp;quot;test&amp;quot;))
+on.exit(options(test = 2))
+}
+#&amp;gt; [1] 1
+getOption(&amp;quot;test&amp;quot;)
+#&amp;gt; [1] 2&lt;/code>&lt;/pre>
+&lt;p>However this solution is somewhat cumbersome to work with. You need to remember to use an &lt;code>on.exit()&lt;/code> call after each stateful call. In addition by default each &lt;code>on.exit()&lt;/code> action will overwrite any previous &lt;code>on.exit()&lt;/code> action in the same function unless you use the &lt;code>add = TRUE&lt;/code> option. &lt;code>add = TRUE&lt;/code> also adds additional code to the &lt;em>end&lt;/em> of existing code, which means the code is not run in the &lt;a href="https://en.wikipedia.org/wiki/FIFO_and_LIFO_accounting">Last-In, First-Out&lt;/a> order you would generally prefer. It is also not possible to have this cleanup code performed before the function has finished.&lt;/p>
+&lt;p>&lt;a href="http://withr.r-lib.org">withr&lt;/a> is a solution to these issues. It defines a &lt;a href="http://withr.r-lib.org/#withr---run-code-with-modified-state">large set of functions&lt;/a> for dealing with global settings in R, such as &lt;code>with_par()&lt;/code>. These functions set one of the global settings for the duration of a block of code, then automatically reset it after the block is completed.&lt;/p>
+&lt;pre class="r">&lt;code>par(&amp;quot;col&amp;quot; = &amp;quot;black&amp;quot;)
+my_plot &amp;lt;- function(new) {
+with_par(list(col = &amp;quot;red&amp;quot;, pch = 19),
+plot(mtcars$hp, mtcars$wt)
+)
+par(&amp;quot;col&amp;quot;)
+}
+my_plot()&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="https://www.tidyverse.org/articles/2017-11-16-withr-2.1.0_files/figure-html/unnamed-chunk-5-1.png" width="672" />&lt;/p>
+&lt;pre>&lt;code>#&amp;gt; [1] &amp;quot;black&amp;quot;
+par(&amp;quot;col&amp;quot;)
+#&amp;gt; [1] &amp;quot;black&amp;quot;&lt;/code>&lt;/pre>
+&lt;p>In addition to the &lt;code>with_*&lt;/code> functions there are &lt;code>local_*&lt;/code> variants whose effects last until the end of the function they are included in. These work similar to &lt;code>on.exit()&lt;/code>, but you can set the options in one call rather than two.&lt;/p>
+&lt;pre class="r">&lt;code>par(&amp;quot;col&amp;quot; = &amp;quot;black&amp;quot;)
+my_plot &amp;lt;- function(new) {
+local_par(list(col = &amp;quot;red&amp;quot;, pch = 19))
+plot(mtcars$hp, mtcars$wt)
+}
+my_plot()&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="https://www.tidyverse.org/articles/2017-11-16-withr-2.1.0_files/figure-html/unnamed-chunk-6-1.png" width="672" />&lt;/p>
+&lt;pre class="r">&lt;code>par(&amp;quot;col&amp;quot;)
+#&amp;gt; [1] &amp;quot;black&amp;quot;&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="new-features" class="section level1">
+&lt;h1>New features&lt;/h1>
+&lt;p>Here are some highlights of new functions for v2.1.0.&lt;/p>
+&lt;div id="graphics-devices" class="section level2">
+&lt;h2>Graphics devices&lt;/h2>
+&lt;p>There are now a comprehensive set of functions to deal with R’s builtin &lt;a href="http://withr.r-lib.org/reference/devices.html">graphics devices&lt;/a>.&lt;/p>
+&lt;p>These functions open a new graphics device, run some code, then automatically close the device.&lt;/p>
+&lt;pre class="r">&lt;code>path &amp;lt;- file.path(Sys.glob(&amp;quot;*withr*_files/figure-html&amp;quot;), &amp;quot;test.png&amp;quot;)
+with_png(path, width = 400, height = 300, {
+plot(mtcars$hp, mtcars$mpg)
+})&lt;/code>&lt;/pre>
+&lt;div class="figure">
+&lt;img src="https://www.tidyverse.org/articles/2017-11-16-withr-2.1.0_files/figure-html/test.png" />
+&lt;/div>
+&lt;p>Thanks to &lt;a href="https://github.com/richierocks">Richard Cotton’s&lt;/a> great &lt;a href="https://github.com/r-lib/withr/pull/37">pull request&lt;/a> for this feature!&lt;/p>
+&lt;/div>
+&lt;div id="connections" class="section level2">
+&lt;h2>Connections&lt;/h2>
+&lt;p>There are two new functions for cleaning up connections in R. &lt;code>with_connection()&lt;/code> allows you to automatically close R’s file connections. Here we create a writable file connection, write some lines to it with &lt;code>with_connection()&lt;/code>, then open a read-only connection and read the file using &lt;code>local_connection()&lt;/code>.&lt;/p>
+&lt;pre class="r">&lt;code>with_connection(list(con = file(&amp;quot;temp&amp;quot;, &amp;quot;w&amp;quot;)), {
+writeLines(c(&amp;quot;foo&amp;quot;, &amp;quot;bar&amp;quot;), con)
+})
+read_temp &amp;lt;- function() {
+con &amp;lt;- local_connection(file(&amp;quot;temp&amp;quot;, &amp;quot;r&amp;quot;))
+readLines(con)
+}
+read_temp()
+#&amp;gt; [1] &amp;quot;foo&amp;quot; &amp;quot;bar&amp;quot;&lt;/code>&lt;/pre>
+&lt;p>&lt;code>with_db_connection()&lt;/code> provides &lt;a href="http://rstats-db.github.io/DBI">DBI&lt;/a> connections to databases which automatically call &lt;code>DBI::dbDisconnect()&lt;/code>. Here we create a new &lt;a href="https://www.sqlite.org/">SQLite&lt;/a> database, connect to it with &lt;code>with_db_connection()&lt;/code>, and write a new table to it. We then create another connection with &lt;code>local_db_connection()&lt;/code> and read from the table.&lt;/p>
+&lt;pre class="r">&lt;code>db &amp;lt;- tempfile()
+with_db_connection(
+list(con = DBI::dbConnect(RSQLite::SQLite(), db)), {
+DBI::dbWriteTable(con, &amp;quot;mtcars&amp;quot;, mtcars)
+})
+#&amp;gt; Loading required namespace: DBI
+head_db_table &amp;lt;- function(...) {
+con &amp;lt;- local_db_connection(DBI::dbConnect(RSQLite::SQLite(), db))
+head(DBI::dbReadTable(con, &amp;quot;mtcars&amp;quot;), ...)
+}
+head_db_table()
+#&amp;gt; mpg cyl disp hp drat wt qsec vs am gear carb
+#&amp;gt; 1 21.0 6 160 110 3.90 2.620 16.46 0 1 4 4
+#&amp;gt; 2 21.0 6 160 110 3.90 2.875 17.02 0 1 4 4
+#&amp;gt; 3 22.8 4 108 93 3.85 2.320 18.61 1 1 4 1
+#&amp;gt; 4 21.4 6 258 110 3.08 3.215 19.44 1 0 3 1
+#&amp;gt; 5 18.7 8 360 175 3.15 3.440 17.02 0 0 3 2
+#&amp;gt; 6 18.1 6 225 105 2.76 3.460 20.22 1 0 3 1
+unlink(db)&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="packages" class="section level2">
+&lt;h2>Packages&lt;/h2>
+&lt;p>&lt;code>with_package()&lt;/code> allows you to temporarily attach a package.&lt;/p>
+&lt;pre class="r">&lt;code>with_package(&amp;quot;lattice&amp;quot;, {
+xyplot(y ~ x, data.frame(x = -2:2, y = dnorm(-2:2)))
+})&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="https://www.tidyverse.org/articles/2017-11-16-withr-2.1.0_files/figure-html/unnamed-chunk-11-1.png" width="672" />&lt;/p>
+&lt;/div>
+&lt;div id="tempfiles" class="section level2">
+&lt;h2>Tempfiles&lt;/h2>
+&lt;p>&lt;code>with_tempfile()&lt;/code> handy for creating a new temporary files that are removed, often useful when writing tests.&lt;/p>
+&lt;pre class="r">&lt;code>with_tempfile(&amp;quot;file1&amp;quot;, {
+print(file1)
+writeLines(&amp;quot;foo&amp;quot;, file1)
+readLines(file1)
+})
+#&amp;gt; [1] &amp;quot;/var/folders/dt/r5s12t392tb5sk181j3gs4zw0000gn/T//RtmpC6vpTp/file15b492f945411&amp;quot;
+#&amp;gt; [1] &amp;quot;foo&amp;quot;&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="other-changes" class="section level2">
+&lt;h2>Other changes&lt;/h2>
+&lt;p>There are many other bug fixes and other minor improvements in this release. You can see a complete list in the &lt;a href="https://github.com/r-lib/withr/releases/tag/v2.1.0">release notes&lt;/a>.&lt;/p>
+&lt;p>A big thanks goes to all the community members who contributed code and opened issues since the last release!&lt;/p>
+&lt;p>&lt;a href="https://github.com/QuLogic">@QuLogic&lt;/a>, &lt;a href="https://github.com/krlmlr">@krlmlr&lt;/a>, &lt;a href="https://github.com/hadley">@hadley&lt;/a>, &lt;a href="https://github.com/wlandau-lilly">@wlandau-lilly&lt;/a>, &lt;a href="https://github.com/jimhester">@jimhester&lt;/a>, &lt;a href="https://github.com/kevinushey">@kevinushey&lt;/a>, and &lt;a href="https://github.com/richierocks">@richierocks&lt;/a>&lt;/p>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

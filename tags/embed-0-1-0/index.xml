@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>embed-0-1-0 | Tidyverse</title><link>https://www.tidyverse.org/tags/embed-0-1-0/</link><atom:link href="https://www.tidyverse.org/tags/embed-0-1-0/index.xml" rel="self" type="application/rss+xml"/><description>embed-0-1-0</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 09 Jun 2020 00:00:00 +0000</lastBuildDate><item><title>embed 0.1.0</title><link>https://www.tidyverse.org/blog/2020/06/embed-0-1-0/</link><pubDate>Tue, 09 Jun 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/06/embed-0-1-0/</guid><description>&lt;p>There is a new release of the
+&lt;a href="https://embed.tidymodels.org" target="_blank" rel="noopener">embed package&lt;/a> on
+&lt;a href="https://cran.r-project.org/package=embed" target="_blank" rel="noopener">CRAN&lt;/a>. embed contains a number of recipe steps that can be used to represent predictors using a smaller set of artificial features. Some of these methods are &lt;em>supervised&lt;/em> (i.e., it uses the outcome data) and others are &lt;em>unsupervised&lt;/em> (the outcome is not considered). The recipes package already contains similar methods (e.g. principal component analysis, partial least squares, etc.). embed has more sophisticated method and these tend to have more significant package dependencies such as stan and tensorflow.&lt;/p>
+&lt;p>The current roster of methods in the embed package are:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;em>Entity embeddings&lt;/em> where categorical predictors are decomposed into a set of smaller numeric features (supervised,
+&lt;a href="https://embed.tidymodels.org/reference/step_embed.html" target="_blank" rel="noopener">&lt;code>step_embed()&lt;/code>&lt;/a>).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;em>Effect encodings&lt;/em> model categorical predictors against the outcome and the resulting coefficients are used as the numeric features (supervised,
+&lt;a href="https://embed.tidymodels.org/reference/index.html" target="_blank" rel="noopener">&lt;code>step_lencode_*()&lt;/code>&lt;/a>).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;em>Weight of evidence transformation&lt;/em> that use measures of association for categorical predictors and categorical outcomes to generate new features (supervised,
+&lt;a href="https://embed.tidymodels.org/reference/step_woe.html" target="_blank" rel="noopener">&lt;code>step_woe()&lt;/code>&lt;/a>).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;em>Uniform manifold approximation and projections&lt;/em> (UMAP) estimate local, low-dimensional representations of numeric predictors (supervised or unsupervised,
+&lt;a href="https://embed.tidymodels.org/reference/step_umap.html" target="_blank" rel="noopener">&lt;code>step_umap()&lt;/code>&lt;/a>).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;em>Discretization methods&lt;/em> of numeric predictors using tree-based methods (supervised,
+&lt;a href="https://embed.tidymodels.org/reference/index.html" target="_blank" rel="noopener">&lt;code>step_discretize_*()&lt;/code>&lt;/a>).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;em>Feature hashing&lt;/em> creates dummy variables using hashing methods (unsupervised,
+&lt;a href="https://embed.tidymodels.org/reference/step_feature_hash.html" target="_blank" rel="noopener">&lt;code>step_feature_hash()&lt;/code>&lt;/a>).&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>The latter two sets of steps are only in this new version. Let&amp;rsquo;s look at these two methods in detail.&lt;/p>
+&lt;h2 id="discretization">Discretization
+&lt;a href="#discretization">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>I am
+&lt;a href="https://bookdown.org/max/FES/numeric-one-to-many.html#binning" target="_blank" rel="noopener">not a huge fan&lt;/a> of taking numeric data and re-encoding them as categorical predictors. There is mostly likely a loss of information by doing so and other methods, such as splines, are probably a better approach overall. However, I&amp;rsquo;m willing to admit that there might be some data sets where binning works best.&lt;/p>
+&lt;p>The recipes package already includes &lt;code>step_discretize()&lt;/code>. This is an unsupervised method that creates the bins using percentiles of the data (so that the new categories have about the same frequency). The new methods in embed use the outcome data (numeric or categorical) to determine the values of the bins as well as how many bins are required.&lt;/p>
+&lt;p>Konrad Semsch contributed
+&lt;a href="https://embed.tidymodels.org/reference/step_discretize_xgb.html" target="_blank" rel="noopener">&lt;code>step_discretize_xgb()&lt;/code>&lt;/a>) which uses an xgboost model. An initial boosting model is created with a single numeric predictor and the unique splits across boosting iterations are used to discretize the predictor. Here&amp;rsquo;s an example predictor from the Ames housing data:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidymodels&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">embed&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">AmesHousing&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">ames&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">make_ames&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="c1"># Remove quality-related predictors&lt;/span>
+&lt;span class="n">dplyr&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="nf">matches&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Qu&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">4595&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">data_split&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">initial_split&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ames&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">strata&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;Sale_Price&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">ames_train&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">training&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data_split&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">ames_test&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">testing&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data_split&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">theme_set&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">theme_bw&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="nf">ggplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ames_train&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Longitude&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Sale_Price&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_point&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">alpha&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.3&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">scale_y_log10&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figure/ames-longitude-1.svg" alt="plot of chunk ames-longitude">&lt;/p>
+&lt;p>Because the Iowa State University is in the center of Ames, there are discontinuous relationships between the sale price of houses and longitude. There&amp;rsquo;s a relationship here but it is nonlinear and complex. To discretize these data:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">525&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">ames_rec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Sale_Price&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ames_train&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Sale_Price&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">base&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">10&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_discretize_xgb&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Longitude&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">outcome&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;Sale_Price&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;xgb&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">prep&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>tidy()&lt;/code> method can be used to show the estimated breaks:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">breaks&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">tidy&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ames_rec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;xgb&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">pull&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">values&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">breaks&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [1] -93.68667 -93.67038 -93.65519 -93.64602 -93.63570 -93.62575 -93.61737
+&lt;/code>&lt;/pre>&lt;p>The consequence of using &lt;code>step_discretize_xgb()&lt;/code> is that the numeric predictor &lt;code>Longitude&lt;/code> is converted to a factor with 8 levels:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">bake&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ames_rec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">ames_test&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Longitude&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 731 x 1
+## Longitude
+## &amp;lt;fct&amp;gt;
+## 1 [-93.63,-93.62)
+## 2 [-93.63,-93.62)
+## 3 [-93.65,-93.64)
+## 4 [-93.64,-93.63)
+## 5 [-93.64,-93.63)
+## 6 [-93.64,-93.63)
+## 7 [-93.64,-93.63)
+## 8 [-93.66,-93.65)
+## 9 [-93.66,-93.65)
+## 10 [-93.66,-93.65)
+## # … with 721 more rows
+&lt;/code>&lt;/pre>&lt;p>For the test set, here are the breaks:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">ggplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ames_train&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Longitude&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Sale_Price&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_vline&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">xintercept&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">breaks&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">col&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;blue&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">alpha&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.7&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_point&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">alpha&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.3&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">scale_y_log10&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figure/ames-longitude-breaks-1.svg" alt="plot of chunk ames-longitude-breaks">&lt;/p>
+&lt;p>&lt;code>step_discretize_xgb()&lt;/code> and &lt;code>step_discretize_cart()&lt;/code> contain arguments for the common tuning parameters (e.g. the number of breaks, tree depth, etc.) that can be optimized using the tune package. Also, it is possible that the tree model cannot find any informative splits of a predictor. In this case, a warning is issued and the predictor is not discretized.&lt;/p>
+&lt;h2 id="feature-hashing">Feature hashing
+&lt;a href="#feature-hashing">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>When converting a
+&lt;a href="https://bookdown.org/max/FES/creating-dummy-variables-for-unordered-categories.html" target="_blank" rel="noopener">categorical predictor to a numeric encoding&lt;/a>, the traditional approach is to make a collection of binary indicator variables. If the original data have &lt;code>C&lt;/code> levels, the standard approach is to create &lt;code>C - 1&lt;/code> new columns using the levels observed within the training set. A slightly different method is &lt;em>one-hot encoding&lt;/em> which creates the full set of &lt;code>C&lt;/code> indicators. The important points for these methods are:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>The indicators can only be created for the levels in the training set. There is a 1:1 mapping between the levels and the indicator columns.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>A &amp;ldquo;new&amp;rdquo; category could also be issued in case future samples contain other levels.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>When &lt;code>C&lt;/code> is very large, this approach is problematic since many indicators are created and many of these will be infrequently observed in the data.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>One alternative method for making indicator variables is
+&lt;a href="https://bookdown.org/max/FES/encoding-predictors-with-many-categories.html" target="_blank" rel="noopener">&lt;em>feature hashing&lt;/em>&lt;/a>. This method uses the actual value of the levels to decide which indicator column that the sample should be mapped to. Also, the number of indicators can be less than &lt;code>C&lt;/code>. The math used in the background originate in cryptography and are
+&lt;a href="https://en.wikipedia.org/wiki/Hash_function" target="_blank" rel="noopener">pretty interesting&lt;/a>.&lt;/p>
+&lt;p>Let&amp;rsquo;s look again at the Ames data. The neighborhood predictor has 28 possible values. This is by no means large but it can be used to illustrate how this method works. Instead of creating 27 indicator columns, let&amp;rsquo;s use 10 instead.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">hash_rec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Sale_Price&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">Neighborhood&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ames_train&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="c1"># For illustration only, `preserve` is used to keep the original column. &lt;/span>
+&lt;span class="nf">step_feature_hash&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Neighborhood&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">num_hash&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">10&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">preserve&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">prep&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>There is no actual estimation used so far. When generating the values, the hashing function is used to create the indicators:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">all_nhood&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="n">ames&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Neighborhood&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">distinct&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="n">hashed&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">bake&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hash_rec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">all_nhood&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">starts_with&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Neighborhood&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="n">hashed&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 28 x 11
+## Neighborhood Neighborhood_ha… Neighborhood_ha… Neighborhood_ha…
+## &amp;lt;fct&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 North_Ames 0 0 0
+## 2 Gilbert 0 0 0
+## 3 Stone_Brook 0 0 0
+## 4 Northwest_A… 1 0 0
+## 5 Somerset 0 0 1
+## 6 Briardale 0 0 0
+## 7 Northpark_V… 0 0 0
+## 8 Northridge_… 0 0 0
+## 9 Bloomington… 0 0 0
+## 10 Northridge 0 0 0
+## # … with 18 more rows, and 7 more variables: Neighborhood_hash_04 &amp;lt;dbl&amp;gt;,
+## # Neighborhood_hash_05 &amp;lt;dbl&amp;gt;, Neighborhood_hash_06 &amp;lt;dbl&amp;gt;,
+## # Neighborhood_hash_07 &amp;lt;dbl&amp;gt;, Neighborhood_hash_08 &amp;lt;dbl&amp;gt;,
+## # Neighborhood_hash_09 &amp;lt;dbl&amp;gt;, Neighborhood_hash_10 &amp;lt;dbl&amp;gt;
+&lt;/code>&lt;/pre>&lt;p>How were neighborhoods mapped to indicators in these data? Each neighborhood only maps to a single row. However, unlike the traditional methods, multiple neighborhoods are likely to be mapped to the same indicator column:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">hashed&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="n">tidyr&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">pivot_longer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">cols&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">contains&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;hash&amp;#34;&lt;/span>&lt;span class="p">)),&lt;/span>
+&lt;span class="n">names_to&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;column&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">values_to&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;values&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">column&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">summarize&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">num_neighborhood&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">sum&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">values&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 10 x 2
+## column num_neighborhood
+## &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 Neighborhood_hash_01 4
+## 2 Neighborhood_hash_02 2
+## 3 Neighborhood_hash_03 3
+## 4 Neighborhood_hash_04 2
+## 5 Neighborhood_hash_05 2
+## 6 Neighborhood_hash_06 4
+## 7 Neighborhood_hash_07 3
+## 8 Neighborhood_hash_08 4
+## 9 Neighborhood_hash_09 4
+## 10 Neighborhood_hash_10 0
+&lt;/code>&lt;/pre>&lt;p>For this configuration, multiple neighborhoods are mapped to the same feature. In statistics, this is called &lt;em>aliasing&lt;/em> or &lt;em>confounding&lt;/em>. While sometime required, confounding methods should generally alias different values to the same feature using some sort of optimality criterion. Feature hashing does not appear to be optimal in any way that is relevant to modeling. Also note in the output above that some hash features will have no indicators. It might be a good practice to follow this step with &lt;code>step_zv()&lt;/code> to remove them.&lt;/p>
+&lt;p>On the bright side, new neighborhoods can be easily mapped. For example:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Novigrad&lt;/code> would be mapped to column 1.&lt;/li>
+&lt;li>&lt;code>Brokilon Forest&lt;/code> would be mapped to column 4.&lt;/li>
+&lt;li>&lt;code>Brokilon forest&lt;/code> would be mapped to column 9.&lt;/li>
+&lt;/ul>
+&lt;p>As the last two examples show, the actual value of the factor level is used. Also note that, if a different number of features are created, the mapping will also change.&lt;/p>
+&lt;p>This step requires the
+&lt;a href="https://keras.rstudio.com/" target="_blank" rel="noopener">keras&lt;/a> R package along with a working
+&lt;a href="https://tensorflow.rstudio.com/installation/" target="_blank" rel="noopener">tensorflow&lt;/a> installation.&lt;/p>
+&lt;h2 id="hex-logo">Hex logo
+&lt;a href="#hex-logo">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The embed package doesn&amp;rsquo;t have a hex logo. If you would like to propose one, please
+&lt;a href="https://twitter.com/topepos" target="_blank" rel="noopener">tweet at us&lt;/a> or
+&lt;a href="mailto:max@rstudio.com">email&lt;/a>!&lt;/p></description></item></channel></rss>

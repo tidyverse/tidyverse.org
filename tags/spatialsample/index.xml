@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>spatialsample | Tidyverse</title><link>https://www.tidyverse.org/tags/spatialsample/</link><atom:link href="https://www.tidyverse.org/tags/spatialsample/index.xml" rel="self" type="application/rss+xml"/><description>spatialsample</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 21 Jun 2022 00:00:00 +0000</lastBuildDate><item><title>spatialsample 0.2.0</title><link>https://www.tidyverse.org/blog/2022/06/spatialsample-0-2-0/</link><pubDate>Tue, 21 Jun 2022 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2022/06/spatialsample-0-2-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re positively electrified to announce the release of
+&lt;a href="https://spatialsample.tidymodels.org/" target="_blank" rel="noopener">spatialsample&lt;/a> 0.2.0. spatialsample is a package for spatial resampling, extending the
+&lt;a href="https://rsample.tidymodels.org/" target="_blank" rel="noopener">rsample&lt;/a> framework to help create spatial extrapolation between your analysis and assessment data sets.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"spatialsample"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This blog post will describe the highlights of what&amp;rsquo;s new. You can see a full list of changes in the
+&lt;a href="https://spatialsample.tidymodels.org/news/index.html#spatialsample-020" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="new-features">New Features
+&lt;a href="#new-features">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This version of spatialsample includes a new data set, made up of 682 hexagons containing data about tree canopy cover change in Boston, Massachusetts:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://github.com/tidymodels/spatialsample'>spatialsample&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://ggplot2.tidyverse.org'>ggplot2&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>boston_canopy&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggsf.html'>geom_sf&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-2-1.png" title="A map showing the spatial arrangement of hexagons making up the boston_canopy data set." alt="A map showing the spatial arrangement of hexagons making up the boston_canopy data set." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>This data is stored as an sf object, and as such contains information about the proper coordinate reference system and units of measurement associated with the data.&lt;/p>
+&lt;p>This brings us to the first new feature in this release of spatialsample:
+&lt;a href="https://spatialsample.tidymodels.org/reference/spatial_clustering_cv.html" target="_blank" rel="noopener">&lt;code>spatial_clustering_cv()&lt;/code>&lt;/a> now supports sf objects, and will calculate distances in a way that respects coordinate reference systems (including using the s2 geometry library for geographic coordinate reference systems):&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>123&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>kmeans_clustering&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://spatialsample.tidymodels.org/reference/spatial_clustering_cv.html'>spatial_clustering_cv&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>boston_canopy&lt;/span>, v &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>kmeans_clustering&lt;/span>
+&lt;span class='c'>#&amp;gt; # 5-fold spatial cross-validation &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 5 × 2&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; splits id &lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [524/158]&amp;gt;&lt;/span> Fold1&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [493/189]&amp;gt;&lt;/span> Fold2&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [517/165]&amp;gt;&lt;/span> Fold3&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [605/77]&amp;gt;&lt;/span> Fold4&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> &lt;span style='color: #555555;'>&amp;lt;split [589/93]&amp;gt;&lt;/span> Fold5&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This release also provides
+&lt;a href="https://ggplot2.tidyverse.org/reference/autoplot.html" target="_blank" rel="noopener">&lt;code>autoplot()&lt;/code>&lt;/a> methods to visualize resamples via ggplot2, making it easy to see how exactly your data is being divided. Just call
+&lt;a href="https://ggplot2.tidyverse.org/reference/autoplot.html" target="_blank" rel="noopener">&lt;code>autoplot()&lt;/code>&lt;/a> on the outputs from any spatial clustering function:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/autoplot.html'>autoplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>kmeans_clustering&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>title &lt;span class='o'>=&lt;/span> &lt;span class='s'>"kmeans()"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-4-1.png" title="A map showing the boston_canopy data set broken into five folds through spatial_clustering_cv. The five folds are visibly different sizes, and are grouped by spatial proximity." alt="A map showing the boston_canopy data set broken into five folds through spatial_clustering_cv. The five folds are visibly different sizes, and are grouped by spatial proximity." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>In addition to supporting more types of data,
+&lt;a href="https://spatialsample.tidymodels.org/reference/spatial_clustering_cv.html" target="_blank" rel="noopener">&lt;code>spatial_clustering_cv()&lt;/code>&lt;/a> has also been extended to support more types of clustering. Set the &lt;code>cluster_function&lt;/code> argument to use &lt;code>&amp;quot;hclust&amp;quot;&lt;/code> for hierarchical clustering via
+&lt;a href="https://rdrr.io/r/stats/hclust.html" target="_blank" rel="noopener">&lt;code>hclust()&lt;/code>&lt;/a> instead of the default
+&lt;a href="https://rdrr.io/r/stats/kmeans.html" target="_blank" rel="noopener">&lt;code>kmeans()&lt;/code>&lt;/a>-based clusters:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>123&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://spatialsample.tidymodels.org/reference/spatial_clustering_cv.html'>spatial_clustering_cv&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+&lt;span class='nv'>boston_canopy&lt;/span>,
+v &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>,
+cluster_function &lt;span class='o'>=&lt;/span> &lt;span class='s'>"hclust"&lt;/span>
+&lt;span class='o'>)&lt;/span> |&amp;gt;
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/autoplot.html'>autoplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>title &lt;span class='o'>=&lt;/span> &lt;span class='s'>"hclust()"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-5-1.png" title="A map showing the boston_canopy data set broken into five folds through spatial_clustering_cv, using the hclust clustering method. The five folds are still visibly different sizes, and are grouped by spatial proximity, but the clusters are notably different from those produced by the default kmeans method." alt="A map showing the boston_canopy data set broken into five folds through spatial_clustering_cv, using the hclust clustering method. The five folds are still visibly different sizes, and are grouped by spatial proximity, but the clusters are notably different from those produced by the default kmeans method." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>This argument can also accept functions, letting you plug in clustering methodologies from other packages or that you&amp;rsquo;ve written yourself:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>123&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>custom_clusters&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>dists&lt;/span>, &lt;span class='nv'>v&lt;/span>, &lt;span class='nv'>...&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/rep.html'>rep&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>letters&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='nv'>v&lt;/span>&lt;span class='o'>]&lt;/span>, length.out &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/nrow.html'>nrow&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>boston_canopy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>&amp;#125;&lt;/span>
+&lt;span class='nf'>&lt;a href='https://spatialsample.tidymodels.org/reference/spatial_clustering_cv.html'>spatial_clustering_cv&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+&lt;span class='nv'>boston_canopy&lt;/span>,
+v &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>,
+cluster_function &lt;span class='o'>=&lt;/span> &lt;span class='nv'>custom_clusters&lt;/span>
+&lt;span class='o'>)&lt;/span> |&amp;gt;
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/autoplot.html'>autoplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>title &lt;span class='o'>=&lt;/span> &lt;span class='s'>"custom_clusters()"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-6-1.png" title="A map showing the outputs of spatial_clustering_cv when using a custom clustering function. The custom clustering function assigned folds systematically, moving sequentially through rows in the data frame, and as such the output does not look very clustered. However, the functions in spatialsample performed exactly the same with the custom clustering function as they did with the built-in options." alt="A map showing the outputs of spatial_clustering_cv when using a custom clustering function. The custom clustering function assigned folds systematically, moving sequentially through rows in the data frame, and as such the output does not look very clustered. However, the functions in spatialsample performed exactly the same with the custom clustering function as they did with the built-in options." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>In addition to the clustering extensions, this version of spatialsample introduces new functions for other popular spatial resampling methods. For instance,
+&lt;a href="https://spatialsample.tidymodels.org/reference/spatial_block_cv.html" target="_blank" rel="noopener">&lt;code>spatial_block_cv()&lt;/code>&lt;/a> helps you perform
+&lt;a href="https://doi.org/10.1111/ecog.02881" target="_blank" rel="noopener">block cross-validation&lt;/a>, splitting your data into folds based on a grid of regular polygons. You can assign these polygons to folds at random:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>123&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://spatialsample.tidymodels.org/reference/spatial_block_cv.html'>spatial_block_cv&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>boston_canopy&lt;/span>, v &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>&lt;span class='o'>)&lt;/span> |&amp;gt;
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/autoplot.html'>autoplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-7-1.png" title="A map showing the outputs of block cross-validation performed using spatial_block_cv. A regular grid of squares has been drawn over the boston_canopy data set, and all data falling into a single block is assigned to the same fold. Blocks are assigned to folds at random, resulting in a patchy distribution of folds across the data set." alt="A map showing the outputs of block cross-validation performed using spatial_block_cv. A regular grid of squares has been drawn over the boston_canopy data set, and all data falling into a single block is assigned to the same fold. Blocks are assigned to folds at random, resulting in a patchy distribution of folds across the data set." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Or systematically, either by assigning folds in order from the bottom-left and proceeding from left to right along each row by setting &lt;code>method = &amp;quot;continuous&amp;quot;&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://spatialsample.tidymodels.org/reference/spatial_block_cv.html'>spatial_block_cv&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>boston_canopy&lt;/span>, v &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>, method &lt;span class='o'>=&lt;/span> &lt;span class='s'>"continuous"&lt;/span>&lt;span class='o'>)&lt;/span> |&amp;gt;
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/autoplot.html'>autoplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-8-1.png" title="A map showing the outputs of block cross-validation performed using spatial_block_cv with continuous systematic assignment. Rather than the patchy random assignment before, blocks are now assigned from left to right for each row of the regular grid, resulting in the same folds always being adjacent to one another." alt="A map showing the outputs of block cross-validation performed using spatial_block_cv with continuous systematic assignment. Rather than the patchy random assignment before, blocks are now assigned from left to right for each row of the regular grid, resulting in the same folds always being adjacent to one another." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Or by &amp;ldquo;snaking&amp;rdquo; back and forth up the grid by setting &lt;code>method = &amp;quot;snake&amp;quot;&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://spatialsample.tidymodels.org/reference/spatial_block_cv.html'>spatial_block_cv&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>boston_canopy&lt;/span>, v &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>, method &lt;span class='o'>=&lt;/span> &lt;span class='s'>"snake"&lt;/span>&lt;span class='o'>)&lt;/span> |&amp;gt;
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/autoplot.html'>autoplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-9-1.png" title="A map showing the outputs of block cross-validation performed using spatial_block_cv with snaking systematic assignment. Blocks are now assigned alternatively from left to right and right to left, resulting in a similar alignment of folds to the continuous method." alt="A map showing the outputs of block cross-validation performed using spatial_block_cv with snaking systematic assignment. Blocks are now assigned alternatively from left to right and right to left, resulting in a similar alignment of folds to the continuous method." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>This release of spatialsample also adds support for
+&lt;a href="https://doi.org/10.1111/geb.12161" target="_blank" rel="noopener">leave-location-out cross-validation&lt;/a> through the new function
+&lt;a href="https://spatialsample.tidymodels.org/reference/spatial_vfold.html" target="_blank" rel="noopener">&lt;code>spatial_leave_location_out_cv()&lt;/code>&lt;/a>. You can use this to create resamples when you already have a good idea of what data might be spatially correlated together &amp;ndash; for instance, we can use it to split the Ames housing data from modeldata by neighborhood:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/data.html'>data&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>ames&lt;/span>, package &lt;span class='o'>=&lt;/span> &lt;span class='s'>"modeldata"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>ames_sf&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>sf&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://r-spatial.github.io/sf/reference/st_as_sf.html'>st_as_sf&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>ames&lt;/span>, coords &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Longitude"&lt;/span>, &lt;span class='s'>"Latitude"&lt;/span>&lt;span class='o'>)&lt;/span>, crs &lt;span class='o'>=&lt;/span> &lt;span class='m'>4326&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>123&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://spatialsample.tidymodels.org/reference/spatial_vfold.html'>spatial_leave_location_out_cv&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>ames_sf&lt;/span>, &lt;span class='nv'>Neighborhood&lt;/span>&lt;span class='o'>)&lt;/span> |&amp;gt;
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/autoplot.html'>autoplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-10-1.png" title="A map showing the outputs of leave-location-out cross-validation performed using spatial_leave_location_out_cv on the Ames housing data. Folds are assigned based on what neighborhood each house falls into. Some neighborhoods are entirely contained within another neighborhood, and neighborhoods contain very different numbers of houses." alt="A map showing the outputs of leave-location-out cross-validation performed using spatial_leave_location_out_cv on the Ames housing data. Folds are assigned based on what neighborhood each house falls into. Some neighborhoods are entirely contained within another neighborhood, and neighborhoods contain very different numbers of houses." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="buffering">Buffering
+&lt;a href="#buffering">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The last major feature in this release is the introduction of spatial buffering. Spatial buffering enforces a certain minimum distance between your analysis and assessment sets, making sure that you&amp;rsquo;re spatially extrapolating when making predictions with a model.&lt;/p>
+&lt;p>While all spatial resampling functions in spatialsample can use spatial buffers, particularly interesting is the new
+&lt;a href="https://spatialsample.tidymodels.org/reference/spatial_vfold.html" target="_blank" rel="noopener">&lt;code>spatial_buffer_vfold_cv()&lt;/code>&lt;/a> function. This function makes it easy to add spatial buffers around a standard V-fold cross-validation procedure. When we plot the object returned by this function, it just looks like a standard V-fold cross-validation setup:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>123&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>blocks&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://spatialsample.tidymodels.org/reference/spatial_vfold.html'>spatial_buffer_vfold_cv&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+&lt;span class='nv'>boston_canopy&lt;/span>,
+v &lt;span class='o'>=&lt;/span> &lt;span class='m'>15&lt;/span>,
+buffer &lt;span class='o'>=&lt;/span> &lt;span class='m'>100&lt;/span>,
+radius &lt;span class='o'>=&lt;/span> &lt;span class='kc'>NULL&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/autoplot.html'>autoplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>blocks&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-11-1.png" title="A map showing the outputs of spatially buffered cross-validation performed using spatial_buffer_vfold_cv, once again using the boston_canopy data set. When visualizing all folds at once, there does not seem to be any spatial structure to the resamples; folds are distributed randomly throughout the data set, and folds abut one another without any spatial separation." alt="A map showing the outputs of spatially buffered cross-validation performed using spatial_buffer_vfold_cv, once again using the boston_canopy data set. When visualizing all folds at once, there does not seem to be any spatial structure to the resamples; folds are distributed randomly throughout the data set, and folds abut one another without any spatial separation." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>However, if we use
+&lt;a href="https://ggplot2.tidyverse.org/reference/autoplot.html" target="_blank" rel="noopener">&lt;code>autoplot()&lt;/code>&lt;/a> to visualize the splits themselves, we can see that we&amp;rsquo;ve created an exclusion buffer around each of our assessment sets. Data inside this buffer is assigned to neither the assessment or analysis set, so you can be sure your data is spatially separated:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>blocks&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>splits&lt;/span> |&amp;gt;
+&lt;span class='nf'>purrr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://purrr.tidyverse.org/reference/map.html'>walk&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/print.html'>print&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/autoplot.html'>autoplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-12-.gif" title="An animation showing maps of each individual fold produced using spatial_buffer_vfold_cv. Now it is evident that any data adjacent to the assessment data has been added to a 'buffer' zone, and is part of neither the analysis or the assessment set." alt="An animation showing maps of each individual fold produced using spatial_buffer_vfold_cv. Now it is evident that any data adjacent to the assessment data has been added to a 'buffer' zone, and is part of neither the analysis or the assessment set." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>In addition to exclusion buffers, spatialsample now lets you add inclusion radii to any spatial resampling. This will add any points within a certain distance of the original assessment set to the assessment set, letting you create clumped &amp;ldquo;discs&amp;rdquo; of data to assess your models against:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>123&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>blocks&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://spatialsample.tidymodels.org/reference/spatial_vfold.html'>spatial_buffer_vfold_cv&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+&lt;span class='nv'>boston_canopy&lt;/span>,
+v &lt;span class='o'>=&lt;/span> &lt;span class='m'>20&lt;/span>,
+buffer &lt;span class='o'>=&lt;/span> &lt;span class='m'>100&lt;/span>,
+radius &lt;span class='o'>=&lt;/span> &lt;span class='m'>100&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>blocks&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>splits&lt;/span> |&amp;gt;
+&lt;span class='nf'>purrr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://purrr.tidyverse.org/reference/map.html'>walk&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/print.html'>print&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/autoplot.html'>autoplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/unnamed-chunk-13-.gif" title="Another animation showing maps of each individual fold produced using spatial_buffer_vfold_cv. When using the argument radius, points adjacent to the assessment set are themselves added to the assessment set. The buffer is then applied to each data point in the enlarged assessment set." alt="Another animation showing maps of each individual fold produced using spatial_buffer_vfold_cv. When using the argument radius, points adjacent to the assessment set are themselves added to the assessment set. The buffer is then applied to each data point in the enlarged assessment set." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="and-more">&amp;hellip;and more!
+&lt;a href="#and-more">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This is just scratching the surface of the new features and improvements in this release of spatialsample. You can see a full list of changes in the the
+&lt;a href="https://spatialsample.tidymodels.org/news/index.html#spatialsample-020" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="acknowledgments">Acknowledgments
+&lt;a href="#acknowledgments">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank everyone that has contributed since the last release:
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/mikemahoney218" target="_blank" rel="noopener">@mikemahoney218&lt;/a>,
+&lt;a href="https://github.com/MxNl" target="_blank" rel="noopener">@MxNl&lt;/a>,
+&lt;a href="https://github.com/nipnipj" target="_blank" rel="noopener">@nipnipj&lt;/a>, and
+&lt;a href="https://github.com/PathosEthosLogos" target="_blank" rel="noopener">@PathosEthosLogos&lt;/a>.&lt;/p></description></item></channel></rss>

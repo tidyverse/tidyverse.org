@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>internship | Tidyverse</title><link>https://www.tidyverse.org/tags/internship/</link><atom:link href="https://www.tidyverse.org/tags/internship/index.xml" rel="self" type="application/rss+xml"/><description>internship</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 09 Jan 2025 00:00:00 +0000</lastBuildDate><item><title>Joining the ggplot2 team</title><link>https://www.tidyverse.org/blog/2025/01/joining-ggplot2/</link><pubDate>Thu, 09 Jan 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/01/joining-ggplot2/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>Hello there! I&amp;rsquo;ve been working on ggplot2 for a while now, and I&amp;rsquo;d like to tell you how that came about and what it is like.&lt;/p>
+&lt;h2 id="how-i-got-involved">How I got involved
+&lt;a href="#how-i-got-involved">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>My journey into learning R started in 2017 during an internship at the EMBL-EBI. The main gripe about base R plotting that drove me into ggplot2&amp;rsquo;s arms were the arcane invocations to get anything else than one of the pre-approved chart types. In contrast, ggplot2 absorbs a bunch of small paper cuts, is very compositional in nature while remaining highly customisable. In a bid to &amp;ldquo;learn from the mistakes of others&amp;rdquo; rather than (continue to copiously) make my own, I became active on Stack Overflow answering questions and solving plotting issues. For posterity: this was in the days before you could ask an large language model for personalised advice and actual humans were equally frustrated on both sides of the question.&lt;/p>
+&lt;p>I was keeping track of solutions to common problems in a personal cookbook that had its own arcane invocations. To give a bit of flavour: much of the cookbook was about preparing gtables (the data structure that comes out of building a plot) for combining and aligning plots. &lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> The cookbook eventually grew into my first ggplot2 extension package:
+&lt;a href="https://teunbrand.github.io/ggh4x/" target="_blank" rel="noopener">ggh4x&lt;/a>. Perhaps that package would be best subtitled: &amp;lsquo;Remedies to my common ggplot2 ailments&amp;rsquo;. It contains a bunch of miscellaneous functions ranging from reorganising facets to putting minor ticks on the axes. The nature of the package was also its downside, as ggh4x lacked any sense of scope (and still does, as befits any first package).&lt;/p>
+&lt;p>Around the time when I was really getting into ggplot extensions,
+&lt;a href="https://github.com/EvaMaeRey" target="_blank" rel="noopener">Gina Reynolds&lt;/a> had started organising a meeting for people who build ggplot2 extensions. It is an interesting place to meet others and hear about their packages and how they face interacting with the ggplot2 extension system. I started attending with some degree of regularity and made a discussion place on GitHub. We now use this for general exchange of ideas, but also package specific issues.&lt;/p>
+&lt;p>Meanwhile, the questions on Stack Overflow kept directing my attention at the ggplot2 issue tracker every once in a while. After lurking in there for a bit, I started my first informal contributions to ggplot2 itself by answering the simple stuff just as I did on Stack Overflow. It may not seem like much of a contribution, but in retrospect, answering issues helps triaging them: it separates those issues that need additional changes in ggplot2 from those that do not. My first &amp;lsquo;proper contribution&amp;rsquo; in the shape of a pull request was in 2020. It replaced 3 lines of code with 2 lines of code to benefit type stability (this was prior to
+&lt;a href="https://vctrs.r-lib.org/" target="_blank" rel="noopener">vctrs&lt;/a>)&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>.&lt;/p>
+&lt;p>In 2022, I commented &amp;ldquo;I&amp;rsquo;d be willing to take a stab at this&amp;rdquo; on an issue proposing a large refactor of the guide system. I like to think it was this precise moment that Thomas, the project lead after having taken over for Hadley, took notice and later invited me to join the team&lt;sup id="fnref:3">&lt;a href="#fn:3" class="footnote-ref" role="doc-noteref">3&lt;/a>&lt;/sup>. This new guide system ended up laying the foundation for
+&lt;a href="https://teunbrand.github.io/legendry/" target="_blank" rel="noopener">legendry&lt;/a>, so it wasn&amp;rsquo;t entirely out of unselfish reasons that I volunteered. At any rate, this is a great opportunity to fill big shoes on a major R project, so I&amp;rsquo;m very excited to have joined!&lt;/p>
+&lt;h2 id="becoming-an-insider">Becoming an insider
+&lt;a href="#becoming-an-insider">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Part of being on the team is straightforward. You triage issues. You fix bugs. You implement new features. At the point that I joined, I had already done these things as an outsider. The only thing that really changes is that you get the keys to the kingdom: you can now close issues and merge pull requests &lt;sup id="fnref:4">&lt;a href="#fn:4" class="footnote-ref" role="doc-noteref">4&lt;/a>&lt;/sup>. You&amp;rsquo;re then trusted to wield this power wisely. You then hope you do.&lt;/p>
+&lt;p>At the time I joined the most active maintainers were Thomas, Claus and Hiroaki. I was surprised to learn that really most communication happens on GitHub and it is all public discussion. Even more abstract coordination that does not neatly fit into a single issue, like preparing a new release, didn&amp;rsquo;t occur behind closed doors. I think what made my introduction to the team more awkward than it needed to be was that GitHub issues is not really a good place for announcements where you can say &amp;lsquo;Hi everyone, this person is on the team now and will be doing stuff in the project&amp;rsquo;. I had interacted with the other active maintainers before, so I wasn&amp;rsquo;t a completely alien actor, but I felt some unclarity lingered longer than it ought have. Perhaps I should more assertively have introduced myself &lt;sup id="fnref:5">&lt;a href="#fn:5" class="footnote-ref" role="doc-noteref">5&lt;/a>&lt;/sup>.&lt;/p>
+&lt;p>However, by the time posit::conf(2024) was over, I&amp;rsquo;ve met 6 out of the 9 other authors in person. I have more thoughts about conf and my first time in the United States, but it has been amazing to meet all these people in person whose work you&amp;rsquo;ve been admiring for a while!&lt;/p>
+&lt;h2 id="maintaining-ggplot2">Maintaining ggplot2
+&lt;a href="#maintaining-ggplot2">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The ggplot2 package has both the blessing and the curse of being a popular package. One the one hand, it is a blessing that people care about the project, post issues that they find and make intermittent contributions. The curse is that it is such a staple in the R ecosystem, that almost any change will inadvertently affect somebody else&amp;rsquo;s code. Not only because ggplot2 is widely used, but also because people have been &amp;hellip;creative&amp;hellip; with how they are using ggplot2. The art of making changes is to largely affect plots in a good way.&lt;/p>
+&lt;p>The first big project I was rummaging through was the guide system I proposed to rewrite. The guide system had never been advertised as an official extension point, but naturally that didn&amp;rsquo;t preclude people from using it as an extension point anyway.&lt;sup id="fnref:6">&lt;a href="#fn:6" class="footnote-ref" role="doc-noteref">6&lt;/a>&lt;/sup> So in addition to rewriting the system, we also had to prevent terribly breaking extensions that relied on the old system. In some cases, this meant sending out PRs to other packages to be compatible with both systems.&lt;/p>
+&lt;p>Having worked through a good number of issues at this point in time, I can see some emergent patterns. Different patterns can be partially explained by different audiences. The regular user wants to be empowered to execute their vision of a plot effectively. Maintainers of extensions would often like things to work consistently or change a very obscure line somewhere that they have identified as blocking a niche use case. Teachers would like their students to get stuck less often, which often involves improving error messages. All in all, there is no shortage of issues to work through.&lt;/p>
+&lt;p>The next big thing we&amp;rsquo;re working on is some practical necromancy in getting themeable aesthetics resurrected, which was
+&lt;a href="https://www.danaseidel.com/2018-09-01-ATidySummer/" target="_blank" rel="noopener">initiated by Dana Paige Seidel&lt;/a> all the way back in 2018! We&amp;rsquo;d like the theme to be a home for more default choices than just non-data elements. Default layer aesthetics are a start, but we plan on putting in default palettes too.&lt;/p>
+&lt;h2 id="a-few-words-of-thanks">A few words of thanks
+&lt;a href="#a-few-words-of-thanks">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>I&amp;rsquo;ve been plucked from a level of relative obscurity &amp;mdash;a package maintainer that has this weird miscellaneous package&amp;mdash; into the path of a flagship R project, for which I&amp;rsquo;m very grateful. First and foremost I&amp;rsquo;m thankful to Thomas Lin Pedersen, who has put me into this position and steers the ggplot2 project. Secondly to Hadley Wickham and the rest of the tidyverse team, who make me feel included; both at conf and during regular meetings&lt;sup id="fnref:7">&lt;a href="#fn:7" class="footnote-ref" role="doc-noteref">7&lt;/a>&lt;/sup>. Thirdly, the co-authors I met during conf: Claus Wilke, for whose workshop I TA&amp;rsquo;d, but also Kara Woo and Winston Chang. Lastly, I&amp;rsquo;d like to thank Posit the company for contracting me to do work I also enjoy as a hobby!&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>Luckily, we don&amp;rsquo;t have to think about this &lt;em>at all&lt;/em>, thanks to the
+&lt;a href="https://patchwork.data-imaginist.com/" target="_blank" rel="noopener">patchwork&lt;/a> package! &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>I&amp;rsquo;m omitting here that I also had to write 50 lines of tests for this small change &lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:3" role="doc-endnote">
+&lt;p>How much this actually reflects any truth is for any of us to guess and for Thomas to know. Later, I learned that this was also
+&lt;a href="https://www.data-imaginist.com/posts/2016-10-31-becoming-the-intern/" target="_blank" rel="noopener">how Thomas himself was roped into the project&lt;/a>! &lt;a href="#fnref:3" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:4" role="doc-endnote">
+&lt;p>After review though. You&amp;rsquo;re not given &lt;em>that&lt;/em> much power! &lt;a href="#fnref:4" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:5" role="doc-endnote">
+&lt;p>But I&amp;rsquo;m not celebrated for my social graces :) &lt;a href="#fnref:5" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:6" role="doc-endnote">
+&lt;p>I don&amp;rsquo;t have a moral high ground here: I was one of the worst offenders! &lt;a href="#fnref:6" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:7" role="doc-endnote">
+&lt;p>Mostly for The Golden Hex Sticker though! &lt;a href="#fnref:7" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>tidymodels Internship for 2025</title><link>https://www.tidyverse.org/blog/2025/01/tidymodels-2025-internship/</link><pubDate>Wed, 08 Jan 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/01/tidymodels-2025-internship/</guid><description>&lt;p>We are chuffed once again to offer a summer internship with the tidymodels team.&lt;/p>
+&lt;p>We&amp;rsquo;ve had eight previous summer interns and these led to the creation of a number of new packages:
+&lt;a href="https://agua.tidymodels.org/" target="_blank" rel="noopener">agua&lt;/a>,
+&lt;a href="https://applicable.tidymodels.org/" target="_blank" rel="noopener">applicable&lt;/a>,
+&lt;a href="https://rstudio.github.io/bundle/" target="_blank" rel="noopener">bundle&lt;/a>,
+&lt;a href="https://butcher.tidymodels.org/" target="_blank" rel="noopener">butcher&lt;/a>,
+&lt;a href="https://shinymodels.tidymodels.org/" target="_blank" rel="noopener">shinymodels&lt;/a>,
+&lt;a href="https://spatialsample.tidymodels.org/" target="_blank" rel="noopener">spatialsample&lt;/a>, and
+&lt;a href="https://stacks.tidymodels.org/" target="_blank" rel="noopener">stacks&lt;/a>. Our own
+&lt;a href="https://www.simonpcouch.com/" target="_blank" rel="noopener">Simon Couch&lt;/a> is a former intern who won
+&lt;a href="https://community.amstat.org/jointscsg-section/awards/john-m-chambers" target="_blank" rel="noopener">an award&lt;/a> for his work.&lt;/p>
+&lt;p>This year, the primary focus is on expanding our feature selection capabilities. Some of this will involve new recipe steps and other functions. Towards the end of the internship, there might be time to work on other things, too!&lt;/p>
+&lt;p>To apply, make sure that you have a GitHub handle and follow this link:&lt;/p>
+&lt;p>&lt;strong>
+&lt;a href="https://posit.co/job-detail/?gh_jid=6323043003" target="_blank" rel="noopener">&lt;code>https://posit.co/job-detail/?gh_jid=6323043003&lt;/code>&lt;/a>&lt;/strong>&lt;/p>
+&lt;p>The internship is US-based.&lt;/p>
+&lt;p>If you want to know what the internship is like, a few of our alumni have written about it:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://www.alexpghayes.com/post/2018-08-10_a-summer-with-rstudio/" target="_blank" rel="noopener">&lt;em>A summer with RStudio&lt;/em> (2018)&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://fbchow.rbind.io/2018/07/27/rstudio-summer-internship/" target="_blank" rel="noopener">&lt;em>RStudio Summer Internship&lt;/em> (2018)&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://education.rstudio.com/blog/2019/12/this-is-not-like-the-others/" target="_blank" rel="noopener">&lt;em>This Is Not Like the Others&lt;/em> (2019)&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://education.rstudio.com/blog/2020/06/tidymodels-internship/" target="_blank" rel="noopener">&lt;em>Tidymodels Internship&lt;/em> (2020)&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://www.mm218.dev/posts/2022-08-15-last-summer/" target="_blank" rel="noopener">&lt;em>I know what I did last summer&lt;/em> (2022)&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>We can&amp;rsquo;t wait to get started and look forward to reading your applications.&lt;/p></description></item><item><title>Solutions for R4DS, 2e with Data Trail</title><link>https://www.tidyverse.org/blog/2023/08/data-trail/</link><pubDate>Wed, 02 Aug 2023 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2023/08/data-trail/</guid><description>&lt;!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [ ] Find photo &amp; update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>Last year at rstudio::conf(2022) Jeff Leek
+&lt;a href="https://youtu.be/Vf301YCxP1Q" target="_blank" rel="noopener">shared about the Data Trail program&lt;/a>.&lt;/p>
+&lt;blockquote>
+&lt;p>DataTrail is a no-cost, paid 14-week educational initiative for young-adult, high school and GED-graduates. DataTrail aims to equip members of underserved communities with the necessary skills and support required to work in the booming field of data science. DataTrail is a fresh take on workforce development that focuses on training both Black, Indigenous, and other people of color (BIPOC) interested in the data science industry &lt;em>&lt;strong>and&lt;/strong>&lt;/em> their potential employers.&lt;/p>
+&lt;/blockquote>
+&lt;p>We have been so excited then to have the opportunity to work with two Data Trail interns this year!
+&lt;a href="https://jabirghaffar.quarto.pub/jabir/" target="_blank" rel="noopener">Jabir Ghaffar&lt;/a> went through the Data Trail program June 2022, and
+&lt;a href="https://www.linkedin.com/in/davon-person-1ba973194/" target="_blank" rel="noopener">Davon Person&lt;/a> went through the Data Trail program in 2019, and now works as a Data Programming Specialist with the project. Jabir and Davon worked on solutions for the R for Data Science book, explored some Tidy Tuesday datasets, created their own Quarto websites, and their perspectives helped us learn more about how our tools and documentation can better support emerging data scientists.&lt;/p>
+&lt;p>Jabir&amp;rsquo;s primary project was to work on the
+&lt;a href="https://mine-cetinkaya-rundel.github.io/r4ds-solutions/" target="_blank" rel="noopener">R for Data Science solutions&lt;/a>. The R for Data Science, 2nd Edition was released in June 2023. In this edition there is a lot of new content, and revisions and additions to exercises. We saw that
+&lt;a href="https://jrnold.github.io/r4ds-exercise-solutions/" target="_blank" rel="noopener">Jeffrey Arnold&amp;rsquo;s solutions to the 1st edition&lt;/a> are such a useful resource for the community. Therefore, this project aimed to both create a similar resource for 2nd edition and serve as an educational resource for the interns to help sharpen their tidyverse and general data science skills.&lt;/p>
+&lt;p>Some learning highlights for Jabir included faceting (as a solution to overplotting), consistent code styling (which helps make the code more pleasing to read), and, making maps! Specifically, Jabir mentioned that he has always wondered &amp;ldquo;how did they do that?!&amp;rdquo; with maps and found them to be quite intimidating, so it was especially satisfying to create his first heatmap of US states and chance of getting a tornado (&lt;a href="https://jabirghaffar.quarto.pub/jabir/posts/tornado_mapping_exploration">https://jabirghaffar.quarto.pub/jabir/posts/tornado_mapping_exploration&lt;/a>). This was not just a satisfying visualization exercise, but also a great opportunity to dig into unfamiliar data wrangling functions like
+&lt;a href="https://dplyr.tidyverse.org/reference/recode.html" target="_blank" rel="noopener">&lt;code>recode()&lt;/code>&lt;/a> for converting 2-letter state abbreviations to state names.&lt;/p>
+&lt;p>The exercises in R4DS range from quick, almost obvious, drills to ones that can really make you think and spin your wheels for a bit. One such exercise for Jabir was the one on changing the display of presidential terms from
+&lt;a href="https://r4ds.hadley.nz/communication.html#exercises-2" target="_blank" rel="noopener">Section 12.4.6&lt;/a>. The exercise asks:&lt;/p>
+&lt;blockquote>
+&lt;p>Change the display of the presidential terms by:&lt;/p>
+&lt;ul>
+&lt;li>Combining the two variants that customize colors and x axis breaks.&lt;/li>
+&lt;li>Improving the display of the y axis.&lt;/li>
+&lt;li>Labelling each term with the name of the president.&lt;/li>
+&lt;li>Adding informative plot labels.&lt;/li>
+&lt;li>Placing breaks every 4 years (this is trickier than it seems!).&lt;/li>
+&lt;/ul>
+&lt;/blockquote>
+&lt;p>The starting points for the exercise are the following plots from the text:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://tidyverse.tidyverse.org'>tidyverse&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>presidential&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>id &lt;span class='o'>=&lt;/span> &lt;span class='m'>33&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/row_number.html'>row_number&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nv'>start&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>id&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_segment.html'>geom_segment&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>xend &lt;span class='o'>=&lt;/span> &lt;span class='nv'>end&lt;/span>, yend &lt;span class='o'>=&lt;/span> &lt;span class='nv'>id&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_date.html'>scale_x_date&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>name &lt;span class='o'>=&lt;/span> &lt;span class='kc'>NULL&lt;/span>, breaks &lt;span class='o'>=&lt;/span> &lt;span class='nv'>presidential&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>start&lt;/span>, date_labels &lt;span class='o'>=&lt;/span> &lt;span class='s'>"'%y"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>presidential&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>id &lt;span class='o'>=&lt;/span> &lt;span class='m'>33&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/row_number.html'>row_number&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nv'>start&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>id&lt;/span>, color &lt;span class='o'>=&lt;/span> &lt;span class='nv'>party&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_segment.html'>geom_segment&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>xend &lt;span class='o'>=&lt;/span> &lt;span class='nv'>end&lt;/span>, yend &lt;span class='o'>=&lt;/span> &lt;span class='nv'>id&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>scale_color_manual&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>values &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>Republican &lt;span class='o'>=&lt;/span> &lt;span class='s'>"#E81B23"&lt;/span>, Democratic &lt;span class='o'>=&lt;/span> &lt;span class='s'>"#00AEF3"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/presidential-terms-start-1.png" width="50%" style="display: block; margin: auto;" />&lt;img src="figs/presidential-terms-start-2.png" width="50%" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Jabir says &amp;ldquo;This question completely puzzled me. I&amp;rsquo;d say good luck, and if you&amp;rsquo;re new and you get to this question, I recommend you look at the solution manual.&amp;rdquo;&lt;/p>
+&lt;p>The first challenge was identifying where in the text the original plot was developed, and the code associated with it. And then, the most challenging part of this exercise was labeling the y-axis with the names of presidents. It took lots of Googling, but ultimately Jabir used suggestions from ChatGPT to get this over the finish line. And, perhaps, the frustrating and satisfying part is that the answer was pretty obvious in hindsight:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>presidential&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>presidential&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>id &lt;span class='o'>=&lt;/span> &lt;span class='m'>33&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/row_number.html'>row_number&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>presidential&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nv'>start&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>id&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>color &lt;span class='o'>=&lt;/span> &lt;span class='nv'>party&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_segment.html'>geom_segment&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>xend &lt;span class='o'>=&lt;/span> &lt;span class='nv'>end&lt;/span>, yend &lt;span class='o'>=&lt;/span> &lt;span class='nv'>id&lt;/span>, color &lt;span class='o'>=&lt;/span> &lt;span class='nv'>party&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>geom_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>label &lt;span class='o'>=&lt;/span> &lt;span class='nv'>name&lt;/span>&lt;span class='o'>)&lt;/span>, hjust &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>, vjust &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>, nudge_y &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.1&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>scale_color_manual&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>values &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>Republican &lt;span class='o'>=&lt;/span> &lt;span class='s'>"#E81B23"&lt;/span>, Democratic &lt;span class='o'>=&lt;/span> &lt;span class='s'>"#00AEF3"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_date.html'>scale_x_date&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> name &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Term"&lt;/span>,&lt;/span>
+&lt;span> breaks &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/seq.html'>seq&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>from &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://lubridate.tidyverse.org/reference/ymd.html'>ymd&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"1953-01-20"&lt;/span>&lt;span class='o'>)&lt;/span>, to &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://lubridate.tidyverse.org/reference/ymd.html'>ymd&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"2021-01-20"&lt;/span>&lt;span class='o'>)&lt;/span>, by &lt;span class='o'>=&lt;/span> &lt;span class='s'>"4 years"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> date_labels &lt;span class='o'>=&lt;/span> &lt;span class='s'>"'%y"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_y_continuous&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>breaks &lt;span class='o'>=&lt;/span> &lt;span class='m'>34&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>45&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> panel.grid.minor &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_blank&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> axis.ticks.y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_blank&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> x &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Term"&lt;/span>,&lt;/span>
+&lt;span> y &lt;span class='o'>=&lt;/span> &lt;span class='s'>"President"&lt;/span>,&lt;/span>
+&lt;span> title &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Terms of US Presidents"&lt;/span>,&lt;/span>
+&lt;span> subtitle &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Eisenhower (34th) to Trump (45th)"&lt;/span>,&lt;/span>
+&lt;span> color &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Party"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/presidential-terms-end-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Jabir felt like moments when he knew what to do and how to answer each question were very satisfying, but the moments where he felt stuck and went into rabbit holes looking for answers made him question whether he wanted to continue becoming a data scientist. Ultimately, though, the project was enjoyable, and not just a great learning experience for Jabir, but also a very meaningful one because it created a resource that can help future data scientists.&lt;/p>
+&lt;p>We felt like Jabir and Davon advanced their data science skills, and familiarity with working in open source, throughout the project. It was particularly exciting to see Jabir create his own data science portfolio as a Quarto website with posts on the Tidy Tuesday datasets, and we really appreciated his work on the R4DS Solutions. In going through those, he helped better refine the book, and created a resource that so many people are going to be able to use and learn from. We could see how he learned not just data science, but also grew as a leader who will continue to support others in their learning as he moves on to work as a developer with the Data Trail program. Davon too focused not just on data science, but was a part of our team, and the Data Trail team, providing mentorship to Jabir and bringing teaching approaches, like using Tidy Tuesday datasets, to his community. We are so grateful to have had the opportunity to work with them both, and see this as the beginning of continued collaborations.&lt;/p>
+&lt;p>Just like most open-source projects, the
+&lt;a href="https://mine-cetinkaya-rundel.github.io/r4ds-solutions/" target="_blank" rel="noopener">R4DS Solutions&lt;/a> is a living and breathing project, still a work-in-progress. We would welcome any community contributions! All perspectives are important here, and it&amp;rsquo;s a great project if you&amp;rsquo;re a first-time contributor.&lt;/p></description></item><item><title>Pathway to success - updating your package to cpp11</title><link>https://www.tidyverse.org/blog/2021/09/updating-to-cpp11/</link><pubDate>Fri, 10 Sep 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/09/updating-to-cpp11/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>Over the summer I had the pleasure of working with Jim Hester on the
+&lt;a href="https://cpp11.r-lib.org/" target="_blank" rel="noopener">cpp11 package&lt;/a> as a tidyverse summer intern. The cpp11 package is a header-only R package that helps R package developers handle R objects with C++ code. Its goals and syntax are similar to the excellent Rcpp package. During most of my internship, I worked on triaging issues, fixing bugs, and adding new features to cpp11. Near the end of the summer, I got to work with Jenny Bryan on
+&lt;a href="https://github.com/tidyverse/readxl/pull/659" target="_blank" rel="noopener">converting readxl to using cpp11&lt;/a>. Jim has written a
+&lt;a href="https://cpp11.r-lib.org/articles/converting.html" target="_blank" rel="noopener">great post&lt;/a> about converting packages from Rcpp to cpp11, which I heavily referenced during the process. But there were still some challenges I encountered. To help others going through a similar process, I wanted to review the workflows and tools we used to make this easier.&lt;/p>
+&lt;p>The entire process took about a week. Using both Rcpp and cpp11 at the same time in a package is okay for short term work like this, so I didn&amp;rsquo;t feel rushed. To get started, I followed the initial set-up steps outlined in Jim&amp;rsquo;s article and then recompiled, to confirm it was successful. Next, I needed to include either the &lt;code>cpp11/R.hpp&lt;/code> header or the macros &lt;code>R_NO_REMAP&lt;/code> and &lt;code>STRICT_R_HEADERS&lt;/code>. I found it easier to include the macros since the header file needs to come before any headers that use Rcpp.&lt;/p>
+&lt;h2 id="step-by-step-integration">Step-by-step integration
+&lt;a href="#step-by-step-integration">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>After I&amp;rsquo;d set-up my environment it was time to start converting the files. Initially, I made the mistake of selecting the most interconnected file in the readxl package. Since this file was central to the package, I would have had to convert the entire package over to cpp11 before the compilation errors or test failures would stop. After Jenny and Jim helped me select a more approachable file, the process was more incremental and I successfully maintained my sanity 🙌.&lt;/p>
+&lt;p>When I was finished with a file, I would recompile the package and fix the compilation errors. To fix errors, I sometimes had to edit other functions in other files, but I only edited files enough to fix the failures. If I did too much it was difficult for me to know what was causing the failures. Then I&amp;rsquo;d run the tests for the readxl package. Thankfully, Jenny had great test coverage for the readxl package prior to this project, so we didn&amp;rsquo;t need to write more tests.&lt;/p>
+&lt;p>Another incremental approach I used was to convert one function in a file, and then recompile and run the tests. This approach worked best for larger files. Once everything was passing, I&amp;rsquo;d commit and push to the PR so that my gracious reviewers could review my changes in stages, rather than in one big batch. This also allowed me to benefit from continuous integration, i.e. my changes were checked on a greater variety of R versions and operating systems, thanks to the checks we run via GitHub Actions. It&amp;rsquo;s a win-win!&lt;/p>
+&lt;h2 id="the-nitty-gritty">The nitty-gritty
+&lt;a href="#the-nitty-gritty">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>For the nitty-gritty details of converting the code, I definitely took advantage of
+&lt;a href="https://cpp11.r-lib.org/articles/converting.html#class-comparison-table-1" target="_blank" rel="noopener">the table in Jim&amp;rsquo;s post!&lt;/a> That comparison table is great for converting between Rcpp and cpp11 classes. The table also provided me with information on whether a class was readable, writable or both. This new feature in cpp11 is great, since writable vectors are costly because the data must be fully copied, so using readable where appropriate is a good idea. When I was unsure of whether an object should be readable or writable, I would make it readable and then recompile to see if I was correct.&lt;/p>
+&lt;h2 id="almost-done">Almost done
+&lt;a href="#almost-done">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>When I had finished converting all the objects to cpp11, I removed the macros &lt;code>R_NO_REMAP&lt;/code> and &lt;code>STRICT_R_HEADERS&lt;/code> and any stray &lt;code>#include &amp;quot;Rcpp.h&amp;quot;&lt;/code> directives. Finally, to check for any other updates that might be required, such as in the DESCRIPTION file, I also ran &lt;code>devtools::check()&lt;/code>. And that&amp;rsquo;s it!&lt;/p>
+&lt;p>I had so much fun working with the tidyverse team. And a big thank you to Jim for all the support over the summer and to Jenny for their help on readxl! If you&amp;rsquo;re looking for more examples of updating packages to using cpp11, Jim has also gone through the process of
+&lt;a href="https://github.com/tidyverse/readr/pull/1109" target="_blank" rel="noopener">converting readr to using cpp11&lt;/a>. RStudio is a great place to look for summer internship opportunities. They had a variety of opportunities this summer and I&amp;rsquo;d encourage anyone looking for summer internships to apply for 2022!&lt;/p></description></item></channel></rss>

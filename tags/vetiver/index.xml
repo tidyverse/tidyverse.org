@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>vetiver | Tidyverse</title><link>https://www.tidyverse.org/tags/vetiver/</link><atom:link href="https://www.tidyverse.org/tags/vetiver/index.xml" rel="self" type="application/rss+xml"/><description>vetiver</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 09 Jun 2022 00:00:00 +0000</lastBuildDate><item><title>Announcing vetiver for MLOps in R and Python</title><link>https://www.tidyverse.org/blog/2022/06/announce-vetiver/</link><pubDate>Thu, 09 Jun 2022 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2022/06/announce-vetiver/</guid><description>&lt;!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo &amp; update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+&lt;p>We are thrilled to announce the release of
+&lt;a href="https://vetiver.rstudio.com/" target="_blank" rel="noopener">vetiver&lt;/a>, a framework for MLOps tasks in R and Python! The goal of vetiver is to provide fluent tooling to &lt;strong>version&lt;/strong>, &lt;strong>share&lt;/strong>, &lt;strong>deploy&lt;/strong>, and &lt;strong>monitor&lt;/strong> a trained model. If you like perfume or candles, you may recognize this name; vetiver, also known as the &amp;ldquo;oil of tranquility&amp;rdquo;, is used as a stabilizing ingredient in perfumery to preserve more volatile fragrances.&lt;/p>
+&lt;p>You can install the released version of vetiver for R from
+&lt;a href="https://cran.r-project.org/package=vetiver" target="_blank" rel="noopener">CRAN&lt;/a>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;vetiver&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can install the released version of vetiver for Python from
+&lt;a href="https://pypi.org/project/vetiver/" target="_blank" rel="noopener">PyPI&lt;/a>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="n">pip&lt;/span> &lt;span class="n">install&lt;/span> &lt;span class="n">vetiver&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>We are sharing more about what vetiver is and how it works over
+&lt;a href="https://www.rstudio.com/blog/announce-vetiver/" target="_blank" rel="noopener">on the RStudio blog&lt;/a> so check that out, but we want to share here as well!&lt;/p>
+&lt;h2 id="train-a-model">Train a model
+&lt;a href="#train-a-model">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>For this example, let’s work with data on everyone&amp;rsquo;s favorite dataset on fuel efficiency for cars to predict miles per gallon. In R, we can train a decision tree model to predict miles per gallon using a
+&lt;a href="https://www.tidymodels.org/" target="_blank" rel="noopener">tidymodels&lt;/a> workflow:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidymodels&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">car_mod&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">workflow&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="nf">decision_tree&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mode&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;regression&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">fit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>In Python, we can train the same kind of model using
+&lt;a href="https://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn&lt;/a>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="kn">from&lt;/span> &lt;span class="nn">vetiver.data&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">mtcars&lt;/span>
+&lt;span class="kn">from&lt;/span> &lt;span class="nn">sklearn&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">tree&lt;/span>
+&lt;span class="n">car_mod&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">tree&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">DecisionTreeRegressor&lt;/span>&lt;span class="p">()&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">fit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">mtcars&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;mpg&amp;#34;&lt;/span>&lt;span class="p">])&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>For both R and Python, the &lt;code>car_mod&lt;/code> object is a fitted model, with parameters estimated using our training data &lt;code>mtcars&lt;/code>.&lt;/p>
+&lt;h2 id="create-a-vetiver-model">Create a vetiver model
+&lt;a href="#create-a-vetiver-model">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We can create a &lt;code>vetiver_model()&lt;/code> in R or &lt;code>VetiverModel()&lt;/code> in Python from the trained model; a vetiver model object collects the information needed to store, version, and deploy a trained model.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">vetiver&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">v&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">vetiver_model&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">car_mod&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;cars_mpg&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">v&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; ── cars_mpg ─ &amp;lt;butchered_workflow&amp;gt; model for deployment &lt;/span>
+&lt;span class="c1">#&amp;gt; A rpart regression modeling workflow using 10 features&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="kn">from&lt;/span> &lt;span class="nn">vetiver&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">VetiverModel&lt;/span>
+&lt;span class="n">v&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">VetiverModel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">car_mod&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">model_name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;cars_mpg&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">save_ptype&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="bp">True&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">ptype_data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">v&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">description&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;#34;Scikit-learn &amp;lt;class &amp;#39;sklearn.tree._classes.DecisionTreeRegressor&amp;#39;&amp;gt; model&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>See our documentation for how to use these deployable model objects and:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://vetiver.rstudio.com/get-started/version.html" target="_blank" rel="noopener">publish and version your model&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://vetiver.rstudio.com/get-started/deploy.html" target="_blank" rel="noopener">deploy your model as a REST API&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>Be sure to also read more
+&lt;a href="https://www.rstudio.com/blog/announce-vetiver/" target="_blank" rel="noopener">on the RStudio blog&lt;/a>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to extend our thanks to all of the contributors who helped make these initial releases of vetiver for R and Python possible!&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>R package:
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/ggpinto" target="_blank" rel="noopener">@ggpinto&lt;/a>,
+&lt;a href="https://github.com/isabelizimm" target="_blank" rel="noopener">@isabelizimm&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>, and
+&lt;a href="https://github.com/mfansler" target="_blank" rel="noopener">@mfansler&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Python package:
+&lt;a href="https://github.com/has2k1" target="_blank" rel="noopener">@has2k1&lt;/a>, and
+&lt;a href="https://github.com/isabelizimm" target="_blank" rel="noopener">@isabelizimm&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item></channel></rss>

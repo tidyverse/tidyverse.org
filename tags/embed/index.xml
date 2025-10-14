@@ -1,0 +1,714 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>embed | Tidyverse</title><link>https://www.tidyverse.org/tags/embed/</link><atom:link href="https://www.tidyverse.org/tags/embed/index.xml" rel="self" type="application/rss+xml"/><description>embed</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 09 Jun 2020 00:00:00 +0000</lastBuildDate><item><title>embed 0.1.0</title><link>https://www.tidyverse.org/blog/2020/06/embed-0-1-0/</link><pubDate>Tue, 09 Jun 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/06/embed-0-1-0/</guid><description>&lt;p>There is a new release of the
+&lt;a href="https://embed.tidymodels.org" target="_blank" rel="noopener">embed package&lt;/a> on
+&lt;a href="https://cran.r-project.org/package=embed" target="_blank" rel="noopener">CRAN&lt;/a>. embed contains a number of recipe steps that can be used to represent predictors using a smaller set of artificial features. Some of these methods are &lt;em>supervised&lt;/em> (i.e., it uses the outcome data) and others are &lt;em>unsupervised&lt;/em> (the outcome is not considered). The recipes package already contains similar methods (e.g. principal component analysis, partial least squares, etc.). embed has more sophisticated method and these tend to have more significant package dependencies such as stan and tensorflow.&lt;/p>
+&lt;p>The current roster of methods in the embed package are:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;em>Entity embeddings&lt;/em> where categorical predictors are decomposed into a set of smaller numeric features (supervised,
+&lt;a href="https://embed.tidymodels.org/reference/step_embed.html" target="_blank" rel="noopener">&lt;code>step_embed()&lt;/code>&lt;/a>).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;em>Effect encodings&lt;/em> model categorical predictors against the outcome and the resulting coefficients are used as the numeric features (supervised,
+&lt;a href="https://embed.tidymodels.org/reference/index.html" target="_blank" rel="noopener">&lt;code>step_lencode_*()&lt;/code>&lt;/a>).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;em>Weight of evidence transformation&lt;/em> that use measures of association for categorical predictors and categorical outcomes to generate new features (supervised,
+&lt;a href="https://embed.tidymodels.org/reference/step_woe.html" target="_blank" rel="noopener">&lt;code>step_woe()&lt;/code>&lt;/a>).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;em>Uniform manifold approximation and projections&lt;/em> (UMAP) estimate local, low-dimensional representations of numeric predictors (supervised or unsupervised,
+&lt;a href="https://embed.tidymodels.org/reference/step_umap.html" target="_blank" rel="noopener">&lt;code>step_umap()&lt;/code>&lt;/a>).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;em>Discretization methods&lt;/em> of numeric predictors using tree-based methods (supervised,
+&lt;a href="https://embed.tidymodels.org/reference/index.html" target="_blank" rel="noopener">&lt;code>step_discretize_*()&lt;/code>&lt;/a>).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;em>Feature hashing&lt;/em> creates dummy variables using hashing methods (unsupervised,
+&lt;a href="https://embed.tidymodels.org/reference/step_feature_hash.html" target="_blank" rel="noopener">&lt;code>step_feature_hash()&lt;/code>&lt;/a>).&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>The latter two sets of steps are only in this new version. Let&amp;rsquo;s look at these two methods in detail.&lt;/p>
+&lt;h2 id="discretization">Discretization
+&lt;a href="#discretization">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>I am
+&lt;a href="https://bookdown.org/max/FES/numeric-one-to-many.html#binning" target="_blank" rel="noopener">not a huge fan&lt;/a> of taking numeric data and re-encoding them as categorical predictors. There is mostly likely a loss of information by doing so and other methods, such as splines, are probably a better approach overall. However, I&amp;rsquo;m willing to admit that there might be some data sets where binning works best.&lt;/p>
+&lt;p>The recipes package already includes &lt;code>step_discretize()&lt;/code>. This is an unsupervised method that creates the bins using percentiles of the data (so that the new categories have about the same frequency). The new methods in embed use the outcome data (numeric or categorical) to determine the values of the bins as well as how many bins are required.&lt;/p>
+&lt;p>Konrad Semsch contributed
+&lt;a href="https://embed.tidymodels.org/reference/step_discretize_xgb.html" target="_blank" rel="noopener">&lt;code>step_discretize_xgb()&lt;/code>&lt;/a>) which uses an xgboost model. An initial boosting model is created with a single numeric predictor and the unique splits across boosting iterations are used to discretize the predictor. Here&amp;rsquo;s an example predictor from the Ames housing data:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidymodels&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">embed&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">AmesHousing&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">ames&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">make_ames&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="c1"># Remove quality-related predictors&lt;/span>
+&lt;span class="n">dplyr&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="nf">matches&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Qu&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">4595&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">data_split&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">initial_split&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ames&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">strata&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;Sale_Price&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">ames_train&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">training&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data_split&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">ames_test&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">testing&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data_split&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">theme_set&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">theme_bw&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="nf">ggplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ames_train&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Longitude&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Sale_Price&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_point&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">alpha&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.3&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">scale_y_log10&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figure/ames-longitude-1.svg" alt="plot of chunk ames-longitude">&lt;/p>
+&lt;p>Because the Iowa State University is in the center of Ames, there are discontinuous relationships between the sale price of houses and longitude. There&amp;rsquo;s a relationship here but it is nonlinear and complex. To discretize these data:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">525&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">ames_rec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Sale_Price&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ames_train&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Sale_Price&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">base&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">10&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_discretize_xgb&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Longitude&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">outcome&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;Sale_Price&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;xgb&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">prep&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>tidy()&lt;/code> method can be used to show the estimated breaks:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">breaks&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">tidy&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ames_rec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;xgb&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">pull&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">values&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">breaks&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## [1] -93.68667 -93.67038 -93.65519 -93.64602 -93.63570 -93.62575 -93.61737
+&lt;/code>&lt;/pre>&lt;p>The consequence of using &lt;code>step_discretize_xgb()&lt;/code> is that the numeric predictor &lt;code>Longitude&lt;/code> is converted to a factor with 8 levels:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">bake&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ames_rec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">ames_test&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Longitude&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 731 x 1
+## Longitude
+## &amp;lt;fct&amp;gt;
+## 1 [-93.63,-93.62)
+## 2 [-93.63,-93.62)
+## 3 [-93.65,-93.64)
+## 4 [-93.64,-93.63)
+## 5 [-93.64,-93.63)
+## 6 [-93.64,-93.63)
+## 7 [-93.64,-93.63)
+## 8 [-93.66,-93.65)
+## 9 [-93.66,-93.65)
+## 10 [-93.66,-93.65)
+## # … with 721 more rows
+&lt;/code>&lt;/pre>&lt;p>For the test set, here are the breaks:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">ggplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ames_train&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Longitude&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Sale_Price&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_vline&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">xintercept&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">breaks&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">col&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;blue&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">alpha&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.7&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_point&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">alpha&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.3&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">scale_y_log10&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figure/ames-longitude-breaks-1.svg" alt="plot of chunk ames-longitude-breaks">&lt;/p>
+&lt;p>&lt;code>step_discretize_xgb()&lt;/code> and &lt;code>step_discretize_cart()&lt;/code> contain arguments for the common tuning parameters (e.g. the number of breaks, tree depth, etc.) that can be optimized using the tune package. Also, it is possible that the tree model cannot find any informative splits of a predictor. In this case, a warning is issued and the predictor is not discretized.&lt;/p>
+&lt;h2 id="feature-hashing">Feature hashing
+&lt;a href="#feature-hashing">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>When converting a
+&lt;a href="https://bookdown.org/max/FES/creating-dummy-variables-for-unordered-categories.html" target="_blank" rel="noopener">categorical predictor to a numeric encoding&lt;/a>, the traditional approach is to make a collection of binary indicator variables. If the original data have &lt;code>C&lt;/code> levels, the standard approach is to create &lt;code>C - 1&lt;/code> new columns using the levels observed within the training set. A slightly different method is &lt;em>one-hot encoding&lt;/em> which creates the full set of &lt;code>C&lt;/code> indicators. The important points for these methods are:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>The indicators can only be created for the levels in the training set. There is a 1:1 mapping between the levels and the indicator columns.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>A &amp;ldquo;new&amp;rdquo; category could also be issued in case future samples contain other levels.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>When &lt;code>C&lt;/code> is very large, this approach is problematic since many indicators are created and many of these will be infrequently observed in the data.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>One alternative method for making indicator variables is
+&lt;a href="https://bookdown.org/max/FES/encoding-predictors-with-many-categories.html" target="_blank" rel="noopener">&lt;em>feature hashing&lt;/em>&lt;/a>. This method uses the actual value of the levels to decide which indicator column that the sample should be mapped to. Also, the number of indicators can be less than &lt;code>C&lt;/code>. The math used in the background originate in cryptography and are
+&lt;a href="https://en.wikipedia.org/wiki/Hash_function" target="_blank" rel="noopener">pretty interesting&lt;/a>.&lt;/p>
+&lt;p>Let&amp;rsquo;s look again at the Ames data. The neighborhood predictor has 28 possible values. This is by no means large but it can be used to illustrate how this method works. Instead of creating 27 indicator columns, let&amp;rsquo;s use 10 instead.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">hash_rec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Sale_Price&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">Neighborhood&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">ames_train&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="c1"># For illustration only, `preserve` is used to keep the original column. &lt;/span>
+&lt;span class="nf">step_feature_hash&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Neighborhood&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">num_hash&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">10&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">preserve&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">prep&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>There is no actual estimation used so far. When generating the values, the hashing function is used to create the indicators:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">all_nhood&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="n">ames&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Neighborhood&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">distinct&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="n">hashed&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">bake&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hash_rec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">all_nhood&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">starts_with&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Neighborhood&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="n">hashed&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 28 x 11
+## Neighborhood Neighborhood_ha… Neighborhood_ha… Neighborhood_ha…
+## &amp;lt;fct&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 North_Ames 0 0 0
+## 2 Gilbert 0 0 0
+## 3 Stone_Brook 0 0 0
+## 4 Northwest_A… 1 0 0
+## 5 Somerset 0 0 1
+## 6 Briardale 0 0 0
+## 7 Northpark_V… 0 0 0
+## 8 Northridge_… 0 0 0
+## 9 Bloomington… 0 0 0
+## 10 Northridge 0 0 0
+## # … with 18 more rows, and 7 more variables: Neighborhood_hash_04 &amp;lt;dbl&amp;gt;,
+## # Neighborhood_hash_05 &amp;lt;dbl&amp;gt;, Neighborhood_hash_06 &amp;lt;dbl&amp;gt;,
+## # Neighborhood_hash_07 &amp;lt;dbl&amp;gt;, Neighborhood_hash_08 &amp;lt;dbl&amp;gt;,
+## # Neighborhood_hash_09 &amp;lt;dbl&amp;gt;, Neighborhood_hash_10 &amp;lt;dbl&amp;gt;
+&lt;/code>&lt;/pre>&lt;p>How were neighborhoods mapped to indicators in these data? Each neighborhood only maps to a single row. However, unlike the traditional methods, multiple neighborhoods are likely to be mapped to the same indicator column:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">hashed&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="n">tidyr&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">pivot_longer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">cols&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">contains&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;hash&amp;#34;&lt;/span>&lt;span class="p">)),&lt;/span>
+&lt;span class="n">names_to&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;column&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">values_to&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;values&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">column&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">summarize&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">num_neighborhood&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">sum&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">values&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 10 x 2
+## column num_neighborhood
+## &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 Neighborhood_hash_01 4
+## 2 Neighborhood_hash_02 2
+## 3 Neighborhood_hash_03 3
+## 4 Neighborhood_hash_04 2
+## 5 Neighborhood_hash_05 2
+## 6 Neighborhood_hash_06 4
+## 7 Neighborhood_hash_07 3
+## 8 Neighborhood_hash_08 4
+## 9 Neighborhood_hash_09 4
+## 10 Neighborhood_hash_10 0
+&lt;/code>&lt;/pre>&lt;p>For this configuration, multiple neighborhoods are mapped to the same feature. In statistics, this is called &lt;em>aliasing&lt;/em> or &lt;em>confounding&lt;/em>. While sometime required, confounding methods should generally alias different values to the same feature using some sort of optimality criterion. Feature hashing does not appear to be optimal in any way that is relevant to modeling. Also note in the output above that some hash features will have no indicators. It might be a good practice to follow this step with &lt;code>step_zv()&lt;/code> to remove them.&lt;/p>
+&lt;p>On the bright side, new neighborhoods can be easily mapped. For example:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Novigrad&lt;/code> would be mapped to column 1.&lt;/li>
+&lt;li>&lt;code>Brokilon Forest&lt;/code> would be mapped to column 4.&lt;/li>
+&lt;li>&lt;code>Brokilon forest&lt;/code> would be mapped to column 9.&lt;/li>
+&lt;/ul>
+&lt;p>As the last two examples show, the actual value of the factor level is used. Also note that, if a different number of features are created, the mapping will also change.&lt;/p>
+&lt;p>This step requires the
+&lt;a href="https://keras.rstudio.com/" target="_blank" rel="noopener">keras&lt;/a> R package along with a working
+&lt;a href="https://tensorflow.rstudio.com/installation/" target="_blank" rel="noopener">tensorflow&lt;/a> installation.&lt;/p>
+&lt;h2 id="hex-logo">Hex logo
+&lt;a href="#hex-logo">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The embed package doesn&amp;rsquo;t have a hex logo. If you would like to propose one, please
+&lt;a href="https://twitter.com/topepos" target="_blank" rel="noopener">tweet at us&lt;/a> or
+&lt;a href="mailto:max@rstudio.com">email&lt;/a>!&lt;/p></description></item><item><title>tidymodels updates</title><link>https://www.tidyverse.org/blog/2019/09/tidymodels-2019-09/</link><pubDate>Thu, 05 Sep 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/09/tidymodels-2019-09/</guid><description>&lt;p>We&amp;rsquo;ve sent a few packages to CRAN recently. Here&amp;rsquo;s a recap of the changes (and some notes at the bottom):&lt;/p>
+&lt;h2 id="recipes-016">recipes 0.1.6
+&lt;a href="#recipes-016">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="breaking-changes">Breaking Changes
+&lt;a href="#breaking-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;ul>
+&lt;li>Since 2018, a warning has been issued when the wrong argument was used in &lt;code>bake(recipe, newdata)&lt;/code>. The deprecation period is over and &lt;code>new_data&lt;/code> is officially required.&lt;/li>
+&lt;li>Previously, if
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_other.html" target="_blank" rel="noopener">&lt;code>step_other()&lt;/code>&lt;/a> did &lt;em>not&lt;/em> collapse any levels, it would still add an &amp;ldquo;other&amp;rdquo; level to the factor. This would lump new factor levels into &amp;ldquo;other&amp;rdquo; when data were baked (as
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_novel.html" target="_blank" rel="noopener">&lt;code>step_novel()&lt;/code>&lt;/a> does). This no longer occurs, since it was inconsistent with &lt;code>?step_other&lt;/code>, which said that: &amp;ldquo;If no pooling is done the data are unmodified&amp;rdquo;.&lt;/li>
+&lt;/ul>
+&lt;h3 id="new-operations">New Operations:
+&lt;a href="#new-operations">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;ul>
+&lt;li>
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_normalize.html" target="_blank" rel="noopener">&lt;code>step_normalize()&lt;/code>&lt;/a> centers and scales the data (if you are, like Max, too lazy to use two separate steps).&lt;/li>
+&lt;li>
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_unknown.html" target="_blank" rel="noopener">&lt;code>step_unknown()&lt;/code>&lt;/a> will convert missing data in categorical columns to &amp;ldquo;unknown&amp;rdquo; and update factor levels.&lt;/li>
+&lt;/ul>
+&lt;h3 id="other-changes">Other Changes:
+&lt;a href="#other-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;ul>
+&lt;li>If the &lt;code>threshold&lt;/code> argument of
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_other.html" target="_blank" rel="noopener">&lt;code>step_other()&lt;/code>&lt;/a> is greater than one, it specifies the minimum sample size before the levels of the factor are collapsed into the &amp;ldquo;other&amp;rdquo; category.
+&lt;a href="https://github.com/tidymodels/recipes/issues/289" target="_blank" rel="noopener">#289&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_knnimpute.html" target="_blank" rel="noopener">&lt;code>step_knnimpute()&lt;/code>&lt;/a> can now pass two options to the underlying knn code, including the number of threads (
+&lt;a href="https://github.com/tidymodels/recipes/issues/323" target="_blank" rel="noopener">#323&lt;/a>).&lt;/li>
+&lt;li>Due to changes by CRAN,
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_nnmf.html" target="_blank" rel="noopener">&lt;code>step_nnmf()&lt;/code>&lt;/a> only works on versions of R &amp;gt;= 3.6.0 due to dependency issues.&lt;/li>
+&lt;li>
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_dummy.html" target="_blank" rel="noopener">&lt;code>step_dummy()&lt;/code>&lt;/a> and
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_other.html" target="_blank" rel="noopener">&lt;code>step_other()&lt;/code>&lt;/a> are now tolerant to cases where that step&amp;rsquo;s selectors do not capture any columns. In this case, no modifications to the data are made. (
+&lt;a href="https://github.com/tidymodels/recipes/issues/290" target="_blank" rel="noopener">#290&lt;/a>,
+&lt;a href="https://github.com/tidymodels/recipes/issues/348" target="_blank" rel="noopener">#348&lt;/a>)&lt;/li>
+&lt;li>
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_dummy.html" target="_blank" rel="noopener">&lt;code>step_dummy()&lt;/code>&lt;/a> can now retain the original columns that are used to make the dummy variables by setting &lt;code>preserve = TRUE&lt;/code>. (
+&lt;a href="https://github.com/tidymodels/recipes/issues/328" target="_blank" rel="noopener">#328&lt;/a>)&lt;/li>
+&lt;li>
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_other.html" target="_blank" rel="noopener">&lt;code>step_other()&lt;/code>&lt;/a>&amp;lsquo;s print method only reports the variables with collapsed levels (as opposed to any column that was &lt;em>tested&lt;/em> to see if it needed collapsing). (
+&lt;a href="https://github.com/tidymodels/recipes/issues/338" target="_blank" rel="noopener">#338&lt;/a>)&lt;/li>
+&lt;li>
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_pca.html" target="_blank" rel="noopener">&lt;code>step_pca()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_kpca.html" target="_blank" rel="noopener">&lt;code>step_kpca()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_ica.html" target="_blank" rel="noopener">&lt;code>step_ica()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_nnmf.html" target="_blank" rel="noopener">&lt;code>step_nnmf()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_pls.html" target="_blank" rel="noopener">&lt;code>step_pls()&lt;/code>&lt;/a>, and
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_isomap.html" target="_blank" rel="noopener">&lt;code>step_isomap()&lt;/code>&lt;/a> now accept zero components. In this case, the original data are returned. Please use this with great care.&lt;/li>
+&lt;/ul>
+&lt;h2 id="embed-003">embed 0.0.3
+&lt;a href="#embed-003">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Two new steps were added:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://tidymodels.github.io/embed/reference/step_umap.html" target="_blank" rel="noopener">&lt;code>step_umap()&lt;/code>&lt;/a> was added for both supervised and unsupervised encodings.&lt;/li>
+&lt;li>
+&lt;a href="https://tidymodels.github.io/embed/reference/step_woe.html" target="_blank" rel="noopener">&lt;code>step_woe()&lt;/code>&lt;/a> creates weight of evidence encodings. Thanks to Athos Petri Damiani for this.&lt;/li>
+&lt;/ul>
+&lt;h2 id="rsample-005">rsample 0.0.5
+&lt;a href="#rsample-005">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>Added three functions to compute different
+&lt;a href="https://tidymodels.github.io/rsample/articles/Applications/Intervals.html" target="_blank" rel="noopener">bootstrap confidence intervals&lt;/a>.&lt;/li>
+&lt;li>A new function (
+&lt;a href="https://tidymodels.github.io/rsample/reference/add_resample_id.html" target="_blank" rel="noopener">&lt;code>add_resample_id()&lt;/code>&lt;/a>) augments a data frame with columns for the resampling identifier.&lt;/li>
+&lt;li>Updated
+&lt;a href="https://tidymodels.github.io/rsample/reference/initial_split.html" target="_blank" rel="noopener">&lt;code>initial_split()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/rsample/reference/mc_cv.html" target="_blank" rel="noopener">&lt;code>mc_cv()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/rsample/reference/vfold_cv.html" target="_blank" rel="noopener">&lt;code>vfold_cv()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/rsample/reference/bootstraps.html" target="_blank" rel="noopener">&lt;code>bootstraps()&lt;/code>&lt;/a>, and
+&lt;a href="https://tidymodels.github.io/rsample/reference/group_vfold_cv.html" target="_blank" rel="noopener">&lt;code>group_vfold_cv()&lt;/code>&lt;/a> to use tidyselect on the stratification variable.&lt;/li>
+&lt;li>Updated
+&lt;a href="https://tidymodels.github.io/rsample/reference/initial_split.html" target="_blank" rel="noopener">&lt;code>initial_split()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/rsample/reference/mc_cv.html" target="_blank" rel="noopener">&lt;code>mc_cv()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/rsample/reference/vfold_cv.html" target="_blank" rel="noopener">&lt;code>vfold_cv()&lt;/code>&lt;/a>, and
+&lt;a href="https://tidymodels.github.io/rsample/reference/bootstraps.html" target="_blank" rel="noopener">&lt;code>bootstraps()&lt;/code>&lt;/a> with new &lt;code>breaks&lt;/code> parameter that specifies the number of bins to stratify by for a numeric stratification variable.&lt;/li>
+&lt;/ul>
+&lt;h2 id="parsnip-0031">parsnip 0.0.3.1
+&lt;a href="#parsnip-0031">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Unplanned release based on CRAN requirements for Solaris.&lt;/p>
+&lt;h3 id="breaking-changes-1">Breaking Changes
+&lt;a href="#breaking-changes-1">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;ul>
+&lt;li>
+&lt;p>The method that &lt;code>parsnip&lt;/code> uses to store the model information has changed. Any custom models from previous versions will need to use the new method for registering models. The methods are detailed in &lt;code>?get_model_env&lt;/code> and the
+&lt;a href="https://tidymodels.github.io/parsnip/articles/articles/Scratch.html" target="_blank" rel="noopener">package vignette for adding models&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The mode needs to be declared for models that can be used for more than one mode prior to fitting and/or translation.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>For &lt;code>surv_reg()&lt;/code>, the engine that uses the &lt;code>survival&lt;/code> package is now called &lt;code>survival&lt;/code> instead of &lt;code>survreg&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>For &lt;code>glmnet&lt;/code> models, the full regularization path is always fit regardless of the value given to &lt;code>penalty&lt;/code>. Previously, the model was fit by passing &lt;code>penalty&lt;/code> to &lt;code>glmnet&lt;/code>'s &lt;code>lambda&lt;/code> argument, and the model could only make predictions at those specific values.
+&lt;a href="https://github.com/tidymodels/parsnip/issues/195" target="_blank" rel="noopener">(#195)&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="new-features">New Features
+&lt;a href="#new-features">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;ul>
+&lt;li>
+&lt;p>&lt;code>add_rowindex()&lt;/code> can create a column called &lt;code>.row&lt;/code> to a data frame.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>If a computational engine is not explicitly set, a default will be used. Each default is documented on the corresponding model page. A warning is issued at fit time unless verbosity is zero.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>nearest_neighbor()&lt;/code> gained a &lt;code>multi_predict&lt;/code> method. The &lt;code>multi_predict()&lt;/code> documentation is a little better organized.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>A suite of internal functions were added to help with upcoming model tuning features.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>A &lt;code>parsnip&lt;/code> object always saved the name(s) of the outcome variable(s) for proper naming of the predicted values.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="corrr-04">corrr 0.4
+&lt;a href="#corrr-04">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="new-features-1">New features
+&lt;a href="#new-features-1">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;ul>
+&lt;li>New function called
+&lt;a href="https://tidymodels.github.io/corrr/reference/dice.html" target="_blank" rel="noopener">&lt;code>dice()&lt;/code>&lt;/a> function, wraps &lt;code>focus(x,..., mirror = TRUE)&lt;/code>&lt;/li>
+&lt;li>A new
+&lt;a href="https://tidymodels.github.io/corrr/reference/retract.html" target="_blank" rel="noopener">&lt;code>retract()&lt;/code>&lt;/a> function does the opposite of &lt;code>stretch()&lt;/code>&lt;/li>
+&lt;li>A new argument was added to
+&lt;a href="https://tidymodels.github.io/corrr/reference/stretch.html" target="_blank" rel="noopener">&lt;code>stretch()&lt;/code>&lt;/a> called &lt;code>remove.dups&lt;/code>. It removes duplicates with out removing all NAs.&lt;/li>
+&lt;/ul>
+&lt;h3 id="improvements">Improvements
+&lt;a href="#improvements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;ul>
+&lt;li>&lt;code>correlate()&lt;/code>'s interface for databases was improved. It now only calculates unique pairs, and simplifies the formula that ultimately runs in-database. We also re-added the vignette to the package, which is also available on the site as an
+&lt;a href="https://tidymodels.github.io/corrr/articles/databases.html" target="_blank" rel="noopener">article&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="tidypredict-043">tidypredict 0.4.3
+&lt;a href="#tidypredict-043">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="new-models">New models
+&lt;a href="#new-models">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The new version is now able to parse the following models:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>cubist()&lt;/code>, from the &lt;code>Cubist&lt;/code> package&lt;/li>
+&lt;li>&lt;code>ctree()&lt;/code>, from the &lt;code>partykit&lt;/code> package&lt;/li>
+&lt;li>XGBoost trained models, via the &lt;code>xgboost&lt;/code> package&lt;/li>
+&lt;/ul>
+&lt;h3 id="new-features-2">New features
+&lt;a href="#new-features-2">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;ul>
+&lt;li>Integration with &lt;code>broom&lt;/code>'s &lt;code>tidy()&lt;/code> function. It works with Regression models only&lt;/li>
+&lt;li>Adds support for &lt;code>parsnip&lt;/code> fitted models: &lt;code>lm&lt;/code>, &lt;code>randomForest&lt;/code>, &lt;code>ranger&lt;/code>, and &lt;code>earth&lt;/code>&lt;/li>
+&lt;li>Adds
+&lt;a href="https://tidymodels.github.io/tidypredict/reference/as_parsed_model.html" target="_blank" rel="noopener">&lt;code>as_parsed_model()&lt;/code>&lt;/a> function. It adds the proper class components to the list. This allows any model exported in the correct spec to be read in by &lt;code>tidypredict&lt;/code>. See the
+&lt;a href="https://tidymodels.github.io/tidypredict/articles/save.html" target="_blank" rel="noopener">Save Models&lt;/a> and
+&lt;a href="https://tidymodels.github.io/tidypredict/articles/non-r.html" target="_blank" rel="noopener">Non-R models&lt;/a> for more information&lt;/li>
+&lt;/ul>
+&lt;h3 id="improvements-1">Improvements
+&lt;a href="#improvements-1">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;ul>
+&lt;li>Now supports classification models from &lt;code>ranger&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;h3 id="website">Website
+&lt;a href="#website">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The package&amp;rsquo;s
+&lt;a href="https://tidymodels.github.io/tidypredict/index.html" target="_blank" rel="noopener">official website&lt;/a> has been expanded greatly. Here are some highlights:&lt;/p>
+&lt;ul>
+&lt;li>An article per each supported model, they are found under Model List&lt;/li>
+&lt;li>A how to guide to save and reload models,
+&lt;a href="https://tidymodels.github.io/tidypredict/articles/save.html" target="_blank" rel="noopener">link here&lt;/a>&lt;/li>
+&lt;li>How to integrate non-R models to &lt;code>tidypredict&lt;/code>,
+&lt;a href="https://tidymodels.github.io/tidypredict/articles/non-r.html" target="_blank" rel="noopener">link here&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="yardstick-004">yardstick 0.0.4
+&lt;a href="#yardstick-004">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="new-metrics">New Metrics
+&lt;a href="#new-metrics">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Two new metrics have been added to yardstick:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://tidymodels.github.io/yardstick/reference/iic.html" target="_blank" rel="noopener">&lt;code>iic()&lt;/code>&lt;/a> is a numeric metric for computing the index of ideality of correlation. It is a potential alternative to the traditional correlation coefficient, and has been used in QSAR models (
+&lt;a href="https://github.com/tidymodels/yardstick/issues/87" target="_blank" rel="noopener">#115&lt;/a>).&lt;/li>
+&lt;li>
+&lt;a href="https://tidymodels.github.io/yardstick/reference/average_precision.html" target="_blank" rel="noopener">&lt;code>average_precision()&lt;/code>&lt;/a> is a probability metric that can be used as an alternative to &lt;code>pr_auc()&lt;/code>. It has the benefit of avoiding any issues of ambiguity in the edge case where &lt;code>recall == 0&lt;/code> and the current number of false positives is &lt;code>0&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;h3 id="improvements-2">Improvements
+&lt;a href="#improvements-2">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;ul>
+&lt;li>&lt;code>pr_curve()&lt;/code> (and by extension &lt;code>pr_auc()&lt;/code>) has been greatly improved to better handle edge cases when duplicate class probability values are present. Additionally, the first precision value in the curve is now a &lt;code>1&lt;/code>, rather than an &lt;code>NA&lt;/code>, which results in a more practical curve, and generates a more correct AUC value (
+&lt;a href="https://github.com/tidymodels/yardstick/issues/93" target="_blank" rel="noopener">#93&lt;/a>).&lt;/li>
+&lt;li>Each metric function now has a &lt;code>direction&lt;/code> attribute, which specifies the direction required for optimization, either minimization or maximization.&lt;/li>
+&lt;li>Documentation for class probability metrics has been improved with more informative examples (
+&lt;a href="https://github.com/tidymodels/yardstick/issues/100" target="_blank" rel="noopener">#100&lt;/a>).&lt;/li>
+&lt;li>&lt;code>mn_log_loss()&lt;/code> now uses the min/max rule before computing the log of the estimated probabilities to avoid problematic undefined log values (
+&lt;a href="https://github.com/tidymodels/yardstick/issues/103" target="_blank" rel="noopener">#103&lt;/a>).&lt;/li>
+&lt;/ul>
+&lt;h2 id="upcoming-changes-and-directions">Upcoming Changes and Directions
+&lt;a href="#upcoming-changes-and-directions">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We are currently working on two general use packages: &lt;code>workflows&lt;/code> and &lt;code>tune&lt;/code>. The former bundles together recipes, model object, and other items so that there can be single &lt;code>fit()&lt;/code> and &lt;code>predict()&lt;/code> methods. &lt;code>tune&lt;/code> will have tools for&amp;hellip; um&amp;hellip; tuning models. We are hoping to make these public in the next month or so.&lt;/p>
+&lt;p>There will be some changes to accommodate model tuning. The &lt;code>dials&lt;/code> package has been re-factored substantially (see the current GH master branch) and there were some small interfaces changes to &lt;code>recipes&lt;/code> too (mostly backwards compatible and also on GH). We are pretty close to end of &amp;ldquo;Phase I&amp;rdquo; of our tidymodels work.&lt;/p></description></item><item><title>tidymodels package updates</title><link>https://www.tidyverse.org/blog/2018/11/tidymodels-update-nov-18/</link><pubDate>Thu, 29 Nov 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/11/tidymodels-update-nov-18/</guid><description>&lt;p>Along with the release of
+&lt;a href="https://tidymodels.github.io/parsnip/" target="_blank" rel="noopener">&lt;code>parsnip&lt;/code>&lt;/a> there are new versions of many &lt;code>tidymodels&lt;/code> packages:
+&lt;a href="https://tidymodels.github.io/recipes/" target="_blank" rel="noopener">&lt;code>recipes&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/yardstick/" target="_blank" rel="noopener">&lt;code>yardstick&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/embed/" target="_blank" rel="noopener">&lt;code>embed&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/tidyposterior/" target="_blank" rel="noopener">&lt;code>tidyposterior&lt;/code>&lt;/a>, and
+&lt;a href="https://github.com/tidymodels/tidymodels" target="_blank" rel="noopener">&lt;code>tidymodels&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>We made the conscious choice to add all of the breaking changes now instead of spreading them out over a few versions. The biggest changes are in &lt;code>yardstick&lt;/code> and &lt;code>recipes&lt;/code> and these are described below.&lt;/p>
+&lt;p>One change across all of these packages: &lt;code>broom&lt;/code> is no longer used to obtain the &lt;code>tidy&lt;/code> S3 methods. Instead, the
+&lt;a href="https://www.tidyverse.org/articles/2018/11/generics-0.0.1/" target="_blank" rel="noopener">&lt;code>generics&lt;/code> package&lt;/a> is imported so that we might reduce dependencies.&lt;/p>
+&lt;h2 id="yardstick">&lt;strong>yardstick&lt;/strong>
+&lt;a href="#yardstick">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This is a large release for yardstick, with more metrics, grouped
+data frame integration, multiclass metric support, and a few breaking changes.&lt;/p>
+&lt;h3 id="breaking-changes">Breaking changes
+&lt;a href="#breaking-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>These changes were made with the intention of standardizing both the API and the output of each metric.&lt;/p>
+&lt;p>All metrics now return a tibble rather than a single numeric value. This sets
+the groundwork for allowing metrics to be used with grouped data frames, and
+allows more informative output to be returned from each metric.&lt;/p>
+&lt;p>To preserve some of the old behavior, &lt;code>_vec()&lt;/code> functions have been added for each
+metric. These take vectors as inputs and return a single numeric result.&lt;/p>
+&lt;p>A number of small breaking changes have been made to be in line with the tidymodels
+&lt;a href="https://tidymodels.github.io/model-implementation-principles/" target="_blank" rel="noopener">model implementation principles&lt;/a>. These include: &lt;code>mnLogLoss()&lt;/code> being renamed to
+&lt;a href="https://tidymodels.github.io/yardstick/reference/mn_log_loss.html" target="_blank" rel="noopener">&lt;code>mn_log_loss()&lt;/code>&lt;/a>, the &lt;code>na.rm&lt;/code> argument being renamed to &lt;code>na_rm&lt;/code>, and other similar changes that reflect a standardization that is being implemented across the entire tidymodels ecosystem. All of the changes are documented in the
+&lt;a href="https://tidymodels.github.io/yardstick/news/index.html#breaking-changes" target="_blank" rel="noopener">NEWS&lt;/a>.&lt;/p>
+&lt;h3 id="multiclass-metrics">Multiclass metrics
+&lt;a href="#multiclass-metrics">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>A multiclass model is a classification model that has more than two potential outputs. Until now, the only metric with multiclass support was
+&lt;a href="https://tidymodels.github.io/yardstick/reference/accuracy.html" target="_blank" rel="noopener">&lt;code>accuracy()&lt;/code>&lt;/a> because its definition extends naturally into the multiclass world. Now, all metrics have some form of multiclass support through the concepts of macro and micro averaging. To learn about how these types of averaging work, read the new
+&lt;a href="https://tidymodels.github.io/yardstick/articles/multiclass.html" target="_blank" rel="noopener">vignette&lt;/a>.&lt;/p>
+&lt;p>As an example, the following data set has columns for an observed multiclass result, the predicted class, individual class probability predictions, and the current resample (out of 10).&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dplyr&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;hpc_cv&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">hpc_single_resample&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hpc_cv&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Resample&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s">&amp;#34;Fold01&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">head&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hpc_single_resample&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">n&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>#&amp;gt; obs pred VF F M L Resample
+#&amp;gt; 1 VF VF 0.914 0.0779 0.00848 1.99e-05 Fold01
+&lt;/code>&lt;/pre>&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># The outcome has 4 potential values&lt;/span>
+&lt;span class="nf">unique&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hpc_single_resample&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">obs&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>#&amp;gt; [1] VF F M L
+#&amp;gt; Levels: VF F M L
+&lt;/code>&lt;/pre>&lt;p>yardstick will automatically detect that the input is from a multiclass model,
+and will choose to use macro averaging by default in most cases.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">precision&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hpc_single_resample&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">obs&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">pred&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>#&amp;gt; # A tibble: 1 x 3
+#&amp;gt; .metric .estimator .estimate
+#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt;
+#&amp;gt; 1 precision macro 0.637
+&lt;/code>&lt;/pre>&lt;p>To tell yardstick metrics to use a different variant of averaging, use the &lt;code>estimator&lt;/code>
+argument to specify &lt;code>&amp;quot;macro&amp;quot;&lt;/code>, &lt;code>&amp;quot;micro&amp;quot;&lt;/code> or &lt;code>&amp;quot;macro_weighted&amp;quot;&lt;/code> averaging, among
+others depending on the metric.&lt;/p>
+&lt;h3 id="grouped-data-frames">Grouped data frames
+&lt;a href="#grouped-data-frames">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>To calculate metrics on multiple resamples at once, yardstick now recognizes
+grouped data frames and calculates the metric on each group separately.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">hpc_grouped&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">hpc_cv&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Resample&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">hpc_grouped&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">pr_auc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">obs&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">VF&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="n">L&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">head&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>#&amp;gt; # A tibble: 3 x 4
+#&amp;gt; Resample .metric .estimator .estimate
+#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt;
+#&amp;gt; 1 Fold01 pr_auc macro 0.595
+#&amp;gt; 2 Fold02 pr_auc macro 0.599
+#&amp;gt; 3 Fold03 pr_auc macro 0.682
+&lt;/code>&lt;/pre>&lt;p>Combined with
+&lt;a href="https://tidymodels.github.io/yardstick/reference/metric_set.html" target="_blank" rel="noopener">&lt;code>metric_set()&lt;/code>&lt;/a>, a new function for combining multiple metrics into one function call, this workflow makes calculating a large number of metrics over multiple resamples a quick task. We encourage you to check out the example section of
+&lt;a href="https://tidymodels.github.io/yardstick/reference/metric_set.html" target="_blank" rel="noopener">&lt;code>metric_set()&lt;/code>'s help page&lt;/a> if you are interested in learning more.&lt;/p>
+&lt;h3 id="curve-functions">Curve functions
+&lt;a href="#curve-functions">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Four new &amp;ldquo;curve&amp;rdquo; functions have been added to compute the full ROC curve, precision-recall curve, lift curve, and gain curve. Each of these functions has a corresponding &lt;code>ggplot2::autoplot()&lt;/code> method. Combined with the grouped data frame support, this greatly simplifies some aspects of visualizing model performance.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ggplot2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">hpc_grouped&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">roc_curve&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">obs&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">VF&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="n">L&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">autoplot&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">ggtitle&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;One-VS-All ROC Curve&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">subtitle&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;Computed for each resample&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://www.tidyverse.org/articles/2018-11-tidymodels-updates_files/figure-html/unnamed-chunk-4-1.png" width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;h3 id="new-metrics-and-vignettes">New metrics and vignettes
+&lt;a href="#new-metrics-and-vignettes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The following metrics are new in this release:
+&lt;a href="https://tidymodels.github.io/yardstick/reference/mape.html" target="_blank" rel="noopener">&lt;code>mape()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/yardstick/reference/kap.html" target="_blank" rel="noopener">&lt;code>kap()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/yardstick/reference/detection_prevalence.html" target="_blank" rel="noopener">&lt;code>detection_prevalence()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/yardstick/reference/bal_accuracy.html" target="_blank" rel="noopener">&lt;code>bal_accuracy()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/yardstick/reference/roc_curve.html" target="_blank" rel="noopener">&lt;code>roc_curve()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/yardstick/reference/pr_curve.html" target="_blank" rel="noopener">&lt;code>pr_curve()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/yardstick/reference/gain_curve.html" target="_blank" rel="noopener">&lt;code>gain_curve()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/yardstick/reference/lift_curve.html" target="_blank" rel="noopener">&lt;code>lift_curve()&lt;/code>&lt;/a>, and
+&lt;a href="https://tidymodels.github.io/yardstick/reference/gain_capture.html" target="_blank" rel="noopener">&lt;code>gain_capture()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>There are also three new vignettes. One has already been mentioned that describes
+&lt;a href="https://tidymodels.github.io/yardstick/articles/multiclass.html" target="_blank" rel="noopener">multiclass averaging&lt;/a>. The other two focus on the three main
+&lt;a href="https://tidymodels.github.io/yardstick/articles/metric-types.html" target="_blank" rel="noopener">metric types&lt;/a> in yardstick, and on implementing
+&lt;a href="https://tidymodels.github.io/yardstick/articles/custom-metrics.html" target="_blank" rel="noopener">custom metrics&lt;/a> for personal use.&lt;/p>
+&lt;h2 id="recipes">&lt;strong>recipes&lt;/strong>
+&lt;a href="#recipes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="breaking-changes-1">Breaking changes
+&lt;a href="#breaking-changes-1">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>One big change was to make the argument names more consistent with the tidyverse standards and to also make them consistent with &lt;code>dials&lt;/code> and other packages. For example,
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_pca.html" target="_blank" rel="noopener">&lt;code>step_pca()&lt;/code>&lt;/a> now has an argument &lt;code>num_comp&lt;/code> that replaces the previous &lt;code>num&lt;/code> argument. This will pay off later when we enable the detection of tuning parameters and the automatic determination of grid values or parameter ranges. The biggest name change is in
+&lt;a href="https://tidymodels.github.io/recipes/reference/bake.html" target="_blank" rel="noopener">&lt;code>bake()&lt;/code>&lt;/a>; &lt;code>newdata&lt;/code> is now &lt;code>new_data&lt;/code>. For the time being, a warning will be issued when &lt;code>newdata&lt;/code> is used but that won&amp;rsquo;t last past the next version. The list of name changes are detailed
+&lt;a href="https://tidymodels.github.io/recipes/news/index.html" target="_blank" rel="noopener">here&lt;/a>.&lt;/p>
+&lt;p>In recipes, variables can have different roles (e.g. &amp;ldquo;predictor&amp;rdquo; or &amp;ldquo;outcome&amp;rdquo;). Beyond those set by the package, roles are largely user specified and can be pretty much anything. Previously, only a single role was allowed. The new version of recipes expands the number of roles per column. This now means that
+&lt;a href="https://tidymodels.github.io/recipes/reference/roles.html" target="_blank" rel="noopener">&lt;code>add_role()&lt;/code>&lt;/a> will &lt;em>append&lt;/em> roles, and the new function
+&lt;a href="https://tidymodels.github.io/recipes/reference/roles.html" target="_blank" rel="noopener">&lt;code>update_role()&lt;/code>&lt;/a> will reset them. It also changes how the &lt;code>summary()&lt;/code> results for a recipe are returned since there can now be multiple rows per column variable.&lt;/p>
+&lt;p>A feature that we will be working on in the &lt;em>next&lt;/em> version is to be able to reference (and use) previous steps. For example, if you center some variables, you might want to uncenter them at a later step. For this future feature, this version of &lt;code>recipes&lt;/code> mandates an ID field for each step. The ID can be anything, but the current convention is to use the step name followed by random digits (e.g. &lt;code>&amp;quot;center_irqtH&amp;quot;&lt;/code>).&lt;/p>
+&lt;p>Another change was to default the
+&lt;a href="https://tidymodels.github.io/recipes/reference/prep.html" target="_blank" rel="noopener">&lt;code>prep()&lt;/code>&lt;/a> option &lt;code>retain&lt;/code> to &lt;code>TRUE&lt;/code>. We (and others) found that this was something that is always done since it allows
+&lt;a href="https://tidymodels.github.io/recipes/reference/juice.html" target="_blank" rel="noopener">&lt;code>juice()&lt;/code>&lt;/a> to get the processed training set at no extra cost. The down-side is that, if the training set is large, you carry a large copy of the data inside the recipe. When the &lt;code>verbose&lt;/code> option is turned on, a message is printed showing the size of the training set, i.e.:&lt;/p>
+&lt;blockquote>
+&lt;p>&amp;ldquo;The retained training set is ~ 20.0 Mb in memory.&amp;rdquo;&lt;/p>
+&lt;/blockquote>
+&lt;p>This size estimate is approximate since the base R function &lt;code>object.size()&lt;/code> is used, which does not count objects in any environments that are carried along.&lt;/p>
+&lt;p>Finally, a number of steps check for duplicate names and will throw an error during &lt;code>prep()&lt;/code> if this occurs. This behavior may slightly change in the future due to changes in the &lt;code>tibble&lt;/code> package related to how unique names should treated be when creating data frames.&lt;/p>
+&lt;h3 id="new-steps">New steps
+&lt;a href="#new-steps">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>A big new feature in this version of &lt;code>recipes&lt;/code> is the addition of &lt;code>dplyr&lt;/code>-related steps:
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_arrange.html" target="_blank" rel="noopener">&lt;code>step_arrange()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_filter.html" target="_blank" rel="noopener">&lt;code>step_filter()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_mutate.html" target="_blank" rel="noopener">&lt;code>step_mutate()&lt;/code>&lt;/a>,
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_sample.html" target="_blank" rel="noopener">&lt;code>step_sample()&lt;/code>&lt;/a>, and
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_slice.html" target="_blank" rel="noopener">&lt;code>step_slice()&lt;/code>&lt;/a>. They follow their &lt;code>dplyr&lt;/code> analogs.
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_sample.html" target="_blank" rel="noopener">&lt;code>step_sample()&lt;/code>&lt;/a> covers both &lt;code>dplyr::sample_n()&lt;/code> and &lt;code>dplyr::sample_frac()&lt;/code>. Other new steps include:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_integer.html" target="_blank" rel="noopener">&lt;code>step_integer()&lt;/code>&lt;/a> converts data to ordered integers similar to
+&lt;a href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html" target="_blank" rel="noopener">&lt;code>LabelEncoder&lt;/code>&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_geodist.html" target="_blank" rel="noopener">&lt;code>step_geodist()&lt;/code>&lt;/a> can be used to calculate the distance between geocodes and a single reference location.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://tidymodels.github.io/recipes/reference/step_nnmf.html" target="_blank" rel="noopener">&lt;code>step_nnmf()&lt;/code>&lt;/a> computes the non-negative matrix factorization components for non-negative data.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>List-columns are also supported in &lt;code>recipes&lt;/code> now.
+&lt;a href="https://tidymodels.github.io/recipes/reference/summary.recipe.html" target="_blank" rel="noopener">&lt;code>summary.recipe()&lt;/code>&lt;/a> now shows &lt;code>type&lt;/code> column values as &amp;ldquo;list&amp;rdquo; and these can be selected using &lt;code>has_type(&amp;quot;list&amp;quot;)&lt;/code>. When printing the recipe, a row is labeled as missing when its entire list element is missing (e.g. &lt;code>is.na(list[[i]])&lt;/code> is &lt;code>TRUE&lt;/code>). If the list element has some non-missing values, it is not counted as missing.&lt;/p>
+&lt;p>There are also bug fixes and other small changes that can be found in the
+&lt;a href="https://tidymodels.github.io/recipes/news/index.html" target="_blank" rel="noopener">News file&lt;/a>.&lt;/p>
+&lt;h2 id="rsample">&lt;strong>rsample&lt;/strong>
+&lt;a href="#rsample">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A function
+&lt;a href="https://tidymodels.github.io/rsample/reference/initial_split.html" target="_blank" rel="noopener">&lt;code>initial_time_split()&lt;/code>&lt;/a> was added. It can be used to create &lt;em>ordered&lt;/em> initial splits and would be appropriate for time series data.&lt;/p>
+&lt;p>(&lt;strong>breaking change&lt;/strong>) Also, the &lt;code>recipes&lt;/code>-related
+&lt;a href="https://tidymodels.github.io/recipes/reference/prepper.html" target="_blank" rel="noopener">&lt;code>prepper()&lt;/code>&lt;/a> function was moved to the &lt;code>recipes&lt;/code> package. This makes the &lt;code>rsample&lt;/code>'s install footprint much smaller.&lt;/p>
+&lt;p>Finally, &lt;code>rsplit&lt;/code> objects have a better representation inside of tibbles when the sample sizes are large.&lt;/p>
+&lt;h2 id="embed">&lt;strong>embed&lt;/strong>
+&lt;a href="#embed">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The tensorflow function
+&lt;a href="https://tidymodels.github.io/embed/reference/step_embed.html" target="_blank" rel="noopener">&lt;code>step_embed()&lt;/code>&lt;/a> can now handle callbacks to &lt;code>keras&lt;/code>. This enables a few different features, including stopping when a convergence criterion is met.&lt;/p>
+&lt;h2 id="tidymodels">&lt;strong>tidymodels&lt;/strong>
+&lt;a href="#tidymodels">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We added
+&lt;a href="https://tidymodels.github.io/parsnip/" target="_blank" rel="noopener">&lt;code>parsnip&lt;/code>&lt;/a> and
+&lt;a href="https://tidymodels.github.io/dials/" target="_blank" rel="noopener">&lt;code>dials&lt;/code>&lt;/a> to the core set of packages and bumped all packages up to their current versions.&lt;/p></description></item></channel></rss>

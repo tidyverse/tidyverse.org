@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>hardhat | Tidyverse</title><link>https://www.tidyverse.org/tags/hardhat/</link><atom:link href="https://www.tidyverse.org/tags/hardhat/index.xml" rel="self" type="application/rss+xml"/><description>hardhat</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 27 Jul 2021 00:00:00 +0000</lastBuildDate><item><title>New tidymodels releases for July 2021</title><link>https://www.tidyverse.org/blog/2021/07/tidymodels-july-2021/</link><pubDate>Tue, 27 Jul 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/07/tidymodels-july-2021/</guid><description>&lt;!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo &amp; update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+&lt;p>The
+&lt;a href="https://www.tidymodels.org/" target="_blank" rel="noopener">tidymodels&lt;/a> framework is a collection of R packages for modeling and machine learning using tidyverse principles. Earlier this year, we
+&lt;a href="https://www.tidyverse.org/blog/2021/03/tidymodels-2021-q1/" target="_blank" rel="noopener">started regular updates&lt;/a> here on the tidyverse blog summarizing recent developments in the tidymodels ecosystem. You can check out the
+&lt;a href="https://www.tidyverse.org/tags/tidymodels/" target="_blank" rel="noopener">&lt;code>tidymodels&lt;/code> tag&lt;/a> to find all tidymodels blog posts here, including those that focus on a single package or more major releases. The purpose of these roundup posts is to keep you informed about any releases you may have missed and useful new functionality as we maintain these packages.&lt;/p>
+&lt;p>Recently, we had a series of CRAN releases:
+&lt;a href="https://hardhat.tidymodels.org/news/index.html#hardhat-0-1-6-2021-07-14" target="_blank" rel="noopener">hardhat&lt;/a>,
+&lt;a href="https://workflows.tidymodels.org/news/#workflows-0-2-3-2021-07-15" target="_blank" rel="noopener">workflows&lt;/a>,
+&lt;a href="https://parsnip.tidymodels.org/news/#parsnip-0-1-7-2021-07-21" target="_blank" rel="noopener">parsnip&lt;/a>,
+&lt;a href="https://tune.tidymodels.org/news/#tune-0-1-6-2021-07-21" target="_blank" rel="noopener">tune&lt;/a>,
+&lt;a href="https://finetune.tidymodels.org/news/#finetune-0-1-0-unreleased" target="_blank" rel="noopener">finetune&lt;/a>,
+&lt;a href="https://workflowsets.tidymodels.org/news/#workflowsets-0-1-0-unreleased" target="_blank" rel="noopener">workflowsets&lt;/a>, and
+&lt;a href="https://discrim.tidymodels.org/news/#discrim-0-1-3-unreleased" target="_blank" rel="noopener">discrim&lt;/a>. These were coordinated because of some cross-package improvements. This blog post summarizes the changes.&lt;/p>
+&lt;h2 id="object-extraction">Object extraction
+&lt;a href="#object-extraction">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The tidymodels team decided that we needed a consistent set of APIs for extracting things from objects. For example, a parsnip model contains the underlying model fit based on the engine. A &lt;code>linear_reg()&lt;/code> model with the &lt;code>&amp;quot;lm&amp;quot;&lt;/code> engine contains an &lt;code>lm&lt;/code> object. There were some existing functions to do this (mostly named &lt;code>pull_*()&lt;/code>) but they were fairly inconsistent and were not generics.&lt;/p>
+&lt;p>We added the following functions: &lt;code>extract_fit_engine()&lt;/code>, &lt;code>extract_fit_parsnip()&lt;/code>, &lt;code>extract_mold()&lt;/code>, &lt;code>extract_numeric()&lt;/code>, &lt;code>extract_preprocessor()&lt;/code>, &lt;code>extract_recipe()&lt;/code>, &lt;code>extract_spec_parsnip()&lt;/code>, &lt;code>extract_workflow()&lt;/code>, and &lt;code>extract_workflow_set_result()&lt;/code>.&lt;/p>
+&lt;p>The nice thing about this change is that a function such as &lt;code>extract_recipe()&lt;/code> can be used with objects created by the tune, workflows, or workflowsets packages.&lt;/p>
+&lt;p>The existing &lt;code>pull_*()&lt;/code> methods have been soft-deprecated and will stick around for a while.&lt;/p>
+&lt;h2 id="better-model-documentation">Better model documentation
+&lt;a href="#better-model-documentation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>One issue that we&amp;rsquo;ve seen in the parsnip documentation is that there is just &lt;em>so much&lt;/em> on each model page. It can be intimidating and difficult to find that one piece of information that you were looking for.&lt;/p>
+&lt;p>We&amp;rsquo;ve reorganized the model pages so that there are now sub-packages for each engine. For example, when you use &lt;code>?linear_reg&lt;/code>, the help page has a &lt;em>dynamic&lt;/em> list of engines from parsnip or any parsnip-adjacent package that has been loaded. Here is what the
+&lt;a href="https://parsnip.tidymodels.org/reference/linear_reg.html" target="_blank" rel="noopener">pkgdown site&lt;/a> looks like:&lt;/p>
+&lt;p>&lt;img src="linear_reg.png" title="plot of chunk parsnip" alt="plot of chunk parsnip" width="90%" style="display: block; margin: auto;" />&lt;/p>
+&lt;p>There is a similar dynamic list in the &lt;code>See Also&lt;/code> section.&lt;/p>
+&lt;p>Each engine page provides basic information about tuning parameters, modes, preprocessing requirements, and anything else that we thing is relevant. For example, for the C5.0 engine for &lt;code>boost_tree()&lt;/code>:&lt;/p>
+&lt;p>&lt;img src="C5.0.png" title="plot of chunk C50" alt="plot of chunk C50" width="90%" style="display: block; margin: auto;" />&lt;/p>
+&lt;p>Finally, the existing parsnip documentation didn&amp;rsquo;t show the actual fitting and/or prediction in action. A
+&lt;a href="https://parsnip.tidymodels.org/articles/articles/Examples.html" target="_blank" rel="noopener">new pkgdown article&lt;/a> has worked examples demonstrating the use of parsnip models on real data. Here is a screen shot for MARS regression via the earth package:&lt;/p>
+&lt;p>&lt;img src="earth.png" title="plot of chunk earth" alt="plot of chunk earth" width="90%" style="display: block; margin: auto;" />&lt;/p>
+&lt;p>We think that these changes will greatly improve the whole parsnip experience, especially for new users.&lt;/p>
+&lt;h2 id="simpler-parsnip-and-workflows-interfaces">Simpler parsnip and workflows interfaces
+&lt;a href="#simpler-parsnip-and-workflows-interfaces">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Our good friend and colleague
+&lt;a href="https://twitter.com/drob" target="_blank" rel="noopener">David Robinson&lt;/a> had
+&lt;a href="http://varianceexplained.org/r/sliced-ml/#where-tidymodels-can-improve" target="_blank" rel="noopener">some great ideas&lt;/a> for specific improvements for our APIs. After some discussion, both of his suggestions were implemented.&lt;/p>
+&lt;p>First, we enabled a default engine for parsnip models (you may have noticed this in the screen shots above). This produces simpler code for some model functions and, if a model has a single mode, fitting is as concise as&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># use lm() for regression&lt;/span>
+&lt;span class="nf">linear_reg&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">fit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Another nice feature is more succinct piping for workflows. A preprocessor, such as a formula or recipe, can be piped into &lt;code>workflow()&lt;/code> now. Also, there is an optional second argument in that function for the model specification.&lt;/p>
+&lt;p>Instead of&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">car_rec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_ns&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">disp&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">deg_free&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">car_wflow&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">workflow&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">add_recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">car_rec&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">add_model&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">linear_reg&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>you can now use&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">car_wflow&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mtcars&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_ns&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">disp&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">deg_free&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">workflow&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">linear_reg&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>If you might be on the fence about using tidymodels,
+&lt;a href="http://varianceexplained.org/r/sliced-ml/" target="_blank" rel="noopener">David&amp;rsquo;s blog post&lt;/a> does an excellent job encapsulating the benefits of our approach, so give it a read.&lt;/p>
+&lt;h2 id="other-changes">Other changes
+&lt;a href="#other-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>parsnip now has a generalized additive model function
+&lt;a href="https://parsnip.tidymodels.org/reference/gen_additive_mod.html" target="_blank" rel="noopener">&lt;code>gen_additive_mod()&lt;/code>&lt;/a>! There is currently one engine (&lt;code>mgcv&lt;/code>).&lt;/p>
+&lt;p>The tune package has better control over random numbers since, in some cases, the
+&lt;a href="https://github.com/tidymodels/tune/issues/389" target="_blank" rel="noopener">RNGkind was changed&lt;/a> after tuning a model.&lt;/p>
+&lt;p>The discrim package has the new parsnip-like documentation and new model engines. Also, the shrunken discriminant analysis method of Ahdesmaki and Strimmer (2010) was added as an engine to &lt;code>discrim_linear()&lt;/code>. The newly resurrected sparsediscrim package allowed use to include new engines for
+&lt;a href="https://discrim.tidymodels.org/reference/details_discrim_linear_sparsediscrim.html" target="_blank" rel="noopener">&lt;code>discrim_linear()&lt;/code>&lt;/a> and
+&lt;a href="https://discrim.tidymodels.org/reference/details_discrim_quad_sparsediscrim.html" target="_blank" rel="noopener">&lt;code>discrim_quad()&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank everyone who has contributed to these packages since their last release:&lt;/p>
+&lt;p>&lt;strong>hardhat&lt;/strong>:
+&lt;a href="https://github.com/cregouby" target="_blank" rel="noopener">@cregouby&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/DiabbZegpi" target="_blank" rel="noopener">@DiabbZegpi&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/jwijffels" target="_blank" rel="noopener">@jwijffels&lt;/a>,
+&lt;a href="https://github.com/LasWin" target="_blank" rel="noopener">@LasWin&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p>
+&lt;p>&lt;strong>workflows&lt;/strong>:
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dgrtwo" target="_blank" rel="noopener">@dgrtwo&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/LiamBlake" target="_blank" rel="noopener">@LiamBlake&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p>
+&lt;p>&lt;strong>parsnip&lt;/strong>:
+&lt;a href="https://github.com/cgoo4" target="_blank" rel="noopener">@cgoo4&lt;/a>,
+&lt;a href="https://github.com/dgrtwo" target="_blank" rel="noopener">@dgrtwo&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/graysonwhite" target="_blank" rel="noopener">@graysonwhite&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/mdancho84" target="_blank" rel="noopener">@mdancho84&lt;/a>,
+&lt;a href="https://github.com/RaymondBalise" target="_blank" rel="noopener">@RaymondBalise&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>, and
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>.&lt;/p>
+&lt;p>&lt;strong>tune&lt;/strong>:
+&lt;a href="https://github.com/amazongodman" target="_blank" rel="noopener">@amazongodman&lt;/a>,
+&lt;a href="https://github.com/brshallo" target="_blank" rel="noopener">@brshallo&lt;/a>,
+&lt;a href="https://github.com/dpanyard" target="_blank" rel="noopener">@dpanyard&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/klin333" target="_blank" rel="noopener">@klin333&lt;/a>,
+&lt;a href="https://github.com/mbac" target="_blank" rel="noopener">@mbac&lt;/a>,
+&lt;a href="https://github.com/PathosEthosLogos" target="_blank" rel="noopener">@PathosEthosLogos&lt;/a>,
+&lt;a href="https://github.com/tjcason" target="_blank" rel="noopener">@tjcason&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>, and
+&lt;a href="https://github.com/yogat3ch" target="_blank" rel="noopener">@yogat3ch&lt;/a>.&lt;/p>
+&lt;p>&lt;strong>finetune&lt;/strong>:
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/hnagaty" target="_blank" rel="noopener">@hnagaty&lt;/a>,
+&lt;a href="https://github.com/lukasal" target="_blank" rel="noopener">@lukasal&lt;/a>,
+&lt;a href="https://github.com/Mayalaroz" target="_blank" rel="noopener">@Mayalaroz&lt;/a>,
+&lt;a href="https://github.com/mrkaye97" target="_blank" rel="noopener">@mrkaye97&lt;/a>,
+&lt;a href="https://github.com/shinyquant" target="_blank" rel="noopener">@shinyquant&lt;/a>,
+&lt;a href="https://github.com/skeydan" target="_blank" rel="noopener">@skeydan&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p>
+&lt;p>&lt;strong>workflowsets&lt;/strong>:
+&lt;a href="https://github.com/amazongodman" target="_blank" rel="noopener">@amazongodman&lt;/a>,
+&lt;a href="https://github.com/jonthegeek" target="_blank" rel="noopener">@jonthegeek&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/oskasf" target="_blank" rel="noopener">@oskasf&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>, and
+&lt;a href="https://github.com/yogat3ch" target="_blank" rel="noopener">@yogat3ch&lt;/a>.&lt;/p>
+&lt;p>&lt;strong>discrim&lt;/strong>:
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p></description></item><item><title>Sparse data structures in tidymodels</title><link>https://www.tidyverse.org/blog/2020/11/tidymodels-sparse-support/</link><pubDate>Wed, 25 Nov 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/11/tidymodels-sparse-support/</guid><description>&lt;p>The new release of
+&lt;a href="https://www.tidyverse.org/blog/2020/11/tune-0-1-2/" target="_blank" rel="noopener">tune&lt;/a> is chock full of improvements and new features. This blog post is the second of three posts exploring the updates available in tune 0.1.2. When combined with the latest releases of
+&lt;a href="http://hardhat.tidymodels.org/" target="_blank" rel="noopener">hardhat&lt;/a> and
+&lt;a href="https://parsnip.tidymodels.org/" target="_blank" rel="noopener">parsnip&lt;/a>, one upgrade that tidymodels users can now use in their day-to-day modeling work is some &lt;strong>support for sparse data structures&lt;/strong> during fitting and tuning.&lt;/p>
+&lt;h2 id="why-sparse-data">Why sparse data?
+&lt;a href="#why-sparse-data">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>In some subject matter domains, it is common to have lots and lots of zeroes after transforming data to a representation appropriate for analysis or modeling. Text data is one such example. The &lt;code>small_fine_foods&lt;/code> dataset of Amazon reviews of fine foods contains a column &lt;code>review&lt;/code> that we as humans can read and understand.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidyverse&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidymodels&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;small_fine_foods&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">training_data&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 4,000 x 3
+## product review score
+## &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;fct&amp;gt;
+## 1 B000J0LSBG &amp;quot;this stuff is not stuffing its not good at all save your… other
+## 2 B000EYLDYE &amp;quot;I absolutely LOVE this dried fruit. LOVE IT. Whenever I ha… great
+## 3 B0026LIO9A &amp;quot;GREAT DEAL, CONVENIENT TOO. Much cheaper than WalMart and I… great
+## 4 B00473P8SK &amp;quot;Great flavor, we go through a ton of this sauce! I discovere… great
+## 5 B001SAWTNM &amp;quot;This is excellent salsa/hot sauce, but you can get it for $2… great
+## 6 B000FAG90U &amp;quot;Again, this is the best dogfood out there. One suggestion: … great
+## 7 B006BXTCEK &amp;quot;The box I received was filled with teas, hot chocolates, and… other
+## 8 B002GWH5OY &amp;quot;This is delicious coffee which compares favorably with much … great
+## 9 B003R0MFYY &amp;quot;Don't let these little tiny cans fool you. They pack a lot … great
+## 10 B001EO5ZXI &amp;quot;One of the nicest, smoothest cup of chai I've made. Nice mix… great
+## # … with 3,990 more rows
+&lt;/code>&lt;/pre>&lt;p>Computers, on the other hand, need that &lt;code>review&lt;/code> variable to be heavily preprocessed and transformed in order for it to be ready for most modeling. We typically need to
+&lt;a href="https://smltar.com/tokenization.html" target="_blank" rel="noopener">tokenize&lt;/a> the text, find word frequencies, and perhaps
+&lt;a href="https://www.tidytextmining.com/tfidf.html" target="_blank" rel="noopener">compute tf-idf&lt;/a>. There are quite a number of different structures we can use to store the results of this preprocessing. We can keep the results in a long, tidy tibble, which is excellent for exploratory data analysis.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidytext&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">tidy_reviews&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">training_data&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">unnest_tokens&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">word&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">review&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">count&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">product&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">word&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">bind_tf_idf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">word&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">product&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">n&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">tidy_reviews&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 208,306 x 6
+## product word n tf idf tf_idf
+## &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;int&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 B0000691JF and 1 0.1 0.234 0.0234
+## 2 B0000691JF i 1 0.1 0.262 0.0262
+## 3 B0000691JF in 1 0.1 0.654 0.0654
+## 4 B0000691JF just 1 0.1 1.54 0.154
+## 5 B0000691JF manner 1 0.1 5.52 0.552
+## 6 B0000691JF ordered 1 0.1 2.76 0.276
+## 7 B0000691JF prompt 1 0.1 5.81 0.581
+## 8 B0000691JF the 1 0.1 0.206 0.0206
+## 9 B0000691JF usual 1 0.1 5.04 0.504
+## 10 B0000691JF what 1 0.1 2.27 0.227
+## # … with 208,296 more rows
+&lt;/code>&lt;/pre>&lt;p>We can also transform these results to a wide format, often a good fit when the next step is a modeling or machine learning algorithm.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">wide_reviews&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">tidy_reviews&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">select&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">product&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">word&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">tf_idf&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">pivot_wider&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">names_from&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">word&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">names_prefix&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;word_&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">values_from&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">tf_idf&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">values_fill&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">wide_reviews&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 4,000 x 13,797
+## product word_and word_i word_in word_just word_manner word_ordered word_prompt
+## &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 B00006… 0.0234 0.0262 0.0654 0.154 0.552 0.276 0.581
+## 2 B00008… 0.00780 0 0 0 0 0 0
+## 3 B00008… 0.00177 0.00397 0.0198 0.0117 0 0 0
+## 4 B00008… 0.00582 0.00489 0.00813 0 0 0 0
+## 5 B00008… 0.00246 0.0166 0.0207 0.0162 0 0 0
+## 6 B00008… 0.00334 0.00750 0.00935 0 0 0 0
+## 7 B00008… 0.0114 0.00729 0.00909 0 0 0 0
+## 8 B00008… 0.00768 0.0129 0 0 0 0 0
+## 9 B00008… 0.00976 0 0 0 0 0 0
+## 10 B00008… 0.0156 0 0 0 0 0 0
+## 11 B00008… 0.00404 0.0181 0 0 0 0 0
+## 12 B00008… 0.0142 0.00397 0 0 0 0 0
+## 13 B00008… 0.0160 0.00596 0.0149 0.0351 0 0 0
+## 14 B00009… 0.00439 0.00656 0.00818 0 0 0 0
+## 15 B0000A… 0.00679 0.00380 0.0379 0 0 0.0401 0
+## # … with 3,985 more rows, and 13,789 more variables: word_the &amp;lt;dbl&amp;gt;,
+## # word_usual &amp;lt;dbl&amp;gt;, word_what &amp;lt;dbl&amp;gt;, word_a &amp;lt;dbl&amp;gt;, word_anymore &amp;lt;dbl&amp;gt;,
+## # word_chocolate &amp;lt;dbl&amp;gt;, word_coat &amp;lt;dbl&amp;gt;, word_dogfood &amp;lt;dbl&amp;gt;, word_ears &amp;lt;dbl&amp;gt;,
+## # word_fine &amp;lt;dbl&amp;gt;, word_for &amp;lt;dbl&amp;gt;, word_great &amp;lt;dbl&amp;gt;, word_hardly &amp;lt;dbl&amp;gt;,
+## # word_he &amp;lt;dbl&amp;gt;, word_health &amp;lt;dbl&amp;gt;, word_his &amp;lt;dbl&amp;gt;, word_hot &amp;lt;dbl&amp;gt;,
+## # word_is &amp;lt;dbl&amp;gt;, word_itching &amp;lt;dbl&amp;gt;, word_lab &amp;lt;dbl&amp;gt;, …
+&lt;/code>&lt;/pre>&lt;p>Lots of zeroes! Instead of using a tibble, we can transform these results to a &lt;strong>sparse matrix&lt;/strong>, a specialized data structure that keeps track of only the non-zero elements instead of every element.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">sparse_reviews&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">tidy_reviews&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">cast_dfm&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">product&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">word&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">tf_idf&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">sparse_reviews&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## Document-feature matrix of: 4,000 documents, 13,796 features (99.6% sparse).
+&lt;/code>&lt;/pre>&lt;p>As is typical for text data, this document-feature matrix is extremely sparse, with many zeroes. Most documents do not contain most words. By using this kind of specialized structure instead of anything like a vanilla &lt;code>matrix&lt;/code> or &lt;code>data.frame&lt;/code>, we secure two benefits:&lt;/p>
+&lt;ul>
+&lt;li>We can taken advantage of the &lt;strong>speed&lt;/strong> gained from any specialized model algorithms built for sparse data.&lt;/li>
+&lt;li>The amount of &lt;strong>memory&lt;/strong> this object requires decreases dramatically.&lt;/li>
+&lt;/ul>
+&lt;p>How big of a change in memory are we talking about?&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">lobstr&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">obj_sizes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">wide_reviews&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">sparse_reviews&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## * 443,539,792 B
+## * 3,581,200 B
+&lt;/code>&lt;/pre>
+&lt;h2 id="a-blueprint-for-sparse-models">A blueprint for sparse models
+&lt;a href="#a-blueprint-for-sparse-models">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Before the most recent releases of hardhat, parsnip, and tune, there was no support for sparse data structures within tidymodels. Now, you can specify a hardhat &lt;strong>blueprint&lt;/strong> for sparse data.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hardhat&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">sparse_bp&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">default_recipe_blueprint&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">composition&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;dgCMatrix&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>dgCMatrix&lt;/code> composition is from the
+&lt;a href="https://cran.r-project.org/package=Matrix" target="_blank" rel="noopener">Matrix&lt;/a> package, and is the most standard class for sparse numeric matrices in modeling in R. (You can also specify a dense matrix composition with &lt;code>composition = &amp;quot;matrix&amp;quot;&lt;/code>.)&lt;/p>
+&lt;h2 id="workflows-and-sparsity">Workflows and sparsity
+&lt;a href="#workflows-and-sparsity">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The blueprint is used under the hood by the hardhat functions to process data. To get ready to fit our model using the sparse blueprint, we can set up our preprocessing recipe:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">textrecipes&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">text_rec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">score&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">review&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">training_data&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_tokenize&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">review&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_stopwords&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">review&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_tokenfilter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">review&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">max_tokens&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1e3&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_tfidf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">review&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>And we set up our model as we would normally:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">lasso_spec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">logistic_reg&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">penalty&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.02&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">mixture&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">set_engine&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;glmnet&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The regularized modeling of the glmnet package is an example of an algorithm that has specialized approaches for sparse data. If we pass in dense data with &lt;code>set_engine(&amp;quot;glmnet&amp;quot;)&lt;/code>, the underlying model will take one approach, but it will use a different, faster approach especially built for sparse data if we pass in a sparse matrix. Typically, we would recommend centering and scaling predictors using &lt;code>step_normalize()&lt;/code> before fitting a regularized model like glmnet. However, if we do this, we would no longer have all our zeroes and sparse data. Instead, we can &amp;ldquo;normalize&amp;rdquo; these text predictors using tf-idf so that they are all on the same scale.&lt;/p>
+&lt;p>Let&amp;rsquo;s put together two workflows, one using the sparse blueprint and one using the default behavior.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">wf_sparse&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">workflow&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">add_recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">text_rec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">blueprint&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">sparse_bp&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">add_model&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">lasso_spec&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">wf_default&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">workflow&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">add_recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">text_rec&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">add_model&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">lasso_spec&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="comparing-model-results">Comparing model results
+&lt;a href="#comparing-model-results">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Now let&amp;rsquo;s use &lt;code>fit_resamples()&lt;/code> to estimate how well this model fits with both options and measure performance for both.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">123&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">food_folds&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">vfold_cv&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">training_data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">v&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">results&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">bench&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">mark&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">iterations&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">10&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">check&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">FALSE&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">sparse&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">fit_resamples&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">wf_sparse&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">food_folds&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">default&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">fit_resamples&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">wf_default&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">food_folds&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="n">results&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 2 x 6
+## expression min median `itr/sec` mem_alloc `gc/sec`
+## &amp;lt;bch:expr&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;bch:byt&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 sparse 7.78s 7.87s 0.127 788MB 0.127
+## 2 default 1.19m 1.2m 0.0139 870MB 0.0139
+&lt;/code>&lt;/pre>&lt;p>We see on the order of a 10x speed gain by using the sparse blueprint!&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">autoplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">results&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;ridge&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figure/unnamed-chunk-11-1.png" alt="plot of chunk unnamed-chunk-11">&lt;/p>
+&lt;p>The model performance metrics are the same:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">fit_resamples&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">wf_sparse&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">food_folds&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">collect_metrics&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 2 x 5
+## .metric .estimator mean n std_err
+## &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 accuracy binary 0.715 3 0.00399
+## 2 roc_auc binary 0.797 3 0.00598
+&lt;/code>&lt;/pre>&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">fit_resamples&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">wf_default&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">food_folds&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">collect_metrics&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 2 x 5
+## .metric .estimator mean n std_err
+## &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 accuracy binary 0.715 3 0.00399
+## 2 roc_auc binary 0.797 3 0.00598
+&lt;/code>&lt;/pre>&lt;p>To see a detailed text modeling example using this dataset of food reviews, &lt;em>without&lt;/em> sparse encodings but complete with tuning hyperparameters, check out
+&lt;a href="https://www.tidymodels.org/learn/work/tune-text/" target="_blank" rel="noopener">our article on &lt;code>tidymodels.org&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="current-limits">Current limits
+&lt;a href="#current-limits">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>In tidymodels, the support for sparse data structures begins coming &lt;em>out&lt;/em> of a
+&lt;a href="https://www.tmwr.org/recipes.html" target="_blank" rel="noopener">preprocessing recipe&lt;/a> and continues throughout the fitting and tuning process. We typically still expect the input &lt;em>into&lt;/em> a recipe to be a data frame, as shown in this text analysis example, and there is very limited support within tidymodels for starting with a sparse matrix, for example by using &lt;code>parsnip::fit_xy()&lt;/code>.&lt;/p>
+&lt;p>There are currently three models in parsnip that support a sparse data encoding:&lt;/p>
+&lt;ul>
+&lt;li>the glmnet engine for linear and logistic regression (including multinomial regression),&lt;/li>
+&lt;li>the XGBoost engine for boosted trees, and&lt;/li>
+&lt;li>the ranger engine for random forests.&lt;/li>
+&lt;/ul>
+&lt;p>There is heterogeneity in how recipes themselves handle data internally; this is why we didn&amp;rsquo;t see a huge decrease in memory use when comparing &lt;code>wf_sparse&lt;/code> to &lt;code>wf_default&lt;/code>. The
+&lt;a href="https://textrecipes.tidymodels.org/" target="_blank" rel="noopener">textrecipes&lt;/a> package internally adopts the idea of a
+&lt;a href="https://textrecipes.tidymodels.org/reference/tokenlist.html" target="_blank" rel="noopener">tokenlist&lt;/a>, which is memory efficient for sparse data, but other recipe steps may handle data in a dense tibble structure. Keep these current limits in mind as you consider the memory requirements of your modeling projects!&lt;/p></description></item><item><title>hardhat 0.1.0</title><link>https://www.tidyverse.org/blog/2019/12/hardhat-0-1-0/</link><pubDate>Mon, 16 Dec 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/12/hardhat-0-1-0/</guid><description>&lt;p>We&amp;rsquo;re excited to announce that the first version of
+&lt;a href="https://tidymodels.github.io/hardhat/" target="_blank" rel="noopener">hardhat&lt;/a> is now on CRAN. hardhat is a developer-focused package with the goal of making it easier to create new modeling packages, while simultaneously promoting good R modeling package standards. To accomplish this, hardhat provides tooling around preprocessing, predicting, and validating user input, along with a way to set up the structure of a new modeling package with a single function call.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">modeldata&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tibble&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hardhat&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">recipes&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">data&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;biomass&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">biomass&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">biomass&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="setup">Setup
+&lt;a href="#setup">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>One exciting feature included with hardhat is &lt;code>create_modeling_package()&lt;/code>. Built on top of &lt;code>usethis::create_package()&lt;/code>, this allows you to quickly set up a new modeling package with pre-generated infrastructure in place for an S3 generic to go with your user-facing modeling function. It also includes a &lt;code>predict()&lt;/code> method and other best practices outlined further in
+&lt;a href="https://tidymodels.github.io/model-implementation-principles/" target="_blank" rel="noopener">Conventions for R Modeling Packages&lt;/a>. If you&amp;rsquo;ve never created a modeling package before, this is a great place to start so you can focus more on the implementation rather than the details around package setup.&lt;/p>
+&lt;h2 id="preprocessing">Preprocessing
+&lt;a href="#preprocessing">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>When building a model, there are often preprocessing steps that you perform on the training set before fitting. Take this &lt;code>biomass&lt;/code> dataset for example. The goal is to predict the &lt;code>HHV&lt;/code> for each sample, an acronym for the Higher Heating Value, defined as the amount of heat released by an object during combustion. To do this, you might use the numeric columns containing the amounts of different atomic elements that make up each sample.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">training&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">biomass[biomass&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">dataset&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s">&amp;#34;Training&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">]&lt;/span>
+&lt;span class="n">testing&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">biomass[biomass&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">dataset&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s">&amp;#34;Testing&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">]&lt;/span>
+&lt;span class="n">training&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 456 x 8&lt;/span>
+&lt;span class="c1">#&amp;gt; sample dataset carbon hydrogen oxygen nitrogen sulfur HHV&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 Akhrot Shell Training 49.8 5.64 42.9 0.41 0 20.0&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 Alabama Oak Wood Waste Training 49.5 5.7 41.3 0.2 0 19.2&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 Alder Training 47.8 5.8 46.2 0.11 0.02 18.3&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 Alfalfa Training 45.1 4.97 35.6 3.3 0.16 18.2&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 Alfalfa Seed Straw Training 46.8 5.4 40.7 1 0.02 18.4&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 Alfalfa Stalks Training 45.4 5.75 40.2 2.04 0.1 18.5&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 Alfalfa Stems Training 47.2 5.99 38.2 2.68 0.2 18.7&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 Alfalfa Straw Training 45.7 5.7 39.7 1.7 0.2 18.3&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 Almond Training 48.8 5.5 40.9 0.8 0 18.6&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 Almond Hull Training 47.1 5.9 40 1.2 0.1 18.9&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 446 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Depending on the model you choose, you might need to center and scale your data before passing it along to the fitting function. There are two main ways you might do this: a formula, or a recipe. As a modeling package developer, ideally you&amp;rsquo;d support both in your user-facing modeling function, like so:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">my_model&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">...&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nf">UseMethod&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;my_model&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="n">my_model.formula&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">formula&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">...&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="n">my_model.recipe&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">...&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Unfortunately, each have their own nuances and tricks to be aware of, which you probably don&amp;rsquo;t want to spend too much time thinking about. Ideally, you&amp;rsquo;d be able to focus on your package&amp;rsquo;s implementation, and easily be able to support a number of different user input methods. This is where hardhat can help. &lt;code>hardhat::mold()&lt;/code> is a preprocessing function that knows how to preprocess formulas, prep recipes, and deal with the more basic XY input (two data frames, one holding predictors and one holding outcomes). The best part is that the output from &lt;code>mold()&lt;/code> is standardized across all 3 preprocessing methods, so you always know what data structures you&amp;rsquo;ll be getting back.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">rec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">recipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">HHV&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">carbon&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">training&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">step_normalize&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">carbon&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">processed_formula&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">mold&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">HHV&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="nf">scale&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">carbon&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">training&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">processed_recipe&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">mold&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">rec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">training&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">names&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">processed_formula&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;predictors&amp;#34; &amp;#34;outcomes&amp;#34; &amp;#34;blueprint&amp;#34; &amp;#34;extras&amp;#34;&lt;/span>
+&lt;span class="nf">names&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">processed_recipe&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;predictors&amp;#34; &amp;#34;outcomes&amp;#34; &amp;#34;blueprint&amp;#34; &amp;#34;extras&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;ul>
+&lt;li>
+&lt;p>&lt;code>predictors&lt;/code> is a data frame of the preprocessed predictors.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>outcomes&lt;/code> is a data frame of the preprocessed outcomes.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>blueprint&lt;/code> is the best part of hardhat. It records the preprocessing activities, so that it can replay them on top of new data that needs to be preprocessed at prediction time.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>extras&lt;/code> is a data frame of any &amp;ldquo;extra&amp;rdquo; columns in your data set that aren&amp;rsquo;t considered predictors or outcomes. These might be offsets in a formula, or extra roles from a recipe.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">processed_recipe&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">predictors&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 456 x 1&lt;/span>
+&lt;span class="c1">#&amp;gt; carbon&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 0.140 &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 0.110 &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 -0.0513&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 -0.313 &lt;/span>
+&lt;span class="c1">#&amp;gt; 5 -0.153 &lt;/span>
+&lt;span class="c1">#&amp;gt; 6 -0.284 &lt;/span>
+&lt;span class="c1">#&amp;gt; 7 -0.114 &lt;/span>
+&lt;span class="c1">#&amp;gt; 8 -0.255 &lt;/span>
+&lt;span class="c1">#&amp;gt; 9 0.0428&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 -0.120 &lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 446 more rows&lt;/span>
+&lt;span class="n">processed_recipe&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">outcomes&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 456 x 1&lt;/span>
+&lt;span class="c1">#&amp;gt; HHV&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 20.0&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 19.2&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 18.3&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 18.2&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 18.4&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 18.5&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 18.7&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 18.3&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 18.6&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 18.9&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 446 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Generally you won&amp;rsquo;t call &lt;code>mold()&lt;/code> interactively, but will, instead, call it from your top-level modeling function as the first step to standardize and validate a user&amp;rsquo;s input.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">my_model&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">...&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nf">UseMethod&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;my_model&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="n">my_model.formula&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">formula&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">...&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">processed&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">hardhat&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">mold&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">formula&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># ... pass on to implementation&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="n">my_model.recipe&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">...&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">processed&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">hardhat&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">mold&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># ... pass on to implementation&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="predicting">Predicting
+&lt;a href="#predicting">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Once you&amp;rsquo;ve used the preprocessed data to fit your model, you&amp;rsquo;ll probably want to make predictions on a test set. To do this, you&amp;rsquo;ll need to reapply any preprocessing that you did on the training set to the test set as well. hardhat makes this easy with &lt;code>hardhat::forge()&lt;/code>. &lt;code>forge()&lt;/code> takes a data frame of new predictors, as well as a &lt;code>blueprint&lt;/code> that was created in the call to &lt;code>mold()&lt;/code>, and reapplies the correct preprocessing for you. Again, no matter what the original preprocessing method was, the output is consistent and predictable.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">forged_formula&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">forge&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">testing&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">processed_formula&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">blueprint&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">forged_recipe&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">forge&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">testing&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">processed_recipe&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">blueprint&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">names&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">forged_formula&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;predictors&amp;#34; &amp;#34;outcomes&amp;#34; &amp;#34;extras&amp;#34;&lt;/span>
+&lt;span class="nf">names&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">forged_recipe&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;predictors&amp;#34; &amp;#34;outcomes&amp;#34; &amp;#34;extras&amp;#34;&lt;/span>
+&lt;span class="n">forged_recipe&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">predictors&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 80 x 1&lt;/span>
+&lt;span class="c1">#&amp;gt; carbon&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 -0.193 &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 -0.490 &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 -0.543 &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 -0.188 &lt;/span>
+&lt;span class="c1">#&amp;gt; 5 0.0390&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 -0.390 &lt;/span>
+&lt;span class="c1">#&amp;gt; 7 -0.904 &lt;/span>
+&lt;span class="c1">#&amp;gt; 8 -0.601 &lt;/span>
+&lt;span class="c1">#&amp;gt; 9 -1.84 &lt;/span>
+&lt;span class="c1">#&amp;gt; 10 -1.97 &lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 70 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Like &lt;code>mold()&lt;/code>, &lt;code>forge()&lt;/code> is not intended for interactive use. Instead, you&amp;rsquo;ll call it from your &lt;code>predict()&lt;/code> method.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">predict.my_model&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">object&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">new_data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">...&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">processed&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">hardhat&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">forge&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">new_data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">object&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">blueprint&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># ... pass on to predict() implementation&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>object&lt;/code> here is a model fit of class &lt;code>&amp;quot;my_model&amp;quot;&lt;/code> that should be the result of a user calling your high level &lt;code>my_model()&lt;/code> function. To enable &lt;code>forge()&lt;/code> to work as shown here, you&amp;rsquo;ll need to attach and return the &lt;code>blueprint&lt;/code> that is created from &lt;code>mold()&lt;/code> to this model &lt;code>object&lt;/code>.&lt;/p>
+&lt;p>&lt;code>forge()&lt;/code> has powerful data type validation built in. It checks for a number of things including:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Missing predictors&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Predictors with the correct name, but wrong data type&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Factor predictors with &amp;ldquo;novel levels&amp;rdquo;&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Factor predictors with missing levels, which can be recovered automatically&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="learning-more">Learning more
+&lt;a href="#learning-more">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>There are 3 key vignettes for hardhat.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://tidymodels.github.io/hardhat/articles/package.html" target="_blank" rel="noopener">Creating Modeling Packages With hardhat&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://tidymodels.github.io/hardhat/articles/mold.html" target="_blank" rel="noopener">Molding data for modeling&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://tidymodels.github.io/hardhat/articles/forge.html" target="_blank" rel="noopener">Forging data for predictions&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>There is also a video of Max Kuhn speaking about hardhat at the
+&lt;a href="https://canal.uned.es/video/5dd25b9f5578f275e407dd88" target="_blank" rel="noopener">XI Jornadas de Usuarios de R conference&lt;/a>.&lt;/p></description></item></channel></rss>

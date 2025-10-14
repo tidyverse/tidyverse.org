@@ -1,0 +1,337 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>rlang 0.3.0</title><meta property="og:title" content="rlang 0.3.0"><meta property="og:description" content="API for working with tidy evaluation, base R types, and errors"><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2018/10/rlang-0-3-0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="rlang 0.3.0 - Tidyverse"><meta property="description" content="API for working with tidy evaluation, base R types, and errors"><meta property="og:description" content="API for working with tidy evaluation, base R types, and errors"><meta property="og:image" content="https://www.tidyverse.org/blog/2018/10/rlang-0-3-0/rlang-0-3-0-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2018/10/rlang-0-3-0/rlang-0-3-0-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>rlang 0.3.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2018/10/rlang-0-3-0/rlang-0-3-0-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/nI7knd5sQfo>Brandon Siu</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2018/10/29</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/r-lib/>r-lib</a>,
+<a href=/tags/rlang/>rlang</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Lionel Henry</p><div class=article-content><h2 id=introduction>Introduction
+<a href=#introduction><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>We&rsquo;re happy to announce that
+<a href="https://cran.r-project.org/package=rlang" target=_blank rel=noopener>rlang 0.3.0</a> in now on CRAN! rlang is of most interest to package developers and R programmers, as it is intended for people developing data science tools rather than data scientists. rlang implements a consistent API for working with base types, hosts the tidy evaluation framework, and offers tools for error reporting. This release provides major improvements for each of those themes.</p><p>Consult the
+<a href=https://rlang.r-lib.org/news/index.html#rlang-0-3-0 target=_blank rel=noopener>changelog</a> for the full list of changes, including many bug fixes. The rlang API is still maturing and a number of functions and arguments were deprecated or renamed. Check the
+<a href=https://rlang.r-lib.org/news/index.html#lifecycle target=_blank rel=noopener>lifecycle section</a> for a summary of the API changes.</p><h2 id=tidy-evaluation-and-tidy-dots>Tidy evaluation and tidy dots
+<a href=#tidy-evaluation-and-tidy-dots><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Tidy evaluation is the framework that powers data-masking APIs like dplyr, tidyr, or ggplot2. Tidy dots is a related feature that allows you to use <code>!!!</code> in functions taking dots, among other things.</p><h3 id=referring-to-columns-with-data>Referring to columns with <code>.data</code>
+<a href=#referring-to-columns-with-data><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>The main user-facing change is that subsetting the <code>.data</code> pronoun with <code>[[</code> now behaves as if the index were implicitly unquoted. Concretely, this means that the index can no longer be confused with a data frame column. Subsetting <code>.data</code> is now always safe, even in functions:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>suppressPackageStartupMessages</span><span class=p>(</span>
+  <span class=nf>library</span><span class=p>(</span><span class=s>&#34;dplyr&#34;</span><span class=p>)</span>
+<span class=p>)</span>
+
+<span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>tibble</span><span class=p>(</span><span class=n>var</span> <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>4</span><span class=p>,</span> <span class=n>g</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=m>1</span><span class=p>,</span> <span class=m>1</span><span class=p>,</span> <span class=m>2</span><span class=p>,</span> <span class=m>2</span><span class=p>))</span>
+<span class=n>var</span> <span class=o>&lt;-</span> <span class=s>&#34;g&#34;</span>
+
+<span class=c1># `df` contains `var` but the column doesn&#39;t count!</span>
+<span class=n>df</span> <span class=o>%&gt;%</span> <span class=nf>group_by</span><span class=p>(</span><span class=n>.data[[var]]</span><span class=p>)</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; <span style=color:#555># A tibble: 4 x 2</span><span>
+#&gt; </span><span style=color:#555># Groups:   g [2]</span><span>
+#&gt;     var     g
+#&gt;   </span><span style=color:#555;font-style:italic>&lt;int&gt;</span><span> </span><span style=color:#555;font-style:italic>&lt;dbl&gt;</span><span>
+#&gt; </span><span style=color:#555>1</span><span>     1     1
+#&gt; </span><span style=color:#555>2</span><span>     2     1
+#&gt; </span><span style=color:#555>3</span><span>     3     2
+#&gt; </span><span style=color:#555>4</span><span>     4     2
+</span></pre></div><h3 id=new-tidy-dots-options>New tidy dots options
+<a href=#new-tidy-dots-options><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>Tidy dots refers to a set of features enabled in functions collecting dots. To enable tidy dots, use <code>list2()</code> instead of list:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>fn</span> <span class=o>&lt;-</span> <span class=nf>function</span><span class=p>(</span><span class=kc>...</span><span class=p>)</span> <span class=nf>list2</span><span class=p>(</span><span class=kc>...</span><span class=p>)</span>
+</code></pre></div><p>With tidy dots, users can splice in lists of arguments:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>x</span> <span class=o>&lt;-</span> <span class=nf>list</span><span class=p>(</span><span class=n>arg1</span> <span class=o>=</span> <span class=s>&#34;A&#34;</span><span class=p>,</span> <span class=n>arg2</span> <span class=o>=</span> <span class=s>&#34;B&#34;</span><span class=p>)</span>
+
+<span class=nf>fn</span><span class=p>(</span><span class=m>1</span><span class=p>,</span> <span class=m>2</span><span class=p>,</span> <span class=o>!!!</span><span class=n>x</span><span class=p>,</span> <span class=m>3</span><span class=p>)</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; [[1]]
+#&gt; [1] 1
+#&gt; 
+#&gt; [[2]]
+#&gt; [1] 2
+#&gt; 
+#&gt; $arg1
+#&gt; [1] "A"
+#&gt; 
+#&gt; $arg2
+#&gt; [1] "B"
+#&gt; 
+#&gt; [[5]]
+#&gt; [1] 3
+</pre></div><p>They can unquote names:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>nm</span> <span class=o>&lt;-</span> <span class=s>&#34;b&#34;</span>
+
+<span class=nf>fn</span><span class=p>(</span><span class=n>a</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=o>!!</span><span class=n>nm</span> <span class=o>:=</span> <span class=m>2</span><span class=p>)</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; $a
+#&gt; [1] 1
+#&gt; 
+#&gt; $b
+#&gt; [1] 2
+</pre></div><p>And trailing empty arguments are always ignored to make copy-pasting easier:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>fn</span><span class=p>(</span>
+  <span class=n>foo</span> <span class=o>=</span> <span class=s>&#34;foo&#34;</span><span class=p>,</span>
+  <span class=n>foo</span> <span class=o>=</span> <span class=s>&#34;bar&#34;</span><span class=p>,</span>
+<span class=p>)</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; $foo
+#&gt; [1] "foo"
+#&gt; 
+#&gt; $foo
+#&gt; [1] "bar"
+</pre></div><p>While <code>list2()</code> hard-codes these features, <code>dots_list()</code> gains several options to control how to collect dots:</p><ul><li><p><code>.preserve_empty</code> preserves empty arguments:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>list3</span> <span class=o>&lt;-</span> <span class=nf>function</span><span class=p>(</span><span class=kc>...</span><span class=p>)</span> <span class=nf>dots_list</span><span class=p>(</span><span class=kc>...</span><span class=p>,</span> <span class=n>.preserve_empty</span> <span class=o>=</span> <span class=kc>TRUE</span><span class=p>)</span>
+  
+<span class=nf>list3</span><span class=p>(</span><span class=n>a</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>b</span> <span class=o>=</span> <span class=p>,</span> <span class=n>c</span> <span class=o>=</span> <span class=m>2</span><span class=p>)</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; $a
+#&gt; [1] 1
+#&gt; 
+#&gt; $b
+#&gt; 
+#&gt; 
+#&gt; $c
+#&gt; [1] 2
+</pre></div><p>We are using this option in <code>env_bind()</code> and <code>call_modify()</code> to allow assigning explicit missing values (see <code>?missing_arg()</code>):</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>call</span> <span class=o>&lt;-</span> <span class=nf>quote</span><span class=p>(</span><span class=nf>mean</span><span class=p>())</span>
+<span class=nf>call_modify</span><span class=p>(</span><span class=n>call</span><span class=p>,</span> <span class=kc>...</span> <span class=o>=</span> <span class=p>,</span> <span class=n>trim</span> <span class=o>=</span> <span class=p>)</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; mean(..., trim = )
+</pre></div></li><li><p><code>.homonyms</code> controls whether to keep all arguments that have the same name (the default), only the first or last of these, or throw an error:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>list3</span> <span class=o>&lt;-</span> <span class=nf>function</span><span class=p>(</span><span class=kc>...</span><span class=p>)</span> <span class=nf>dots_list</span><span class=p>(</span><span class=kc>...</span><span class=p>,</span> <span class=n>.homonyms</span> <span class=o>=</span> <span class=s>&#34;last&#34;</span><span class=p>)</span>
+  
+<span class=nf>list3</span><span class=p>(</span><span class=n>foo</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>bar</span> <span class=o>=</span> <span class=m>2</span><span class=p>,</span> <span class=n>foo</span> <span class=o>=</span> <span class=m>3</span><span class=p>,</span> <span class=n>bar</span> <span class=o>=</span> <span class=m>4</span><span class=p>,</span> <span class=n>bar</span> <span class=o>=</span> <span class=m>5</span><span class=p>)</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; $foo
+#&gt; [1] 3
+#&gt; 
+#&gt; $bar
+#&gt; [1] 5
+</pre></div></li></ul><p>These options can be set in <code>enquos()</code> as well.</p><h2 id=error-reporting>Error reporting
+<a href=#error-reporting><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><code>abort()</code> extends <code>base::stop()</code> to make it easy to create error objects with
+<a href=https://adv-r.hadley.nz/conditions.html target=_blank rel=noopener>custom class and metadata</a>. With rlang 0.3.0, <code>abort()</code> automatically stores a backtrace in the error object and supports chaining errors.</p><h3 id=backtraces>Backtraces
+<a href=#backtraces><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>Storing a backtrace in rlang errors makes it possible to post-process the call tree that lead to an error and simplify it substantially. Let&rsquo;s define three functions calling each other, with <code>tryCatch()</code> and <code>evalq()</code> interspersed in order to create a complicated call tree:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>f</span> <span class=o>&lt;-</span> <span class=nf>function</span><span class=p>()</span> <span class=nf>tryCatch</span><span class=p>(</span><span class=nf>g</span><span class=p>(),</span> <span class=n>warning</span> <span class=o>=</span> <span class=n>identity</span><span class=p>)</span> <span class=c1># Try g()</span>
+<span class=n>g</span> <span class=o>&lt;-</span> <span class=nf>function</span><span class=p>()</span> <span class=nf>evalq</span><span class=p>(</span><span class=nf>h</span><span class=p>())</span>                        <span class=c1># Eval h()</span>
+<span class=n>h</span> <span class=o>&lt;-</span> <span class=nf>function</span><span class=p>()</span> <span class=nf>abort</span><span class=p>(</span><span class=s>&#34;Oh no!&#34;</span><span class=p>)</span>                   <span class=c1># And fail!</span>
+</code></pre></div><p>When a function signals an error with <code>abort()</code>, the user is invited to call <code>last_error()</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>f</span><span class=p>()</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; Error: Oh no!
+#&gt; <span style=color:#555>Call `rlang::last_error()` to see a backtrace</span><span>
+</span></pre></div><p>Calling <code>last_error()</code> returns the last error object. The error prints with its backtrace:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>last_error</span><span class=p>()</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; <span style=font-weight:700>&lt;error&gt;</span><span>
+#&gt; message: </span><span style=font-style:italic>Oh no!</span><span>
+#&gt; class:   `rlang_error`
+#&gt; backtrace:
+#&gt; </span><span style=color:#b00> ─global::f()</span><span>
+#&gt; </span><span style=color:#b00> ─global::g()</span><span>
+#&gt; </span><span style=color:#b00> ─global::h()</span><span>
+#&gt; </span><span style=color:#555>Call `summary(rlang::last_error())` to see the full backtrace</span><span>
+</span></pre></div><p>The backtrace is simple and to the point because it is printed in a simplified form by default. If you&rsquo;d like to see the full story (or include the full backtrace in a bug report), call <code>summary()</code> on the error object:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>summary</span><span class=p>(</span><span class=nf>last_error</span><span class=p>())</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; <span style=font-weight:700>&lt;error&gt;</span><span>
+#&gt; message: </span><span style=font-style:italic>Oh no!</span><span>
+#&gt; class:   `rlang_error`
+#&gt; fields:  `message`, `trace` and `parent`
+#&gt; backtrace:
+#&gt; </span><span style=color:#b00>█</span><span>
+#&gt; </span><span style=color:#b00>└─global::f()</span><span>
+#&gt; </span><span style=color:#b00>  ├─base::tryCatch(g(), warning = identity)</span><span>
+#&gt; </span><span style=color:#b00>  │ └─base:::tryCatchList(expr, classes, parentenv, handlers)</span><span>
+#&gt; </span><span style=color:#b00>  │   └─base:::tryCatchOne(expr, names, parentenv, handlers[[1L]])</span><span>
+#&gt; </span><span style=color:#b00>  │     └─base:::doTryCatch(return(expr), name, parentenv, handler)</span><span>
+#&gt; </span><span style=color:#b00>  └─global::g()</span><span>
+#&gt; </span><span style=color:#b00>    ├─base::evalq(h())</span><span>
+#&gt; </span><span style=color:#b00>    │ └─base::evalq(h())</span><span>
+#&gt; </span><span style=color:#b00>    └─global::h()</span><span>
+</span></pre></div><p>Each call is prepended with a namespace prefix<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup> to reveal the flow of control across package contexts.</p><h3 id=chained-errors>Chained errors
+<a href=#chained-errors><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>Chaining errors is relevant when you&rsquo;re calling low-level APIs such as web scraping, JSON parsing, etc. When these APIs encounter an error, they often fail with technical error messages. It is often a good idea to transform these developer-friendly error messages into something more meaningful and actionable for end users.</p><p>Several programming languages provide the ability of chaining errors for these situations. With chained errors, the low level and high level contexts are clearly separated in the error report. This makes the error more legible for the end user, without hiding the low level information that might be crucial for figuring out the problem.</p><p>Say we&rsquo;re writing a function <code>make_report()</code> to create an automated report and we&rsquo;re downloading a file as part of the process with <code>fetch_csv()</code>, which might be implemented in a package:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>fetch_csv</span> <span class=o>&lt;-</span> <span class=nf>function</span><span class=p>(</span><span class=n>url</span><span class=p>)</span> <span class=p>{</span>
+  <span class=nf>suppressWarnings</span><span class=p>(</span>
+    <span class=nf>read.csv</span><span class=p>(</span><span class=nf>url</span><span class=p>(</span><span class=n>url</span><span class=p>))</span>
+  <span class=p>)</span>
+<span class=p>}</span>
+
+<span class=n>prepare_data</span> <span class=o>&lt;-</span> <span class=nf>function</span><span class=p>(</span><span class=n>url</span><span class=p>)</span> <span class=p>{</span>
+  <span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>fetch_csv</span><span class=p>(</span><span class=n>url</span><span class=p>)</span>
+  <span class=n>tibble</span><span class=o>::</span><span class=nf>as_tibble</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+<span class=p>}</span>
+
+<span class=n>make_report</span> <span class=o>&lt;-</span> <span class=nf>function</span><span class=p>(</span><span class=n>url</span><span class=p>)</span> <span class=p>{</span>
+  <span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>prepare_data</span><span class=p>(</span><span class=n>url</span><span class=p>)</span>
+
+  <span class=c1># We&#39;re not going to get there because all our attempts to download</span>
+  <span class=c1># a file are going to fail!</span>
+  <span class=kc>...</span>
+<span class=p>}</span>
+</code></pre></div><p>This function might fail in <code>fetch_csv()</code> because of connection issues:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>make_report</span><span class=p>(</span><span class=s>&#34;https://rstats.edu/awesome-data.csv&#34;</span><span class=p>)</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; Error in open.connection(file, "rt"): cannot open the connection to 'https://rstats.edu/awesome-data.csv'
+</pre></div><p>Chaining errors makes it possible to transform this low-level API error into a high level error, without losing any debugging information. There are two steps involved in error chaining: catch low level errors, and rethrow them with a high level message. Catching can be done with <code>base::tryCatch()</code> or <code>rlang::with_handlers()</code>. Both these functions take an error handler: a function of one argument which is passed an error object when an error occurs.</p><p>To chain an error, simply call <code>abort()</code> in the error handler, with a high level error message and the original error passed as the <code>parent</code> argument. Here we&rsquo;re going to use <code>with_handlers()</code> because it supports the rlang syntax for lambda functions (also used in purrr), which makes it easy to write simple handlers:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>prepare_data</span> <span class=o>&lt;-</span> <span class=nf>function</span><span class=p>(</span><span class=n>url</span><span class=p>)</span> <span class=p>{</span>
+  <span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>with_handlers</span><span class=p>(</span>
+    <span class=n>error</span> <span class=o>=</span> <span class=o>~</span> <span class=nf>abort</span><span class=p>(</span><span class=s>&#34;Can&#39;t download file!&#34;</span><span class=p>,</span> <span class=n>parent</span> <span class=o>=</span> <span class=n>.)</span><span class=p>,</span>
+    <span class=nf>fetch_csv</span><span class=p>(</span><span class=n>url</span><span class=p>)</span>
+  <span class=p>)</span>
+  <span class=n>tibble</span><span class=o>::</span><span class=nf>as_tibble</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+<span class=p>}</span>
+
+<span class=nf>make_report</span><span class=p>(</span><span class=s>&#34;https://rstats.edu/awesome-data.csv&#34;</span><span class=p>)</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; Error: Can't download file!
+#&gt; Parents:
+#&gt;  ─cannot open the connection to 'https://rstats.edu/awesome-data.csv'
+</pre></div><p>The main error message is now the high level one. The low level message is still included in the output to avoid hiding precious debugging information. Errors can be chained multiple times and all the messages and all parent messages are included in the output. But note that only errors thrown with <code>abort()</code> contain a backtrace:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>last_error</span><span class=p>()</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; <span style=font-weight:700>&lt;error&gt;</span><span>
+#&gt; message: </span><span style=font-style:italic>Can't download file!</span><span>
+#&gt; class:   `rlang_error`
+#&gt; backtrace:
+#&gt; </span><span style=color:#b00> ─global::make_report("https://rstats.edu/awesome-data.csv")</span><span>
+#&gt; </span><span style=color:#b00> ─global::prepare_data(url)</span><span>
+#&gt; </span><span style=font-weight:700>&lt;error: parent&gt;</span><span>
+#&gt; message: </span><span style=font-style:italic>cannot open the connection to 'https://rstats.edu/awesome-data.csv'</span><span>
+#&gt; class:   `simpleError`
+</span></pre></div><p>For this reason, chaining errors is more effective with rlang errors than with errors thrown with <code>stop()</code> and the error report could be improved if <code>fetch_csv()</code> used <code>abort()</code> instead of <code>thrown()</code>. Fortunately it is easy to transform any error into an rlang error without changing any code!</p><h3 id=promoting-base-errors-to-rlang-errors>Promoting base errors to rlang errors
+<a href=#promoting-base-errors-to-rlang-errors><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>rlang provides <code>with_abort()</code> to run code with base errors automatically promoted to rlang errors. Let&rsquo;s wrap around <code>fetch_csv()</code> to run it in a <code>with_abort</code> context:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>my_fetch_csv</span> <span class=o>&lt;-</span> <span class=nf>function</span><span class=p>(</span><span class=n>url</span><span class=p>)</span> <span class=p>{</span>
+  <span class=nf>with_abort</span><span class=p>(</span><span class=nf>fetch_csv</span><span class=p>(</span><span class=n>url</span><span class=p>))</span>
+<span class=p>}</span>
+
+<span class=n>prepare_data</span> <span class=o>&lt;-</span> <span class=nf>function</span><span class=p>(</span><span class=n>url</span><span class=p>)</span> <span class=p>{</span>
+  <span class=n>data</span> <span class=o>&lt;-</span> <span class=nf>with_handlers</span><span class=p>(</span>
+    <span class=n>error</span> <span class=o>=</span> <span class=o>~</span> <span class=nf>abort</span><span class=p>(</span><span class=s>&#34;Can&#39;t download file!&#34;</span><span class=p>,</span> <span class=n>parent</span> <span class=o>=</span> <span class=n>.)</span><span class=p>,</span>
+    <span class=nf>my_fetch_csv</span><span class=p>(</span><span class=n>url</span><span class=p>)</span>
+  <span class=p>)</span>
+  <span class=n>tibble</span><span class=o>::</span><span class=nf>as_tibble</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+<span class=p>}</span>
+</code></pre></div><p>Our own function calls <code>abort()</code> and the foreign functions are called within a <code>with_abort()</code>. Let&rsquo;s see how chained errors now look like:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>make_report</span><span class=p>(</span><span class=s>&#34;https://rstats.edu/awesome-data.csv&#34;</span><span class=p>)</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; Error: Can't download file!
+#&gt; Parents:
+#&gt;  ─cannot open the connection to 'https://rstats.edu/awesome-data.csv'
+#&gt; <span style=color:#555>Call `rlang::last_error()` to see a backtrace</span><span>
+</span></pre></div><p>The backtraces are automatically segmented between low level and high level contexts:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>last_error</span><span class=p>()</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; <span style=font-weight:700>&lt;error&gt;</span><span>
+#&gt; message: </span><span style=font-style:italic>Can't download file!</span><span>
+#&gt; class:   `rlang_error`
+#&gt; backtrace:
+#&gt; </span><span style=color:#b00> ─global::make_report("https://rstats.edu/awesome-data.csv")</span><span>
+#&gt; </span><span style=color:#b00> ─global::prepare_data(url)</span><span>
+#&gt; </span><span style=font-weight:700>&lt;error: parent&gt;</span><span>
+#&gt; message: </span><span style=font-style:italic>cannot open the connection to 'https://rstats.edu/awesome-data.csv'</span><span>
+#&gt; class:   `rlang_error`
+#&gt; backtrace:
+#&gt; </span><span style=color:#b00> ─global::my_fetch_csv(url)</span><span>
+#&gt; </span><span style=color:#b00> ─global::fetch_csv(url)</span><span>
+#&gt; </span><span style=color:#b00> ─utils::read.csv(url(url))</span><span>
+#&gt; </span><span style=color:#b00> ─utils::read.table(...)</span><span>
+#&gt; </span><span style=color:#b00> ─base::open.connection(file, "rt")</span><span>
+#&gt; </span><span style=color:#555>Call `summary(rlang::last_error())` to see the full backtrace</span><span>
+</span></pre></div><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>summary</span><span class=p>(</span><span class=nf>last_error</span><span class=p>())</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; <span style=font-weight:700>&lt;error&gt;</span><span>
+#&gt; message: </span><span style=font-style:italic>Can't download file!</span><span>
+#&gt; class:   `rlang_error`
+#&gt; fields:  `message`, `trace` and `parent`
+#&gt; backtrace:
+#&gt; </span><span style=color:#b00>█</span><span>
+#&gt; </span><span style=color:#b00>└─global::make_report("https://rstats.edu/awesome-data.csv")</span><span>
+#&gt; </span><span style=color:#b00>  └─global::prepare_data(url)</span><span>
+#&gt; </span><span style=font-weight:700>&lt;error: parent&gt;</span><span>
+#&gt; message: </span><span style=font-style:italic>cannot open the connection to 'https://rstats.edu/awesome-data.csv'</span><span>
+#&gt; class:   `rlang_error`
+#&gt; fields:  `message`, `trace`, `parent` and `error`
+#&gt; backtrace:
+#&gt; </span><span style=color:#b00>█</span><span>
+#&gt; </span><span style=color:#b00>└─global::my_fetch_csv(url)</span><span>
+#&gt; </span><span style=color:#b00>  ├─rlang::with_abort(fetch_csv(url))</span><span>
+#&gt; </span><span style=color:#b00>  │ └─base::withCallingHandlers(...)</span><span>
+#&gt; </span><span style=color:#b00>  └─global::fetch_csv(url)</span><span>
+#&gt; </span><span style=color:#b00>    ├─base::suppressWarnings(read.csv(url(url)))</span><span>
+#&gt; </span><span style=color:#b00>    │ └─base::withCallingHandlers(expr, warning = function(w) invokeRestart("muffleWarning"))</span><span>
+#&gt; </span><span style=color:#b00>    └─utils::read.csv(url(url))</span><span>
+#&gt; </span><span style=color:#b00>      └─utils::read.table(...)</span><span>
+#&gt; </span><span style=color:#b00>        ├─base::open(file, "rt")</span><span>
+#&gt; </span><span style=color:#b00>        └─base::open.connection(file, "rt")</span><span>
+</span></pre></div><p>If you&rsquo;d like to promote all errors to rlang errors at all time, you can try out this experimental option by adding this to your RProfile:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>if </span><span class=p>(</span><span class=nf>requireNamespace</span><span class=p>(</span><span class=s>&#34;rlang&#34;</span><span class=p>,</span> <span class=n>quietly</span> <span class=o>=</span> <span class=kc>TRUE</span><span class=p>))</span> <span class=p>{</span>
+  <span class=nf>options</span><span class=p>(</span><span class=n>error</span> <span class=o>=</span> <span class=nf>quote</span><span class=p>(</span><span class=n>rlang</span><span class=o>:::</span><span class=nf>add_backtrace</span><span class=p>()))</span>
+<span class=p>}</span>
+</code></pre></div><h2 id=environments>Environments
+<a href=#environments><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The environment API gains two specialised print methods. <code>env_print()</code> prints information about the contents and the properties of environments. If you don&rsquo;t specify an environment, it prints the current environment by default, here the global environment:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>env_print</span><span class=p>()</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; <span style=font-weight:700>&lt;environment: global&gt;</span><span>
+#&gt; parent: &lt;environment: package:bindrcpp&gt;
+#&gt; bindings:
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>fn: &lt;fn&gt;
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>var: &lt;chr&gt;
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>x: &lt;list&gt;
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>fetch_csv: &lt;fn&gt;
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>my_fetch_csv: &lt;fn&gt;
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>list3: &lt;fn&gt;
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>nm: &lt;chr&gt;
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>.Random.seed: &lt;int&gt;
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>call: &lt;language&gt;
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>f: &lt;fn&gt;
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>g: &lt;fn&gt;
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>h: &lt;fn&gt;
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>make_report: &lt;fn&gt;
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>df: &lt;tibble&gt;
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>colourise_chunk: &lt;fn&gt;
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>prepare_data: &lt;fn&gt;
+</span></pre></div><p>The global environment doesn&rsquo;t have any fancy features. Let&rsquo;s look at a package environment:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>env_print</span><span class=p>(</span><span class=nf>pkg_env</span><span class=p>(</span><span class=s>&#34;rlang&#34;</span><span class=p>))</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; <span style=font-weight:700>&lt;environment: package:rlang&gt; [L]</span><span>
+#&gt; parent: &lt;environment: package:stats&gt;
+#&gt; bindings:
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>is_dbl_na: &lt;lazy&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>coerce_class: &lt;lazy&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>as_quosure: &lt;lazy&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>as_quosures: &lt;lazy&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>quo_get_env: &lt;lazy&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>return_to: &lt;lazy&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>env_binding_are_lazy: &lt;fn&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>quo_is_call: &lt;lazy&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>new_call: &lt;fn&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>is_scoped: &lt;lazy&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>set_names: &lt;fn&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>expr_deparse: &lt;lazy&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>`f_env&lt;-`: &lt;lazy&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>as_box_if: &lt;lazy&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>`%|%`: &lt;fn&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>lang_head: &lt;lazy&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>ns_env: &lt;fn&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>list_along: &lt;lazy&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>parse_quo: &lt;lazy&gt; [L]
+#&gt;  </span><span style=color:#555;font-weight:700>* </span><span>lang_tail: &lt;lazy&gt; [L]
+#&gt;    * ... with 438 more bindings
+</span></pre></div><p>This environment contains all functions exported by rlang. Its header includes the <code>[L]</code> tag to indicate that the environment is locked: you can&rsquo;t add or remove bindings from it. The same tag appears next to each binding to indicate that the bindings are locked and can&rsquo;t be changed to point to a different object. Finally, note how the type of many bindings is <code>&lt;lazy></code>. That&rsquo;s because packages are lazily loaded for performance reasons. Technically, the binding points to a <em>promise</em> that will eventually evaluate to the actual object, the first time it is accessed.</p><p>The second print method concerns lists of environments as returned by <code>search_envs()</code> and <code>env_parents()</code>. While <code>base::search()</code> returns the names of environments on the search path, <code>search_envs()</code> returns the corresponding list of environments:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>search_envs</span><span class=p>()</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt;  [[1]] $ &lt;env: global&gt;
+#&gt;  [[2]] $ &lt;env: package:bindrcpp&gt;
+#&gt;  [[3]] $ &lt;env: package:dplyr&gt;
+#&gt;  [[4]] $ &lt;env: package:rlang&gt;
+#&gt;  [[5]] $ &lt;env: package:stats&gt;
+#&gt;  [[6]] $ &lt;env: package:graphics&gt;
+#&gt;  [[7]] $ &lt;env: package:grDevices&gt;
+#&gt;  [[8]] $ &lt;env: package:utils&gt;
+#&gt;  [[9]] $ &lt;env: package:datasets&gt;
+#&gt; [[10]] $ &lt;env: package:methods&gt;
+#&gt; [[11]] $ &lt;env: Autoloads&gt;
+#&gt; [[12]] $ &lt;env: package:base&gt;
+</pre></div><p><code>env_parents()</code> returns all parents of a given environment. For search environments, the last parent of the list is the empty environment:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>envs</span> <span class=o>&lt;-</span> <span class=nf>env_parents</span><span class=p>(</span><span class=nf>pkg_env</span><span class=p>(</span><span class=s>&#34;utils&#34;</span><span class=p>))</span>
+<span class=n>envs</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; [[1]] $ &lt;env: package:datasets&gt;
+#&gt; [[2]] $ &lt;env: package:methods&gt;
+#&gt; [[3]] $ &lt;env: Autoloads&gt;
+#&gt; [[4]] $ &lt;env: package:base&gt;
+#&gt; [[5]] $ &lt;env: empty&gt;
+</pre></div><p>For all other environments, the last parent is either the empty environment or the global environment. Most of the time the global env is part of the ancestry because package namespaces inherit from the search path:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>env_parents</span><span class=p>(</span><span class=nf>ns_env</span><span class=p>(</span><span class=s>&#34;rlang&#34;</span><span class=p>))</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; [[1]] $ &lt;env: imports:rlang&gt;
+#&gt; [[2]] $ &lt;env: namespace:base&gt;
+#&gt; [[3]] $ &lt;env: global&gt;
+</pre></div><p>It is possible to construct environments insulated from the search path. We&rsquo;ll use <code>env()</code> to create such an environment. Counting from rlang 0.3.0, you can pass a single unnamed environment to <code>env()</code> to specify a parent. The following creates a child of the base package:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>e</span> <span class=o>&lt;-</span> <span class=nf>env</span><span class=p>(</span><span class=nf>base_env</span><span class=p>(),</span> <span class=n>foo</span> <span class=o>=</span> <span class=s>&#34;bar&#34;</span><span class=p>)</span>
+<span class=nf>env_parents</span><span class=p>(</span><span class=n>e</span><span class=p>)</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; [[1]] $ &lt;env: package:base&gt;
+#&gt; [[2]] $ &lt;env: empty&gt;
+</pre></div><p>Here is how to create a grandchild of the empty environment:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>e</span> <span class=o>&lt;-</span> <span class=nf>env</span><span class=p>(</span><span class=nf>env</span><span class=p>(</span><span class=nf>empty_env</span><span class=p>()))</span>
+<span class=nf>env_parents</span><span class=p>(</span><span class=n>e</span><span class=p>)</span>
+</code></pre></div><div class=output><pre class="knitr r">#&gt; [[1]]   &lt;env: 0x7fb6ec084238&gt;
+#&gt; [[2]] $ &lt;env: empty&gt;
+</pre></div><p>We hope that these print methods make it easier to explore the structure and contents of R environments.</p><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Thanks to all contributors!</p><p><a href=https://github.com/akbertram target=_blank rel=noopener>＠akbertram</a>,
+<a href=https://github.com/AndreMikulec target=_blank rel=noopener>＠AndreMikulec</a>,
+<a href=https://github.com/andresimi target=_blank rel=noopener>＠andresimi</a>,
+<a href=https://github.com/billdenney target=_blank rel=noopener>＠billdenney</a>,
+<a href=https://github.com/BillDunlap target=_blank rel=noopener>＠BillDunlap</a>,
+<a href=https://github.com/cfhammill target=_blank rel=noopener>＠cfhammill</a>,
+<a href=https://github.com/egnha target=_blank rel=noopener>＠egnha</a>,
+<a href=https://github.com/grayskripko target=_blank rel=noopener>＠grayskripko</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>＠hadley</a>,
+<a href=https://github.com/IndrajeetPatil target=_blank rel=noopener>＠IndrajeetPatil</a>,
+<a href=https://github.com/jimhester target=_blank rel=noopener>＠jimhester</a>,
+<a href=https://github.com/krlmlr target=_blank rel=noopener>＠krlmlr</a>,
+<a href=https://github.com/marinsokol5 target=_blank rel=noopener>＠marinsokol5</a>,
+<a href=https://github.com/md0u80c9 target=_blank rel=noopener>＠md0u80c9</a>,
+<a href=https://github.com/mikmart target=_blank rel=noopener>＠mikmart</a>,
+<a href=https://github.com/move[bot] target=_blank rel=noopener>＠move[bot]</a>,
+<a href=https://github.com/NikNakk target=_blank rel=noopener>＠NikNakk</a>,
+<a href=https://github.com/privefl target=_blank rel=noopener>＠privefl</a>,
+<a href=https://github.com/romainfrancois target=_blank rel=noopener>＠romainfrancois</a>,
+<a href=https://github.com/wibeasley target=_blank rel=noopener>＠wibeasley</a>,
+<a href=https://github.com/yutannihilation target=_blank rel=noopener>＠yutannihilation</a>, and
+<a href=https://github.com/zslajchrt target=_blank rel=noopener>＠zslajchrt</a></p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>Or <code>global::</code> if the function is defined in the global workspace. <a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#introduction>Introduction</a></li><li><a href=#tidy-evaluation-and-tidy-dots>Tidy evaluation and tidy dots</a></li><li><a href=#error-reporting>Error reporting</a></li><li><a href=#environments>Environments</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

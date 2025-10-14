@@ -1,0 +1,277 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>parsnip</title><meta property="og:title" content="parsnip"><meta property="og:description" content="A tidy unified interface to models"><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2018/11/parsnip-0-0-1/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="parsnip - Tidyverse"><meta property="description" content="A tidy unified interface to models"><meta property="og:description" content="A tidy unified interface to models"><meta property="og:image" content="https://www.tidyverse.org/blog/2018/11/parsnip-0-0-1/parsnip-0-0-1-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2018/11/parsnip-0-0-1/parsnip-0-0-1-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>parsnip</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2018/11/parsnip-0-0-1/parsnip-0-0-1-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/ahB6ZhxHRtk>rawpixel</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2018/11/28</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/tidymodels/>tidymodels</a>,
+<a href=/tags/parsnip/>parsnip</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Max Kuhn</p><div class=article-content><p>The <code>parsnip</code> package is now
+<a href="https://cran.r-project.org/package=parsnip" target=_blank rel=noopener>on CRAN</a>. It is designed to solve a specific problem related to model fitting in R, the interface. Many functions have different interfaces and arguments names and <code>parsnip</code> standardizes the interface for fitting models as well as the return values. When using <code>parsnip</code>, you don&rsquo;t have to remember each interface and its unique set of argument names to easily move between R packages.</p><p>This is the first of several blog posts that discuss the package. More information can be found at the
+<a href=https://tidymodels.github.io/parsnip/ target=_blank rel=noopener><code>parsnip</code> pkgdown site</a>.</p><h1 id=the-problem>The Problem
+<a href=#the-problem><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h1><p>The interface problem is something that I&rsquo;ve talked about for some time. I&rsquo;ll use logistic regression to demonstrate the issue here. Many of us are familiar with the standard <code>glm</code> syntax for fitting models^[This syntax predates R and was formally described in the 1992 book <em>Statistical Models in S</em>. It&rsquo;s older than
+<a href=https://www.debian.org/doc/manuals/project-history/ch-intro.en.html#s1.1 target=_blank rel=noopener><em>debian</em></a>.]. It uses the formula method and, to fit a logistic model, the <code>family = binomial</code> argument is required. Suppose that we want to apply some regularization to the model. A popular choice is the
+<a href="https://cran.r-project.org/package=glmnet" target=_blank rel=noopener><code>glmnet</code></a> package, but its interface is very different from <code>glm</code>:</p><ul><li>It does not use the formula method and expects the predictors in a matrix (so dummy variables must be pre-computed).</li><li>Nonstandard <code>family</code> objects are used. The argument is <code>family = "binomial"</code>.</li></ul><p>While each of these is not a significant issue, these types of inconsistencies are common across R packages. The only way to avoid them is to only use a single package.</p><p>There is a larger issue when you want to fit the same model via <code>tensorflow</code>'s
+<a href=https://keras.rstudio.com/ target=_blank rel=noopener><code>keras</code></a> interface. <code>keras</code> has a beautiful approach to sequentially assembling deep learning models, but it has very little resemblance to the traditional approaches. Creating a simple logistic model requires the user to learn and use drastically different syntax.</p><p>There is also inconsistency in how different packages return predictions. <em>Most</em> R packages use the <code>predict()</code> function to make predictions on new data. If we want to get class probabilities for our logistic regression model, using <code>predict(obj, newdata, type = "response")</code> will return a vector of probabilities for the second level of our factor. However, this convention can be wildly inconsistent across R packages. Examples are:</p><style>td,th{padding:.4em}</style><table><thead><tr><th align=left>Function</th><th align=left>Package</th><th align=left>Code</th></tr></thead><tbody><tr><td align=left><code>glm</code></td><td align=left><code>stats</code></td><td align=left><code>predict(obj, type = "response")</code></td></tr><tr><td align=left><code>lda</code></td><td align=left><code>MASS</code></td><td align=left><code>predict(obj)</code></td></tr><tr><td align=left><code>gbm</code></td><td align=left><code>gbm</code></td><td align=left><code>predict(obj, type = "response", n.trees)</code></td></tr><tr><td align=left><code>mda</code></td><td align=left><code>mda</code></td><td align=left><code>predict(obj, type = "posterior")</code></td></tr><tr><td align=left><code>rpart</code></td><td align=left><code>rpart</code></td><td align=left><code>predict(obj, type = "prob")</code></td></tr><tr><td align=left><code>Weka</code></td><td align=left><code>RWeka</code></td><td align=left><code>predict(obj, type = "probability")</code></td></tr><tr><td align=left><code>logitboost</code></td><td align=left><code>LogitBoost</code></td><td align=left><code>predict(obj, type = "raw", nIter)</code></td></tr><tr><td align=left><code>pamr.train</code></td><td align=left><code>pamr</code></td><td align=left><code>pamr.predict(obj, type = "posterior")</code></td></tr></tbody></table><br><p>An added complication is that some models can create predictions across multiple <em>submodels</em> at once. For example, boosted trees fit using <code>\(i\)</code> iterations can produce predictions using less than <code>\(i\)</code> iterations (effectively creating a different prediction model). This can lead to further inconsistencies.</p><p>These issues, in aggregate, can be grating. Sometimes it might feel like:</p><blockquote><p>&ldquo;Is R working for me or am I working for R?&rdquo;</p></blockquote><p><code>parsnip</code> aims to decrease the frustration for people who want to evaluate different types of models on a data set. This is very much related to our
+<a href=https://tidymodels.github.io/model-implementation-principles/ target=_blank rel=noopener>guidelines for developing modeling packages</a> (on which we are still looking for feedback).</p><h1 id=parsnip-syntax>parsnip syntax
+<a href=#parsnip-syntax><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h1><p>To demonstrate, we&rsquo;ll use <code>mtcars</code> once again.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>parsnip</span><span class=p>)</span>
+<span class=nf>library</span><span class=p>(</span><span class=n>tidymodels</span><span class=p>)</span>
+</code></pre></div><pre><code>#&gt; ── Attaching packages ─────────────────────────────────────────────────────────────────── tidymodels 0.0.1 ──
+</code></pre><pre><code>#&gt; ✔ ggplot2   3.1.0     ✔ recipes   0.1.4
+#&gt; ✔ tibble    1.4.2     ✔ broom     0.5.0
+#&gt; ✔ purrr     0.2.5     ✔ yardstick 0.0.2
+#&gt; ✔ dplyr     0.7.8     ✔ infer     0.3.1
+#&gt; ✔ rsample   0.0.3
+</code></pre><pre><code>#&gt; ── Conflicts ────────────────────────────────────────────────────────────────────── tidymodels_conflicts() ──
+#&gt; ✖ purrr::accumulate()      masks foreach::accumulate()
+#&gt; ✖ rsample::fill()          masks tidyr::fill()
+#&gt; ✖ dplyr::filter()          masks stats::filter()
+#&gt; ✖ yardstick::get_weights() masks keras::get_weights()
+#&gt; ✖ dplyr::lag()             masks stats::lag()
+#&gt; ✖ rsample::populate()      masks Rcpp::populate()
+#&gt; ✖ recipes::step()          masks stats::step()
+#&gt; ✖ yardstick::tidy()        masks broom::tidy(), recipes::tidy(), rsample::tidy()
+#&gt; ✖ purrr::when()            masks foreach::when()
+</code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>set.seed</span><span class=p>(</span><span class=m>4831</span><span class=p>)</span>
+<span class=n>split</span> <span class=o>&lt;-</span> <span class=nf>initial_split</span><span class=p>(</span><span class=n>mtcars</span><span class=p>,</span> <span class=n>props</span> <span class=o>=</span> <span class=m>9</span><span class=o>/</span><span class=m>10</span><span class=p>)</span>
+<span class=n>car_train</span> <span class=o>&lt;-</span> <span class=nf>training</span><span class=p>(</span><span class=n>split</span><span class=p>)</span>
+<span class=n>car_test</span>  <span class=o>&lt;-</span> <span class=nf>testing</span><span class=p>(</span><span class=n>split</span><span class=p>)</span>
+</code></pre></div><p>Let&rsquo;s preprocess these data to center and scale the predictors. We&rsquo;ll use a basic recipe to do this:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>car_rec</span> <span class=o>&lt;-</span> 
+  <span class=nf>recipe</span><span class=p>(</span><span class=n>mpg</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>car_train</span><span class=p>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>step_center</span><span class=p>(</span><span class=nf>all_predictors</span><span class=p>())</span> <span class=o>%&gt;%</span>
+  <span class=nf>step_scale</span><span class=p>(</span><span class=nf>all_predictors</span><span class=p>())</span> <span class=o>%&gt;%</span>
+  <span class=nf>prep</span><span class=p>(</span><span class=n>training</span> <span class=o>=</span> <span class=n>car_train</span><span class=p>,</span> <span class=n>retain</span> <span class=o>=</span> <span class=kc>TRUE</span><span class=p>)</span>
+
+<span class=c1># The processed versions are:</span>
+<span class=n>train_data</span> <span class=o>&lt;-</span> <span class=nf>juice</span><span class=p>(</span><span class=n>car_rec</span><span class=p>)</span>
+<span class=n>test_data</span>  <span class=o>&lt;-</span> <span class=nf>bake</span><span class=p>(</span><span class=n>car_rec</span><span class=p>,</span> <span class=n>car_test</span><span class=p>)</span>
+</code></pre></div><p>To use <code>parsnip</code>, you start with a model <em>specification</em>. This is a simple object that defines the <em>intent</em> of the model. Since we will be using linear regression of various flavors, our first step is a simple statement:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>car_model</span> <span class=o>&lt;-</span> <span class=nf>linear_reg</span><span class=p>()</span>
+<span class=n>car_model</span>
+</code></pre></div><pre><code>#&gt; Linear Regression Model Specification (regression)
+</code></pre><p>That&rsquo;s pretty underwhelming because we haven&rsquo;t given it any details yet. <code>parsnip</code> offers a variety of methods to fit this general model. We will use ordinary least squares, but could also use penalized least squares too (via the lasso, ridge regression, Bayesian estimation, dropout, etc). We differentiate these cases by the <em><strong>computational engines</strong></em>, which is a combination of the estimation type, such as least squares, and the <em>implemention</em>. The latter could be an R package or some other computing platform like Spark or Tensorflow.</p><p>To start simple, let&rsquo;s use <code>lm</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>lm_car_model</span> <span class=o>&lt;-</span> 
+  <span class=n>car_model</span> <span class=o>%&gt;%</span>
+  <span class=nf>set_engine</span><span class=p>(</span><span class=s>&#34;lm&#34;</span><span class=p>)</span>
+<span class=n>lm_car_model</span>
+</code></pre></div><pre><code>#&gt; Linear Regression Model Specification (regression)
+#&gt; 
+#&gt; Computational engine: lm
+</code></pre><p>There are no additional arguments that we should specify here, so let&rsquo;s jump to fitting the actual model. Our two choices at this point are whether to use <code>fit()</code> or <code>fit_xy()</code>. <code>fit()</code> takes a formula, while <code>fit_xy()</code> takes objects for the predictors and outcome(s). Recall that <code>glm</code> and <code>lm</code> only allow for formulas, while <code>glmnet</code> only takes a matrix of predictors and an outcome. <code>parsnip</code> allows for either so that you can avoid having to think about what the underlying model function requires. To demonstrate, let&rsquo;s make a simple model:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>lm_fit</span> <span class=o>&lt;-</span>
+  <span class=n>lm_car_model</span> <span class=o>%&gt;%</span>
+  <span class=nf>fit</span><span class=p>(</span><span class=n>mpg</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>car_train</span><span class=p>)</span>
+
+<span class=c1># or</span>
+<span class=n>lm_car_model</span> <span class=o>%&gt;%</span>
+  <span class=nf>fit_xy</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=nf>select</span><span class=p>(</span><span class=n>car_train</span><span class=p>,</span> <span class=o>-</span><span class=n>mpg</span><span class=p>),</span> <span class=n>y</span> <span class=o>=</span> <span class=nf>select</span><span class=p>(</span><span class=n>car_train</span><span class=p>,</span> <span class=n>mpg</span><span class=p>))</span>
+</code></pre></div><pre><code>#&gt; parsnip model object
+#&gt; 
+#&gt; 
+#&gt; Call:
+#&gt; stats::lm(formula = formula, data = data)
+#&gt; 
+#&gt; Coefficients:
+#&gt; (Intercept)          cyl         disp           hp         drat  
+#&gt;     23.1945      -1.6396       0.0439      -0.0301       0.8517  
+#&gt;          wt         qsec           vs           am         gear  
+#&gt;     -6.0165       0.8668       0.8757       2.4274      -0.4658  
+#&gt;        carb  
+#&gt;      0.7889
+</code></pre><p>If we had predictors that were factors, <code>fit()</code> would be a better choice. If the underlying model takes a formula, the formula and data is passed directly to the function without modification. Otherwise, <code>fit()</code> applies the standard <code>model.matrix()</code> machinery to do the preprocessing and converts the data to the required format (e.g. a matrix for <code>glmnet</code>). Note that, for Spark tables, <code>fit()</code> must be used.</p><p>It should be noted that <code>lm_car_model</code> is a
+<a href=https://tidymodels.github.io/parsnip/reference/model_spec.html target=_blank rel=noopener>model specification object</a> while <code>lm_fit</code> is a
+<a href=https://tidymodels.github.io/parsnip/reference/model_fit.html target=_blank rel=noopener>model fit object</a>.</p><h1 id=more-engines>More Engines
+<a href=#more-engines><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h1><p>The value of <code>parsnip</code> starts to show when we want to try different engines. Let&rsquo;s take our same model and use Bayesian estimation to fit the parameters using Stan. We can change the engine to do so:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>stan_car_model</span> <span class=o>&lt;-</span> 
+  <span class=n>car_model</span> <span class=o>%&gt;%</span>
+  <span class=nf>set_engine</span><span class=p>(</span><span class=s>&#34;stan&#34;</span><span class=p>)</span>
+<span class=n>stan_car_model</span>
+</code></pre></div><pre><code>#&gt; Linear Regression Model Specification (regression)
+#&gt; 
+#&gt; Computational engine: stan
+</code></pre><p>To fit this model, <code>parsnip</code> calls <code>stan_glm()</code> from the
+<a href=http://mc-stan.org/rstanarm/ target=_blank rel=noopener><code>rstanarm</code></a> package. If you want to pass in arguments to this function, just add them to <code>set_engine</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>stan_car_model</span> <span class=o>&lt;-</span> 
+  <span class=n>car_model</span> <span class=o>%&gt;%</span>
+  <span class=nf>set_engine</span><span class=p>(</span><span class=s>&#34;stan&#34;</span><span class=p>,</span> <span class=n>iter</span> <span class=o>=</span> <span class=m>5000</span><span class=p>,</span> <span class=n>prior_intercept</span> <span class=o>=</span> <span class=n>rstanarm</span><span class=o>::</span><span class=nf>cauchy</span><span class=p>(</span><span class=m>0</span><span class=p>,</span> <span class=m>10</span><span class=p>),</span> <span class=n>seed</span> <span class=o>=</span> <span class=m>2347</span><span class=p>)</span>
+<span class=n>stan_car_model</span>
+</code></pre></div><pre><code>#&gt; Linear Regression Model Specification (regression)
+#&gt; 
+#&gt; Engine-Specific Arguments:
+#&gt;   iter = 5000
+#&gt;   prior_intercept = rstanarm::cauchy(0, 10)
+#&gt;   seed = 2347
+#&gt; 
+#&gt; Computational engine: stan
+</code></pre><p>The namespace was used to call <code>cauchy()</code> since <code>parsnip</code> does not fully attach the package when the model is fit.</p><p>The model can be fit in the same way. We&rsquo;ll add a feature here; <code>rstanarm</code> prints <em>a lot</em> of output when fitting. This can be helpful to diagnose issues but we&rsquo;ll exclude it using a control function:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c1># don&#39;t print anything:</span>
+<span class=n>ctrl</span> <span class=o>&lt;-</span> <span class=nf>fit_control</span><span class=p>(</span><span class=n>verbosity</span> <span class=o>=</span> <span class=m>0</span><span class=p>)</span>
+
+<span class=n>stan_fit</span> <span class=o>&lt;-</span> 
+  <span class=n>stan_car_model</span> <span class=o>%&gt;%</span>
+    <span class=nf>fit</span><span class=p>(</span><span class=n>mpg</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>car_train</span><span class=p>,</span> <span class=n>control</span> <span class=o>=</span> <span class=n>ctrl</span><span class=p>)</span>
+<span class=n>stan_fit</span>
+</code></pre></div><pre><code>#&gt; parsnip model object
+#&gt; 
+#&gt; stan_glm
+#&gt;  family:       gaussian [identity]
+#&gt;  formula:      mpg ~ .
+#&gt;  observations: 24
+#&gt;  predictors:   11
+#&gt; ------
+#&gt;             Median MAD_SD
+#&gt; (Intercept) 23.6   24.1  
+#&gt; cyl         -1.5    1.6  
+#&gt; disp         0.0    0.0  
+#&gt; hp           0.0    0.0  
+#&gt; drat         0.8    2.4  
+#&gt; wt          -5.4    3.1  
+#&gt; qsec         0.8    0.9  
+#&gt; vs           0.7    3.2  
+#&gt; am           2.3    2.7  
+#&gt; gear        -0.4    2.1  
+#&gt; carb         0.6    1.4  
+#&gt; 
+#&gt; Auxiliary parameter(s):
+#&gt;       Median MAD_SD
+#&gt; sigma 3.1    0.6   
+#&gt; 
+#&gt; Sample avg. posterior predictive distribution of y:
+#&gt;          Median MAD_SD
+#&gt; mean_PPD 20.6    0.9  
+#&gt; 
+#&gt; ------
+#&gt; * For help interpreting the printed output see ?print.stanreg
+#&gt; * For info on the priors used see ?prior_summary.stanreg
+</code></pre><p>That was easy.</p><p><strong>But wait, there&rsquo;s more</strong>! Getting predictions for these models is simple and <em>tidy</em>. We&rsquo;ve been working on coming up with a
+<a href=https://tidymodels.github.io/model-implementation-principles/model-predictions.html target=_blank rel=noopener>standard for model predictions</a> where the predictions always return a tibble that has the same number of rows as the data being predicted. This solves the frustrating issue of having new data with missing predictor values and a <code>predict()</code> method that returns predictions for only the complete data. In that case, you have to match up the rows of the original data to the predicted values.</p><p>For regression, basic predictions come back in a column called <code>.pred</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>predict</span><span class=p>(</span><span class=n>lm_fit</span><span class=p>,</span> <span class=n>car_test</span><span class=p>)</span>
+</code></pre></div><pre><code>#&gt; # A tibble: 8 x 1
+#&gt;   .pred
+#&gt;   &lt;dbl&gt;
+#&gt; 1  17.5
+#&gt; 2  17.7
+#&gt; 3  11.0
+#&gt; 4  13.2
+#&gt; 5  13.2
+#&gt; 6  10.9
+#&gt; 7  31.9
+#&gt; 8  24.9
+</code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>predict</span><span class=p>(</span><span class=n>stan_fit</span><span class=p>,</span> <span class=n>car_test</span><span class=p>)</span>
+</code></pre></div><pre><code>#&gt; # A tibble: 8 x 1
+#&gt;   .pred
+#&gt;   &lt;dbl&gt;
+#&gt; 1  17.4
+#&gt; 2  17.9
+#&gt; 3  11.6
+#&gt; 4  13.6
+#&gt; 5  13.6
+#&gt; 6  10.9
+#&gt; 7  31.5
+#&gt; 8  24.9
+</code></pre><p>This can be easily joined to the original data and the <code>.</code> in the name is there to prevent duplicate name conflicts.</p><p><code>parsnip</code> also enables different types of predictions with a standard interface. To get interval estimates:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>predict</span><span class=p>(</span><span class=n>lm_fit</span><span class=p>,</span> <span class=n>car_test</span><span class=p>,</span> <span class=n>type</span> <span class=o>=</span> <span class=s>&#34;conf_int&#34;</span><span class=p>)</span>
+</code></pre></div><pre><code>#&gt; # A tibble: 8 x 2
+#&gt;   .pred_lower .pred_upper
+#&gt;         &lt;dbl&gt;       &lt;dbl&gt;
+#&gt; 1       14.1         21.0
+#&gt; 2       11.6         23.8
+#&gt; 3        3.57        18.3
+#&gt; 4        7.41        18.9
+#&gt; 5        7.15        19.3
+#&gt; 6        6.39        15.5
+#&gt; 7       23.2         40.7
+#&gt; 8       19.0         30.9
+</code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c1># Not really a confidence interval but gives quantiles of </span>
+<span class=c1># the posterior distribution of the fitted values. </span>
+<span class=nf>predict</span><span class=p>(</span><span class=n>stan_fit</span><span class=p>,</span> <span class=n>car_test</span><span class=p>,</span> <span class=n>type</span> <span class=o>=</span> <span class=s>&#34;conf_int&#34;</span><span class=p>)</span>
+</code></pre></div><pre><code>#&gt; # A tibble: 8 x 2
+#&gt;   .pred_lower .pred_upper
+#&gt;         &lt;dbl&gt;       &lt;dbl&gt;
+#&gt; 1       14.0         20.7
+#&gt; 2       12.0         23.9
+#&gt; 3        5.03        18.4
+#&gt; 4        8.37        18.9
+#&gt; 5        8.17        19.3
+#&gt; 6        6.38        15.4
+#&gt; 7       23.1         39.6
+#&gt; 8       19.1         30.8
+</code></pre><p>As one might expect, the code to obtain these values using the original packages are very different from one another. <code>parsnip</code> works to make the interface easy. A mapping between the available models and their prediction types is
+<a href=https://tidymodels.github.io/parsnip/articles/articles/Models.html target=_blank rel=noopener>here</a>.</p><h1 id=standardized-arguments>Standardized Arguments
+<a href=#standardized-arguments><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h1><p>Now let&rsquo;s look at estimating this model using an L2 penalty (a.k.a weight decay, a.k.a ridge regression). There are a few ways of doing this. <code>glmnet</code> is an obvious choice. While we don&rsquo;t have to declare the size of the penalty at the time of model fitting, we&rsquo;ll do so below for illustration.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>x_mat</span> <span class=o>&lt;-</span> 
+  <span class=n>car_train</span> <span class=o>%&gt;%</span> 
+  <span class=nf>select</span><span class=p>(</span><span class=o>-</span><span class=n>mpg</span><span class=p>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>as.matrix</span><span class=p>()</span>
+
+<span class=nf>glmnet</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=n>x_mat</span><span class=p>,</span> <span class=n>y</span> <span class=o>=</span> <span class=n>car_train</span><span class=o>$</span><span class=n>mpg</span><span class=p>,</span> <span class=n>alpha</span> <span class=o>=</span> <span class=m>0</span><span class=p>,</span> <span class=n>lambda</span> <span class=o>=</span> <span class=m>0.1</span><span class=p>)</span>
+</code></pre></div><p><code>alpha = 0</code> tells <code>glmnet</code> to only use an L2 penalty (as opposed to L1 and L2).</p><p>For <code>keras</code>,
+<a href=https://keras.rstudio.com/articles/tutorial_basic_regression.html target=_blank rel=noopener>possible syntax</a> could be:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>lr_model</span> <span class=o>&lt;-</span> <span class=nf>keras_model_sequential</span><span class=p>()</span> 
+<span class=n>lr_model</span> <span class=o>%&gt;%</span> 
+  <span class=nf>layer_dense</span><span class=p>(</span><span class=n>units</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>input_shape</span> <span class=o>=</span> <span class=nf>dim</span><span class=p>(</span><span class=n>x_mat</span><span class=p>)</span><span class=n>[2]</span><span class=p>,</span> <span class=n>activation</span> <span class=o>=</span> <span class=s>&#39;linear&#39;</span><span class=p>,</span>
+              <span class=n>kernel_regularizer</span> <span class=o>=</span> <span class=nf>regularizer_l2</span><span class=p>(</span><span class=m>0.1</span><span class=p>))</span> 
+  
+<span class=n>early_stopping</span> <span class=o>&lt;-</span> <span class=nf>callback_early_stopping</span><span class=p>(</span><span class=n>monitor</span> <span class=o>=</span> <span class=s>&#39;loss&#39;</span><span class=p>,</span> <span class=n>min_delta</span> <span class=o>=</span> <span class=m>0.000001</span><span class=p>)</span>
+
+<span class=n>lr_model</span> <span class=o>%&gt;%</span> <span class=nf>compile</span><span class=p>(</span>
+  <span class=n>loss</span> <span class=o>=</span> <span class=s>&#39;mean_squared_error&#39;</span><span class=p>,</span>
+  <span class=n>optimizer</span> <span class=o>=</span> <span class=nf>optimizer_adam</span><span class=p>(</span><span class=n>lr</span> <span class=o>=</span> <span class=m>0.001</span><span class=p>)</span>
+<span class=p>)</span>
+
+<span class=n>lr_model</span> <span class=o>%&gt;%</span>
+  <span class=nf>fit</span><span class=p>(</span>
+    <span class=n>x</span> <span class=o>=</span> <span class=n>x_mat</span><span class=p>,</span>
+    <span class=n>y</span> <span class=o>=</span> <span class=n>car_train</span><span class=o>$</span><span class=n>mpg</span><span class=p>,</span>
+    <span class=n>epochs</span> <span class=o>=</span> <span class=m>1000</span><span class=p>,</span>
+    <span class=n>batch_size</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span>
+    <span class=n>callbacks</span> <span class=o>=</span> <span class=n>early_stopping</span>
+  <span class=p>)</span>
+</code></pre></div><p>This is very powerful but maybe it&rsquo;s not something that you want to have to type more than once.</p><p><code>parsnip</code> model functions, like <code>linear_reg()</code>, can also have <em>main arguments</em> that are standardized and avoid jargon like <code>lambda</code> or <code>kernel_regularizer</code>. Here, a model specification would be:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>penalized</span> <span class=o>&lt;-</span> <span class=nf>linear_reg</span><span class=p>(</span><span class=n>mixture</span> <span class=o>=</span> <span class=m>0</span><span class=p>,</span> <span class=n>penalty</span> <span class=o>=</span> <span class=m>0.1</span><span class=p>)</span>
+<span class=n>penalized</span>
+</code></pre></div><pre><code>#&gt; Linear Regression Model Specification (regression)
+#&gt; 
+#&gt; Main Arguments:
+#&gt;   penalty = 0.1
+#&gt;   mixture = 0
+</code></pre><p><code>penalty</code> is the amount of regularization penalty that we want to use. <code>mixture</code> is only used for models like <code>glmnet</code> that can fit different types of penalties, and is the proportion of the penalty that corresponds to weight decay (in other words, <code>alpha</code> from above).</p><p>From here, the <code>glmnet</code> model would be:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>glmn_fit</span> <span class=o>&lt;-</span>
+  <span class=n>penalized</span> <span class=o>%&gt;%</span>
+  <span class=nf>set_engine</span><span class=p>(</span><span class=s>&#34;glmnet&#34;</span><span class=p>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>fit</span><span class=p>(</span><span class=n>mpg</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>car_train</span><span class=p>)</span>
+<span class=n>glmn_fit</span>
+</code></pre></div><pre><code>#&gt; parsnip model object
+#&gt; 
+#&gt; 
+#&gt; Call:  glmnet::glmnet(x = as.matrix(x), y = y, family = &quot;gaussian&quot;,      alpha = ~0, lambda = ~0.1) 
+#&gt; 
+#&gt;      Df  %Dev Lambda
+#&gt; [1,] 10 0.854    0.1
+</code></pre><p>For <code>keras</code>, we can add the other options (unrelated to the penalty) via <code>set_engine()</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>early_stopping</span> <span class=o>&lt;-</span> <span class=nf>callback_early_stopping</span><span class=p>(</span><span class=n>monitor</span> <span class=o>=</span> <span class=s>&#39;loss&#39;</span><span class=p>,</span> <span class=n>min_delta</span> <span class=o>=</span> <span class=m>0.000001</span><span class=p>)</span>
+
+<span class=n>keras_fit</span> <span class=o>&lt;-</span>
+  <span class=n>penalized</span> <span class=o>%&gt;%</span>
+  <span class=nf>set_engine</span><span class=p>(</span><span class=s>&#34;keras&#34;</span><span class=p>,</span> <span class=n>epochs</span> <span class=o>=</span> <span class=m>1000</span><span class=p>,</span> <span class=n>batch_size</span> <span class=o>=</span> <span class=m>1</span><span class=p>,</span> <span class=n>callbacks</span> <span class=o>=</span> <span class=o>!!</span><span class=n>early_stopping</span><span class=p>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>fit</span><span class=p>(</span><span class=n>mpg</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>car_train</span><span class=p>,</span> <span class=n>control</span> <span class=o>=</span> <span class=n>ctrl</span><span class=p>)</span>
+<span class=n>keras_fit</span>
+</code></pre></div><pre><code>#&gt; parsnip model object
+#&gt; 
+#&gt; Model
+#&gt; ___________________________________________________________________________
+#&gt; Layer (type)                     Output Shape                  Param #     
+#&gt; ===========================================================================
+#&gt; dense_1 (Dense)                  (None, 1)                     11          
+#&gt; ___________________________________________________________________________
+#&gt; dense_2 (Dense)                  (None, 1)                     2           
+#&gt; ===========================================================================
+#&gt; Total params: 13
+#&gt; Trainable params: 13
+#&gt; Non-trainable params: 0
+#&gt; ___________________________________________________________________________
+</code></pre><p>The main arguments are standardized in <code>parsnip</code>, so that <code>logistic_reg()</code> and other functions use the same name, and are being standardized in other packages like
+<a href=https://tidymodels.github.io/recipes/ target=_blank rel=noopener><code>recipes</code></a> and
+<a href=https://tidymodels.github.io/dials/ target=_blank rel=noopener><code>dials</code></a>.</p><h1 id=what-parsnip-is-and-what-it-isnt>What parsnip is and what it isn&rsquo;t
+<a href=#what-parsnip-is-and-what-it-isnt><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h1><p>Other packages, such as
+<a href=https://topepo.github.io/caret/ target=_blank rel=noopener><code>caret</code></a> and <code>mlr</code>, help to solve the R model API issue. These packages do a lot of other things too: preprocessing, model tuning, resampling, feature selection, ensembling, and so on. In the tidyverse, we strive to make our packages modular and <code>parsnip</code> is designed <em>only</em> to solve the interface issue. It is <strong>not</strong> designed to be a drop-in replacement for
+<a href=https://topepo.github.io/caret/ target=_blank rel=noopener><code>caret</code></a>.</p><p>The
+<a href=https://github.com/tidymodels target=_blank rel=noopener><code>tidymodels</code> package collection</a>, which includes <code>parsnip</code>, has other packages for many of these tasks, and they are designed to work together. We are working towards higher-level APIs that can replicate and extend what the current model packages can do.</p><p>For example, <code>fit()</code> and <code>fit_xy()</code> do not involve recipes. It might seem natural to include a recipe interface like <code>caret</code> does (and, originally, <code>parsnip</code> did). The reason that recipes are excluded from fitting <code>parsnip</code> objects is that you probably want to process the recipe <em>once</em> and use it across different models. To include it would link that specific recipe to <em>each</em> fitted model object.</p><p>As an alternative, we are working on a different object type that is similar to existing pipelines where a set of modeling activities can be woven together to represent the entire <strong>modeling process</strong>. To get an idea of the activities that we have in store for tidy modeling, look
+<a href=https://github.com/orgs/tidymodels/projects target=_blank rel=noopener>here</a>.</p><h1 id=whats-next>What&rsquo;s next
+<a href=#whats-next><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h1><p>Subsequent blog posts on <code>parsnip</code> will talk about the underlying architecture and choices that we made along the line (and why). We&rsquo;ll also talk more about how <code>parsnip</code> integrates with other <code>tidymodels</code> packages, how quasiquotation can/should be used, and some other features that are
+<a href=https://tidymodels.github.io/parsnip/reference/descriptors.html target=_blank rel=noopener>particularly interesting</a> to us.</p></div></div><div class=column25><div class="section hideOnMobile"></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

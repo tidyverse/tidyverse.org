@@ -1,0 +1,80 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>usemodels 0.0.1</title><meta property="og:title" content="usemodels 0.0.1"><meta property="og:description" content="The new usemodels R package is a helpful way to automatically generate  tidymodels code."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2020/09/usemodels-0-0-1/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="usemodels 0.0.1 - Tidyverse"><meta property="description" content="The new usemodels R package is a helpful way to automatically generate  tidymodels code."><meta property="og:description" content="The new usemodels R package is a helpful way to automatically generate  tidymodels code."><meta property="og:image" content="https://www.tidyverse.org/blog/2020/09/usemodels-0-0-1/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2020/09/usemodels-0-0-1/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>usemodels 0.0.1</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2020/09/usemodels-0-0-1/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/0TH1H1rq_eY>Neven Krcmarek</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2020/09/29</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/recipes/>recipes</a>,
+<a href=/tags/tidymodels/>tidymodels</a>,
+<a href=/tags/parsnip/>parsnip</a>,
+<a href=/tags/tune/>tune</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Max Kuhn</p><div class=article-content><p>We&rsquo;re very excited to announce the first release of the
+<a href=https://usemodels.tidymodels.org/ target=_blank rel=noopener>usemodels</a> package. The tidymodels packages are designed to provide modeling functions that are highly flexible and modular. This is powerful, but sometimes a template or skeleton showing how to start is helpful. The usemodels package creates templates for tidymodels analyses so you don&rsquo;t have to write as much new code.</p><p>You can install it from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>install.packages</span><span class=p>(</span><span class=s>&#34;usemodels&#34;</span><span class=p>)</span>
+</code></pre></div><p>This blog post will show how to use the package.</p><p>Let&rsquo;s start by creating a glmnet linear regression model for the <code>mtcars</code> data using tidymodels. This model is usually tuned over the amount and type of regularization. In tidymodels, there are a few intermediate steps for a glmnet model:</p><ul><li><p>Create a
+<a href=https://www.tmwr.org/models.html target=_blank rel=noopener>parsnip model object</a> and define the tuning parameters that we want to optimize.</p></li><li><p><a href=https://www.tmwr.org/recipes.html target=_blank rel=noopener>Create a recipe</a> that, at minimum, centers and scales the predictors. For some data sets, we also need to create dummy variables from any factor-encoded predictor columns.</p></li><li><p>Define a
+<a href=https://www.tmwr.org/resampling.html target=_blank rel=noopener>resampling scheme</a> for our data.</p></li><li><p>Choose a function from the
+<a href=https://tune.tidymodels.org/ target=_blank rel=noopener>tune package</a>, such as <code>tune_grid()</code>, to optimize the parameters. For grid search, we&rsquo;ll also need a grid of candidate parameter values (or let the function choose one for us).</p></li></ul><p>We recognize that this might be more code than you would have had to write compared to a package like caret. However, the tidymodels ecosystem enables a wider variety of modeling techniques and is more versatile.</p><p>The new usemodels package can automatically generate much of this code infrastructure. For example:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=o>&gt;</span> <span class=nf>library</span><span class=p>(</span><span class=n>usemodels</span><span class=p>)</span>
+<span class=o>&gt;</span> <span class=nf>use_glmnet</span><span class=p>(</span><span class=n>mpg</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>mtcars</span><span class=p>)</span>
+</code></pre></div><p>which produces the terminal output:</p><pre><code>glmnet_recipe &lt;- 
+  recipe(formula = mpg ~ ., data = mtcars) %&gt;% 
+  step_zv(all_predictors()) %&gt;% 
+  step_normalize(all_predictors(), -all_nominal()) 
+
+glmnet_spec &lt;- 
+  linear_reg(penalty = tune(), mixture = tune()) %&gt;% 
+  set_mode(&quot;regression&quot;) %&gt;% 
+  set_engine(&quot;glmnet&quot;) 
+
+glmnet_workflow &lt;- 
+  workflow() %&gt;% 
+  add_recipe(glmnet_recipe) %&gt;% 
+  add_model(glmnet_spec) 
+
+glmnet_grid &lt;- tidyr::crossing(penalty = 10^seq(-6, -1, length.out = 20), mixture = c(0.05, 
+    0.2, 0.4, 0.6, 0.8, 1)) 
+
+glmnet_tune &lt;- 
+  tune_grid(glmnet_workflow, resamples = stop(&quot;add your rsample object&quot;), grid = glmnet_grid) 
+</code></pre><p>This can be copied to the source window and edited. Some notes:</p><ul><li><p>For this model, it is possible to prescribe a default grid of candidate tuning parameter values that work well about 90% of the time. For other models, the grid might be data-driven. In these cases, the tune package functions can estimate an appropriate grid.</p></li><li><p>The extra recipes steps are the
+<a href=https://www.tmwr.org/pre-proc-table.html target=_blank rel=noopener>recommend preprocessing</a> for this model. Since this varies from model-to-model, the recipe template will contain the minimal required steps. Your data might require additional operations.</p></li><li><p>One thing that <em>should not be automated</em> is the choice of resampling method. The code templates require the user to choose the rsample function that is appropriate.</p></li></ul><p>In case you are unfamiliar with the model and its preprocessing needs, a <code>verbose</code> option prints comments that explain <em>why</em> some steps are included. For the glmnet model, the comments added to the recipe state:</p><blockquote><p>Regularization methods sum up functions of the model slope coefficients. Because of this, the predictor variables should be on the same scale. Before centering and scaling the numeric predictors, any predictors with a single unique value are filtered out.</p></blockquote><p>Let&rsquo;s look at another example. The <code>ad_data</code> data set in the modeldata package has rows for 333 patients with a factor outcome for their level of cognitive impairment (e.g., Alzheimer&rsquo;s disease). There is also a categorical predictor in the data, the Apolipoprotein E genotype, which has six levels. Let&rsquo;s suppose the <code>Genotype</code> column was encoded as character (instead of being a factor). This might be a problem if the resampling method samples out a level from the data used to fit the model.</p><p>Let&rsquo;s use a boosted tree model with the xgboost package and change the default prefix for the objects:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=o>&gt;</span> <span class=nf>library</span><span class=p>(</span><span class=n>tidymodels</span><span class=p>)</span>
+<span class=o>&gt;</span> <span class=nf>data</span><span class=p>(</span><span class=n>ad_data</span><span class=p>)</span>
+<span class=o>&gt;</span> 
+<span class=o>&gt;</span> <span class=n>ad_data</span><span class=o>$</span><span class=n>Genotype</span> <span class=o>&lt;-</span> <span class=nf>as.character</span><span class=p>(</span><span class=n>ad_data</span><span class=o>$</span><span class=n>Genotype</span><span class=p>)</span>
+<span class=o>&gt;</span> 
+<span class=o>&gt;</span> <span class=nf>use_xgboost</span><span class=p>(</span><span class=n>Class</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>ad_data</span><span class=p>,</span> <span class=n>prefix</span> <span class=o>=</span> <span class=s>&#34;impairment&#34;</span><span class=p>)</span>
+</code></pre></div><pre><code>impairment_recipe &lt;- 
+  recipe(formula = Class ~ ., data = ad_data) %&gt;% 
+  step_string2factor(one_of(Genotype)) %&gt;% 
+  step_novel(all_nominal(), -all_outcomes()) %&gt;% 
+  step_dummy(all_nominal(), -all_outcomes(), one_hot = TRUE) %&gt;% 
+  step_zv(all_predictors()) 
+
+impairment_spec &lt;- 
+  boost_tree(trees = tune(), min_n = tune(), tree_depth = tune(), learn_rate = tune(), 
+    loss_reduction = tune(), sample_size = tune()) %&gt;% 
+  set_mode(&quot;classification&quot;) %&gt;% 
+  set_engine(&quot;xgboost&quot;) 
+
+impairment_workflow &lt;- 
+  workflow() %&gt;% 
+  add_recipe(impairment_recipe) %&gt;% 
+  add_model(impairment_spec) 
+
+set.seed(64393)
+impairment_tune &lt;-
+  tune_grid(impairment_workflow, resamples = stop(&quot;add your rsample object&quot;), 
+    grid = stop(&quot;add number of candidate points&quot;))
+</code></pre><p>Notice that the line</p><pre><code>step_string2factor(one_of(Genotype)) 
+</code></pre><p>is included in the recipe along with a step to generate one-hot encoded dummy variables. xgboost is one of the few tree ensemble implementations that requires the user to create dummy variables. This step is only added to the template when it is required for that model.</p><p>Also, for this particular model, we recommend using a
+<a href="https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=space+filling+design+of+experiments" target=_blank rel=noopener>space-filling design</a> for the grid, but the user must choose the number of grid points.</p><p>The current set of templates included in the inaugural version of the package are:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>ls</span><span class=p>(</span><span class=s>&#34;package:usemodels&#34;</span><span class=p>,</span> <span class=n>pattern</span> <span class=o>=</span> <span class=s>&#34;^use_&#34;</span><span class=p>)</span>
+</code></pre></div><pre><code>## [1] &quot;use_earth&quot;   &quot;use_glmnet&quot;  &quot;use_kknn&quot;    &quot;use_ranger&quot;  &quot;use_xgboost&quot;
+</code></pre><p>We&rsquo;ll likely add more but please file
+<a href=https://github.com/tidymodels/usemodels/issues target=_blank rel=noopener>an issue</a> if there are any that you see as a priority.</p></div></div><div class=column25><div class="section hideOnMobile"></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

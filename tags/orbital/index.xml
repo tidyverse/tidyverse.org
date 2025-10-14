@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>orbital | Tidyverse</title><link>https://www.tidyverse.org/tags/orbital/</link><atom:link href="https://www.tidyverse.org/tags/orbital/index.xml" rel="self" type="application/rss+xml"/><description>orbital</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 13 Jan 2025 00:00:00 +0000</lastBuildDate><item><title>orbital 0.3.0</title><link>https://www.tidyverse.org/blog/2025/01/orbital-0-3-0/</link><pubDate>Mon, 13 Jan 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/01/orbital-0-3-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re thrilled to announce the release of
+&lt;a href="https://orbital.tidymodels.org/" target="_blank" rel="noopener">orbital&lt;/a> 0.3.0. orbital lets you predict in databases using tidymodels workflows.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"orbital"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This blog post will cover the highlights, which are classification support and the new augment method.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://orbital.tidymodels.org/news/index.html#orbital-030" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="classification-support">Classification support
+&lt;a href="#classification-support">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The biggest improvement in this version is that
+&lt;a href="https://orbital.tidymodels.org/reference/orbital.html" target="_blank" rel="noopener">&lt;code>orbital()&lt;/code>&lt;/a> now works for supported classification models. See
+&lt;a href="https://orbital.tidymodels.org/articles/supported-models.html#supported-models" target="_blank" rel="noopener">vignette&lt;/a> for list of all supported models.&lt;/p>
+&lt;p>Let&amp;rsquo;s start by fitting a classification model on the &lt;code>penguins&lt;/code> data set, using {xgboost} as the engine.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>rec_spec&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>recipe&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>species&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>, data &lt;span class='o'>=&lt;/span> &lt;span class='nv'>penguins&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>step_unknown&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>all_nominal_predictors&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>step_dummy&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>all_nominal_predictors&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>step_impute_mean&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>all_numeric_predictors&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>step_zv&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>all_predictors&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>lr_spec&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>boost_tree&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>set_mode&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"classification"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>set_engine&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"xgboost"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>wf_spec&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>workflow&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>rec_spec&lt;/span>, &lt;span class='nv'>lr_spec&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>wf_fit&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>fit&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>wf_spec&lt;/span>, data &lt;span class='o'>=&lt;/span> &lt;span class='nv'>penguins&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>With this fitted workflow object, we can call
+&lt;a href="https://orbital.tidymodels.org/reference/orbital.html" target="_blank" rel="noopener">&lt;code>orbital()&lt;/code>&lt;/a> on it to create an orbital object.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>orbital_obj&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://orbital.tidymodels.org/reference/orbital.html'>orbital&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>wf_fit&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>orbital_obj&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>──&lt;/span> &lt;span style='font-weight: bold;'>orbital Object&lt;/span> &lt;span style='color: #00BBBB;'>──────────────────────────────────────────────────────────────&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • island = dplyr::if_else(is.na(island), "unknown", island)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • sex = dplyr::if_else(is.na(sex), "unknown", sex)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • island_Dream = as.numeric(island == "Dream")&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • island_Torgersen = as.numeric(island == "Torgersen")&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • sex_male = as.numeric(sex == "male")&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • sex_unknown = as.numeric(sex == "unknown")&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • bill_length_mm = dplyr::if_else(is.na(bill_length_mm), 43.92193, bill_l ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • bill_depth_mm = dplyr::if_else(is.na(bill_depth_mm), 17.15117, bill_dep ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • flipper_length_mm = dplyr::if_else(is.na(flipper_length_mm), 201, flipp ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • body_mass_g = dplyr::if_else(is.na(body_mass_g), 4202, body_mass_g)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • island_Dream = dplyr::if_else(is.na(island_Dream), 0.3604651, island_Dr ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • island_Torgersen = dplyr::if_else(is.na(island_Torgersen), 0.1511628, i ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • sex_male = dplyr::if_else(is.na(sex_male), 0.4883721, sex_male)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • sex_unknown = dplyr::if_else(is.na(sex_unknown), 0.03197674, sex_unknow ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • Adelie = 0 + dplyr::case_when((bill_depth_mm &amp;lt; 15.1 | is.na(bill_depth_ ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • Chinstrap = 0 + dplyr::case_when((island_Dream &amp;lt; 0.5 | is.na(island_Dre ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • Gentoo = 0 + dplyr::case_when((bill_depth_mm &amp;lt; 15.95 | is.na(bill_depth ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • .pred_class = dplyr::case_when(Adelie &amp;gt; Chinstrap &amp;amp; Adelie &amp;gt; Gentoo ~ " ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ────────────────────────────────────────────────────────────────────────────────&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 18 equations in total.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This object contains all the information that is needed to produce predictions. Which we can produce with
+&lt;a href="https://rdrr.io/r/stats/predict.html" target="_blank" rel="noopener">&lt;code>predict()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/predict.html'>predict&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>orbital_obj&lt;/span>, &lt;span class='nv'>penguins&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 344 × 1&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .pred_class&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 334 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The main thing to note here is that the orbital package produces character vectors instead of factors. This is done as a unifying approach since many databases don&amp;rsquo;t have factor types.&lt;/p>
+&lt;p>Speaking of databases, you can
+&lt;a href="https://rdrr.io/r/stats/predict.html" target="_blank" rel="noopener">&lt;code>predict()&lt;/code>&lt;/a> on an orbital object using tables from databases. Below we create an ephemeral in-memory RSQLite database.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://dbi.r-dbi.org'>DBI&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://rsqlite.r-dbi.org'>RSQLite&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>con_sqlite&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://dbi.r-dbi.org/reference/dbConnect.html'>dbConnect&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rsqlite.r-dbi.org/reference/SQLite.html'>SQLite&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, path &lt;span class='o'>=&lt;/span> &lt;span class='s'>":memory:"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>penguins_sqlite&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>copy_to&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>con_sqlite&lt;/span>, &lt;span class='nv'>penguins&lt;/span>, name &lt;span class='o'>=&lt;/span> &lt;span class='s'>"penguins_table"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>And we can predict with it like normal. All the calculations are sent to the database for execution.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/predict.html'>predict&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>orbital_obj&lt;/span>, &lt;span class='nv'>penguins_sqlite&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># Source: SQL [?? x 1]&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># Database: sqlite 3.47.1 []&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .pred_class&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> Adelie &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This works the same with
+&lt;a href="https://orbital.tidymodels.org/articles/databases.html" target="_blank" rel="noopener">many types of databases&lt;/a>.&lt;/p>
+&lt;p>Classification is different from regression in part because it comes with multiple prediction types. The above example showed the default which is hard classification. You can set the type of prediction you want with the &lt;code>type&lt;/code> argument to &lt;code>orbital&lt;/code>. For classification models, possible options are &lt;code>&amp;quot;class&amp;quot;&lt;/code> and &lt;code>&amp;quot;prob&amp;quot;&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>orbital_obj_prob&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://orbital.tidymodels.org/reference/orbital.html'>orbital&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>wf_fit&lt;/span>, type &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"class"&lt;/span>, &lt;span class='s'>"prob"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>orbital_obj_prob&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>──&lt;/span> &lt;span style='font-weight: bold;'>orbital Object&lt;/span> &lt;span style='color: #00BBBB;'>──────────────────────────────────────────────────────────────&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • island = dplyr::if_else(is.na(island), "unknown", island)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • sex = dplyr::if_else(is.na(sex), "unknown", sex)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • island_Dream = as.numeric(island == "Dream")&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • island_Torgersen = as.numeric(island == "Torgersen")&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • sex_male = as.numeric(sex == "male")&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • sex_unknown = as.numeric(sex == "unknown")&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • bill_length_mm = dplyr::if_else(is.na(bill_length_mm), 43.92193, bill_l ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • bill_depth_mm = dplyr::if_else(is.na(bill_depth_mm), 17.15117, bill_dep ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • flipper_length_mm = dplyr::if_else(is.na(flipper_length_mm), 201, flipp ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • body_mass_g = dplyr::if_else(is.na(body_mass_g), 4202, body_mass_g)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • island_Dream = dplyr::if_else(is.na(island_Dream), 0.3604651, island_Dr ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • island_Torgersen = dplyr::if_else(is.na(island_Torgersen), 0.1511628, i ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • sex_male = dplyr::if_else(is.na(sex_male), 0.4883721, sex_male)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • sex_unknown = dplyr::if_else(is.na(sex_unknown), 0.03197674, sex_unknow ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • Adelie = 0 + dplyr::case_when((bill_depth_mm &amp;lt; 15.1 | is.na(bill_depth_ ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • Chinstrap = 0 + dplyr::case_when((island_Dream &amp;lt; 0.5 | is.na(island_Dre ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • Gentoo = 0 + dplyr::case_when((bill_depth_mm &amp;lt; 15.95 | is.na(bill_depth ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • .pred_class = dplyr::case_when(Adelie &amp;gt; Chinstrap &amp;amp; Adelie &amp;gt; Gentoo ~ " ...&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • norm = exp(Adelie) + exp(Chinstrap) + exp(Gentoo)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • .pred_Adelie = exp(Adelie) / norm&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • .pred_Chinstrap = exp(Chinstrap) / norm&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • .pred_Gentoo = exp(Gentoo) / norm&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ────────────────────────────────────────────────────────────────────────────────&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 22 equations in total.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Notice how we can select both &lt;code>&amp;quot;class&amp;quot;&lt;/code> and &lt;code>&amp;quot;prob&amp;quot;&lt;/code>. The predictions now include both hard and soft class predictions.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/predict.html'>predict&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>orbital_obj_prob&lt;/span>, &lt;span class='nv'>penguins&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 344 × 4&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .pred_class .pred_Adelie .pred_Chinstrap .pred_Gentoo&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> Adelie 0.989 0.005&lt;span style='text-decoration: underline;'>54&lt;/span> 0.005&lt;span style='text-decoration: underline;'>60&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> Adelie 0.989 0.005&lt;span style='text-decoration: underline;'>54&lt;/span> 0.005&lt;span style='text-decoration: underline;'>60&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> Adelie 0.989 0.005&lt;span style='text-decoration: underline;'>54&lt;/span> 0.005&lt;span style='text-decoration: underline;'>60&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> Adelie 0.709 0.024&lt;span style='text-decoration: underline;'>5&lt;/span> 0.267 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> Adelie 0.989 0.005&lt;span style='text-decoration: underline;'>54&lt;/span> 0.005&lt;span style='text-decoration: underline;'>60&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> Adelie 0.989 0.005&lt;span style='text-decoration: underline;'>54&lt;/span> 0.005&lt;span style='text-decoration: underline;'>60&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> Adelie 0.989 0.005&lt;span style='text-decoration: underline;'>54&lt;/span> 0.005&lt;span style='text-decoration: underline;'>60&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> Adelie 0.989 0.005&lt;span style='text-decoration: underline;'>54&lt;/span> 0.005&lt;span style='text-decoration: underline;'>60&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> Adelie 0.979 0.005&lt;span style='text-decoration: underline;'>49&lt;/span> 0.015&lt;span style='text-decoration: underline;'>8&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> Adelie 0.980 0.005&lt;span style='text-decoration: underline;'>59&lt;/span> 0.014&lt;span style='text-decoration: underline;'>8&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 334 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>That works equally well in databases.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/predict.html'>predict&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>orbital_obj_prob&lt;/span>, &lt;span class='nv'>penguins_sqlite&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># Source: SQL [?? x 4]&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># Database: sqlite 3.47.1 []&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .pred_class .pred_Adelie .pred_Chinstrap .pred_Gentoo&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> Adelie 0.989 0.005&lt;span style='text-decoration: underline;'>54&lt;/span> 0.005&lt;span style='text-decoration: underline;'>60&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> Adelie 0.989 0.005&lt;span style='text-decoration: underline;'>54&lt;/span> 0.005&lt;span style='text-decoration: underline;'>60&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> Adelie 0.989 0.005&lt;span style='text-decoration: underline;'>54&lt;/span> 0.005&lt;span style='text-decoration: underline;'>60&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> Adelie 0.709 0.024&lt;span style='text-decoration: underline;'>5&lt;/span> 0.267 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> Adelie 0.989 0.005&lt;span style='text-decoration: underline;'>54&lt;/span> 0.005&lt;span style='text-decoration: underline;'>60&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> Adelie 0.989 0.005&lt;span style='text-decoration: underline;'>54&lt;/span> 0.005&lt;span style='text-decoration: underline;'>60&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> Adelie 0.989 0.005&lt;span style='text-decoration: underline;'>54&lt;/span> 0.005&lt;span style='text-decoration: underline;'>60&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> Adelie 0.989 0.005&lt;span style='text-decoration: underline;'>54&lt;/span> 0.005&lt;span style='text-decoration: underline;'>60&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> Adelie 0.979 0.005&lt;span style='text-decoration: underline;'>49&lt;/span> 0.015&lt;span style='text-decoration: underline;'>8&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> Adelie 0.980 0.005&lt;span style='text-decoration: underline;'>59&lt;/span> 0.014&lt;span style='text-decoration: underline;'>8&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="new-augment-method">New augment method
+&lt;a href="#new-augment-method">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The users of tidymodels have found the
+&lt;a href="https://generics.r-lib.org/reference/augment.html" target="_blank" rel="noopener">&lt;code>augment()&lt;/code>&lt;/a> function to be a handy tool. This function performs predictions and returns them alongside the original data set.&lt;/p>
+&lt;p>This release adds
+&lt;a href="https://generics.r-lib.org/reference/augment.html" target="_blank" rel="noopener">&lt;code>augment()&lt;/code>&lt;/a> support for orbital objects.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://generics.r-lib.org/reference/augment.html'>augment&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>orbital_obj&lt;/span>, &lt;span class='nv'>penguins&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 344 × 8&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .pred_class species island bill_length_mm bill_depth_mm flipper_length_mm&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> Adelie Adelie Torgersen 39.1 18.7 181&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> Adelie Adelie Torgersen 39.5 17.4 186&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> Adelie Adelie Torgersen 40.3 18 195&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> Adelie Adelie Torgersen &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> Adelie Adelie Torgersen 36.7 19.3 193&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> Adelie Adelie Torgersen 39.3 20.6 190&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> Adelie Adelie Torgersen 38.9 17.8 181&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> Adelie Adelie Torgersen 39.2 19.6 195&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> Adelie Adelie Torgersen 34.1 18.1 193&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> Adelie Adelie Torgersen 42 20.2 190&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 334 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 2 more variables: body_mass_g &amp;lt;int&amp;gt;, sex &amp;lt;fct&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The function works for most databases, but for technical reasons doesn&amp;rsquo;t work with all. It has been confirmed to not work work in spark databases or arrow tables.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://generics.r-lib.org/reference/augment.html'>augment&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>orbital_obj&lt;/span>, &lt;span class='nv'>penguins_sqlite&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># Source: SQL [?? x 8]&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># Database: sqlite 3.47.1 []&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .pred_class species island bill_length_mm bill_depth_mm flipper_length_mm&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> Adelie Adelie Torgersen 39.1 18.7 181&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> Adelie Adelie Torgersen 39.5 17.4 186&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> Adelie Adelie Torgersen 40.3 18 195&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> Adelie Adelie Torgersen &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> Adelie Adelie Torgersen 36.7 19.3 193&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> Adelie Adelie Torgersen 39.3 20.6 190&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> Adelie Adelie Torgersen 38.9 17.8 181&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> Adelie Adelie Torgersen 39.2 19.6 195&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> Adelie Adelie Torgersen 34.1 18.1 193&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> Adelie Adelie Torgersen 42 20.2 190&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 2 more variables: body_mass_g &amp;lt;int&amp;gt;, sex &amp;lt;chr&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thank you to all the people who have contributed to orbital since the release of v0.3.0:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/joscani" target="_blank" rel="noopener">@joscani&lt;/a>,
+&lt;a href="https://github.com/jrosell" target="_blank" rel="noopener">@jrosell&lt;/a>,
+&lt;a href="https://github.com/npelikan" target="_blank" rel="noopener">@npelikan&lt;/a>, and
+&lt;a href="https://github.com/szimmer" target="_blank" rel="noopener">@szimmer&lt;/a>.&lt;/p></description></item></channel></rss>

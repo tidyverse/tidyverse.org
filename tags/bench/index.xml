@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>bench | Tidyverse</title><link>https://www.tidyverse.org/tags/bench/</link><atom:link href="https://www.tidyverse.org/tags/bench/index.xml" rel="self" type="application/rss+xml"/><description>bench</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 28 Jun 2018 00:00:00 +0000</lastBuildDate><item><title>bench 1.0.1</title><link>https://www.tidyverse.org/blog/2018/06/bench-1.0.1/</link><pubDate>Thu, 28 Jun 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/06/bench-1.0.1/</guid><description>
+&lt;p>&lt;a href="https://bench.r-lib.org">bench&lt;/a> is now available on CRAN!&lt;/p>
+&lt;p>The goal of &lt;a href="https://bench.r-lib.org">bench&lt;/a> is to benchmark code, by tracking execution time, memory allocations and garbage collections.&lt;/p>
+&lt;p>Install the latest version with:&lt;/p>
+&lt;pre class="r">&lt;code>install.packages(&amp;quot;bench&amp;quot;)&lt;/code>&lt;/pre>
+&lt;div id="usage" class="section level3">
+&lt;h3>Usage&lt;/h3>
+&lt;p>Benchmarks can be run with &lt;code>bench::mark()&lt;/code>, which takes one or more expressions to benchmark against each other.&lt;/p>
+&lt;pre class="r">&lt;code>library(bench)
+set.seed(42)
+dat &amp;lt;- data.frame(x = runif(10000, 1, 1000), y=runif(10000, 1, 1000))&lt;/code>&lt;/pre>
+&lt;p>&lt;code>bench::mark()&lt;/code> will throw an error if the results are not equivalent, so you don’t accidentally benchmark non-equivalent code.&lt;/p>
+&lt;pre class="r">&lt;code>bench::mark(
+dat[dat$x &amp;gt; 500, ],
+dat[which(dat$x &amp;gt; 499), ],
+subset(dat, x &amp;gt; 500))
+#&amp;gt; Error: Each result must equal the first result:
+#&amp;gt; `dat[dat$x &amp;gt; 500, ]` does not equal `dat[which(dat$x &amp;gt; 499), ]`&lt;/code>&lt;/pre>
+&lt;p>Results are easy to interpret, with human readable units in a rectangular data frame.&lt;/p>
+&lt;pre class="r">&lt;code>bnch &amp;lt;- bench::mark(
+dat[dat$x &amp;gt; 500, ],
+dat[which(dat$x &amp;gt; 500), ],
+subset(dat, x &amp;gt; 500))
+bnch
+#&amp;gt; # A tibble: 3 x 10
+#&amp;gt; expression min mean median max `itr/sec` mem_alloc n_gc n_itr total_time
+#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;bch:byt&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt; &amp;lt;bch:tm&amp;gt;
+#&amp;gt; 1 dat[dat$x &amp;gt; 500, ] 300µs 347µs 321µs 1.26ms 2884. 416KB 55 949 329ms
+#&amp;gt; 2 dat[which(dat$x &amp;gt; 500), ] 230µs 281µs 259µs 1.12ms 3563. 357KB 52 1156 324ms
+#&amp;gt; 3 subset(dat, x &amp;gt; 500) 374µs 461µs 420µs 1.52ms 2169. 548KB 43 803 370ms&lt;/code>&lt;/pre>
+&lt;p>By default, the summary uses absolute measures, however relative results can be obtained by using &lt;code>relative = TRUE&lt;/code> in your call to &lt;code>bench::mark()&lt;/code> or by calling &lt;code>summary(relative = TRUE)&lt;/code> on the results.&lt;/p>
+&lt;pre class="r">&lt;code>summary(bnch, relative = TRUE)
+#&amp;gt; # A tibble: 3 x 10
+#&amp;gt; expression min mean median max `itr/sec` mem_alloc n_gc n_itr total_time
+#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+#&amp;gt; 1 dat[dat$x &amp;gt; 500, ] 1.30 1.24 1.24 1.13 1.33 1.16 1.28 1.18 1.01
+#&amp;gt; 2 dat[which(dat$x &amp;gt; 500), ] 1 1 1 1 1.64 1 1.21 1.44 1
+#&amp;gt; 3 subset(dat, x &amp;gt; 500) 1.63 1.64 1.62 1.36 1 1.53 1 1 1.14&lt;/code>&lt;/pre>
+&lt;p>&lt;code>bench::press()&lt;/code> is used to run benchmarks against a grid of parameters. Provide setup and benchmarking code as a single unnamed argument then define sets of values as named arguments. The full combination of values will be expanded and the benchmarks are then &lt;em>pressed&lt;/em> together in the result. This allows you to benchmark a set of expressions across a wide variety of input sizes, perform replications and other useful tasks.&lt;/p>
+&lt;pre class="r">&lt;code>set.seed(42)
+create_df &amp;lt;- function(rows, cols) {
+as.data.frame(setNames(
+replicate(cols, runif(rows, 1, 1000), simplify = FALSE),
+rep_len(c(&amp;quot;x&amp;quot;, letters), cols)))
+}
+results &amp;lt;- bench::press(
+rows = c(10000, 100000),
+cols = c(10, 100),
+{
+dat &amp;lt;- create_df(rows, cols)
+bench::mark(
+min_iterations = 100,
+bracket = dat[dat$x &amp;gt; 500, ],
+which = dat[which(dat$x &amp;gt; 500), ],
+subset = subset(dat, x &amp;gt; 500)
+)
+}
+)
+results
+#&amp;gt; # A tibble: 12 x 12
+#&amp;gt; expression rows cols min mean median max `itr/sec` mem_alloc n_gc n_itr total_time
+#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;bch:byt&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt; &amp;lt;bch:tm&amp;gt;
+#&amp;gt; 1 bracket 10000 10 830µs 1.06ms 987.08µs 2.29ms 940. 1.17MB 18 304 323.47ms
+#&amp;gt; 2 which 10000 10 447.96µs 652.94µs 564.73µs 1.6ms 1532. 827.04KB 21 551 359.77ms
+#&amp;gt; 3 subset 10000 10 906.91µs 1.15ms 1.04ms 2.27ms 866. 1.28MB 21 320 369.44ms
+#&amp;gt; 4 bracket 100000 10 14.96ms 17.34ms 17.39ms 19.95ms 57.7 11.54MB 46 54 936.47ms
+#&amp;gt; 5 which 100000 10 9.09ms 11.24ms 11.04ms 15.25ms 89.0 7.91MB 32 68 764.24ms
+#&amp;gt; 6 subset 100000 10 14.76ms 16.86ms 16.07ms 20.74ms 59.3 12.68MB 46 54 910.46ms
+#&amp;gt; 7 bracket 10000 100 7.19ms 9.16ms 8.76ms 13ms 109. 9.71MB 34 66 604.84ms
+#&amp;gt; 8 which 10000 100 2.74ms 4.17ms 3.98ms 8.17ms 240. 5.91MB 19 81 338.03ms
+#&amp;gt; 9 subset 10000 100 7.19ms 9.63ms 9.46ms 12.54ms 104. 9.84MB 35 65 626.03ms
+#&amp;gt; 10 bracket 100000 100 100.19ms 111.1ms 111.08ms 121.63ms 9.00 97.47MB 83 21 2.33s
+#&amp;gt; 11 which 100000 100 54.19ms 59.62ms 59.36ms 65.77ms 16.8 59.51MB 36 64 3.82s
+#&amp;gt; 12 subset 100000 100 103.36ms 113.58ms 111.83ms 134ms 8.80 98.62MB 84 16 1.82s&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="plotting" class="section level3">
+&lt;h3>Plotting&lt;/h3>
+&lt;p>&lt;code>ggplot2::autoplot()&lt;/code> can be used to generate an informative default plot. This plot is colored by GC level (0, 1, or 2) and faceted by parameters (if any). By default it generates a &lt;a href="https://github.com/eclarke/ggbeeswarm#geom_quasirandom">beeswarm&lt;/a> plot, however you can also specify other plot types (&lt;code>jitter&lt;/code>, &lt;code>ridge&lt;/code>, &lt;code>boxplot&lt;/code>, &lt;code>violin&lt;/code>). See &lt;code>?autoplot.bench_mark&lt;/code> for full details. This gives you a nice overview of the runs and allows you to gauge the effects of garbage collection on the results.&lt;/p>
+&lt;pre class="r">&lt;code>ggplot2::autoplot(results)&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="https://www.tidyverse.org/articles/2018-06-bench-1.0.1_files/figure-html/autoplot-1.png" width="100%" />&lt;/p>
+&lt;p>You can also produce fully custom plots by un-nesting the results and working with the data directly. In this case we are exploring how the amount of memory allocated by each expression interacts with the time taken to run.&lt;/p>
+&lt;pre class="r">&lt;code>library(tidyverse)
+results %&amp;gt;%
+unnest() %&amp;gt;%
+filter(gc == &amp;quot;none&amp;quot;) %&amp;gt;%
+ggplot(aes(x = mem_alloc, y = time, color = expression)) +
+geom_point() +
+scale_color_brewer(type = &amp;quot;qual&amp;quot;, palette = 3) +
+geom_smooth(method = &amp;quot;lm&amp;quot;, se = F, colour = &amp;quot;grey50&amp;quot;)&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="https://www.tidyverse.org/articles/2018-06-bench-1.0.1_files/figure-html/custom-plot-1.png" width="100%" />&lt;/p>
+&lt;/div>
+&lt;div id="compared-to-existing-methods" class="section level3">
+&lt;h3>Compared to existing methods&lt;/h3>
+&lt;p>Compared to other methods such as &lt;a href="https://www.rdocumentation.org/packages/base/versions/3.5.0/topics/system.time">system.time&lt;/a>, &lt;a href="https://cran.r-project.org/package=rbenchmark">rbenchmark&lt;/a>, &lt;a href="https://cran.r-project.org/package=tictoc">tictoc&lt;/a> or &lt;a href="https://cran.r-project.org/package=microbenchmark">microbenchmark&lt;/a> we feel it has a number of benefits.&lt;/p>
+&lt;ul>
+&lt;li>Uses the highest precision APIs available for each operating system (often nanosecond-level).&lt;/li>
+&lt;li>Tracks memory allocations for each expression.&lt;/li>
+&lt;li>Tracks the number and type of R garbage collections per run.&lt;/li>
+&lt;li>Verifies equality of expression results by default, to avoid accidentally benchmarking non-equivalent code.&lt;/li>
+&lt;li>Uses adaptive stopping by default, running each expression for a set amount of time rather than for a specific number of iterations.&lt;/li>
+&lt;li>Runs expressions in batches and calculates summary statistics after filtering out iterations with garbage collections. This allows you to isolate the performance and effects of garbage collection on running time (for more details see &lt;a href="https://radfordneal.wordpress.com/2014/02/02/inaccurate-results-from-microbenchmark/">Neal 2014&lt;/a>).&lt;/li>
+&lt;li>Allows benchmarking across a grid of input values with &lt;code>bench::press()&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;/div>
+&lt;div id="dependency-load" class="section level3">
+&lt;h3>Dependency load&lt;/h3>
+&lt;p>When the development version of &lt;strong>bench&lt;/strong> was &lt;a href="https://twitter.com/jimhester_/status/996063591433416704">introduced&lt;/a> a few people expressed concern over the number of dependencies in the package. I will attempt to explain why these dependencies exist and why the true load may actually be less than you might think.&lt;/p>
+&lt;p>While bench currently has 19 dependencies, only 8 of these are hard dependencies; that is they are needed to install the package. Of these 8 hard dependencies 3 of them (methods, stats, utils) are base packages installed with R. Of these 5 remaining packages 3 have no additional dependencies (glue, profmem, rlang). The two remaining packages (tibble and pillar) are used to provide nice printing of the times and memory sizes and support for list columns to store the timings, garbage collections, and allocations. These are major features of the bench package and it would not work without these dependencies.&lt;/p>
+&lt;p>The remaining 11 packages are soft dependencies, used either for testing or for optional functionality, most notably plotting. They will not be installed unless explicitly requested.&lt;/p>
+&lt;p>The &lt;a href="https://cran.r-project.org/package=microbenchmark">microbenchmark&lt;/a> package is a good alternative for those looking for a package with only base dependencies.&lt;/p>
+&lt;/div>
+&lt;div id="feedback-wanted" class="section level3">
+&lt;h3>Feedback wanted!&lt;/h3>
+&lt;p>We hope &lt;strong>bench&lt;/strong> is a useful tool for benchmarking short expressions of code. Please open &lt;a href="https://github.com/r-lib/bench">GitHub issues&lt;/a> for any feature requests or bugs.&lt;/p>
+&lt;p>Learn more about &lt;strong>bench&lt;/strong> at &lt;a href="http://bench.r-lib.org" class="uri">http://bench.r-lib.org&lt;/a>&lt;/p>
+&lt;p>A big thanks goes to all the community members who contributed code and opened issues since for this release! &lt;a href="https://github.com/espinielli">@espinielli&lt;/a>, &lt;a href="https://github.com/hadley">@hadley&lt;/a>, &lt;a href="https://github.com/HughParsonage">@HughParsonage&lt;/a>, &lt;a href="https://github.com/jasonserviss">@jasonserviss&lt;/a>, &lt;a href="https://github.com/jimhester">@jimhester&lt;/a>, &lt;a href="https://github.com/jonocarroll">@jonocarroll&lt;/a>, &lt;a href="https://github.com/lionel-">@lionel-&lt;/a>, &lt;a href="https://github.com/MilesMcBain">@MilesMcBain&lt;/a>, &lt;a href="https://github.com/njtierney">@njtierney&lt;/a>, and &lt;a href="https://github.com/zkamvar">@zkamvar&lt;/a>&lt;/p>
+&lt;/div></description></item></channel></rss>

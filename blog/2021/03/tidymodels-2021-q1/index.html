@@ -1,0 +1,269 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>Catch up with tidymodels</title><meta property="og:title" content="Catch up with tidymodels"><meta property="og:description" content="Releases of tidymodels packages in Q1 of 2021 offer new functions for  easier model building and resampling, along with a new package for  resampling spatial data."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2021/03/tidymodels-2021-q1/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="Catch up with tidymodels - Tidyverse"><meta property="description" content="Releases of tidymodels packages in Q1 of 2021 offer new functions for  easier model building and resampling, along with a new package for  resampling spatial data."><meta property="og:description" content="Releases of tidymodels packages in Q1 of 2021 offer new functions for  easier model building and resampling, along with a new package for  resampling spatial data."><meta property="og:image" content="https://www.tidyverse.org/blog/2021/03/tidymodels-2021-q1/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2021/03/tidymodels-2021-q1/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>Catch up with tidymodels</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2021/03/tidymodels-2021-q1/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/4Zk45jNyQS4>Timo Wielink</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2021/03/10</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/tidymodels/>tidymodels</a>,
+<a href=/tags/rsample/>rsample</a>,
+<a href=/tags/parsnip/>parsnip</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Julia Silge</p><div class=article-content><p>The
+<a href=https://www.tidymodels.org/ target=_blank rel=noopener>tidymodels</a> framework is a collection of R packages for modeling and machine learning using tidyverse principles. There have been quite a number of updates and new developments in the tidymodels ecosystem since our
+<a href=https://www.tidyverse.org/blog/2020/12/finetune-0-0-1/ target=_blank rel=noopener>last blog post in December</a>! Since that post, tidymodels maintainers have published eight CRAN releases of existing packages. You can install these updates from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>install.packages</span><span class=p>(</span><span class=nf>c</span><span class=p>(</span><span class=s>&#34;broom&#34;</span><span class=p>,</span> <span class=s>&#34;butcher&#34;</span><span class=p>,</span> <span class=s>&#34;embed&#34;</span><span class=p>,</span> <span class=s>&#34;parsnip&#34;</span><span class=p>,</span>
+                   <span class=s>&#34;rsample&#34;</span><span class=p>,</span> <span class=s>&#34;rules&#34;</span><span class=p>,</span> <span class=s>&#34;tune&#34;</span><span class=p>,</span> <span class=s>&#34;workflows&#34;</span><span class=p>))</span>
+</code></pre></div><p>We purposefully write code in small, modular packages to make them easier to maintain (for us!) and use in production systems (for you!) but this does mean that sometimes any given package release can feel a bit minor. Some of the changes in these releases are small bug fixes or updates for changes in CRAN standards. However, there are also some substantively helpful new functions for modeling and resampling, and we want to make sure that folks can stay up-to-date with the changes and new features available.</p><p>We plan to begin <strong>regular updates</strong> every three or four months here on the tidyverse blog summarizing what&rsquo;s happening lately in the tidymodels ecosystem overall. We&rsquo;ll still continue the focused blog posts on more major new features that we&rsquo;ve always written; look for one soon on a new package for creating and handling a collection of multiple modeling workflows all together. The <code>NEWS</code> files are linked here for each package, but read below for more details on some highlights that may interest you!</p><ul><li><a href=https://broom.tidymodels.org/news/#broom-0-7-5-2021-02-19 target=_blank rel=noopener>broom</a></li><li><a href=https://butcher.tidymodels.org/news/#butcher-0-1-3-2021-03-04 target=_blank rel=noopener>butcher</a></li><li><a href=https://embed.tidymodels.org/news/#embed-0-1-4-2021-01-16 target=_blank rel=noopener>embed</a></li><li><a href=https://parsnip.tidymodels.org/news/#parsnip-0-1-5-2021-01-19 target=_blank rel=noopener>parsnip</a></li><li><a href=https://rsample.tidymodels.org/news/index.html#rsample-0-0-9-2021-02-17 target=_blank rel=noopener>rsample</a></li><li><a href=https://rules.tidymodels.org/news/#rules-0-1-1-2021-01-16 target=_blank rel=noopener>rules</a></li><li><a href=https://tune.tidymodels.org/news/index.html#tune-0-1-3-2021-02-28 target=_blank rel=noopener>tune</a></li><li><a href=https://workflows.tidymodels.org/news/index.html#workflows-0-2-2-2021-03-10 target=_blank rel=noopener>workflows</a></li></ul><h2 id=choose-parsnip-models-with-an-rstudio-addin>Choose parsnip models with an RStudio addin
+<a href=#choose-parsnip-models-with-an-rstudio-addin><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The parsnip package provides support for a plethora of models. You can explore these models online at
+<a href=https://www.tidymodels.org/find/parsnip/ target=_blank rel=noopener>tidymodels.org</a>, but the recent release of parsnip also contains an RStudio addin for choosing parsnip models and generating code to specify them.</p><p><img src=parsnip_addin.gif alt="addin gif"></p><p>You can choose by classification or regression models, and even match by a regular expression.</p><p>There is now also
+<a href=https://parsnip.tidymodels.org/reference/augment.html target=_blank rel=noopener>an <code>augment()</code> function for parsnip models</a>, in addition to the <code>augment()</code> functions
+<a href=https://tune.tidymodels.org/reference/augment.html target=_blank rel=noopener>for tuning results</a> and
+<a href=https://workflows.tidymodels.org/reference/augment.workflow.html target=_blank rel=noopener>for workflows</a>.
+<a href=https://juliasilge.com/blog/student-debt/ target=_blank rel=noopener>This recent screencast demonstrates</a> how to use parsnip&rsquo;s <code>augment()</code> function.</p><h2 id=new-functions-in-rsample>New functions in rsample
+<a href=#new-functions-in-rsample><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Most of the changes in the recent release for
+<a href=https://rsample.tidymodels.org/ target=_blank rel=noopener>rsample</a> are internal and developer-facing, made to support rsample-adjacent packages like our new package for resampling spatial data (see below! 👀) but the new <code>reg_intervals()</code> function allows you to find bootstrap confidence intervals for simple models fluently. You have always been able to use rsample functions for
+<a href=https://www.tidymodels.org/learn/statistics/bootstrap/ target=_blank rel=noopener>flexible bootstrap resampling</a> but this new convenience function reduces the steps to get confidence intervals for models like <code>lm()</code> and <code>glm()</code>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>rsample</span><span class=p>)</span>
+<span class=nf>data</span><span class=p>(</span><span class=n>ad_data</span><span class=p>,</span> <span class=n>package</span> <span class=o>=</span> <span class=s>&#34;modeldata&#34;</span><span class=p>)</span>
+
+<span class=nf>set.seed</span><span class=p>(</span><span class=m>123</span><span class=p>)</span>
+<span class=nf>reg_intervals</span><span class=p>(</span>
+  <span class=n>Class</span> <span class=o>~</span> <span class=n>tau</span> <span class=o>+</span> <span class=n>VEGF</span><span class=p>,</span>
+  <span class=n>model_fn</span> <span class=o>=</span> <span class=s>&#34;glm&#34;</span><span class=p>,</span> 
+  <span class=n>data</span> <span class=o>=</span> <span class=n>ad_data</span><span class=p>,</span> 
+  <span class=n>family</span> <span class=o>=</span> <span class=s>&#34;binomial&#34;</span>
+<span class=p>)</span>
+</code></pre></div><pre><code>## # A tibble: 2 x 6
+##   term  .lower .estimate .upper .alpha .method  
+##   &lt;chr&gt;  &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;    
+## 1 tau   -4.92     -4.11   -3.08   0.05 student-t
+## 2 VEGF   0.651     0.959   1.22   0.05 student-t
+</code></pre><p>Check out
+<a href=https://juliasilge.com/blog/superbowl-conf-int/ target=_blank rel=noopener>my recent screencast</a> for more details on using <code>reg_intervals()</code>.</p><p>Also take a look at the
+<a href=https://rsample.tidymodels.org/reference/permutations.html target=_blank rel=noopener>new <code>permutations()</code> function</a> for permuting variables!</p><h2 id=resampling-for-spatial-data>Resampling for spatial data
+<a href=#resampling-for-spatial-data><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>We are pleased to announce the first release of the
+<a href=https://spatialsample.tidymodels.org/ target=_blank rel=noopener>spatialsample</a> package.</p><p>You can install it from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>install.packages</span><span class=p>(</span><span class=s>&#34;spatialsample&#34;</span><span class=p>)</span>
+</code></pre></div><p>The goal of spatialsample is to provide functions and classes for spatial resampling to use with
+<a href=https://rsample.tidymodels.org/ target=_blank rel=noopener>rsample</a>. We intend to grow the number of spatial resampling approaches included in the package; the initial release includes <code>spatial_clustering_cv()</code>, a straightforward spatial resampling strategy with light dependencies based on k-means clustering.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>spatialsample</span><span class=p>)</span>
+<span class=nf>data</span><span class=p>(</span><span class=s>&#34;ames&#34;</span><span class=p>,</span> <span class=n>package</span> <span class=o>=</span> <span class=s>&#34;modeldata&#34;</span><span class=p>)</span>
+
+<span class=nf>set.seed</span><span class=p>(</span><span class=m>234</span><span class=p>)</span>
+<span class=n>folds</span> <span class=o>&lt;-</span> <span class=nf>spatial_clustering_cv</span><span class=p>(</span><span class=n>ames</span><span class=p>,</span> <span class=n>coords</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=s>&#34;Latitude&#34;</span><span class=p>,</span> <span class=s>&#34;Longitude&#34;</span><span class=p>),</span> <span class=n>v</span> <span class=o>=</span> <span class=m>5</span><span class=p>)</span>
+<span class=n>folds</span>
+</code></pre></div><pre><code>## #  5-fold spatial cross-validation 
+## # A tibble: 5 x 2
+##   splits             id   
+##   &lt;list&gt;             &lt;chr&gt;
+## 1 &lt;split [2277/653]&gt; Fold1
+## 2 &lt;split [2767/163]&gt; Fold2
+## 3 &lt;split [2040/890]&gt; Fold3
+## 4 &lt;split [2567/363]&gt; Fold4
+## 5 &lt;split [2069/861]&gt; Fold5
+</code></pre><p>In this example, the <code>ames</code> data on houses in Ames, IA is resampled with <code>v = 5</code>; notice that the resulting partitions do not contain an equal number of observations.</p><p>We can create a helper plotting function to visualize the five folds.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>ggplot2</span><span class=p>)</span>
+<span class=nf>library</span><span class=p>(</span><span class=n>purrr</span><span class=p>)</span>
+<span class=nf>library</span><span class=p>(</span><span class=n>dplyr</span><span class=p>)</span>
+
+<span class=n>plot_splits</span> <span class=o>&lt;-</span> <span class=nf>function</span><span class=p>(</span><span class=n>split</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>p</span> <span class=o>&lt;-</span> <span class=nf>analysis</span><span class=p>(</span><span class=n>split</span><span class=p>)</span> <span class=o>%&gt;%</span>
+        <span class=nf>mutate</span><span class=p>(</span><span class=n>analysis</span> <span class=o>=</span> <span class=s>&#34;Analysis&#34;</span><span class=p>)</span> <span class=o>%&gt;%</span>
+        <span class=nf>bind_rows</span><span class=p>(</span><span class=nf>assessment</span><span class=p>(</span><span class=n>split</span><span class=p>)</span> <span class=o>%&gt;%</span>
+                      <span class=nf>mutate</span><span class=p>(</span><span class=n>analysis</span> <span class=o>=</span> <span class=s>&#34;Assessment&#34;</span><span class=p>))</span> <span class=o>%&gt;%</span>
+        <span class=nf>ggplot</span><span class=p>(</span><span class=nf>aes</span><span class=p>(</span><span class=n>Longitude</span><span class=p>,</span> <span class=n>Latitude</span><span class=p>,</span> <span class=n>color</span> <span class=o>=</span> <span class=n>analysis</span><span class=p>))</span> <span class=o>+</span> 
+        <span class=nf>geom_point</span><span class=p>(</span><span class=n>alpha</span> <span class=o>=</span> <span class=m>0.5</span><span class=p>)</span> <span class=o>+</span>
+        <span class=nf>labs</span><span class=p>(</span><span class=n>color</span> <span class=o>=</span> <span class=kc>NULL</span><span class=p>)</span>
+    <span class=nf>print</span><span class=p>(</span><span class=n>p</span><span class=p>)</span>
+<span class=p>}</span>
+
+<span class=nf>walk</span><span class=p>(</span><span class=n>folds</span><span class=o>$</span><span class=n>splits</span><span class=p>,</span> <span class=n>plot_splits</span><span class=p>)</span>
+</code></pre></div><p><img src=figure/unnamed-chunk-5-.gif alt="plot of chunk unnamed-chunk-5"></p><p>Check out the
+<a href=https://spatialsample.tidymodels.org/articles/spatialsample.html target=_blank rel=noopener>main vignette</a> to see how this resampling strategy can be used for modeling, and
+<a href=https://github.com/tidymodels/spatialsample/issues target=_blank rel=noopener>submit an issue</a> if there is a particular spatial resampling approach that you are interested in us prioritizing for future releases.</p><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>A big thanks to all of the contributors who helped make these releases possible! For some of these packages (like rsample, butcher, and embed), we have never said thank you before so we&rsquo;ll take this opportunity to express our appreciation.</p><ul><li>broom:
+<a href=https://github.com/AdroMine target=_blank rel=noopener>@AdroMine</a>,
+<a href=https://github.com/alexpghayes target=_blank rel=noopener>@alexpghayes</a>,
+<a href=https://github.com/Amogh-Joshi target=_blank rel=noopener>@Amogh-Joshi</a>,
+<a href=https://github.com/anddis target=_blank rel=noopener>@anddis</a>,
+<a href=https://github.com/andrjohns target=_blank rel=noopener>@andrjohns</a>,
+<a href=https://github.com/AntoniosBarotsis target=_blank rel=noopener>@AntoniosBarotsis</a>,
+<a href=https://github.com/arthur-e target=_blank rel=noopener>@arthur-e</a>,
+<a href=https://github.com/asreece target=_blank rel=noopener>@asreece</a>,
+<a href=https://github.com/asshah4 target=_blank rel=noopener>@asshah4</a>,
+<a href=https://github.com/briatte target=_blank rel=noopener>@briatte</a>,
+<a href=https://github.com/bwiernik target=_blank rel=noopener>@bwiernik</a>,
+<a href=https://github.com/cbhurley target=_blank rel=noopener>@cbhurley</a>,
+<a href=https://github.com/clausherther target=_blank rel=noopener>@clausherther</a>,
+<a href=https://github.com/clauswilke target=_blank rel=noopener>@clauswilke</a>,
+<a href=https://github.com/crsh target=_blank rel=noopener>@crsh</a>,
+<a href=https://github.com/DarwinAwardWinner target=_blank rel=noopener>@DarwinAwardWinner</a>,
+<a href=https://github.com/deblnia target=_blank rel=noopener>@deblnia</a>,
+<a href=https://github.com/deschen1 target=_blank rel=noopener>@deschen1</a>,
+<a href=https://github.com/eheinzen target=_blank rel=noopener>@eheinzen</a>,
+<a href=https://github.com/friendly target=_blank rel=noopener>@friendly</a>,
+<a href=https://github.com/grantmcdermott target=_blank rel=noopener>@grantmcdermott</a>,
+<a href=https://github.com/hasandiwan target=_blank rel=noopener>@hasandiwan</a>,
+<a href=https://github.com/hd-barros target=_blank rel=noopener>@hd-barros</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/hughjonesd target=_blank rel=noopener>@hughjonesd</a>,
+<a href=https://github.com/IndrajeetPatil target=_blank rel=noopener>@IndrajeetPatil</a>,
+<a href=https://github.com/irkaal target=_blank rel=noopener>@irkaal</a>,
+<a href=https://github.com/jiho target=_blank rel=noopener>@jiho</a>,
+<a href=https://github.com/jmbarbone target=_blank rel=noopener>@jmbarbone</a>,
+<a href=https://github.com/joshyam-k target=_blank rel=noopener>@joshyam-k</a>,
+<a href=https://github.com/JReising09 target=_blank rel=noopener>@JReising09</a>,
+<a href=https://github.com/julian-urbano target=_blank rel=noopener>@julian-urbano</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/kjfarley target=_blank rel=noopener>@kjfarley</a>,
+<a href=https://github.com/kristyrobledo target=_blank rel=noopener>@kristyrobledo</a>,
+<a href=https://github.com/leeweizhe1993 target=_blank rel=noopener>@leeweizhe1993</a>,
+<a href=https://github.com/leungi target=_blank rel=noopener>@leungi</a>,
+<a href=https://github.com/LukasWallrich target=_blank rel=noopener>@LukasWallrich</a>,
+<a href=https://github.com/matthieu-faron target=_blank rel=noopener>@matthieu-faron</a>,
+<a href=https://github.com/MatthieuStigler target=_blank rel=noopener>@MatthieuStigler</a>,
+<a href=https://github.com/milanwiedemann target=_blank rel=noopener>@milanwiedemann</a>,
+<a href=https://github.com/mk9y target=_blank rel=noopener>@mk9y</a>,
+<a href=https://github.com/mlatif71 target=_blank rel=noopener>@mlatif71</a>,
+<a href=https://github.com/mlaviolet target=_blank rel=noopener>@mlaviolet</a>,
+<a href=https://github.com/Nateme16 target=_blank rel=noopener>@Nateme16</a>,
+<a href=https://github.com/nlubock target=_blank rel=noopener>@nlubock</a>,
+<a href=https://github.com/pachamaltese target=_blank rel=noopener>@pachamaltese</a>,
+<a href=https://github.com/rudeboybert target=_blank rel=noopener>@rudeboybert</a>,
+<a href=https://github.com/saadaslam target=_blank rel=noopener>@saadaslam</a>,
+<a href=https://github.com/simonpcouch target=_blank rel=noopener>@simonpcouch</a>,
+<a href=https://github.com/tavareshugo target=_blank rel=noopener>@tavareshugo</a>,
+<a href=https://github.com/uqzwang target=_blank rel=noopener>@uqzwang</a>,
+<a href=https://github.com/vincentarelbundock target=_blank rel=noopener>@vincentarelbundock</a>,
+<a href=https://github.com/WillemVervoort target=_blank rel=noopener>@WillemVervoort</a>, and
+<a href=https://github.com/zief0002 target=_blank rel=noopener>@zief0002</a></li><li>butcher:
+<a href=https://github.com/abichat target=_blank rel=noopener>@abichat</a>,
+<a href=https://github.com/adtserapio target=_blank rel=noopener>@adtserapio</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/edwinschut target=_blank rel=noopener>@edwinschut</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/irkaal target=_blank rel=noopener>@irkaal</a>,
+<a href=https://github.com/jarauh target=_blank rel=noopener>@jarauh</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/jyuu target=_blank rel=noopener>@jyuu</a>,
+<a href=https://github.com/kevinykuo target=_blank rel=noopener>@kevinykuo</a>,
+<a href=https://github.com/klin333 target=_blank rel=noopener>@klin333</a>,
+<a href=https://github.com/mkearney target=_blank rel=noopener>@mkearney</a>,
+<a href=https://github.com/natejessee target=_blank rel=noopener>@natejessee</a>,
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>, and
+<a href=https://github.com/UnclAlDeveloper target=_blank rel=noopener>@UnclAlDeveloper</a></li><li>embed:
+<a href=https://github.com/agilebean target=_blank rel=noopener>@agilebean</a>,
+<a href=https://github.com/ajing target=_blank rel=noopener>@ajing</a>,
+<a href=https://github.com/Athospd target=_blank rel=noopener>@Athospd</a>,
+<a href=https://github.com/Cardosaum target=_blank rel=noopener>@Cardosaum</a>,
+<a href=https://github.com/ciberger target=_blank rel=noopener>@ciberger</a>,
+<a href=https://github.com/data-datum target=_blank rel=noopener>@data-datum</a>,
+<a href=https://github.com/dfalbel target=_blank rel=noopener>@dfalbel</a>,
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/goleng target=_blank rel=noopener>@goleng</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/ismailmuller target=_blank rel=noopener>@ismailmuller</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/konradsemsch target=_blank rel=noopener>@konradsemsch</a>,
+<a href=https://github.com/kylegilde target=_blank rel=noopener>@kylegilde</a>,
+<a href=https://github.com/lorenzwalthert target=_blank rel=noopener>@lorenzwalthert</a>,
+<a href=https://github.com/mlduarte target=_blank rel=noopener>@mlduarte</a>,
+<a href=https://github.com/nhward target=_blank rel=noopener>@nhward</a>,
+<a href=https://github.com/niszet target=_blank rel=noopener>@niszet</a>,
+<a href=https://github.com/quantumlinguist target=_blank rel=noopener>@quantumlinguist</a>,
+<a href=https://github.com/smingerson target=_blank rel=noopener>@smingerson</a>,
+<a href=https://github.com/tmastny target=_blank rel=noopener>@tmastny</a>,
+<a href=https://github.com/tonigril target=_blank rel=noopener>@tonigril</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a></li><li>parsnip:
+<a href=https://github.com/awunderground target=_blank rel=noopener>@awunderground</a>,
+<a href=https://github.com/Bijaelo target=_blank rel=noopener>@Bijaelo</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/derek-corcoran-barrios target=_blank rel=noopener>@derek-corcoran-barrios</a>,
+<a href=https://github.com/eamoncaddigan target=_blank rel=noopener>@eamoncaddigan</a>,
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/ericpgreen target=_blank rel=noopener>@ericpgreen</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/irkaal target=_blank rel=noopener>@irkaal</a>,
+<a href=https://github.com/jjcurtin target=_blank rel=noopener>@jjcurtin</a>,
+<a href=https://github.com/joeycouse target=_blank rel=noopener>@joeycouse</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/kwiscion target=_blank rel=noopener>@kwiscion</a>,
+<a href=https://github.com/kylegilde target=_blank rel=noopener>@kylegilde</a>,
+<a href=https://github.com/lorenzwalthert target=_blank rel=noopener>@lorenzwalthert</a>,
+<a href=https://github.com/markfairbanks target=_blank rel=noopener>@markfairbanks</a>,
+<a href=https://github.com/mdancho84 target=_blank rel=noopener>@mdancho84</a>,
+<a href=https://github.com/mlane3 target=_blank rel=noopener>@mlane3</a>,
+<a href=https://github.com/mrepetto94 target=_blank rel=noopener>@mrepetto94</a>,
+<a href=https://github.com/ndiquattro target=_blank rel=noopener>@ndiquattro</a>,
+<a href=https://github.com/rorynolan target=_blank rel=noopener>@rorynolan</a>,
+<a href=https://github.com/shosaco target=_blank rel=noopener>@shosaco</a>,
+<a href=https://github.com/smingerson target=_blank rel=noopener>@smingerson</a>,
+<a href=https://github.com/tanho63 target=_blank rel=noopener>@tanho63</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a></li><li>rsample:
+<a href=https://github.com/alexpghayes target=_blank rel=noopener>@alexpghayes</a>,
+<a href=https://github.com/apreshill target=_blank rel=noopener>@apreshill</a>,
+<a href=https://github.com/Athospd target=_blank rel=noopener>@Athospd</a>,
+<a href=https://github.com/brunocarlin target=_blank rel=noopener>@brunocarlin</a>,
+<a href=https://github.com/ColinConwell target=_blank rel=noopener>@ColinConwell</a>,
+<a href=https://github.com/cportner target=_blank rel=noopener>@cportner</a>,
+<a href=https://github.com/danilinares target=_blank rel=noopener>@danilinares</a>,
+<a href=https://github.com/DanOvando target=_blank rel=noopener>@DanOvando</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/dchiu911 target=_blank rel=noopener>@dchiu911</a>,
+<a href=https://github.com/Dpananos target=_blank rel=noopener>@Dpananos</a>,
+<a href=https://github.com/dpastling target=_blank rel=noopener>@dpastling</a>,
+<a href=https://github.com/EmilHvitfeldt target=_blank rel=noopener>@EmilHvitfeldt</a>,
+<a href=https://github.com/fbchow target=_blank rel=noopener>@fbchow</a>,
+<a href=https://github.com/fusaroli target=_blank rel=noopener>@fusaroli</a>,
+<a href=https://github.com/gcameron89777 target=_blank rel=noopener>@gcameron89777</a>,
+<a href=https://github.com/gregrs-uk target=_blank rel=noopener>@gregrs-uk</a>,
+<a href=https://github.com/gtalckmin target=_blank rel=noopener>@gtalckmin</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/hlynurhallgrims target=_blank rel=noopener>@hlynurhallgrims</a>,
+<a href=https://github.com/irkaal target=_blank rel=noopener>@irkaal</a>,
+<a href=https://github.com/issactoast target=_blank rel=noopener>@issactoast</a>,
+<a href=https://github.com/JamesM131 target=_blank rel=noopener>@JamesM131</a>,
+<a href=https://github.com/johnaeanderson target=_blank rel=noopener>@johnaeanderson</a>,
+<a href=https://github.com/jonkeane target=_blank rel=noopener>@jonkeane</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/jyuu target=_blank rel=noopener>@jyuu</a>,
+<a href=https://github.com/krlmlr target=_blank rel=noopener>@krlmlr</a>,
+<a href=https://github.com/kylegilde target=_blank rel=noopener>@kylegilde</a>,
+<a href=https://github.com/mattwarkentin target=_blank rel=noopener>@mattwarkentin</a>,
+<a href=https://github.com/mdancho84 target=_blank rel=noopener>@mdancho84</a>,
+<a href=https://github.com/msmith01 target=_blank rel=noopener>@msmith01</a>,
+<a href=https://github.com/MxNl target=_blank rel=noopener>@MxNl</a>,
+<a href=https://github.com/NikolaiVogl target=_blank rel=noopener>@NikolaiVogl</a>,
+<a href=https://github.com/oude-gao target=_blank rel=noopener>@oude-gao</a>,
+<a href=https://github.com/PathosEthosLogos target=_blank rel=noopener>@PathosEthosLogos</a>,
+<a href=https://github.com/RMHogervorst target=_blank rel=noopener>@RMHogervorst</a>,
+<a href=https://github.com/sccmckenzie target=_blank rel=noopener>@sccmckenzie</a>,
+<a href=https://github.com/Shu-Wan target=_blank rel=noopener>@Shu-Wan</a>,
+<a href=https://github.com/skeller88 target=_blank rel=noopener>@skeller88</a>,
+<a href=https://github.com/skinnider target=_blank rel=noopener>@skinnider</a>,
+<a href=https://github.com/sschooler target=_blank rel=noopener>@sschooler</a>,
+<a href=https://github.com/swt30 target=_blank rel=noopener>@swt30</a>,
+<a href=https://github.com/tjmahr target=_blank rel=noopener>@tjmahr</a>,
+<a href=https://github.com/tmastny target=_blank rel=noopener>@tmastny</a>,
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>, and
+<a href=https://github.com/UnclAlDeveloper target=_blank rel=noopener>@UnclAlDeveloper</a></li><li>rules:
+<a href=https://github.com/frequena target=_blank rel=noopener>@frequena</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/irkaal target=_blank rel=noopener>@irkaal</a>,
+<a href=https://github.com/jaredlander target=_blank rel=noopener>@jaredlander</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a>, and
+<a href=https://github.com/vidarsumo target=_blank rel=noopener>@vidarsumo</a></li><li>tune:
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/HenrikBengtsson target=_blank rel=noopener>@HenrikBengtsson</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/kevin-m-kent target=_blank rel=noopener>@kevin-m-kent</a>,
+<a href=https://github.com/kylegilde target=_blank rel=noopener>@kylegilde</a>,
+<a href=https://github.com/mine-cetinkaya-rundel target=_blank rel=noopener>@mine-cetinkaya-rundel</a>,
+<a href=https://github.com/rorynolan target=_blank rel=noopener>@rorynolan</a>,
+<a href=https://github.com/siegfried target=_blank rel=noopener>@siegfried</a>,
+<a href=https://github.com/stevenpawley target=_blank rel=noopener>@stevenpawley</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a></li></ul></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#choose-parsnip-models-with-an-rstudio-addin>Choose parsnip models with an RStudio addin</a></li><li><a href=#new-functions-in-rsample>New functions in rsample</a></li><li><a href=#resampling-for-spatial-data>Resampling for spatial data</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

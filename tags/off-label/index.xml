@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>off-label | Tidyverse</title><link>https://www.tidyverse.org/tags/off-label/</link><atom:link href="https://www.tidyverse.org/tags/off-label/index.xml" rel="self" type="application/rss+xml"/><description>off-label</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 24 Jun 2021 00:00:00 +0000</lastBuildDate><item><title>Off-label uses in ggplot2</title><link>https://www.tidyverse.org/blog/2021/06/off-label-uses-in-ggplot2/</link><pubDate>Thu, 24 Jun 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/06/off-label-uses-in-ggplot2/</guid><description>&lt;!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [ ] Find photo &amp; update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>ggplot2 v3.3.4 landed on CRAN recently, and while every release of ggplot2 is cause for celebration, this was merely a patch release fixing a large number of bugs and so it came and went without much fanfare. However, for a couple of users this release brought an unwelcome and surprising change. We feel that this is a great opportunity to talk a bit about some of the topics that Hadley discussed in his
+&lt;a href="https://www.rstudio.com/resources/rstudioglobal-2021/maintaining-the-house-the-tidyverse-built/" target="_blank" rel="noopener">rstudio::global(2021) keynote&lt;/a>, particularly the nature of breaking changes.&lt;/p>
+&lt;h2 id="the-surprising-use-of-ggsave">The surprising use of &lt;code>ggsave()&lt;/code>
+&lt;a href="#the-surprising-use-of-ggsave">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We created
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> as an easy way to save a ggplot object to an image file, using the following API:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>ggplot&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>geom_point&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>aes&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nv'>displ&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>hwy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>ggsave&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"my_mpg_plot.png"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> is designed so that it automatically picks up the last created (or rendered) plot, and coupled with automatic graphic device selection determined from the file extension it provides a very lean API.&lt;/p>
+&lt;p>The issue we will discuss in this blog post revolves around the use of
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> in the following manner:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://ggplot2.tidyverse.org'>ggplot2&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nv'>displ&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>hwy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggsave.html'>ggsave&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"my_mpg_plot.png"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Now, if this is the first time you&amp;rsquo;ve seen
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> being added to a plot, you are not alone. This certainly caught us by surprise. Prior to v3.3.4, this actually worked (more on that later) but with the recent release running this code will result in the following error:&lt;/p>
+&lt;pre>&lt;code>Error: Can't add [`ggsave(&amp;quot;my_mpg_plot.png&amp;quot;)`](https://ggplot2.tidyverse.org/reference/ggsave.html) to a ggplot object.
+&lt;/code>&lt;/pre>
+&lt;p>If you were a user that had used this pattern for saving plots it very much felt like we had removed a feature, pulling the rug out from under your script with no warning. However, this use of
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> had never been advertised in any of the documentation and while it worked, it could not be considered a feature as such.&lt;/p>
+&lt;h2 id="off-label-saving">Off-label saving
+&lt;a href="#off-label-saving">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We believe that this usage of
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> is the off-label use that Hadley talks about in his keynote. Off-label use of functions comprise of using functions in a way that only work &lt;em>by accident&lt;/em>, and are thus susceptible to breakage at any point due to changes in the code. Another common word for this is &amp;ldquo;a hack&amp;rdquo;, but this term can often imply that the user is full aware of the brittle nature of the setup. Off-label use can just as well be passed on between users to a point where some thinks that this is the correct, supported, way of doing things (this was certainly the case with the above issue).&lt;/p>
+&lt;p>In an age of the pipe it is easy to understand why this use was picked up and thought off as a real feature.
+&lt;a href="https://rdrr.io/r/base/Arithmetic.html" target="_blank" rel="noopener">&lt;code>+&lt;/code>&lt;/a>, however, is not &lt;code>%&amp;gt;%&lt;/code> (or &lt;code>|&amp;gt;&lt;/code>). It is a compositional operator meant to assemble the description of a plot. There is no execution of logic (besides the assembly) going on, and thus the idea of adding
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> does not make theoretical nor practical sense. This is also the reason why we do not want to &amp;ldquo;fix&amp;rdquo; this issue and turn it into a regular feature.&lt;/p>
+&lt;h2 id="why-did-it-work-why-did-it-fail">Why did it work, why did it fail
+&lt;a href="#why-did-it-work-why-did-it-fail">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>For those interested in the cause of both the accidental functionality and its breakage, here follows a description.
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> can be used to save any plot object but defaults to the object returned by
+&lt;a href="https://ggplot2.tidyverse.org/reference/last_plot.html" target="_blank" rel="noopener">&lt;code>ggplot2::last_plot()&lt;/code>&lt;/a>. This function returns the last rendered &lt;em>or&lt;/em> modified plot object. That means that whenever you add something to a plot the result will be retrievable with
+&lt;a href="https://ggplot2.tidyverse.org/reference/last_plot.html" target="_blank" rel="noopener">&lt;code>last_plot()&lt;/code>&lt;/a> but only until you manipulate or render another plot. What happens when adding
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> to a plot is that all the additions are resolved from the left and at each point the result is pushed to the
+&lt;a href="https://ggplot2.tidyverse.org/reference/last_plot.html" target="_blank" rel="noopener">&lt;code>last_plot()&lt;/code>&lt;/a> store. When it comes to the
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> term, it will evaluate it and add the result to the plot. Since the expected plot is present in the
+&lt;a href="https://ggplot2.tidyverse.org/reference/last_plot.html" target="_blank" rel="noopener">&lt;code>last_plot()&lt;/code>&lt;/a> store the evaluation of
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> will proceed as expected. Prior to ggplot2 v3.3.4
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> returned &lt;code>NULL&lt;/code> which, when added to a ggplot object is a no-op (i.e. it does nothing). The change that provoked the error is that with v3.3.4
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> now returns the path to the saved file invisibly, and adding a string to a plot object is an error.&lt;/p>
+&lt;p>Based on this understanding there are some interesting observations we can make: First, while you&amp;rsquo;ll get an error in v3.3.4, the plot is actually saved to a file since the error is thrown after the evaluation of
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a>. This means that you can &amp;ldquo;fix&amp;rdquo; your code by putting the whole expression in a
+&lt;a href="https://rdrr.io/r/base/try.html" target="_blank" rel="noopener">&lt;code>try()&lt;/code>&lt;/a> block (please don&amp;rsquo;t do this though 😬):&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/try.html'>try&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nv'>displ&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>hwy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggsave.html'>ggsave&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"my_mpg_plot.png"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Another tidbit is that the perceived feature was extremely brittle, even when it worked. Consider the following code:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>p1&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nv'>displ&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nv'>hwy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>p2&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>
+&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nv'>cyl&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>p1&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggsave.html'>ggsave&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"scatterplot.png"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>p2&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggsave.html'>ggsave&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"barplot.png"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>If you assumed that
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> could be added to a plot you&amp;rsquo;d expect the above to be totally valid code and that &lt;code>scatterplot.png&lt;/code> would contain the plot from &lt;code>p1&lt;/code>, and &lt;code>barplot.png&lt;/code> would contain the plot from &lt;code>p2&lt;/code>. However, since
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> just fetched the last modified or rendered plot by default, both png files would be identical and contain the barplot in &lt;code>p2&lt;/code>.&lt;/p>
+&lt;h2 id="wrapping-up">Wrapping up
+&lt;a href="#wrapping-up">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>In the end this short post is not intended to shame the users who used
+&lt;a href="https://ggplot2.tidyverse.org/reference/ggsave.html" target="_blank" rel="noopener">&lt;code>ggsave()&lt;/code>&lt;/a> in an unsupported way. ggplot2 is such a huge package that it is easy to pick up usage patterns without ever thinking about whether it is the correct way - if it works it works. Instead, this post is meant to showcase how, even with rigorous testing and no breaking changes, an update can break someones workflow, often to the surprise of the developer. Once a package becomes popular enough, even the slightest change in the code have the capacity for disruption.&lt;/p></description></item></channel></rss>

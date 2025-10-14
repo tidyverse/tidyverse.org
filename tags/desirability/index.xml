@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>desirability | Tidyverse</title><link>https://www.tidyverse.org/tags/desirability/</link><atom:link href="https://www.tidyverse.org/tags/desirability/index.xml" rel="self" type="application/rss+xml"/><description>desirability</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 17 May 2023 00:00:00 +0000</lastBuildDate><item><title>desirability2</title><link>https://www.tidyverse.org/blog/2023/05/desirability2/</link><pubDate>Wed, 17 May 2023 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2023/05/desirability2/</guid><description>&lt;!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo &amp; update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+&lt;p>We&amp;rsquo;re tickled pink to announce the release of
+&lt;a href="http://desirability2.tidymodels.org" target="_blank" rel="noopener">desirability2&lt;/a> (version 0.0.1). You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;desirability2&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This blog post will introduce you to the package and desirability functions.&lt;/p>
+&lt;p>Let&amp;rsquo;s load some packages!&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">desirability2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dplyr&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ggplot2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>
+&lt;a href="https://scholar.google.com/scholar?hl=en&amp;amp;as_sdt=0%2C7&amp;amp;q=%22desirability&amp;#43;functions%22" target="_blank" rel="noopener">Desirability functions&lt;/a> are tools that can be used to rank or optimize multiple characteristics at once. They are intuitive and easy to use. There are a few R packages that implement them, including
+&lt;a href="http://cran.r-project.org/package=desirability" target="_blank" rel="noopener">desirability&lt;/a> and
+&lt;a href="http://cran.r-project.org/package=desiR" target="_blank" rel="noopener">desiR&lt;/a>.&lt;/p>
+&lt;p>We have a new one,
+&lt;a href="http://cran.r-project.org/package=desirability2" target="_blank" rel="noopener">desirability2&lt;/a>, with an interface conducive to being used in-line via dplyr pipelines.&lt;/p>
+&lt;p>Let&amp;rsquo;s demonstrate that by looking at an application. Suppose we created a classification model and produced multiple metrics on how well it classifies new data. We measured the area under the ROC curve and the binomial log-loss statistic in this example. There are about 300 different model configurations that we investigated via tuning.&lt;/p>
+&lt;p>The results from the tuning process were:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">classification_results&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 298 × 5
+## mixture penalty mn_log_loss roc_auc num_features
+## &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt;
+## 1 0 0.1 0.199 0.869 211
+## 2 0 0.0788 0.196 0.870 211
+## 3 0 0.0621 0.194 0.871 211
+## 4 0 0.0489 0.192 0.872 211
+## 5 0 0.0386 0.191 0.873 211
+## 6 0 0.0304 0.190 0.873 211
+## 7 0 0.0240 0.188 0.874 211
+## 8 0 0.0189 0.188 0.874 211
+## 9 0 0.0149 0.187 0.874 211
+## 10 0 0.0117 0.186 0.874 211
+## # ℹ 288 more rows
+&lt;/code>&lt;/pre>&lt;p>If we were interested in the best area under the ROC curve:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">classification_results&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span> &lt;span class="nf">slice_max&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">roc_auc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">n&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 1 × 5
+## mixture penalty mn_log_loss roc_auc num_features
+## &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt;
+## 1 0.222 0.00574 0.185 0.876 86
+&lt;/code>&lt;/pre>&lt;p>However, there are different optimal settings when the log-likelihood is considered:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">classification_results&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span> &lt;span class="nf">slice_min&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mn_log_loss&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">n&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 1 × 5
+## mixture penalty mn_log_loss roc_auc num_features
+## &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt;
+## 1 1 0.000853 0.184 0.876 103
+&lt;/code>&lt;/pre>&lt;p>Are the two metrics related? Here&amp;rsquo;s a plot of the data:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">classification_results&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span>
+&lt;span class="nf">ggplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">roc_auc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">mn_log_loss&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">col&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">num_features&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_point&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">alpha&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="m">2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figure/unnamed-chunk-7-1.svg" alt="plot of chunk unnamed-chunk-7" width="60%" />&lt;/p>
+&lt;p>We colored the point using the number of features used in the model. Fewer predictors are better; we&amp;rsquo;d like to factor that into the tuning parameter selection.&lt;/p>
+&lt;p>To optimize them all at once, desirability functions map their values to be between zero and one (with the latter being the most desirable). For the ROC scores, a value of 1.0 is best, and we may not consider a model with an AUC of less than 0.80. We can use desirability2&amp;rsquo;s
+&lt;a href="http://desirability2.tidymodels.org/reference/inline_desirability.html" target="_blank" rel="noopener">&lt;code>d_max()&lt;/code>&lt;/a> function to translate these values to desirability:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">classification_results&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">roc_d&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">d_max&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">roc_auc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">high&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">low&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.8&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">ggplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">roc_auc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">roc_d&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_line&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_point&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">lims&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figure/unnamed-chunk-8-1.svg" alt="plot of chunk unnamed-chunk-8" width="60%" />&lt;/p>
+&lt;p>Note that all model configurations with ROC AUC scores below 0.80 have zero desirability.&lt;/p>
+&lt;p>Since we want to reduce loss, we can use &lt;code>d_min()&lt;/code> to show a curve where smaller is better. For this specification, we&amp;rsquo;ll use the min and max values as defined by the data, by setting &lt;code>use_data = TRUE&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">classification_results&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">roc_d&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">d_max&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">roc_auc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">high&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">low&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.8&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">loss_d&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">d_min&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mn_log_loss&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">use_data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">ggplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mn_log_loss&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">loss_d&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_line&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_point&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">lims&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figure/unnamed-chunk-9-1.svg" alt="plot of chunk unnamed-chunk-9" width="60%" />&lt;/p>
+&lt;p>Finally, we can factor in the number of features. Arguably this is more important to use than the other two outcomes; we will make this curve nonlinear so that it becomes more challenging to be desirable as the number of features increases. For this, we&amp;rsquo;ll use the &lt;code>scale&lt;/code> option to &lt;code>d_min()&lt;/code>, where larger values make the criteria more difficult to satisfy:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">classification_results&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">roc_d&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">d_max&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">roc_auc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">high&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">low&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.8&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">loss_d&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">d_min&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mn_log_loss&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">use_data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">feat_d&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">d_min&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">num_features&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">low&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">high&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">100&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">scale&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">ggplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">aes&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">num_features&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">feat_d&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_line&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">geom_point&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;span class="nf">lims&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figure/unnamed-chunk-10-1.svg" alt="plot of chunk unnamed-chunk-10" width="60%" />&lt;/p>
+&lt;p>Combining these components into a single criterion using the geometric mean is common. Using this statistic has the side effect that any criteria with zero desirability make the overall desirability zero (since the geometric mean multiples the values). There is a function called
+&lt;a href="http://desirability2.tidymodels.org/reference/d_overall.html" target="_blank" rel="noopener">&lt;code>d_overall()&lt;/code>&lt;/a> that can be used with dplyr&amp;rsquo;s &lt;code>across()&lt;/code> function. Sorting by overall desirability gives us tuning parameter values (&lt;code>mixture&lt;/code> and &lt;code>penalty&lt;/code>) that are best for this combination of criteria.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">classification_results&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">roc_d&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">d_max&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">roc_auc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">high&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">low&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.8&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">loss_d&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">d_min&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mn_log_loss&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">use_data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">feat_d&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">d_min&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">num_features&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">low&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">high&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">100&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">scale&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">overall&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">d_overall&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">across&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">ends_with&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;_d&amp;#34;&lt;/span>&lt;span class="p">)))&lt;/span>
+&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">slice_max&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">overall&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">n&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 5 × 9
+## mixture penalty mn_log_loss roc_auc num_features roc_d loss_d feat_d overall
+## &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 1 0.00924 0.200 0.859 15 0.295 0.815 0.722 0.558
+## 2 0.667 0.0117 0.199 0.862 18 0.311 0.827 0.672 0.557
+## 3 0.667 0.0149 0.201 0.858 14 0.291 0.802 0.740 0.557
+## 4 0.889 0.00924 0.199 0.861 18 0.305 0.825 0.672 0.553
+## 5 0.889 0.0117 0.201 0.857 14 0.285 0.801 0.740 0.553
+&lt;/code>&lt;/pre>&lt;p>That&amp;rsquo;s it! That&amp;rsquo;s the package.&lt;/p></description></item></channel></rss>

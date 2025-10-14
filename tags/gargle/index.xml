@@ -1,0 +1,1036 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>gargle | Tidyverse</title><link>https://www.tidyverse.org/tags/gargle/</link><atom:link href="https://www.tidyverse.org/tags/gargle/index.xml" rel="self" type="application/rss+xml"/><description>gargle</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 29 Jun 2023 00:00:00 +0000</lastBuildDate><item><title>gmailr 2.0.0</title><link>https://www.tidyverse.org/blog/2023/06/gmailr-2-0-0/</link><pubDate>Thu, 29 Jun 2023 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2023/06/gmailr-2-0-0/</guid><description>&lt;p>We&amp;rsquo;re chuffed to announce the release of
+&lt;a href="https://gmailr.r-lib.org/" target="_blank" rel="noopener">gmailr&lt;/a> 2.0.0. gmailr exposes the
+&lt;a href="https://developers.google.com/gmail/api/guides" target="_blank" rel="noopener">Gmail API&lt;/a> from R.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"gmailr"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The main goal of version 2.0.0 is to improve the ergonomics around auth. There is less need for fussy code around configuring an OAuth client and it&amp;rsquo;s easier to use gmailr in a non-interactive or deployed setting. There is also a major advance in the process of replacing legacy functions with versions that have a &lt;code>gm_&lt;/code> prefix. The legacy functions still exist, but are now hard deprecated. Finally, gmailr no longer re-exports &lt;code>%&amp;gt;%&lt;/code>, the magrittr pipe, now that we have &lt;code>|&amp;gt;&lt;/code> in base R.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://github.com/r-lib/gmailr/releases/tag/v2.0.0" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://gmailr.r-lib.org'>gmailr&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Attaching package: 'gmailr'&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; The following object is masked from 'package:utils':&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; history&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; The following objects are masked from 'package:base':&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; body, date, labels, message&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>😬 &lt;em>Ouch! These name collisions are &lt;strong>exactly&lt;/strong> why gmailr added a universal &lt;code>gm_&lt;/code> prefix to all of its functions starting in v1.0.0. One day in the not-too-distant future we can remove the troublesome legacy functions.&lt;/em>&lt;/p>
+&lt;h2 id="oauth-client">OAuth client
+&lt;a href="#oauth-client">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The Gmail API is more challenging to wrap, in terms of auth, than the APIs for Sheets, Drive, or BigQuery. That&amp;rsquo;s because the scopes (think: &amp;ldquo;permissions&amp;rdquo;) needed for the Gmail API are
+&lt;a href="https://developers.google.com/gmail/api/auth/scopes#scopes" target="_blank" rel="noopener">regarded as extremely sensitive&lt;/a>, as well they should be. If a bad actor gains the ability to read and send email as you, that is considerably more damaging than them being able to modify your spreadsheets (which is also bad, to be sure, but considerably less bad). Email is particularly important, because most other services allow you to reset your password via email; if someone gets access to your email, they can quickly use that to access every other service you have a log in for.&lt;/p>
+&lt;p>The heightened security around the Gmail API means that a wrapper package like gmailr can&amp;rsquo;t make auth &amp;ldquo;just work&amp;rdquo; as easily we can in other packages, such as googledrive. In particular, R users who want to use gmailr absolutely must provide their own &lt;em>OAuth client&lt;/em>. In other packages, we can make this optional.&lt;/p>
+&lt;p>gmailr v2.0.0 includes new features and documentation to reduce the pain around the OAuth client as much as possible:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://gmailr.r-lib.org/articles/oauth-client.html" target="_blank" rel="noopener">Set up an OAuth client&lt;/a> is a new article with detailed instructions for creating and configuring an OAuth client. You might even say this provides an excruciating level of detail, but this process has proven to be tricky for many users.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>There is now a default location for the JSON file that represents the OAuth client. It&amp;rsquo;s the location returned by &lt;code>rappdirs::user_data_dir(&amp;quot;gmailr&amp;quot;)&lt;/code>. If you put the JSON file there, gmailr will find it automagically.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>rappdirs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://rappdirs.r-lib.org/reference/user_data_dir.html'>user_data_dir&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"gmailr"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/list.files.html'>list.files&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "client_secret_xxx-yyy.apps.googleusercontent.com.json"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/gmailr-configuration.html'>gm_default_oauth_client&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "/Users/jenny/Library/Application Support/gmailr/client_secret_xxx-yyy.apps.googleusercontent.com.json"&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>
+&lt;a href="https://gmailr.r-lib.org/reference/gmailr-configuration.html" target="_blank" rel="noopener">&lt;code>gm_default_oauth_client()&lt;/code>&lt;/a> is the new function that implements this new feature as well as pre-existing support for providing this path via an environment variable.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>If the OAuth client is configured for auto-discovery, it is no longer necessary to call
+&lt;a href="https://gmailr.r-lib.org/reference/gm_auth_configure.html" target="_blank" rel="noopener">&lt;code>gm_auth_configure()&lt;/code>&lt;/a> explicitly. That is taken care of internally, inside
+&lt;a href="https://gmailr.r-lib.org/reference/gm_auth.html" target="_blank" rel="noopener">&lt;code>gm_auth()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>> library(gmailr)
+>
+> # 😲 OMG no more need to call gm_auth_configure() here! 🎉
+>
+> gm_threads()
+The gmailr package is requesting access to your Google account.
+Enter '1' to start a new auth process or select a pre-authorized account.
+1: Send me to the browser for a new auth process.
+2: jenny@posit.co
+Selection: 2
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>Conversely, if you happen to be providing an explicit user or service account token, &lt;code>gm_auth(token =)&lt;/code> and &lt;code>gm_auth(path =, subject =)&lt;/code>&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> no longer error if the OAuth client is not configured.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="auth-in-a-deployed-or-other-non-interactive-setting">Auth in a deployed or other non-interactive setting
+&lt;a href="#auth-in-a-deployed-or-other-non-interactive-setting">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The Gmail API is primarily intended for use on behalf of a regular Google user account. The gmailr package is designed to guide an interactive R user through a process in which they authenticate themselves to Google and authorize Gmail activities initiated from R. This is sometimes referred to as the &amp;ldquo;OAuth dance&amp;rdquo;.&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>&lt;/p>
+&lt;p>But what about settings where there is no interactive user sitting around to do this dance, i.e. when gmailr-using code is deployed to a remote server or otherwise runs unattended? For most Google APIs, the standard advice is &amp;ldquo;use a service account&amp;rdquo;. But the Gmail API is special. To use a service account with the Gmail API basically requires that the service account has been delegated domain-wide authority. This is tricky for at least two reasons. First, this is only possible within a Google Workspace, i.e. it&amp;rsquo;s not available to personal Google accounts. Second, most Google Workspace admins will refuse to do this, for security reasons.&lt;/p>
+&lt;p>Therefore, if you want to deploy a data product that uses gmailr, it&amp;rsquo;s extremely likely that you really do need to use a user token. This workflow has gotten dramatically easier in gmailr v2.0.0:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://gmailr.r-lib.org/articles/deploy-a-token.html" target="_blank" rel="noopener">Deploy a token&lt;/a> is a new article describing how to capture a token interactively, then use it later, non-interactively.&lt;/li>
+&lt;li>
+&lt;a href="https://gmailr.r-lib.org/reference/gm_token_write.html" target="_blank" rel="noopener">&lt;code>gm_token_write()&lt;/code>&lt;/a> +
+&lt;a href="https://gmailr.r-lib.org/reference/gm_token_write.html" target="_blank" rel="noopener">&lt;code>gm_token_read()&lt;/code>&lt;/a> is a new matched pair of functions that facilitate writing an obfuscated token to disk then reloading that token in a deployed data product or in CI.&lt;/li>
+&lt;li>gmailr ships with
+&lt;a href="https://github.com/r-lib/gmailr/tree/main/inst/deployed-token-demo" target="_blank" rel="noopener">example code&lt;/a> that uses this technique in a small Shiny app that sends email from a specific user account. See the contents of &lt;code>system.file(&amp;quot;deployed-token-demo&amp;quot;, package = &amp;quot;gmailr&amp;quot;)&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;p>The heart of this approach is to first capture a token in an interactive session:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/gm_auth.html'>gm_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"user@example.com"&lt;/span>, cache &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'># interactive OAuth dance in the browser happens HERE&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/gm_token_write.html'>gm_token_write&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> path &lt;span class='o'>=&lt;/span> &lt;span class='s'>".secrets/gmailr-token.rds"&lt;/span>,&lt;/span>
+&lt;span> key &lt;span class='o'>=&lt;/span> &lt;span class='s'>"SUPER_SECRET_ENCRYPTION_KEY"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>then reload it in a subsequent non-interactive session:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/gm_auth.html'>gm_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>token &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/gm_token_write.html'>gm_token_read&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>".secrets/gmailr-token.rds"&lt;/span>,&lt;/span>
+&lt;span> key &lt;span class='o'>=&lt;/span> &lt;span class='s'>"SUPER_SECRET_ENCRYPTION_KEY"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="progress-on-the-great-renaming">Progress on The Great Renaming
+&lt;a href="#progress-on-the-great-renaming">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Unfortunately, there is considerable overlap between some obvious function names in an email-related package (e.g. &amp;ldquo;body&amp;rdquo;, &amp;ldquo;date&amp;rdquo;, &amp;ldquo;message&amp;rdquo;) and pre-existing functions in base R (e.g. 
+&lt;a href="https://gmailr.r-lib.org/reference/gmailr-deprecated.html" target="_blank" rel="noopener">&lt;code>body()&lt;/code>&lt;/a>,
+&lt;a href="https://gmailr.r-lib.org/reference/gmailr-deprecated.html" target="_blank" rel="noopener">&lt;code>date()&lt;/code>&lt;/a>,
+&lt;a href="https://gmailr.r-lib.org/reference/gmailr-deprecated.html" target="_blank" rel="noopener">&lt;code>message()&lt;/code>&lt;/a>). From very early on, gmailr exported several functions with regrettable name collisions, as evidenced at the beginning of this post when we called
+&lt;a href="https://gmailr.r-lib.org" target="_blank" rel="noopener">&lt;code>library(gmailr)&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>In version 1.0.0 (released 2019-08-30), the process of addressing this problem kicked off. At that time, gmailr adopted a universal &lt;code>gm_&lt;/code> prefix for its functions and soft deprecated the legacy functions. Here&amp;rsquo;s an indicative sample of the function replacements:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://gmailr.r-lib.org/reference/gmailr-deprecated.html" target="_blank" rel="noopener">&lt;code>body()&lt;/code>&lt;/a> ➡️
+&lt;a href="https://gmailr.r-lib.org/reference/gm_body.html" target="_blank" rel="noopener">&lt;code>gm_body()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://gmailr.r-lib.org/reference/gmailr-deprecated.html" target="_blank" rel="noopener">&lt;code>date()&lt;/code>&lt;/a> ➡️
+&lt;a href="https://gmailr.r-lib.org/reference/accessors.html" target="_blank" rel="noopener">&lt;code>gm_date()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://gmailr.r-lib.org/reference/gmailr-deprecated.html" target="_blank" rel="noopener">&lt;code>message()&lt;/code>&lt;/a> ➡️
+&lt;a href="https://gmailr.r-lib.org/reference/gm_message.html" target="_blank" rel="noopener">&lt;code>gm_message()&lt;/code>&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>In version 2.0.0, the legacy functions are hard deprecated and you should expect them to be removed in the next release of gmailr. I don&amp;rsquo;t expect there to be much (any?) surviving usage of these functions, but it&amp;rsquo;s definitely time to eliminate any remaining usage.&lt;/p>
+&lt;h2 id="use-the-native-pipe">Use the native pipe
+&lt;a href="#use-the-native-pipe">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>gmailr is designed to be very pipe friendly and it leads to very natural code that builds up a message from its parts:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>msg&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/gm_mime.html'>gm_mime&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/accessors.html'>gm_to&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"recipient@example.com"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/accessors.html'>gm_from&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"sender@example.com"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/accessors.html'>gm_subject&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Hello, world!"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://gmailr.r-lib.org/reference/gm_mime.html'>gm_text_body&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"I come in peace."&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>gmailr predates the introduction of the native pipe, in R 4.1, and therefore, historically, it has re-exported &lt;code>%&amp;gt;%&lt;/code>, the magrittr pipe, for user convenience. The magrittr pipe also featured heavily in gmailr&amp;rsquo;s documentation.&lt;/p>
+&lt;p>In the v2.0.0 release, I&amp;rsquo;ve removed the magrittr dependency and now use the native pipe operator &lt;code>|&amp;gt;&lt;/code> in all documentation (gmailr never used the pipe internally). The purrr package pioneered this maneuver, within the tidyverse, and gmailr uses the same techniques to resolve the tension between the new usage of the base pipe and the tidyverse policy of supporting older R versions. You can learn more about the pipe transition in the blog post
+&lt;a href="https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/" target="_blank" rel="noopener">Differences between the base R and magrittr pipes&lt;/a>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thank you to all those who have contributed to gmailr since the v1.0.0 release:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/absuag" target="_blank" rel="noopener">@absuag&lt;/a>,
+&lt;a href="https://github.com/aeburger" target="_blank" rel="noopener">@aeburger&lt;/a>,
+&lt;a href="https://github.com/andresxmv" target="_blank" rel="noopener">@andresxmv&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/beib" target="_blank" rel="noopener">@beib&lt;/a>,
+&lt;a href="https://github.com/careercoachme" target="_blank" rel="noopener">@careercoachme&lt;/a>,
+&lt;a href="https://github.com/chuagh74" target="_blank" rel="noopener">@chuagh74&lt;/a>,
+&lt;a href="https://github.com/cstangor" target="_blank" rel="noopener">@cstangor&lt;/a>,
+&lt;a href="https://github.com/EeethB" target="_blank" rel="noopener">@EeethB&lt;/a>,
+&lt;a href="https://github.com/enricodata" target="_blank" rel="noopener">@enricodata&lt;/a>,
+&lt;a href="https://github.com/FJCC" target="_blank" rel="noopener">@FJCC&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/HadyShaaban" target="_blank" rel="noopener">@HadyShaaban&lt;/a>,
+&lt;a href="https://github.com/ismayc" target="_blank" rel="noopener">@ismayc&lt;/a>,
+&lt;a href="https://github.com/j450h1" target="_blank" rel="noopener">@j450h1&lt;/a>,
+&lt;a href="https://github.com/janebunr" target="_blank" rel="noopener">@janebunr&lt;/a>,
+&lt;a href="https://github.com/jcheng5" target="_blank" rel="noopener">@jcheng5&lt;/a>,
+&lt;a href="https://github.com/JeffreyCHoover" target="_blank" rel="noopener">@JeffreyCHoover&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jonmichael-caldwell" target="_blank" rel="noopener">@jonmichael-caldwell&lt;/a>,
+&lt;a href="https://github.com/jreid88" target="_blank" rel="noopener">@jreid88&lt;/a>,
+&lt;a href="https://github.com/Karlheinzniebuhr" target="_blank" rel="noopener">@Karlheinzniebuhr&lt;/a>,
+&lt;a href="https://github.com/kputschko" target="_blank" rel="noopener">@kputschko&lt;/a>,
+&lt;a href="https://github.com/KryeKuzhinieri" target="_blank" rel="noopener">@KryeKuzhinieri&lt;/a>,
+&lt;a href="https://github.com/laurenmarietta" target="_blank" rel="noopener">@laurenmarietta&lt;/a>,
+&lt;a href="https://github.com/lwjohnst86" target="_blank" rel="noopener">@lwjohnst86&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/majazaloznik" target="_blank" rel="noopener">@majazaloznik&lt;/a>,
+&lt;a href="https://github.com/maticabgd" target="_blank" rel="noopener">@maticabgd&lt;/a>,
+&lt;a href="https://github.com/MCOtto" target="_blank" rel="noopener">@MCOtto&lt;/a>,
+&lt;a href="https://github.com/meheszlev" target="_blank" rel="noopener">@meheszlev&lt;/a>,
+&lt;a href="https://github.com/Mr-Hadoop-Hotshot" target="_blank" rel="noopener">@Mr-Hadoop-Hotshot&lt;/a>,
+&lt;a href="https://github.com/Niekuba" target="_blank" rel="noopener">@Niekuba&lt;/a>,
+&lt;a href="https://github.com/norcalbiostat" target="_blank" rel="noopener">@norcalbiostat&lt;/a>,
+&lt;a href="https://github.com/Patrikios" target="_blank" rel="noopener">@Patrikios&lt;/a>,
+&lt;a href="https://github.com/pschloss" target="_blank" rel="noopener">@pschloss&lt;/a>,
+&lt;a href="https://github.com/pythiantech" target="_blank" rel="noopener">@pythiantech&lt;/a>,
+&lt;a href="https://github.com/randy3k" target="_blank" rel="noopener">@randy3k&lt;/a>,
+&lt;a href="https://github.com/ratnexa" target="_blank" rel="noopener">@ratnexa&lt;/a>,
+&lt;a href="https://github.com/sanjmeh" target="_blank" rel="noopener">@sanjmeh&lt;/a>,
+&lt;a href="https://github.com/sdisav" target="_blank" rel="noopener">@sdisav&lt;/a>,
+&lt;a href="https://github.com/sommerhd-royals" target="_blank" rel="noopener">@sommerhd-royals&lt;/a>,
+&lt;a href="https://github.com/statnmap" target="_blank" rel="noopener">@statnmap&lt;/a>,
+&lt;a href="https://github.com/tariuk" target="_blank" rel="noopener">@tariuk&lt;/a>,
+&lt;a href="https://github.com/tvroylandt" target="_blank" rel="noopener">@tvroylandt&lt;/a>,
+&lt;a href="https://github.com/vinaybugz" target="_blank" rel="noopener">@vinaybugz&lt;/a>, and
+&lt;a href="https://github.com/VincentGuyader" target="_blank" rel="noopener">@VincentGuyader&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>The &lt;code>subject&lt;/code> argument of
+&lt;a href="https://gmailr.r-lib.org/reference/gm_auth.html" target="_blank" rel="noopener">&lt;code>gm_auth()&lt;/code>&lt;/a> is also new and facilitates the use of a service account to impersonate a user. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>The full OAuth dance is not necessary in subsequent R sessions, though, by default gmailr is very conservative and asks for permission to use and refresh an existing token. This is, of course, configurable. &lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>bigrquery 1.4.0</title><link>https://www.tidyverse.org/blog/2021/08/bigrquery-1-4-0/</link><pubDate>Wed, 04 Aug 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/08/bigrquery-1-4-0/</guid><description>&lt;p>We&amp;rsquo;re gratified to announce the release of
+&lt;a href="https://bigrquery.r-dbi.org" target="_blank" rel="noopener">bigrquery&lt;/a> 1.4.0. bigrquery makes it easy to work with data stored in
+&lt;a href="https://developers.google.com/bigquery/" target="_blank" rel="noopener">Google BigQuery&lt;/a>, a hosted database for big data.&lt;/p>
+&lt;p>You can install bigrquery from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"bigrquery"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This release is mostly to fix a bug in
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a>. We&amp;rsquo;re also bumping the required version of the gargle package (&lt;a href="https://gargle.r-lib.org">https://gargle.r-lib.org&lt;/a>), which handles everything around auth.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://bigrquery.r-dbi.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="bq_table_download-bug-fix">&lt;code>bq_table_download()&lt;/code> bug fix
+&lt;a href="#bq_table_download-bug-fix">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> is a good way to bring small-to-medium data out of BigQuery and into R, in the form of a tibble.&lt;/p>
+&lt;p>Under the hood,
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> retrieves the data in chunks, using several simultaneous connections to BigQuery servers, then parses and reassembles it. The use of concurrent requests has a substantial performance benefit, which we think is absolutely worth it. We ask for these chunks in terms of specific rows, but if the server determines the response will be too large, it sends fewer-than-expected rows (plus a token that can be used to pick up where things left off).&lt;/p>
+&lt;p>The bug is that
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> previously did not account for this and silently returned a tibble with the requested shape but, potentially, with lots of missing data. Many users and datasets are unaffected, because all chunks are received in their entirety. But the problem has been seen with datasets with many columns and where data complexity and sparsity mean that different slices of rows have a very different memory footprint.&lt;/p>
+&lt;p>
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> has been heavily refactored to make this phenomenon much less likely and to detect it when it happens:&lt;/p>
+&lt;ul>
+&lt;li>The default value of &lt;code>page_size&lt;/code> is no longer fixed and, instead, is determined empirically. Users are strongly recommended to let bigrquery select &lt;code>page_size&lt;/code> automatically, unless there&amp;rsquo;s a specific reason to do otherwise.&lt;/li>
+&lt;li>If one of our so-called chunks does not fit on a BigQuery page,
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a> now throws an error with some advice about &lt;code>page_size&lt;/code>.&lt;/li>
+&lt;li>The &lt;code>max_results&lt;/code> argument has been deprecated in favor of &lt;code>n_max&lt;/code>, which better reflects what we actually do with this number and is consistent with the &lt;code>n_max&lt;/code> argument elsewhere, e.g.,
+&lt;a href="https://readr.tidyverse.org/reference/read_delim.html" target="_blank" rel="noopener">&lt;code>readr::read_csv()&lt;/code>&lt;/a>.&lt;/li>
+&lt;/ul>
+&lt;p>Here&amp;rsquo;s a look at the new and improved
+&lt;a href="https://bigrquery.r-dbi.org/reference/bq_table_download.html" target="_blank" rel="noopener">&lt;code>bq_table_download()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://bigrquery.r-dbi.org'>bigrquery&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>dat&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://bigrquery.r-dbi.org/reference/bq_table_download.html'>bq_table_download&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+&lt;span class='s'>"bigquery-public-data.chicago_taxi_trips.taxi_trips"&lt;/span>,
+n_max &lt;span class='o'>=&lt;/span> &lt;span class='m'>100000&lt;/span>,
+bigint &lt;span class='o'>=&lt;/span> &lt;span class='s'>"integer64"&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; Downloading first chunk of data.&lt;/span>
+&lt;span class='c'>#&amp;gt; Received 29,221 rows in the first chunk.&lt;/span>
+&lt;span class='c'>#&amp;gt; Downloading the remaining 70,779 rows in 4 chunks of (up to) 21,915 rows.&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/head.html'>tail&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>dat&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; # A tibble: 6 x 23&lt;/span>
+&lt;span class='c'>#&amp;gt; unique_key taxi_id trip_start_timesta… trip_end_timestamp trip_seconds&lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dttm&amp;gt; &amp;lt;dttm&amp;gt; &amp;lt;int64&amp;gt;&lt;/span>
+&lt;span class='c'>#&amp;gt; 1 1ad3f7df79d3… 0caf3d04eb… 2013-12-27 12:45:00 2013-12-27 13:00:00 840&lt;/span>
+&lt;span class='c'>#&amp;gt; 2 3c982851afee… d7f7e8e4b0… 2014-01-25 19:45:00 2014-01-25 20:00:00 720&lt;/span>
+&lt;span class='c'>#&amp;gt; 3 da7428c5329e… 46e168456e… 2014-01-06 17:45:00 2014-01-06 18:00:00 540&lt;/span>
+&lt;span class='c'>#&amp;gt; 4 b0bb177ea839… 8d1222551a… 2014-01-08 11:45:00 2014-01-08 12:00:00 540&lt;/span>
+&lt;span class='c'>#&amp;gt; 5 eee61e8e6c6d… ac39a2b21a… 2014-01-07 20:45:00 2014-01-07 21:00:00 540&lt;/span>
+&lt;span class='c'>#&amp;gt; 6 4cc0ba56e6de… 25c1126afa… 2013-12-16 22:45:00 2013-12-16 22:45:00 420&lt;/span>
+&lt;span class='c'>#&amp;gt; # … with 18 more variables: trip_miles &amp;lt;dbl&amp;gt;, pickup_census_tract &amp;lt;int64&amp;gt;,&lt;/span>
+&lt;span class='c'>#&amp;gt; # dropoff_census_tract &amp;lt;int64&amp;gt;, pickup_community_area &amp;lt;int64&amp;gt;,&lt;/span>
+&lt;span class='c'>#&amp;gt; # dropoff_community_area &amp;lt;int64&amp;gt;, fare &amp;lt;dbl&amp;gt;, tips &amp;lt;dbl&amp;gt;, tolls &amp;lt;dbl&amp;gt;,&lt;/span>
+&lt;span class='c'>#&amp;gt; # extras &amp;lt;dbl&amp;gt;, trip_total &amp;lt;dbl&amp;gt;, payment_type &amp;lt;chr&amp;gt;, company &amp;lt;chr&amp;gt;,&lt;/span>
+&lt;span class='c'>#&amp;gt; # pickup_latitude &amp;lt;dbl&amp;gt;, pickup_longitude &amp;lt;dbl&amp;gt;, pickup_location &amp;lt;chr&amp;gt;,&lt;/span>
+&lt;span class='c'>#&amp;gt; # dropoff_latitude &amp;lt;dbl&amp;gt;, dropoff_longitude &amp;lt;dbl&amp;gt;, dropoff_location &amp;lt;chr&amp;gt;&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="auth-updates">Auth updates
+&lt;a href="#auth-updates">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If you are generally fairly passive about bigrquery auth, then you should just sit back and let things happen organically during usage. If you&amp;rsquo;ve used bigrquery before, you can expect to see some messages about cleaning and relocating the token cache when you first use v1.4.0. You can also expect to re-authenticate yourself with Google and re-authorize the &amp;ldquo;Tidyverse API Packages&amp;rdquo; to work with your files. This is all due to changes in gargle.&lt;/p>
+&lt;p>If your usage requires you to be more proactive about auth, read the
+&lt;a href="https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/" target="_blank" rel="noopener">blog post for gargle&amp;rsquo;s recent v1.2.0 release&lt;/a>. A key point is that we have rolled the built-in OAuth client, which is why those relying on it will need to re-auth.&lt;/p>
+&lt;p>&lt;strong>If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call&lt;/strong> that you should be using your own OAuth client or, quite possibly, an entirely different method of auth. Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.&lt;/p>
+&lt;p>gargle v1.2.0 offers support for a new method of auth that is especially relevant to bigrquery users: &lt;em>workload identity federation&lt;/em>. This is a new (as of April 2021) keyless authentication mechanism offered by Google. Identity federation allows applications running on a non-Google Cloud platform, such as AWS, to access Google Cloud resources without using a conventional service account token, eliminating the security problem posed by long-lived, powerful service account credential files. Basically, instead of storing sensitive information in a file that must be managed with great care, the necessary secrets are obtained on-the-fly and exchanged for short-lived tokens, with very granular control over what actions are allowed. There is a cost, of course, which is that this auth method requires substantial configuration on both the GCP and AWS sides.&lt;/p>
+&lt;p>See the
+&lt;a href="https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/" target="_blank" rel="noopener">gargle v1.2.0 blog post&lt;/a> and the docs for
+&lt;a href="https://gargle.r-lib.org/reference/credentials_external_account.html" target="_blank" rel="noopener">&lt;code>gargle::credentials_external_account()&lt;/code>&lt;/a> to learn more.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank everyone who has furthered the development of bigrquery, since the last major release (v1.0.0), through their contributions in issues and pull requests:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/414theodore" target="_blank" rel="noopener">@414theodore&lt;/a>,
+&lt;a href="https://github.com/abalter" target="_blank" rel="noopener">@abalter&lt;/a>,
+&lt;a href="https://github.com/acvelozo" target="_blank" rel="noopener">@acvelozo&lt;/a>,
+&lt;a href="https://github.com/adhi-r" target="_blank" rel="noopener">@adhi-r&lt;/a>,
+&lt;a href="https://github.com/afalcioni" target="_blank" rel="noopener">@afalcioni&lt;/a>,
+&lt;a href="https://github.com/ahmohamed" target="_blank" rel="noopener">@ahmohamed&lt;/a>,
+&lt;a href="https://github.com/ajhindle" target="_blank" rel="noopener">@ajhindle&lt;/a>,
+&lt;a href="https://github.com/AlekseyBuzmakov" target="_blank" rel="noopener">@AlekseyBuzmakov&lt;/a>,
+&lt;a href="https://github.com/analyse9823" target="_blank" rel="noopener">@analyse9823&lt;/a>,
+&lt;a href="https://github.com/andirey" target="_blank" rel="noopener">@andirey&lt;/a>,
+&lt;a href="https://github.com/ArbenKqiku" target="_blank" rel="noopener">@ArbenKqiku&lt;/a>,
+&lt;a href="https://github.com/arvhug" target="_blank" rel="noopener">@arvhug&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/bbrewington" target="_blank" rel="noopener">@bbrewington&lt;/a>,
+&lt;a href="https://github.com/bhargavimoorthyrao" target="_blank" rel="noopener">@bhargavimoorthyrao&lt;/a>,
+&lt;a href="https://github.com/btrx-sreddy" target="_blank" rel="noopener">@btrx-sreddy&lt;/a>,
+&lt;a href="https://github.com/byapparov" target="_blank" rel="noopener">@byapparov&lt;/a>,
+&lt;a href="https://github.com/carbocation" target="_blank" rel="noopener">@carbocation&lt;/a>,
+&lt;a href="https://github.com/CartWill" target="_blank" rel="noopener">@CartWill&lt;/a>,
+&lt;a href="https://github.com/chrisherold" target="_blank" rel="noopener">@chrisherold&lt;/a>,
+&lt;a href="https://github.com/ChrisJohnsonUMG" target="_blank" rel="noopener">@ChrisJohnsonUMG&lt;/a>,
+&lt;a href="https://github.com/cpcgoogle" target="_blank" rel="noopener">@cpcgoogle&lt;/a>,
+&lt;a href="https://github.com/danny-molamola" target="_blank" rel="noopener">@danny-molamola&lt;/a>,
+&lt;a href="https://github.com/deflaux" target="_blank" rel="noopener">@deflaux&lt;/a>,
+&lt;a href="https://github.com/dmoimpact" target="_blank" rel="noopener">@dmoimpact&lt;/a>,
+&lt;a href="https://github.com/downloaderfan" target="_blank" rel="noopener">@downloaderfan&lt;/a>,
+&lt;a href="https://github.com/dsolito" target="_blank" rel="noopener">@dsolito&lt;/a>,
+&lt;a href="https://github.com/dujm" target="_blank" rel="noopener">@dujm&lt;/a>,
+&lt;a href="https://github.com/eamcvey" target="_blank" rel="noopener">@eamcvey&lt;/a>,
+&lt;a href="https://github.com/eddelbuettel" target="_blank" rel="noopener">@eddelbuettel&lt;/a>,
+&lt;a href="https://github.com/edgararuiz-zz" target="_blank" rel="noopener">@edgararuiz-zz&lt;/a>,
+&lt;a href="https://github.com/eduardodrc" target="_blank" rel="noopener">@eduardodrc&lt;/a>,
+&lt;a href="https://github.com/evandropp10" target="_blank" rel="noopener">@evandropp10&lt;/a>,
+&lt;a href="https://github.com/everron" target="_blank" rel="noopener">@everron&lt;/a>,
+&lt;a href="https://github.com/geotheory" target="_blank" rel="noopener">@geotheory&lt;/a>,
+&lt;a href="https://github.com/gikis1" target="_blank" rel="noopener">@gikis1&lt;/a>,
+&lt;a href="https://github.com/gjuggler" target="_blank" rel="noopener">@gjuggler&lt;/a>,
+&lt;a href="https://github.com/gkmuralimech" target="_blank" rel="noopener">@gkmuralimech&lt;/a>,
+&lt;a href="https://github.com/grantmcdermott" target="_blank" rel="noopener">@grantmcdermott&lt;/a>,
+&lt;a href="https://github.com/guillaumed90" target="_blank" rel="noopener">@guillaumed90&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/HarlanH" target="_blank" rel="noopener">@HarlanH&lt;/a>,
+&lt;a href="https://github.com/hlynurhallgrims" target="_blank" rel="noopener">@hlynurhallgrims&lt;/a>,
+&lt;a href="https://github.com/htappen" target="_blank" rel="noopener">@htappen&lt;/a>,
+&lt;a href="https://github.com/Iuiu1234" target="_blank" rel="noopener">@Iuiu1234&lt;/a>,
+&lt;a href="https://github.com/izzetagoren" target="_blank" rel="noopener">@izzetagoren&lt;/a>,
+&lt;a href="https://github.com/j450h1" target="_blank" rel="noopener">@j450h1&lt;/a>,
+&lt;a href="https://github.com/janejuenyang" target="_blank" rel="noopener">@janejuenyang&lt;/a>,
+&lt;a href="https://github.com/jayBana" target="_blank" rel="noopener">@jayBana&lt;/a>,
+&lt;a href="https://github.com/jberninger" target="_blank" rel="noopener">@jberninger&lt;/a>,
+&lt;a href="https://github.com/jcheng5" target="_blank" rel="noopener">@jcheng5&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimmyg3g" target="_blank" rel="noopener">@jimmyg3g&lt;/a>,
+&lt;a href="https://github.com/joetortorelli" target="_blank" rel="noopener">@joetortorelli&lt;/a>,
+&lt;a href="https://github.com/jordanwebb10" target="_blank" rel="noopener">@jordanwebb10&lt;/a>,
+&lt;a href="https://github.com/jpryda" target="_blank" rel="noopener">@jpryda&lt;/a>,
+&lt;a href="https://github.com/jrecasens" target="_blank" rel="noopener">@jrecasens&lt;/a>,
+&lt;a href="https://github.com/Ka2wei" target="_blank" rel="noopener">@Ka2wei&lt;/a>,
+&lt;a href="https://github.com/KarimZaoui" target="_blank" rel="noopener">@KarimZaoui&lt;/a>,
+&lt;a href="https://github.com/kesnalawrence" target="_blank" rel="noopener">@kesnalawrence&lt;/a>,
+&lt;a href="https://github.com/kevinwang09" target="_blank" rel="noopener">@kevinwang09&lt;/a>,
+&lt;a href="https://github.com/kkmann" target="_blank" rel="noopener">@kkmann&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/Kvit" target="_blank" rel="noopener">@Kvit&lt;/a>,
+&lt;a href="https://github.com/ldanai" target="_blank" rel="noopener">@ldanai&lt;/a>,
+&lt;a href="https://github.com/leemc-data-ed" target="_blank" rel="noopener">@leemc-data-ed&lt;/a>,
+&lt;a href="https://github.com/LukasWallrich" target="_blank" rel="noopener">@LukasWallrich&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/mapinas" target="_blank" rel="noopener">@mapinas&lt;/a>,
+&lt;a href="https://github.com/mauricioita" target="_blank" rel="noopener">@mauricioita&lt;/a>,
+&lt;a href="https://github.com/meystingray" target="_blank" rel="noopener">@meystingray&lt;/a>,
+&lt;a href="https://github.com/meztez" target="_blank" rel="noopener">@meztez&lt;/a>,
+&lt;a href="https://github.com/mr2dark" target="_blank" rel="noopener">@mr2dark&lt;/a>,
+&lt;a href="https://github.com/mwilson19" target="_blank" rel="noopener">@mwilson19&lt;/a>,
+&lt;a href="https://github.com/paleolimbot" target="_blank" rel="noopener">@paleolimbot&lt;/a>,
+&lt;a href="https://github.com/paulsendavidjay" target="_blank" rel="noopener">@paulsendavidjay&lt;/a>,
+&lt;a href="https://github.com/philbrierley" target="_blank" rel="noopener">@philbrierley&lt;/a>,
+&lt;a href="https://github.com/ras44" target="_blank" rel="noopener">@ras44&lt;/a>,
+&lt;a href="https://github.com/rasmusab" target="_blank" rel="noopener">@rasmusab&lt;/a>,
+&lt;a href="https://github.com/reliscu" target="_blank" rel="noopener">@reliscu&lt;/a>,
+&lt;a href="https://github.com/riccardopinosio" target="_blank" rel="noopener">@riccardopinosio&lt;/a>,
+&lt;a href="https://github.com/Saikri5hna" target="_blank" rel="noopener">@Saikri5hna&lt;/a>,
+&lt;a href="https://github.com/samudzi" target="_blank" rel="noopener">@samudzi&lt;/a>,
+&lt;a href="https://github.com/santic113" target="_blank" rel="noopener">@santic113&lt;/a>,
+&lt;a href="https://github.com/saptarshiguha" target="_blank" rel="noopener">@saptarshiguha&lt;/a>,
+&lt;a href="https://github.com/Schumzy" target="_blank" rel="noopener">@Schumzy&lt;/a>,
+&lt;a href="https://github.com/SeagleLiu" target="_blank" rel="noopener">@SeagleLiu&lt;/a>,
+&lt;a href="https://github.com/selcukakbas" target="_blank" rel="noopener">@selcukakbas&lt;/a>,
+&lt;a href="https://github.com/selesnow" target="_blank" rel="noopener">@selesnow&lt;/a>,
+&lt;a href="https://github.com/siroros" target="_blank" rel="noopener">@siroros&lt;/a>,
+&lt;a href="https://github.com/skydavis435" target="_blank" rel="noopener">@skydavis435&lt;/a>,
+&lt;a href="https://github.com/spgarbet" target="_blank" rel="noopener">@spgarbet&lt;/a>,
+&lt;a href="https://github.com/spiddy69" target="_blank" rel="noopener">@spiddy69&lt;/a>,
+&lt;a href="https://github.com/srkpratap" target="_blank" rel="noopener">@srkpratap&lt;/a>,
+&lt;a href="https://github.com/stelsemeyer" target="_blank" rel="noopener">@stelsemeyer&lt;/a>,
+&lt;a href="https://github.com/stevecondylios" target="_blank" rel="noopener">@stevecondylios&lt;/a>,
+&lt;a href="https://github.com/svmakarovv" target="_blank" rel="noopener">@svmakarovv&lt;/a>,
+&lt;a href="https://github.com/tchaithonov" target="_blank" rel="noopener">@tchaithonov&lt;/a>,
+&lt;a href="https://github.com/tdsmith" target="_blank" rel="noopener">@tdsmith&lt;/a>,
+&lt;a href="https://github.com/theclue" target="_blank" rel="noopener">@theclue&lt;/a>,
+&lt;a href="https://github.com/tinoater" target="_blank" rel="noopener">@tinoater&lt;/a>,
+&lt;a href="https://github.com/valentas-kurauskas" target="_blank" rel="noopener">@valentas-kurauskas&lt;/a>,
+&lt;a href="https://github.com/valentinumbach" target="_blank" rel="noopener">@valentinumbach&lt;/a>,
+&lt;a href="https://github.com/victorz-ca" target="_blank" rel="noopener">@victorz-ca&lt;/a>,
+&lt;a href="https://github.com/warnes" target="_blank" rel="noopener">@warnes&lt;/a>,
+&lt;a href="https://github.com/YuanyuanZhang1986" target="_blank" rel="noopener">@YuanyuanZhang1986&lt;/a>,
+&lt;a href="https://github.com/zacdav" target="_blank" rel="noopener">@zacdav&lt;/a>,
+&lt;a href="https://github.com/ZainRizvi" target="_blank" rel="noopener">@ZainRizvi&lt;/a>,
+&lt;a href="https://github.com/zerobytes" target="_blank" rel="noopener">@zerobytes&lt;/a>, and
+&lt;a href="https://github.com/zoews" target="_blank" rel="noopener">@zoews&lt;/a>.&lt;/p></description></item><item><title>googlesheets4 1.0.0</title><link>https://www.tidyverse.org/blog/2021/07/googlesheets4-1-0-0/</link><pubDate>Mon, 26 Jul 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/07/googlesheets4-1-0-0/</guid><description>&lt;p>We&amp;rsquo;re over the moon to announce the release of googlesheets4, version 1.0.0 (&lt;a href="https://googlesheets4.tidyverse.org">https://googlesheets4.tidyverse.org&lt;/a>).&lt;/p>
+&lt;p>googlesheets4 is a package to work with Google Sheets from R. It wraps
+&lt;a href="https://developers.google.com/sheets/api/reference/rest" target="_blank" rel="noopener">v4 of the Sheets API&lt;/a>. googlesheets4 is focused on spreadsheet-y tasks that require a notion of worksheets, cells, and ranges, while the companion package
+&lt;a href="https://googledrive.tidyverse.org" target="_blank" rel="noopener">googledrive&lt;/a> handles more general file operations, such as renaming, sharing, or moving.&lt;/p>
+&lt;p>Install googlesheets4 from CRAN like so:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"googlesheets4"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Then attach it for use via:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googlesheets4.tidyverse.org'>googlesheets4&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The release of version 1.0.0 means googlesheets4 has graduated from being experimental to being stable, in terms of the
+&lt;a href="https://lifecycle.r-lib.org/articles/stages.html" target="_blank" rel="noopener">tidyverse lifecycle stages&lt;/a>. &lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>&lt;/p>
+&lt;p>Since we
+&lt;a href="https://www.tidyverse.org/blog/2020/05/googlesheets4-0-2-0/" target="_blank" rel="noopener">last blogged about it&lt;/a>, googlesheets4 has seen some &amp;ldquo;quality of life&amp;rdquo; improvements, but no earthshaking changes. The overall interface is more polished, we automatically retry requests that yield the dreaded &lt;code>429 RESOURCE_EXHAUSTED&lt;/code>, and there&amp;rsquo;s better handling of some empty cell edge cases. We&amp;rsquo;re also bumping the required version of the gargle package (&lt;a href="https://gargle.r-lib.org">https://gargle.r-lib.org&lt;/a>), which handles everything around auth.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://googlesheets4.tidyverse.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="auth-updates">Auth updates
+&lt;a href="#auth-updates">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If you are generally fairly passive about googlesheets4 auth, then you should just sit back and let things happen organically during usage. If you&amp;rsquo;ve used googlesheets4 before, you can expect to see some messages about cleaning and relocating the token cache when you first use v1.0.0. You can also expect to re-authenticate yourself with Google and re-authorize the &amp;ldquo;Tidyverse API Packages&amp;rdquo; to work with your files. This is all due to changes in gargle.&lt;/p>
+&lt;p>If your usage requires you to be more proactive about auth, read the
+&lt;a href="https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/" target="_blank" rel="noopener">blog post for gargle&amp;rsquo;s recent v1.2.0 release&lt;/a>. A key point is that we have rolled the built-in OAuth client, which is why those relying on it will need to re-auth.&lt;/p>
+&lt;p>&lt;strong>If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call&lt;/strong> that you should be using your own OAuth client or, quite possibly, an entirely different method of auth. Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.&lt;/p>
+&lt;p>If you often use googlesheets4 together with googledrive, remember that the article
+&lt;a href="https://googlesheets4.tidyverse.org/articles/articles/drive-and-sheets.html" target="_blank" rel="noopener">Using googlesheets4 with googledrive&lt;/a> gives some tips for how to coordinate auth.&lt;/p>
+&lt;h2 id="retries">Retries
+&lt;a href="#retries">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The Sheets API has
+&lt;a href="https://developers.google.com/sheets/api/reference/limits" target="_blank" rel="noopener">usage limits&lt;/a> that are low enough even regular folks bump up against them occasionally:&lt;/p>
+&lt;ul>
+&lt;li>100 requests per 100 seconds per user&lt;/li>
+&lt;li>500 requests per 100 seconds per project&lt;/li>
+&lt;/ul>
+&lt;p>When you hit one of these limits, your request fails with the error code &lt;code>429 RESOURCE_EXHAUSTED&lt;/code>. Thanks to a change in gargle, we now automatically retry such a request and, if it looks like you&amp;rsquo;ve exhausted your &lt;strong>user&lt;/strong> quota, that first wait is &amp;gt; 100 seconds (!!).&lt;/p>
+&lt;p>If this happens to you fairly often, you should contemplate whether your code relies on some self-defeating pattern, like hitting the Sheets API repeatedly in a tight loop. Here&amp;rsquo;s an example of bad vs. good googlesheets4 code:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>gapminder&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/gs4_examples.html'>gs4_example&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"gapminder"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>sp&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/sheet_properties.html'>sheet_properties&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>gapminder&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>(&lt;/span>&lt;span class='nv'>n&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>sp&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>grid_rows&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>sp&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>name&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='s'>"Africa"&lt;/span>&lt;span class='o'>]&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; [1] 625&lt;/span>
+&lt;span class='c'># this is BAD IDEA = reading individual cells in a loop&lt;/span>
+&lt;span class='kr'>for&lt;/span> &lt;span class='o'>(&lt;/span>&lt;span class='nv'>i&lt;/span> &lt;span class='kr'>in&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/seq.html'>seq_len&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>n&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>
+&lt;span class='nv'>gapminder&lt;/span> &lt;span class='o'>&lt;a href='https://googlesheets4.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/range_read.html'>range_read&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>sheet &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Africa"&lt;/span>, range &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sprintf.html'>sprintf&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"C%i"&lt;/span>, &lt;span class='nv'>i&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>&amp;#125;&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Reading from "gapminder".&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Range ''Africa'!C1'.&lt;/span>
+&lt;span class='c'>#&amp;gt; ...&lt;/span>
+&lt;span class='c'>#&amp;gt; x Request failed [429]. Retry 1 happens in 100.8 seconds ...&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Range ''Africa'!C28'.&lt;/span>
+&lt;span class='c'>#&amp;gt; ...&lt;/span>
+&lt;span class='c'>#&amp;gt; x Request failed [429]. Retry 1 happens in 100.4 seconds ...&lt;/span>
+&lt;span class='c'>#&amp;gt; x Request failed [429]. Retry 2 happens in 8.8 seconds ...&lt;/span>
+&lt;span class='c'>#&amp;gt; ...&lt;/span>
+&lt;span class='c'># this is a GOOD IDEA = reading all cells at once&lt;/span>
+&lt;span class='nv'>gapminder&lt;/span> &lt;span class='o'>&lt;a href='https://googlesheets4.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/range_read.html'>range_read&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>sheet &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Africa"&lt;/span>, range &lt;span class='o'>=&lt;/span> &lt;span class='s'>"C:C"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://googlesheets4.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/head.html'>head&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Reading from "gapminder".&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Range ''Africa'!C:C'.&lt;/span>
+&lt;span class='c'>#&amp;gt; # A tibble: 6 x 1&lt;/span>
+&lt;span class='c'>#&amp;gt; year&lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class='c'>#&amp;gt; 1 1952&lt;/span>
+&lt;span class='c'>#&amp;gt; 2 1957&lt;/span>
+&lt;span class='c'>#&amp;gt; 3 1962&lt;/span>
+&lt;span class='c'>#&amp;gt; 4 1967&lt;/span>
+&lt;span class='c'>#&amp;gt; 5 1972&lt;/span>
+&lt;span class='c'>#&amp;gt; 6 1977&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Lesson: work in bulk as much as possible, as opposed to making lots of little piecemeal requests.&lt;/p>
+&lt;p>What about the per project limit? If you are auth&amp;rsquo;ed as a regular user, using the built-in OAuth client, this project refers to the Tidyverse API Packages. Yes, that means you&amp;rsquo;re sharing project-level quota with all your fellow useRs who also auth&amp;rsquo;ed this way!&lt;/p>
+&lt;p>If you hit per project limits regularly and it upsets your workflow, the universe is telling you that it&amp;rsquo;s time to configure your own OAuth client or use an entirely different method of auth, such as a service account token. Read more in the gargle article
+&lt;a href="https://gargle.r-lib.org/articles/get-api-credentials.html" target="_blank" rel="noopener">How to get your own API credentials&lt;/a>.&lt;/p>
+&lt;p>Casual googlesheets4 users can go with the flow and accept that the occasional request will need an automatic retry. If you want to learn more, the functionality comes from
+&lt;a href="https://gargle.r-lib.org/reference/request_retry.html" target="_blank" rel="noopener">&lt;code>gargle::request_retry()&lt;/code>&lt;/a>. In the development version of gargle, we retry for an even larger set of error codes (408, 429, 500, 502, and 503). If that appeals to you and you&amp;rsquo;re willing to install a pre-release package, we&amp;rsquo;d love to hear how this works for you.&lt;/p>
+&lt;h2 id="user-interface">User interface
+&lt;a href="#user-interface">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The googlesheets4 user interface (UI) has gotten more stylish, thanks to the cli package (&lt;a href="https://cli.r-lib.org">https://cli.r-lib.org&lt;/a>). This applies to informational messages, as well as to errors.&lt;/p>
+&lt;p>The semantic UI encouraged by cli is a great fit for googlesheets4, where it&amp;rsquo;s useful to apply distinct inline styles for (spread)Sheet name, (work)sheet name, and cell range. Also bullets! Here is a fictional message that shows off some of these lovely things:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='c'>#&amp;gt; Hey, we're doing exciting things in the &lt;span style='color: #00BBBB;'>chicken_sheet&lt;/span>!&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> Did you know it has a worksheet called &lt;span style='color: #00BB00;'>chicken_scratch&lt;/span>?&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> Uh-oh, in range &lt;span style='color: #BBBB00;'>A1:D4&lt;/span>, some data appears to be encoded in the cell color :(&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>In a more technical vein, all errors thrown by googlesheets4 now route through
+&lt;a href="https://rlang.r-lib.org/reference/abort.html" target="_blank" rel="noopener">&lt;code>rlang::abort()&lt;/code>&lt;/a>. This has various benefits, including better access to the backtrace and error data. All errors thrown by googlesheets4 now bear the class &lt;code>&amp;quot;googlesheets4_error&amp;quot;&lt;/code>.&lt;/p>
+&lt;p>&lt;code>googlesheets4_quiet&lt;/code> is a new option to suppress informational messages from googlesheets4.
+&lt;a href="https://googlesheets4.tidyverse.org/reference/googlesheets4-configuration.html" target="_blank" rel="noopener">&lt;code>local_gs4_quiet()&lt;/code>&lt;/a> and
+&lt;a href="https://googlesheets4.tidyverse.org/reference/googlesheets4-configuration.html" target="_blank" rel="noopener">&lt;code>with_gs4_quiet()&lt;/code>&lt;/a> are
+&lt;a href="https://withr.r-lib.org" target="_blank" rel="noopener">withr-style&lt;/a> convenience helpers for setting &lt;code>googlesheets4_quiet = TRUE&lt;/code>.&lt;/p>
+&lt;h2 id="empty-cells">Empty cells
+&lt;a href="#empty-cells">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>It&amp;rsquo;s (not so) funny how much effort goes into handling the absence of data and googlesheets4 is no exception. We&amp;rsquo;ve made a few improvements to how we read or write nothing.&lt;/p>
+&lt;p>The &lt;code>na&lt;/code> argument of
+&lt;a href="https://googlesheets4.tidyverse.org/reference/range_read.html" target="_blank" rel="noopener">&lt;code>read_sheet()&lt;/code>&lt;/a> has become more capable and more consistent with readr. Specifically, &lt;code>na = character()&lt;/code> (or the general lack of &lt;code>&amp;quot;&amp;quot;&lt;/code> among the &lt;code>na&lt;/code> strings) results in cells with no data appearing as the empty string &lt;code>&amp;quot;&amp;quot;&lt;/code> within a character vector, as opposed to &lt;code>NA&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nv'>dat&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/data.frame.html'>data.frame&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>
+x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"one"&lt;/span>, &lt;span class='s'>""&lt;/span>, &lt;span class='s'>"three"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>ss&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/gs4_create.html'>gs4_create&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"blog-post-blanks"&lt;/span>, sheets &lt;span class='o'>=&lt;/span> &lt;span class='nv'>dat&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Creating new Sheet: "blog-post-blanks".&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/range_read.html'>read_sheet&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>ss&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Reading from "blog-post-blanks".&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Range 'dat'.&lt;/span>
+&lt;span class='c'>#&amp;gt; # A tibble: 3 x 1&lt;/span>
+&lt;span class='c'>#&amp;gt; x &lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class='c'>#&amp;gt; 1 one &lt;/span>
+&lt;span class='c'>#&amp;gt; 2 &amp;lt;NA&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; 3 three&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googlesheets4.tidyverse.org/reference/range_read.html'>read_sheet&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>ss&lt;/span>, na &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/character.html'>character&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Reading from "blog-post-blanks".&lt;/span>
+&lt;span class='c'>#&amp;gt; ✓ Range 'dat'.&lt;/span>
+&lt;span class='c'>#&amp;gt; # A tibble: 3 x 1&lt;/span>
+&lt;span class='c'>#&amp;gt; x &lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;chr&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; 1 "one" &lt;/span>
+&lt;span class='c'>#&amp;gt; 2 "" &lt;/span>
+&lt;span class='c'>#&amp;gt; 3 "three"&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Explicit &lt;code>NULL&lt;/code>s are also now written properly, i.e. as an empty cell. This can come up with list-columns. List-columns can easily creep in when working with Sheets edited by humans, who tend to create mixed columns by accident, i.e. mixing numbers and text.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank everyone who has helped to shape googlesheets4, since the release of v0.2.0, through their contributions in issues and pull requests:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/aaronmams" target="_blank" rel="noopener">@aaronmams&lt;/a>,
+&lt;a href="https://github.com/ajjitn" target="_blank" rel="noopener">@ajjitn&lt;/a>,
+&lt;a href="https://github.com/akgold" target="_blank" rel="noopener">@akgold&lt;/a>,
+&lt;a href="https://github.com/AvinaHunjan" target="_blank" rel="noopener">@AvinaHunjan&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/bwganblack" target="_blank" rel="noopener">@bwganblack&lt;/a>,
+&lt;a href="https://github.com/cmichaud92" target="_blank" rel="noopener">@cmichaud92&lt;/a>,
+&lt;a href="https://github.com/comicalequation" target="_blank" rel="noopener">@comicalequation&lt;/a>,
+&lt;a href="https://github.com/CorradoLanera" target="_blank" rel="noopener">@CorradoLanera&lt;/a>,
+&lt;a href="https://github.com/cpilat97" target="_blank" rel="noopener">@cpilat97&lt;/a>,
+&lt;a href="https://github.com/daattali" target="_blank" rel="noopener">@daattali&lt;/a>,
+&lt;a href="https://github.com/davidski" target="_blank" rel="noopener">@davidski&lt;/a>,
+&lt;a href="https://github.com/devu123" target="_blank" rel="noopener">@devu123&lt;/a>,
+&lt;a href="https://github.com/dgmdevelopment" target="_blank" rel="noopener">@dgmdevelopment&lt;/a>,
+&lt;a href="https://github.com/douglascm" target="_blank" rel="noopener">@douglascm&lt;/a>,
+&lt;a href="https://github.com/dulearnaux" target="_blank" rel="noopener">@dulearnaux&lt;/a>,
+&lt;a href="https://github.com/ericcrandall" target="_blank" rel="noopener">@ericcrandall&lt;/a>,
+&lt;a href="https://github.com/ericpgreen" target="_blank" rel="noopener">@ericpgreen&lt;/a>,
+&lt;a href="https://github.com/featherduino" target="_blank" rel="noopener">@featherduino&lt;/a>,
+&lt;a href="https://github.com/felixetorres" target="_blank" rel="noopener">@felixetorres&lt;/a>,
+&lt;a href="https://github.com/ferguskeatinge" target="_blank" rel="noopener">@ferguskeatinge&lt;/a>,
+&lt;a href="https://github.com/ghost" target="_blank" rel="noopener">@ghost&lt;/a>,
+&lt;a href="https://github.com/Helena-D" target="_blank" rel="noopener">@Helena-D&lt;/a>,
+&lt;a href="https://github.com/jasonboots" target="_blank" rel="noopener">@jasonboots&lt;/a>,
+&lt;a href="https://github.com/jcheng5" target="_blank" rel="noopener">@jcheng5&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/JimboMahoney" target="_blank" rel="noopener">@JimboMahoney&lt;/a>,
+&lt;a href="https://github.com/johnbde" target="_blank" rel="noopener">@johnbde&lt;/a>,
+&lt;a href="https://github.com/jpawlata" target="_blank" rel="noopener">@jpawlata&lt;/a>,
+&lt;a href="https://github.com/lpevzner" target="_blank" rel="noopener">@lpevzner&lt;/a>,
+&lt;a href="https://github.com/marcusbrito" target="_blank" rel="noopener">@marcusbrito&lt;/a>,
+&lt;a href="https://github.com/MateusMaiaDS" target="_blank" rel="noopener">@MateusMaiaDS&lt;/a>,
+&lt;a href="https://github.com/mathlete76" target="_blank" rel="noopener">@mathlete76&lt;/a>,
+&lt;a href="https://github.com/mattle24" target="_blank" rel="noopener">@mattle24&lt;/a>,
+&lt;a href="https://github.com/mikegunn" target="_blank" rel="noopener">@mikegunn&lt;/a>,
+&lt;a href="https://github.com/milamyslov" target="_blank" rel="noopener">@milamyslov&lt;/a>,
+&lt;a href="https://github.com/MonkmanMH" target="_blank" rel="noopener">@MonkmanMH&lt;/a>,
+&lt;a href="https://github.com/nicholailidow" target="_blank" rel="noopener">@nicholailidow&lt;/a>,
+&lt;a href="https://github.com/nikosbosse" target="_blank" rel="noopener">@nikosbosse&lt;/a>,
+&lt;a href="https://github.com/nilescbn" target="_blank" rel="noopener">@nilescbn&lt;/a>,
+&lt;a href="https://github.com/OmarGonD" target="_blank" rel="noopener">@OmarGonD&lt;/a>,
+&lt;a href="https://github.com/paulvern" target="_blank" rel="noopener">@paulvern&lt;/a>,
+&lt;a href="https://github.com/pschloss" target="_blank" rel="noopener">@pschloss&lt;/a>,
+&lt;a href="https://github.com/py9mrg" target="_blank" rel="noopener">@py9mrg&lt;/a>,
+&lt;a href="https://github.com/rhamo" target="_blank" rel="noopener">@rhamo&lt;/a>,
+&lt;a href="https://github.com/rhgof" target="_blank" rel="noopener">@rhgof&lt;/a>,
+&lt;a href="https://github.com/robitalec" target="_blank" rel="noopener">@robitalec&lt;/a>,
+&lt;a href="https://github.com/RussBowdrey" target="_blank" rel="noopener">@RussBowdrey&lt;/a>,
+&lt;a href="https://github.com/sacrevert" target="_blank" rel="noopener">@sacrevert&lt;/a>,
+&lt;a href="https://github.com/sanjmeh" target="_blank" rel="noopener">@sanjmeh&lt;/a>,
+&lt;a href="https://github.com/SebastianJHM" target="_blank" rel="noopener">@SebastianJHM&lt;/a>,
+&lt;a href="https://github.com/timothoms" target="_blank" rel="noopener">@timothoms&lt;/a>,
+&lt;a href="https://github.com/TMax66" target="_blank" rel="noopener">@TMax66&lt;/a>,
+&lt;a href="https://github.com/tomcardoso" target="_blank" rel="noopener">@tomcardoso&lt;/a>,
+&lt;a href="https://github.com/uhhiitsphilia" target="_blank" rel="noopener">@uhhiitsphilia&lt;/a>, and
+&lt;a href="https://github.com/YlanAllouche" target="_blank" rel="noopener">@YlanAllouche&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>The deprecated &lt;code>sheets_*()&lt;/code> functions have been removed, as promised in the warning they have been throwing for over a year. No functionality was lost: this is just the result of the function (re-)naming scheme adopted in googlesheets4 &amp;gt;= 0.2.0. This
+&lt;a href="https://googlesheets4.tidyverse.org/articles/articles/function-class-names.html#previous-use-of-sheets-prefix" target="_blank" rel="noopener">internal documentation&lt;/a> has a table that maps deprecated functions to their current counterparts. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>gargle 1.2.0</title><link>https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/</link><pubDate>Sun, 04 Jul 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/07/gargle-1-2-0/</guid><description>&lt;p>We&amp;rsquo;re psyched to announce the release of
+&lt;a href="https://gargle.r-lib.org" target="_blank" rel="noopener">gargle&lt;/a> 1.2.0. gargle is meant to take some of the pain out of working with Google APIs and is mostly aimed at the &lt;em>maintainers&lt;/em> of R packages that call Google APIs.&lt;/p>
+&lt;p>Packages that use gargle internally include
+&lt;a href="https://bigrquery.r-dbi.org" target="_blank" rel="noopener">bigrquery&lt;/a>,
+&lt;a href="https://gmailr.r-lib.org" target="_blank" rel="noopener">gmailr&lt;/a>,
+&lt;a href="https://code.markedmondson.me/googleAuthR/" target="_blank" rel="noopener">googleAuthR&lt;/a>,
+&lt;a href="https://googledrive.tidyverse.org" target="_blank" rel="noopener">googledrive&lt;/a>, and
+&lt;a href="https://googlesheets4.tidyverse.org" target="_blank" rel="noopener">googlesheets4&lt;/a>. As a conservative lower bound, gargle facilitates more than 1.5 million requests per day and over 50 million requests per month. Users of these packages, especially those who take an interest in the details around auth, may want to read on.&lt;/p>
+&lt;p>You can install gargle from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"gargle"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>I last blogged about gargle in
+&lt;a href="https://www.tidyverse.org/blog/2019/08/gargle-hello-world/" target="_blank" rel="noopener">August 2019, around the release of v0.3.1&lt;/a>. There have been several releases since then and this post highlights important changes across all of them.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://gargle.r-lib.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="stewarding-the-cache-of-user-tokens">Stewarding the cache of user tokens
+&lt;a href="#stewarding-the-cache-of-user-tokens">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Users who &amp;ldquo;just go with the flow&amp;rdquo; generally find themselves doing the
+&lt;a href="https://medium.com/typeforms-engineering-blog/the-beginners-guide-to-oauth-dancing-4b8f3666de10" target="_blank" rel="noopener">OAuth Dance&lt;/a> in the browser:&lt;/p>
+&lt;div class="highlight">
+&lt;div class="figure" style="text-align: center">
+&lt;p>&lt;img src="oauth-dance-web-flow.png" alt="Typical OAuth dance in the browser, when initiated from within R" width="100%" />&lt;/p>
+&lt;p class="caption">
+Typical OAuth dance in the browser, when initiated from within R
+&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;p>Upon success, you see this message in the browser:&lt;/p>
+&lt;pre>&lt;code>Authentication complete. Please close this page and return to R.
+&lt;/code>&lt;/pre>
+&lt;p>The dance concludes with gargle (or a wrapper package) in possession of a
+&lt;a href="https://developers.google.com/identity/protocols/oauth2#installed" target="_blank" rel="noopener">Google user token&lt;/a>. This credential usually comes with an access token, which is valid for about an hour, and a more persistent refresh token, which can be used to get new access tokens in the future. It is nice to store this refresh token somewhere, to reduce future friction for this user. We&amp;rsquo;ll refer to this &amp;ldquo;somewhere&amp;rdquo; as the &lt;em>OAuth token cache&lt;/em>. You can get a cache &amp;ldquo;situation report&amp;rdquo; with
+&lt;a href="https://gargle.r-lib.org/reference/gargle_oauth_sitrep.html" target="_blank" rel="noopener">&lt;code>gargle::gargle_oauth_sitrep()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>One of the original motivations for the gargle package was to depart from httr&amp;rsquo;s behaviour around token caching, which defaults to the current working directory.&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> By default, gargle caches user tokens centrally, at the user level, and their keys or labels also convey which Google identity is associated with each token. This reduces the chance of accidentally exposing tokens in projects that sync to remote servers (like DropBox or GitHub), increases the ability to reuse tokens across multiple R projects, and makes it easier to use multiple identities within a single project.&lt;/p>
+&lt;p>Various incremental improvements have been made around gargle&amp;rsquo;s token cache:&lt;/p>
+&lt;ul>
+&lt;li>The default cache location has moved, to better align with general conventions around where to cache user data. After upgrading gargle, don&amp;rsquo;t be surprised if you see some messages about cache relocation.&lt;/li>
+&lt;li>Token storage relies on serialized R objects and therefore is potentially sensitive to differences in R version and operating system between when a token is created and when it is (re)used. gargle is now able to recognize and cope with the most predictable and harmless effects of moving a token across time or space.&lt;/li>
+&lt;li>gargle is quite conservative about using cached tokens and likes to have explicit permission from the user. However, this is in tension with the desire to make things &amp;ldquo;just work&amp;rdquo;. Balancing these two goals is an ongoing effort:
+&lt;ul>
+&lt;li>
+&lt;p>In a non-interactive context, gargle will use a cached token, if it can find (at least) one, even if the user has not given explicit instructions. However, we complain noisily and urge the user to make their intent unambiguous in the code. This comes up, for example, when rendering an R Markdown document(&lt;code>.Rmd&lt;/code>).&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googledrive.tidyverse.org'>googledrive&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_find.html'>drive_find&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>n_max &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; ℹ Suitable tokens found in the cache, associated with these emails:&lt;/span>
+&lt;span class='c'>#&amp;gt; • 'jane_personal@gmail.com'&lt;/span>
+&lt;span class='c'>#&amp;gt; • 'jane_work@example.com'&lt;/span>
+&lt;span class='c'>#&amp;gt; Defaulting to the first email.&lt;/span>
+&lt;span class='c'>#&amp;gt; ! Using an auto-discovered, cached token.&lt;/span>
+&lt;span class='c'>#&amp;gt; To suppress this message, modify your code or options to clearly consent to&lt;/span>
+&lt;span class='c'>#&amp;gt; the use of a cached token.&lt;/span>
+&lt;span class='c'>#&amp;gt; See gargle's "Non-interactive auth" vignette for more details:&lt;/span>
+&lt;span class='c'>#&amp;gt; &amp;lt;https://gargle.r-lib.org/articles/non-interactive-auth.html&amp;gt;&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>One of several ways to suppress this scolding is to specify an email:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googledrive.tidyverse.org'>googledrive&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_auth.html'>drive_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"jane_personal@gmail.com"&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_find.html'>drive_find&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>n_max &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; # A tibble: 1 x 3&lt;/span>
+&lt;span class='c'>#&amp;gt; name id drive_resource &lt;/span>
+&lt;span class='c'>#&amp;gt; * &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;list&amp;gt; &lt;/span>
+&lt;span class='c'>#&amp;gt; 1 useR2021-Instructions_for… 11T7_aYpSObAhUzjQU6EUCHmTFQ2s0wXK… &amp;lt;named list [32…&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>You can now identify the token you want to use with a domain-only glob-like pattern. This makes it possible to successfully execute code like this, non-interactively, on the machines of both &lt;code>alice@example.com&lt;/code> and &lt;code>bob@example.com&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://googledrive.tidyverse.org'>googledrive&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'># googledrive uses gargle for auth&lt;/span>
+&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_auth.html'>drive_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>email &lt;span class='o'>=&lt;/span> &lt;span class='s'>"*@example.com"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="rolling-the-built-in-oauth-client">Rolling the built-in OAuth client
+&lt;a href="#rolling-the-built-in-oauth-client">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>User tokens created with gargle are the result of
+&lt;a href="#stewarding-the-cache-of-user-tokens">the OAuth Dance mentioned above&lt;/a>, involving three parties: the user, Google, and an OAuth client (id and secret). Each user or application potentially needs to set up their own OAuth client, in order to execute this flow.&lt;/p>
+&lt;p>A small set of packages maintained by the tidyverse team make use of a shared, built-in OAuth client, which helps new users get started quickly, without the need to create their own client in order to do &amp;ldquo;Hello, World!&amp;quot;. Only these specific packages are allowed to use this client and these packages do so according to a specific
+&lt;a href="https://www.tidyverse.org/google_privacy_policy/" target="_blank" rel="noopener">privacy policy&lt;/a>. The &amp;ldquo;Tidyverse API Packages&amp;rdquo; are
+&lt;a href="https://bigrquery.r-dbi.org/" target="_blank" rel="noopener">bigrquery&lt;/a>,
+&lt;a href="https://googledrive.tidyverse.org/" target="_blank" rel="noopener">googledrive&lt;/a>, and
+&lt;a href="https://googlesheets4.tidyverse.org/" target="_blank" rel="noopener">googlesheets4&lt;/a>.&lt;sup id="fnref:2">&lt;a href="#fn:2" class="footnote-ref" role="doc-noteref">2&lt;/a>&lt;/sup>&lt;/p>
+&lt;p>As of gargle v1.0.0, released in March 2021, we have rolled the &amp;ldquo;Tidyverse API Packages&amp;rdquo; client, i.e. we are using a new one. Although we have not yet disabled the previous client, users should be prepared for it to stop working at any time. We use nicknames to keep track of the built-in client; the new one is known as &amp;ldquo;tidyverse-clio&amp;rdquo;, which is replacing the older &amp;ldquo;tidyverse-calliope&amp;rdquo;. You might see these nicknames in the output of
+&lt;a href="https://gargle.r-lib.org/reference/gargle_oauth_sitrep.html" target="_blank" rel="noopener">&lt;code>gargle::gargle_oauth_sitrep()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>We anticipate disabling the older &amp;ldquo;tidyverse-calliope&amp;rdquo; client no later than December 31, 2021. If a specific reason arises before then, we could disable it even sooner. This will also be announced in a future, dedicated blog post.&lt;/p>
+&lt;p>When gargle encounters a token created with the old built-in client, the token is deleted from the cache. So don&amp;rsquo;t be surprised if you see some messages about cleaning out (and relocating) the cache, after you upgrade gargle.&lt;/p>
+&lt;p>You can expect to do the interactive OAuth dance to obtain new credentials, with the new client, stored in the new token cache, approximately once per wrapper package / API. The consequence of credential rolling are also covered here:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://gargle.r-lib.org/articles/troubleshooting.html#credential-rolling">https://gargle.r-lib.org/articles/troubleshooting.html#credential-rolling&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>If the rolling of the tidyverse OAuth client is highly disruptive to your workflow, consider this a wake-up call&lt;/strong> that you should be using your own OAuth client or, quite possibly, an entirely different method of auth. Our credential rolling will have no impact on users who use their own OAuth client or service account tokens.&lt;/p>
+&lt;p>As always, these articles explain how to take more control of auth:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://gargle.r-lib.org/articles/get-api-credentials.html">https://gargle.r-lib.org/articles/get-api-credentials.html&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://gargle.r-lib.org/articles/non-interactive-auth.html">https://gargle.r-lib.org/articles/non-interactive-auth.html&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="workload-identity-federation">Workload identity federation
+&lt;a href="#workload-identity-federation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Workload identity federation is a new (as of April 2021) keyless authentication mechanism offered by Google. This allows applications running on a non-Google Cloud platform, such as AWS, to access Google Cloud resources without using a conventional service account token, eliminating the security problem posed by long-lived, powerful service account credential files. Basically, instead of storing sensitive information in a file that must be managed with great care, the necessary secrets are obtained on-the-fly and exchanged for short-lived tokens, with very granular control over what actions are allowed. There is a cost, of course, which is that this auth method requires substantial configuration on both the GCP and AWS sides.&lt;/p>
+&lt;p>&lt;code>credentials_external_account()&lt;/code> is a new function that implements workload identity federation. &lt;code>credentials_external_account()&lt;/code> has been inserted into the default registry of credential-fetchers tried by &lt;code>token_fetch()&lt;/code>, which makes it automatically available in packages that use gargle for auth, such as bigrquery. &lt;code>credentials_app_default()&lt;/code> recognizes the JSON configuration for an external account and passes such a call along to &lt;code>credentials_external_account()&lt;/code>. This means that, when placed in one of the locations searched by the Application Default Credential strategy, an external account configuration file will be automatically discovered.&lt;/p>
+&lt;p>This new feature is still experimental and currently only supports AWS. This blog post provides a good high-level introduction to workload identity federation:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://cloud.google.com/blog/products/identity-security/enable-keyless-access-to-gcp-with-workload-identity-federation" target="_blank" rel="noopener">Keyless API authentication&amp;mdash;Better cloud security through workload identity federation, no service account keys necessary&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="out-of-bound-auth">Out of bound auth
+&lt;a href="#out-of-bound-auth">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The
+&lt;a href="#stewarding-the-cache-of-user-tokens">browser-based OAuth dance described above&lt;/a> is, ironically, not fully available when you are using R inside a web browser, as is the case for RStudio Workbench, Server, and Cloud. When working on these platforms, you need to use the &lt;strong>&amp;ldquo;out of bound&amp;rdquo; (oob)&lt;/strong> auth flow. After authenticating yourself and confirming permissions, a token is made available for you to copy and paste into R.&lt;/p>
+&lt;div class="highlight">
+&lt;div class="figure" style="text-align: center">
+&lt;p>&lt;img src="oauth-dance-oob-copy-paste.png" alt="A Google Sign in process ending with &amp;quot;Please copy this code, switch to your application and paste it there&amp;quot;" width="40%" />&lt;/p>
+&lt;p class="caption">
+A Google Sign in process ending with "Please copy this code, switch to your application and paste it there"
+&lt;/p>
+&lt;/div>
+&lt;/div>
+&lt;p>Back in R, you will paste this code at the prompt and then be on your merry way:&lt;/p>
+&lt;pre>&lt;code>Enter authorization code:
+&lt;/code>&lt;/pre>
+&lt;p>gargle-using wrapper packages generally expose an argument to request oob auth, e.g.:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>googledrive&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://googledrive.tidyverse.org/reference/drive_auth.html'>drive_auth&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>...&lt;/span>, use_oob &lt;span class='o'>=&lt;/span> &lt;span class='nf'>gargle&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://gargle.r-lib.org/reference/gargle_options.html'>gargle_oob_default&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The problem is, lots of folks who need oob auth have never even heard of oob auth! And, therefore, they don&amp;rsquo;t know to request it. This reality is something we can, and now do, anticipate.&lt;/p>
+&lt;p>Instead of possibly failing with an inscrutable error,
+&lt;a href="https://gargle.r-lib.org/reference/gargle_options.html" target="_blank" rel="noopener">&lt;code>gargle::gargle_oob_default()&lt;/code>&lt;/a> has gotten smarter about figuring out whether oob is needed:&lt;/p>
+&lt;ul>
+&lt;li>We now (try to) detect if we&amp;rsquo;re running on RStudio Workbench, Server, or Cloud and, if so, &lt;code>gargle_oob_default()&lt;/code> returns &lt;code>TRUE&lt;/code> unconditionally.&lt;/li>
+&lt;li>We honor the &lt;code>&amp;quot;httr_oob_default&amp;quot;&lt;/code> option, when set, if the option &lt;code>&amp;quot;gargle_oob_default&amp;quot;&lt;/code> is unset. Previously, we only consulted the gargle option, but it makes sense to honor httr&amp;rsquo;s as well.&lt;/li>
+&lt;/ul>
+&lt;h3 id="suggesting-httpuv">Suggesting httpuv
+&lt;a href="#suggesting-httpuv">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The slick in-browser OAuth flow described at the start of the post &amp;ndash; i.e., the nicer &lt;em>alternative&lt;/em> to oob auth &amp;ndash; requires the httpuv package. Sometimes users who could enjoy this flow don&amp;rsquo;t have httpuv installed and end up with the clunky oob auth flow, for no good reason. This is a shame, as the experience is definitely inferior.&lt;/p>
+&lt;p>We&amp;rsquo;ve taken a few measures to encourage these folks to install httpuv and enjoy a happier auth life:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Previously, httpuv was only indirectly suggested by gargle, via httr. gargle now lists httpuv in its own &lt;code>Suggests&lt;/code> field.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>We encourage the installation of httpuv in interactive sessions, if we&amp;rsquo;re about to initiate oob auth, when it seems like we don&amp;rsquo;t have to.&lt;/p>
+&lt;pre>&lt;code>The httpuv package enables a nicer Google auth experience, in many cases.
+It doesn't seem to be installed.
+Would you like to install it now?
+1: Yes
+2: No
+Selection:
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="user-interface">User interface
+&lt;a href="#user-interface">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The user interface has gotten more stylish, thanks to the cli package (&lt;a href="https://cli.r-lib.org">https://cli.r-lib.org&lt;/a>). This applies to informational messages, as well as to errors.&lt;/p>
+&lt;p>All errors thrown by gargle now route through
+&lt;a href="https://rlang.r-lib.org/reference/abort.html" target="_blank" rel="noopener">&lt;code>rlang::abort()&lt;/code>&lt;/a>, providing better access to the backtrace and error data. These errors have, at the very least, the &lt;code>gargle_error&lt;/code> class and may also have additional subclasses.&lt;/p>
+&lt;h3 id="verbosity">Verbosity
+&lt;a href="#verbosity">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Since gargle is not a user-facing package, it has very little to say and only emits messages that end users &lt;em>really&lt;/em> need to see. But sometimes it is useful to get more information about gargle&amp;rsquo;s activities, especially when trying to figure out why &lt;code>token_fetch()&lt;/code> isn&amp;rsquo;t working the way you expect. In the past, we used the &lt;code>&amp;quot;gargle_quiet&amp;quot;&lt;/code> option for this, which could be &lt;code>TRUE&lt;/code> or &lt;code>FALSE&lt;/code>.&lt;/p>
+&lt;p>The previous on/off switch has been deprecated in favor of the new &lt;code>&amp;quot;gargle_verbosity&amp;quot;&lt;/code> option, which has three levels:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>&amp;quot;debug&amp;quot;&lt;/code> is equivalent to the previous &lt;code>gargle_quiet = FALSE&lt;/code>. Use for debugging and troubleshooting.&lt;/li>
+&lt;li>&lt;code>&amp;quot;info&amp;quot;&lt;/code> (the default) is basically equivalent to the previous &lt;code>gargle_quiet = TRUE&lt;/code>.&lt;/li>
+&lt;li>&lt;code>&amp;quot;silent&amp;quot;&lt;/code> can be used to suppress all gargle messages. It has no previous equivalent.&lt;/li>
+&lt;/ul>
+&lt;p>There are a couple of helpers around verbosity:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>gargle_verbosity()&lt;/code> reports the current verbosity level.&lt;/li>
+&lt;li>&lt;code>with_gargle_verbosity()&lt;/code> and &lt;code>local_gargle_verbosity()&lt;/code> are
+&lt;a href="https://withr.r-lib.org" target="_blank" rel="noopener">withr-style&lt;/a> functions that temporarily modify the verbosity level.&lt;/li>
+&lt;/ul>
+&lt;h2 id="retries">Retries
+&lt;a href="#retries">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>gargle offers some Google-specific support for forming requests and handling responses, in addition to and separate from auth.&lt;/p>
+&lt;p>Not all wrapper packages use this functionality, but &lt;em>googlesheets4 does&lt;/em>. The
+&lt;a href="https://developers.google.com/sheets/api/reference/limits" target="_blank" rel="noopener">usage limits for the Sheets API&lt;/a> are low enough that regular folks run up against them fairly often. This aggravation is somewhat specific to Sheets, i.e. we don&amp;rsquo;t see similar pain with the Drive and BigQuery APIs, which have much more generous limits. When you hit the Sheets &amp;ldquo;per user&amp;rdquo; or &amp;ldquo;per project&amp;rdquo; limit, requests fail with the error code &lt;code>429 RESOURCE_EXHAUSTED&lt;/code>.&lt;/p>
+&lt;p>Sidebar: As of July 2021, there is a limit of &amp;ldquo;500 requests per 100 seconds per project&amp;rdquo;. In the case of a user token, the &amp;ldquo;project&amp;rdquo; refers to the GCP project that owns the OAuth client. Everyone who uses the built-in &amp;ldquo;Tidyverse API Packages&amp;rdquo; OAuth client is sharing this &amp;ldquo;per project&amp;rdquo; quota! If you&amp;rsquo;re hitting &amp;ldquo;per project&amp;rdquo; limits regularly and it upsets your workflow, the universe is telling you that it&amp;rsquo;s time to configure your own OAuth client or use a different method of auth. End of sidebar.&lt;/p>
+&lt;p>
+&lt;a href="https://gargle.r-lib.org/reference/request_retry.html" target="_blank" rel="noopener">&lt;code>gargle::request_retry()&lt;/code>&lt;/a> is a drop-in substitute for
+&lt;a href="https://gargle.r-lib.org/reference/request_make.html" target="_blank" rel="noopener">&lt;code>gargle::request_make()&lt;/code>&lt;/a> that uses (modified) exponential backoff to retry requests that fail with error &lt;code>429&lt;/code>. &lt;code>request_retry()&lt;/code> even has some special knowledge about Sheets-specific limits and, in some cases, will wait 100 seconds for the user&amp;rsquo;s quota to reset.&lt;/p>
+&lt;p>The development version of googlesheets4 already uses &lt;code>request_retry()&lt;/code>, which will be released to CRAN soon.&lt;/p>
+&lt;p>&lt;code>request_retry()&lt;/code> will support error codes beyond &lt;code>429&lt;/code> in the next gargle release.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank everyone who has furthered the development of gargle, from v0.3.1 to v1.2.0, through their contributions in issues and pull requests:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/acroz" target="_blank" rel="noopener">@acroz&lt;/a>,
+&lt;a href="https://github.com/akgold" target="_blank" rel="noopener">@akgold&lt;/a>,
+&lt;a href="https://github.com/alanfalcaothe" target="_blank" rel="noopener">@alanfalcaothe&lt;/a>,
+&lt;a href="https://github.com/atreibs" target="_blank" rel="noopener">@atreibs&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/biol75" target="_blank" rel="noopener">@biol75&lt;/a>,
+&lt;a href="https://github.com/btrx-sreddy" target="_blank" rel="noopener">@btrx-sreddy&lt;/a>,
+&lt;a href="https://github.com/craigcitro" target="_blank" rel="noopener">@craigcitro&lt;/a>,
+&lt;a href="https://github.com/domsle" target="_blank" rel="noopener">@domsle&lt;/a>,
+&lt;a href="https://github.com/ekarsten" target="_blank" rel="noopener">@ekarsten&lt;/a>,
+&lt;a href="https://github.com/EricGoldsmith" target="_blank" rel="noopener">@EricGoldsmith&lt;/a>,
+&lt;a href="https://github.com/FedericoTrifoglio" target="_blank" rel="noopener">@FedericoTrifoglio&lt;/a>,
+&lt;a href="https://github.com/irfanalidv" target="_blank" rel="noopener">@irfanalidv&lt;/a>,
+&lt;a href="https://github.com/jayBana" target="_blank" rel="noopener">@jayBana&lt;/a>,
+&lt;a href="https://github.com/jcheng5" target="_blank" rel="noopener">@jcheng5&lt;/a>,
+&lt;a href="https://github.com/jdtrat" target="_blank" rel="noopener">@jdtrat&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/MarkEdmondson1234" target="_blank" rel="noopener">@MarkEdmondson1234&lt;/a>,
+&lt;a href="https://github.com/michaelquinn32" target="_blank" rel="noopener">@michaelquinn32&lt;/a>,
+&lt;a href="https://github.com/muschellij2" target="_blank" rel="noopener">@muschellij2&lt;/a>,
+&lt;a href="https://github.com/ogola89" target="_blank" rel="noopener">@ogola89&lt;/a>,
+&lt;a href="https://github.com/Ozan147" target="_blank" rel="noopener">@Ozan147&lt;/a>,
+&lt;a href="https://github.com/petrbouchal" target="_blank" rel="noopener">@petrbouchal&lt;/a>,
+&lt;a href="https://github.com/pofl" target="_blank" rel="noopener">@pofl&lt;/a>,
+&lt;a href="https://github.com/py9mrg" target="_blank" rel="noopener">@py9mrg&lt;/a>,
+&lt;a href="https://github.com/rensa" target="_blank" rel="noopener">@rensa&lt;/a>,
+&lt;a href="https://github.com/samterfa" target="_blank" rel="noopener">@samterfa&lt;/a>,
+&lt;a href="https://github.com/selesnow" target="_blank" rel="noopener">@selesnow&lt;/a>,
+&lt;a href="https://github.com/tareefk" target="_blank" rel="noopener">@tareefk&lt;/a>,
+&lt;a href="https://github.com/tstratopoulos" target="_blank" rel="noopener">@tstratopoulos&lt;/a>, and
+&lt;a href="https://github.com/vimota" target="_blank" rel="noopener">@vimota&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>The successor to httr is under development and, like gargle, it will also cache user tokens at the user level: &lt;a href="https://httr2.r-lib.org">https://httr2.r-lib.org&lt;/a>. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li id="fn:2" role="doc-endnote">
+&lt;p>gmailr is not included here, because the Gmail scopes are so sensitive that anyone wishing to work with Gmail programmatically really must set up their own OAuth client. &lt;a href="#fnref:2" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>gargle's debut on CRAN</title><link>https://www.tidyverse.org/blog/2019/08/gargle-hello-world/</link><pubDate>Tue, 20 Aug 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/08/gargle-hello-world/</guid><description>&lt;p>We&amp;rsquo;re elated to (somewhat belatedly) announce the initial release of gargle on CRAN!&lt;/p>
+&lt;p>The gargle package (&lt;a href="https://gargle.r-lib.org">https://gargle.r-lib.org&lt;/a>) is meant to take some of the pain out of working with Google APIs. It&amp;rsquo;s mostly aimed at the maintainers of R packages that call Google APIs. If we&amp;rsquo;re successful, users won&amp;rsquo;t really notice gargle, they&amp;rsquo;ll just feel like these packages got easier to work with and less idiosyncratic.&lt;/p>
+&lt;p>The timing of this post is motivated by the release of
+&lt;a href="https://googledrive.tidyverse.org" target="_blank" rel="noopener">googledrive&lt;/a> v1.0.0. As of this version, googledrive gets all of its auth functionality (and more) from gargle. Although we did not blog about it, bigrquery also recently made the switch, with the release of v1.2.0.&lt;/p>
+&lt;p>If you are interested in the user-facing implications of using gargle, check out the
+&lt;a href="https://www.tidyverse.org/articles/2019/08/googledrive-1-0-0/" target="_blank" rel="noopener">blog post announcing googledrive v1.0.0&lt;/a> and the
+&lt;a href="https://bigrquery.r-dbi.org/news/index.html#bigrquery-1-2-0" target="_blank" rel="noopener">changelog for bigrquery v1.2.0&lt;/a>.&lt;/p>
+&lt;h2 id="gargle">gargle
+&lt;a href="#gargle">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The
+&lt;a href="https://gargle.r-lib.org" target="_blank" rel="noopener">gargle package&lt;/a> first appeared on CRAN in early June 2019 and has gotten a few small updates as we learn more by wiring it into packages. gargle is already used by:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://bigrquery.r-dbi.org" target="_blank" rel="noopener">bigrquery&lt;/a> (&amp;gt;= v1.2.0)&lt;/li>
+&lt;li>
+&lt;a href="https://googledrive.tidyverse.org" target="_blank" rel="noopener">googledrive&lt;/a> (&amp;gt;= v1.0.0)&lt;/li>
+&lt;li>
+&lt;a href="https://gmailr.r-lib.org" target="_blank" rel="noopener">gmailr&lt;/a> (&amp;gt;= v1.0.0 &lt;em>coming soon to CRAN&lt;/em>)&lt;/li>
+&lt;li>
+&lt;a href="https://code.markedmondson.me/googleAuthR/" target="_blank" rel="noopener">googleAuthR&lt;/a> (&lt;em>dev version&lt;/em>)&lt;/li>
+&lt;li>
+&lt;a href="https://googlesheets4.tidyverse.org" target="_blank" rel="noopener">googlesheets4&lt;/a> &lt;em>GitHub only&lt;/em>&lt;/li>
+&lt;li>
+&lt;a href="https://andrie.github.io/gcalendr/" target="_blank" rel="noopener">gcalendr&lt;/a> &lt;em>GitHub only&lt;/em>&lt;/li>
+&lt;/ul>
+&lt;p>gargle&amp;rsquo;s current functionality falls into two domains, which a client package can adopt (or not) separately:&lt;/p>
+&lt;ul>
+&lt;li>Auth: help users authenticate themselves with their Google identity and
+obtain a token that the wrapper package can use to make authorized requests.&lt;/li>
+&lt;li>Request preparation and response handling: check requests against the
+machine-readable
+&lt;a href="https://developers.google.com/discovery/v1/reference/apis" target="_blank" rel="noopener">Discovery Documents&lt;/a>
+that describe Google APIs and process API responses, especially errors.&lt;/li>
+&lt;/ul>
+&lt;p>The long-term stretch goal is to do for R what the
+&lt;a href="https://developers.google.com/api-client-library/" target="_blank" rel="noopener">official Google API Client Libraries&lt;/a> do for other languages, like Python and Java.&lt;/p>
+&lt;h2 id="auth-via-gargle">Auth via gargle
+&lt;a href="#auth-via-gargle">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Under the hood, gargle&amp;rsquo;s main auth function is
+&lt;a href="https://gargle.r-lib.org/articles/how-gargle-gets-tokens.html" target="_blank" rel="noopener">&lt;code>token_fetch()&lt;/code>&lt;/a>, which tries a series of different methods for obtaining a token. The intent is to make auth &amp;ldquo;just work&amp;rdquo; in a wide variety of contexts. This makes some flows newly available in the client packages, such as Application Default Credentials (
+&lt;a href="https://cloud.google.com/docs/authentication/production" target="_blank" rel="noopener">official Google docs&lt;/a> and a
+&lt;a href="https://www.jhanley.com/google-cloud-application-default-credentials/" target="_blank" rel="noopener">more readable 3rd party blog post&lt;/a>).&lt;/p>
+&lt;p>The main change that users will notice is that gargle implements its own way of storing user OAuth tokens between sessions. The
+&lt;a href="https://httr.r-lib.org" target="_blank" rel="noopener">httr package&lt;/a>, which gargle depends on, has historically used a local &lt;code>.httr-oauth&lt;/code> file for this. In contrast, gargle encourages tokens to be stored &lt;em>outside&lt;/em> the project, in a hidden directory at the user level, in a key-value store that incorporates the Google user&amp;rsquo;s email. This makes it harder to accidentally push your tokens to the cloud, easier to use multiple Google identities, and easier to share tokens across projects and packages. Users will notice they need to re-auth and may want to track down and delete vestigial &lt;code>.httr-oauth&lt;/code> files.&lt;/p>
+&lt;h2 id="articles-and-docs">Articles and docs
+&lt;a href="#articles-and-docs">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The release of gargle has provided an occasion to document several recurring workflows that can be tricky for useRs, which now work the same across multiple packages:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://gargle.r-lib.org/articles/non-interactive-auth.html" target="_blank" rel="noopener">Non-interactive auth&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://gargle.r-lib.org/articles/auth-from-web.html" target="_blank" rel="noopener">Auth when using R in the browser&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://gargle.r-lib.org/articles/articles/managing-tokens-securely.html" target="_blank" rel="noopener">Managing tokens securely&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://gargle.r-lib.org/articles/get-api-credentials.html" target="_blank" rel="noopener">How to get your own API credentials&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>gargle also offers a mechanism for client packages to build the documentation for their auth function from templates stored in gargle. This means that packages using a common design will also use the same words to describe it.&lt;/p>
+&lt;p>Another set of articles is aimed at package maintainers interested in delegating auth or request &amp;amp; response handling to gargle:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://gargle.r-lib.org/articles/gargle-auth-in-client-package.html" target="_blank" rel="noopener">How to use gargle for auth in a client package&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://gargle.r-lib.org/articles/request-helper-functions.html" target="_blank" rel="noopener">Request helper functions&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="privacy-policy-for-google-related-tidyverser-lib-packages">Privacy policy for Google-related tidyverse/r-lib packages
+&lt;a href="#privacy-policy-for-google-related-tidyverser-lib-packages">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Google is tightening the rules around various aspects of API access (see, e.g.,
+&lt;a href="https://www.blog.google/technology/safety-security/project-strobe/" target="_blank" rel="noopener">Project Strobe&lt;/a> and
+&lt;a href="https://cloud.google.com/blog/products/g-suite/elevating-user-trust-in-our-api-ecosystems" target="_blank" rel="noopener">Elevating user trust in our API ecosystem&lt;/a>). I predict the main thing that useRs will notice is that more and more R packages and apps will require the user to get involved in the nitty gritty details of auth. Users will need to create their own Google Cloud Platform projects, obtain their own API keys, and their own OAuth client IDs and secrets. The overall rationale for Google&amp;rsquo;s changes makes sense, but the way people use open source R packages is an awkward fit with their recommended auth solutions. It&amp;rsquo;s becoming more difficult for package developers to make auth feel like it &amp;ldquo;just works&amp;rdquo;.&lt;/p>
+&lt;p>The Google-wrapping packages maintained by the tidyverse / r-lib team are now governed by a shared
+&lt;a href="https://www.tidyverse.org/google_privacy_policy/" target="_blank" rel="noopener">Privacy Policy&lt;/a>. This is linked from each package and also from the consent screen whenever auth is facilitated through our OAuth client.&lt;/p>
+&lt;h2 id="some-gargle-history">Some gargle history
+&lt;a href="#some-gargle-history">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>I find gargle&amp;rsquo;s origin story find very satisfying. I suspect that Hadley Wickham&amp;rsquo;s bigrquery (first on CRAN January 2015) has shaped the basic design for how most R packages handle Google auth, directly or indirectly. I can certainly say that Joanna Zhao and I consulted it when developing googlesheets (first on CRAN July 2015). I know that Mark Edmondson was influenced, in turn, by googlesheets, when he developed googleAuthR (first on CRAN August 2015), used in his
+&lt;a href="https://code.markedmondson.me/r-packages/" target="_blank" rel="noopener">suite of packages&lt;/a>. By the time Lucy D&amp;rsquo;Agostino McGowan and I created googledrive (first on CRAN August 2017), I&amp;rsquo;d developed some strong opinions about how to modify httr&amp;rsquo;s default behaviour for work with Google APIs. I was also working with Hadley Wickham at RStudio by that point and Lucy and I benefited from his design advice. In May-ish 2017, leading up to
+&lt;a href="https://unconf17.ropensci.org" target="_blank" rel="noopener">rOpenSci&amp;rsquo;s 2017 Unconf&lt;/a>, Craig Citro
+&lt;a href="https://github.com/ropensci/unconf17/issues/85" target="_blank" rel="noopener">opened an issue&lt;/a> to generate discussion about how to de-duplicate even more API pain, especially for Google APIs. He has a wealth of experience from his role in shaping the
+&lt;a href="https://developers.google.com/api-client-library/" target="_blank" rel="noopener">official Python client&lt;/a> and he made the initial commits that laid the foundation for &lt;code>gargle::token_fetch()&lt;/code>.&lt;/p>
+&lt;p>Starting from a common origin (bigrquery), all these people and packages have explored different aspects of this problem space and have developed various solutions. gargle represents the distillation of a lot of hard-won experience and a promising space for future consolidation.&lt;/p>
+&lt;h2 id="thanks">Thanks!
+&lt;a href="#thanks">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thanks to all those who have helped get gargle to its first release:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/andrie" target="_blank" rel="noopener">@andrie&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/byapparov" target="_blank" rel="noopener">@byapparov&lt;/a>,
+&lt;a href="https://github.com/craigcitro" target="_blank" rel="noopener">@craigcitro&lt;/a>,
+&lt;a href="https://github.com/dlebech" target="_blank" rel="noopener">@dlebech&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jonthegeek" target="_blank" rel="noopener">@jonthegeek&lt;/a>,
+&lt;a href="https://github.com/MarkEdmondson1234" target="_blank" rel="noopener">@MarkEdmondson1234&lt;/a>,
+&lt;a href="https://github.com/wlongabaugh" target="_blank" rel="noopener">@wlongabaugh&lt;/a>, and
+&lt;a href="https://github.com/ZainRizvi" target="_blank" rel="noopener">@ZainRizvi&lt;/a>&lt;/p></description></item></channel></rss>

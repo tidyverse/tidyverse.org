@@ -1,0 +1,743 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>callr | Tidyverse</title><link>https://www.tidyverse.org/tags/callr/</link><atom:link href="https://www.tidyverse.org/tags/callr/index.xml" rel="self" type="application/rss+xml"/><description>callr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 09 Sep 2019 00:00:00 +0000</lastBuildDate><item><title>Multi Process Task Queue in 100 Lines of R Code</title><link>https://www.tidyverse.org/blog/2019/09/callr-task-q/</link><pubDate>Mon, 09 Sep 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/09/callr-task-q/</guid><description>
+&lt;STYLE type='text/css' scoped>
+PRE.fansi SPAN {padding-top: .25em; padding-bottom: .25em};
+&lt;/STYLE>
+&lt;div id="introduction" class="section level2">
+&lt;h2>Introduction&lt;/h2>
+&lt;p>This post is a demo of &lt;code>callr::r_session&lt;/code>, a persistent R session you can
+use to run R code asynchronously. I set out to build a task queue, which
+runs tasks in subprocesses, concurrently, in a mere 100 lines of R code.&lt;/p>
+&lt;p>Here is a short teaser for how the queue will work. &lt;code>task_q$new()&lt;/code> creates
+a new R6 object, which represents the queue. Its &lt;code>push()&lt;/code> method adds a
+task, which is a function and its arguments, similar to &lt;code>callr::r()&lt;/code>.
+The &lt;code>pop()&lt;/code> method gets the results of the first task that has finished.
+&lt;code>pop()&lt;/code> has a timeout argument, which lets you wait for a task to finish,
+if all pushed tasks are still running. It returns &lt;code>NULL&lt;/code> if no task has
+finished before the timeout was over. The timeout can be &lt;code>0&lt;/code> or &lt;code>Inf&lt;/code>,
+meaning no wait at all, or wait indefinitely. The default timeout is &lt;code>0&lt;/code>.&lt;/p>
+&lt;pre class="r">&lt;code>q &amp;lt;- task_q$new()
+q$push(function() { Sys.getpid() })
+q$push(function() { Sys.sleep(.5); Sys.getpid() })
+q$pop()
+#&amp;gt; NULL&lt;/code>&lt;/pre>
+&lt;p>This &lt;code>pop()&lt;/code> call returned &lt;code>NULL&lt;/code>, as none of the tasks are done yet.
+Even though running &lt;code>Sys.getpid()&lt;/code> is fast, the worker processes also need
+200-500 ms time start up, when the queue is created. If you are willing to
+wait a bit, at least one task should be done in less than half a second
+(500 ms), but usually not the second one yet:&lt;/p>
+&lt;pre class="r">&lt;code>q$pop(500)$result
+#&amp;gt; [1] 18383
+q$pop()
+#&amp;gt; NULL&lt;/code>&lt;/pre>
+&lt;p>The &lt;code>poll()&lt;/code> method checks for finished tasks without removing their
+results from the queue. It also has a timeout parameter, which works the
+same way as &lt;code>pop()&lt;/code>’s timeout. &lt;code>poll()&lt;/code> returns the identifiers of all
+tasks that are done.&lt;/p>
+&lt;pre class="r">&lt;code>q$poll(Inf)
+#&amp;gt; [1] &amp;quot;.2&amp;quot;
+q$pop()$result
+#&amp;gt; [1] 18385&lt;/code>&lt;/pre>
+&lt;p>If the queue is empty, i.e. no tasks are running and no tasks are waiting,
+then &lt;code>pop()&lt;/code> always returns &lt;code>NULL&lt;/code>, immediately, because there is nothing
+to wait for:&lt;/p>
+&lt;pre class="r">&lt;code>q$pop()
+#&amp;gt; NULL&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="api-design" class="section level2">
+&lt;h2>API design&lt;/h2>
+&lt;p>The task queue will be an R6 class, with &lt;code>push()&lt;/code>, &lt;code>pop()&lt;/code>, &lt;code>poll()&lt;/code>
+methods like above, and some other query methods:&lt;/p>
+&lt;pre class="r">&lt;code>task_q &amp;lt;- R6::R6Class(
+&amp;quot;task_q&amp;quot;,
+public = list(
+initialize = function(num_workers = 4L) { },
+get_num_waiting = function() { },
+get_num_running = function() { },
+get_num_done = function() { },
+is_idle = function() { },
+list_tasks = function() { },
+push = function(fun, args = list(), id = NULL) { },
+poll = function(timeout = 0) { },
+pop = function(timeout = 0) { }
+)
+)&lt;/code>&lt;/pre>
+&lt;p>&lt;code>initialize()&lt;/code> has an argument to set the number of workers. The size of
+the worker pool remains fixed for the lifetime of the queue.&lt;/p>
+&lt;p>The &lt;code>get_num_*()&lt;/code> methods return the number of waiting, running and
+completed tasks. &lt;code>get_num_done()&lt;/code> includes tasks that haven’t been
+&lt;code>pop()&lt;/code>-d yet. Once a task is &lt;code>pop()&lt;/code>-d, it is removed completely from the
+queue.&lt;/p>
+&lt;p>&lt;code>is_idle()&lt;/code> returns &lt;code>TRUE&lt;/code> if the queue does not have any tasks (in any
+state). &lt;code>list_tasks()&lt;/code> returns a data frame (tibble) with data about the
+tasks. This is especially useful for debugging.&lt;/p>
+&lt;p>&lt;code>push()&lt;/code> adds a task to the queue. &lt;code>poll()&lt;/code> returns the ids of all tasks
+that are done. &lt;code>pop()&lt;/code> returns the result of the oldest task that is done.&lt;/p>
+&lt;/div>
+&lt;div id="data-structure" class="section level2">
+&lt;h2>Data structure&lt;/h2>
+&lt;p>Before writing the methods, I’ll design the data structure that will
+store all information about the tasks and the worker processes. The
+standard data structure for a list of records is a data frame in R.&lt;/p>
+&lt;p>A logical choice would be to have two data frames, one for the
+tasks, and another one for the workers. Then we could assign unique
+identifiers to both tasks and processes and cross-reference them in the
+two data frames, to mark which task a worker is running, and which worker
+a task is running on.&lt;/p>
+&lt;p>I’ll go a step further here, and store both the tasks and the workers
+&lt;em>in the same&lt;/em> data frame. This will simplify the implementation
+considerably. The queue will create a dummy &lt;em>idle&lt;/em> task for each worker.
+Each worker will (pretend to) run its dummy task if there are no other,
+real tasks waiting in the queue. So the task list will always contain at
+least as many tasks as the number of workers in the queue.&lt;/p>
+&lt;p>An example for a task data frame:&lt;/p>
+&lt;pre class="r">&lt;code>q$list_tasks()
+#&amp;gt; # A tibble: 9 x 7
+#&amp;gt; id idle state fun args worker result
+#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;lgl&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;list&amp;gt; &amp;lt;list&amp;gt; &amp;lt;list&amp;gt; &amp;lt;list&amp;gt;
+#&amp;gt; 1 .11 FALSE running &amp;lt;fn&amp;gt; &amp;lt;list [1]&amp;gt; &amp;lt;r_sessin&amp;gt; &amp;lt;NULL&amp;gt;
+#&amp;gt; 2 .12 FALSE running &amp;lt;fn&amp;gt; &amp;lt;list [1]&amp;gt; &amp;lt;r_sessin&amp;gt; &amp;lt;NULL&amp;gt;
+#&amp;gt; 3 .13 FALSE running &amp;lt;fn&amp;gt; &amp;lt;list [1]&amp;gt; &amp;lt;r_sessin&amp;gt; &amp;lt;NULL&amp;gt;
+#&amp;gt; 4 .14 FALSE running &amp;lt;fn&amp;gt; &amp;lt;list [1]&amp;gt; &amp;lt;r_sessin&amp;gt; &amp;lt;NULL&amp;gt;
+#&amp;gt; 5 .15 FALSE waiting &amp;lt;fn&amp;gt; &amp;lt;list [1]&amp;gt; &amp;lt;NULL&amp;gt; &amp;lt;NULL&amp;gt;
+#&amp;gt; 6 .idle-1 TRUE waiting &amp;lt;NULL&amp;gt; &amp;lt;NULL&amp;gt; &amp;lt;NULL&amp;gt; &amp;lt;NULL&amp;gt;
+#&amp;gt; 7 .idle-2 TRUE waiting &amp;lt;NULL&amp;gt; &amp;lt;NULL&amp;gt; &amp;lt;NULL&amp;gt; &amp;lt;NULL&amp;gt;
+#&amp;gt; 8 .idle-3 TRUE waiting &amp;lt;NULL&amp;gt; &amp;lt;NULL&amp;gt; &amp;lt;NULL&amp;gt; &amp;lt;NULL&amp;gt;
+#&amp;gt; 9 .idle-4 TRUE waiting &amp;lt;NULL&amp;gt; &amp;lt;NULL&amp;gt; &amp;lt;NULL&amp;gt; &amp;lt;NULL&amp;gt;&lt;/code>&lt;/pre>
+&lt;p>The columns are:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>id&lt;/code>: a character id, which can be user-supplied or auto-assigned (if the
+user did not supply it). This is useful to identify tasks.&lt;/li>
+&lt;li>&lt;code>idle&lt;/code>: a logical flag, whether this is a dummy idle task or not.&lt;/li>
+&lt;li>&lt;code>state&lt;/code>: current state of the task. More about this shortly.&lt;/li>
+&lt;li>&lt;code>fun&lt;/code>: the function the task needs to run. This is a list column.&lt;/li>
+&lt;li>&lt;code>args&lt;/code>: arguments to pass to the function. This is a list itself,
+so the column is a list column.&lt;/li>
+&lt;li>&lt;code>worker&lt;/code>: the &lt;code>callr::r_session&lt;/code> object, the R session that is running
+the task, or &lt;code>NULL&lt;/code> if the task is not running.&lt;/li>
+&lt;li>&lt;code>result&lt;/code>: another list column, the result of the run, if the task is
+already done, &lt;code>NULL&lt;/code> otherwise.&lt;/li>
+&lt;/ul>
+&lt;p>The possible task states are: &lt;em>waiting&lt;/em>, &lt;em>running&lt;/em>, &lt;em>ready&lt;/em> and &lt;em>done&lt;/em>.
+The first two are not very surprising. The distinction between the
+last two is somewhat technical. A task is &lt;em>ready&lt;/em> if the background R
+session has finished running it. The queue hasn’t read out its result yet,
+and the R session is still assigned to it. (I.e. the task’s &lt;code>worker&lt;/code> column
+is not &lt;code>NULL&lt;/code>.) A task is &lt;em>done&lt;/em> if the queue has already read out the
+result of the function call, and has reassigned the R session to another
+task, so its &lt;code>worker&lt;/code> column is &lt;code>NULL&lt;/code>.&lt;/p>
+&lt;p>Tasks that are &lt;em>running&lt;/em> and &lt;em>ready&lt;/em> always have an R session assigned to
+them. Since all R sessions are always assigned to tasks (dummy idle tasks,
+if there is nothing else), this means the that the sum of the &lt;em>running&lt;/em>
+and &lt;em>ready&lt;/em> tasks always equals the number of workers.&lt;/p>
+&lt;p>The idle tasks are somewhat special, because they are never &lt;em>done&lt;/em>. If
+an idle task is &lt;em>ready&lt;/em> and its worker is reassigned, it will be &lt;em>waiting&lt;/em>
+again. They are also almost never in the &lt;em>running&lt;/em> state. When the queue
+assigns a worker to an idle task, the task will immediately go into the
+&lt;em>ready&lt;/em> state, since the queue is immediately allowed to re-assign the
+worker, should a real task be &lt;em>waiting&lt;/em>.&lt;/p>
+&lt;p>However, when a worker is starting up, its idle task is &lt;em>running&lt;/em>, until
+their background R process has started up. After this initial &lt;em>running&lt;/em>
+state the idle tasks are always either &lt;em>waiting&lt;/em> or &lt;em>ready&lt;/em>.&lt;/p>
+&lt;/div>
+&lt;div id="implementation" class="section level2">
+&lt;h2>Implementation&lt;/h2>
+&lt;p>I am ready to start the implementation now. I’ll focus on the individual
+methods here, and show the complete code of the R6 class at the end.
+Let’s start with the internal data. &lt;code>tasks&lt;/code> contains the task data frame,
+&lt;code>initialize()&lt;/code> will create it. &lt;code>next_id&lt;/code> and &lt;code>get_next_id&lt;/code> will provide
+us unique task ids. I prefix these with a dot, to increase the probability
+that they won’t interfere with user supplied task ids. So they’ll
+be &lt;code>&amp;quot;.1&amp;quot;&lt;/code>, &lt;code>&amp;quot;.2&amp;quot;&lt;/code>, etc.&lt;/p>
+&lt;pre class="r">&lt;code> private = list(
+tasks = NULL,
+next_id = 1L,
+get_next_id = function() {
+id &amp;lt;- private$next_id
+private$next_id &amp;lt;- id + 1L
+paste0(&amp;quot;.&amp;quot;, id)
+}
+)&lt;/code>&lt;/pre>
+&lt;p>The &lt;code>initialize()&lt;/code> method will just defer the work to a private method.&lt;/p>
+&lt;pre class="r">&lt;code> initialize = function(num_workers = 4L) {
+private$start_workers(num_workers)
+invisible(self)
+}&lt;/code>&lt;/pre>
+&lt;p>The private &lt;code>start_workers()&lt;/code> method that actually starts the
+workers and creates the &lt;code>tasks&lt;/code> data frame:&lt;/p>
+&lt;pre class="r">&lt;code> start_workers = function(num_workers) {
+private$tasks &amp;lt;- tibble::tibble(
+id = character(), idle = logical(),
+state = c(&amp;quot;waiting&amp;quot;, &amp;quot;running&amp;quot;, &amp;quot;ready&amp;quot;, &amp;quot;done&amp;quot;)[0],
+fun = list(), args = list(), worker = list(), result = list())
+for (i in seq_len(num_workers)) {
+rs &amp;lt;- callr::r_session$new(wait = FALSE)
+private$tasks &amp;lt;- tibble::add_row(private$tasks,
+id = paste0(&amp;quot;.idle-&amp;quot;, i), idle = TRUE, state = &amp;quot;running&amp;quot;,
+fun = list(NULL), args = list(NULL), worker = list(rs),
+result = list(NULL))
+}
+}&lt;/code>&lt;/pre>
+&lt;p>The starting values of the empty task data frame are mostly straightforward.
+If you are wondering about the indexing with zero here, it is a simple
+way to list all possible task states in the code, in one place, as a note
+for the code reader.&lt;/p>
+&lt;p>&lt;code>callr::r_session$new()&lt;/code> starts a background R process. The &lt;code>wait = FALSE&lt;/code>
+argument tells callr &lt;em>not&lt;/em> to wait until the process is ready to run R
+code. This way the R processes start up in parallel, which is worth the
+trouble of making our dummy tasks a bit more complicated. The idle tasks
+are named &lt;code>.idle-*&lt;/code>. After initialization, the workers are started, and
+the &lt;em>running&lt;/em> idle tasks are added to the data frame.&lt;/p>
+&lt;p>The query methods are next:&lt;/p>
+&lt;pre class="r">&lt;code> list_tasks = function() private$tasks,
+get_num_waiting = function()
+sum(!private$tasks$idle &amp;amp; private$tasks$state == &amp;quot;waiting&amp;quot;),
+get_num_running = function() sum(private$tasks$state == &amp;quot;running&amp;quot;),
+get_num_done = function() sum(private$tasks$state == &amp;quot;done&amp;quot;),
+is_idle = function() sum(!private$tasks$idle) == 0
+&lt;/code>&lt;/pre>
+&lt;p>&lt;code>list_tasks()&lt;/code> will just return the task data frame, for simplicity.
+If not all data is needed, the &lt;code>get_num_*()&lt;/code> functions are simpler.
+For the first two, we need to exclude the dummy idle tasks, because they
+can be in the &lt;em>waiting&lt;/em> and &lt;em>running&lt;/em> state as well. They cannot be in the
+&lt;em>done&lt;/em> state.&lt;/p>
+&lt;p>We still need to write the &lt;code>push()&lt;/code>, &lt;code>pop()&lt;/code> and &lt;code>poll()&lt;/code> public methods.
+As the reader might suspect, these are more involved. Let’s start with
+&lt;code>push()&lt;/code>.&lt;/p>
+&lt;pre class="r">&lt;code> push = function(fun, args = list(), id = NULL) {
+if (is.null(id)) id &amp;lt;- private$get_next_id()
+if (id %in% private$tasks$id) stop(&amp;quot;Duplicate task id&amp;quot;)
+before &amp;lt;- which(private$tasks$idle)[1]
+private$tasks &amp;lt;- tibble::add_row(private$tasks, .before = before,
+id = id, idle = FALSE, state = &amp;quot;waiting&amp;quot;, fun = list(fun),
+args = list(args), worker = list(NULL), result = list(NULL))
+private$schedule()
+invisible(id)
+}&lt;/code>&lt;/pre>
+&lt;p>The queue needs to run the tasks in the same order as they were added.
+The data frame will keep the correct order, with the additional
+tweak that the idle tasks are always at the end. Indeed, these should only
+run if there is no other task waiting. So &lt;code>push()&lt;/code> adds the new task right
+before the idle tasks.&lt;/p>
+&lt;p>The &lt;code>schedule()&lt;/code> private method is the core of the queue. It starts the
+tasks on the selected background R workers, and it also reads out the
+results after they are done. I.e. it performs the &lt;em>waiting&lt;/em> to &lt;em>running&lt;/em> and
+&lt;em>ready&lt;/em> to &lt;em>done&lt;/em> task state transitions. We will show it later.&lt;/p>
+&lt;p>&lt;code>push()&lt;/code> returns the id of the newly added task, this can be helpful
+to follow the task and match it to the results of a &lt;code>pop()&lt;/code> call.&lt;/p>
+&lt;p>&lt;code>pop()&lt;/code> uses &lt;code>poll()&lt;/code> to get a list of tasks that are &lt;em>done&lt;/em>, and returns
+the result of the oldest one, which is always the first, thanks to the
+ordering of the task data frame.&lt;/p>
+&lt;pre class="r">&lt;code> pop = function(timeout = 0) {
+if (is.na(done &amp;lt;- self$poll(timeout)[1])) return(NULL)
+row &amp;lt;- match(done, private$tasks$id)
+result &amp;lt;- private$tasks$result[[row]]
+private$tasks &amp;lt;- private$tasks[-row, ]
+c(result, list(task_id = done))
+}&lt;/code>&lt;/pre>
+&lt;p>If no task is &lt;em>done&lt;/em>, then it returns &lt;code>NULL&lt;/code>. The returned task is removed
+from the task data frame, and from the queue in general, for good. &lt;code>pop()&lt;/code>
+adds the id of the task to the returned result as &lt;code>task_id&lt;/code>, for easier
+matching of tasks to results.&lt;/p>
+&lt;p>&lt;code>poll()&lt;/code> is the only method that checks on the running workers. This is
+important to remember, and unfortunately easy to forget. If the user does
+not call &lt;code>poll()&lt;/code>, either directly or via &lt;code>pop()&lt;/code>, the state of a &lt;em>running&lt;/em>
+task cannot change, even if the background R session itself has finished.
+In other words, one cannot check the status of the tasks by listing
+the task data frame with &lt;code>list_tasks()&lt;/code> periodically. This will never
+change if &lt;code>poll()&lt;/code> is not called.&lt;/p>
+&lt;p>I start with an initial version of &lt;code>poll()&lt;/code>, which will need changes later,
+but this is hopefully easier to understand first:&lt;/p>
+&lt;pre class="r">&lt;code> poll = function(timeout = 0) {
+as_ms &amp;lt;- function(x) if (x == Inf) -1L else as.integer(x)
+topoll &amp;lt;- which(private$tasks$state == &amp;quot;running&amp;quot;)
+conns &amp;lt;- lapply(
+private$tasks$worker[topoll],
+function(x) x$get_poll_connection())
+pr &amp;lt;- processx::poll(conns, as_ms(timeout))
+private$tasks$state[topoll][pr == &amp;quot;ready&amp;quot;] &amp;lt;- &amp;quot;ready&amp;quot;
+private$schedule()
+private$tasks$id[private$tasks$state == &amp;quot;done&amp;quot;]
+}&lt;/code>&lt;/pre>
+&lt;p>We only need to check on tasks that are &lt;em>running&lt;/em>. &lt;code>poll()&lt;/code> uses the
+&lt;code>processx::poll()&lt;/code> function that can wait on several &lt;code>callr::r_session&lt;/code>s
+at once. More precisely, I extract the &lt;em>poll connections&lt;/em> of the
+&lt;code>r_session&lt;/code> objects and call &lt;code>processx::poll()&lt;/code> on these. An &lt;code>r_session&lt;/code>
+may have multiple pollable connections, one for its standard output
+stream, one for its standard error stream. These are not used by default
+in &lt;code>r_session&lt;/code>s, and I only want to check on the poll connection, which
+signals if the R session has finished with the computation (or encountered
+an error while working on it). &lt;code>processx::poll()&lt;/code> returns a list of
+character vectors, one entry for each (&lt;em>running&lt;/em>) task. This is &lt;code>&amp;quot;ready&amp;quot;&lt;/code>
+if the session is ready with the task. (Or it is &lt;code>&amp;quot;silent&amp;quot;&lt;/code> if it is not
+ready, or &lt;code>&amp;quot;timeout&amp;quot;&lt;/code> if the time limit expired and no workers are ready.)&lt;/p>
+&lt;p>All tasks that returned &lt;code>&amp;quot;ready&amp;quot;&lt;/code> are indeed set to the &lt;em>ready&lt;/em> state.
+After this &lt;code>poll()&lt;/code> calls &lt;code>schedule()&lt;/code> to read out the results of the
+&lt;em>ready&lt;/em> tasks and reassign their workers to &lt;em>waiting&lt;/em> ones.&lt;/p>
+&lt;p>&lt;code>poll()&lt;/code> returns the ids of all tasks that are &lt;em>done&lt;/em>.&lt;/p>
+&lt;p>This version of &lt;code>poll()&lt;/code> has a small issue when the R sessions are starting
+up: it might return without any results, before the specified timeout
+value is over. At startup the idle tasks are &lt;em>running,&lt;/em> and they are
+polled by &lt;code>processx::poll()&lt;/code>. If any of the R sessions start up before the
+timeout is over, &lt;code>processx::poll()&lt;/code> returns with &lt;code>&amp;quot;ready&amp;quot;&lt;/code> for them.
+But &lt;code>schedule()&lt;/code> cannot mark these tasks as &lt;em>done&lt;/em>, because they are idle
+tasks, they’ll be &lt;em>waiting&lt;/em>, and with no task &lt;em>done&lt;/em>, &lt;code>poll()&lt;/code>
+will return an empty vector. This is problematic, because &lt;code>poll()&lt;/code>
+promises to either wait until the specified timeout &lt;em>or&lt;/em> return a task
+that is &lt;em>done&lt;/em>. So we need to wrap the simplified &lt;code>poll()&lt;/code> into a loop, and
+keep calling &lt;code>processx::poll()&lt;/code> until either the timeout
+expires or a task is &lt;em>done&lt;/em>. The final &lt;code>poll()&lt;/code> looks like this:&lt;/p>
+&lt;pre class="r">&lt;code> poll = function(timeout = 0) {
+limit &amp;lt;- Sys.time() + timeout
+as_ms &amp;lt;- function(x) if (x == Inf) -1L else as.integer(x)
+repeat{
+topoll &amp;lt;- which(private$tasks$state == &amp;quot;running&amp;quot;)
+conns &amp;lt;- lapply(
+private$tasks$worker[topoll],
+function(x) x$get_poll_connection())
+pr &amp;lt;- processx::poll(conns, as_ms(timeout))
+private$tasks$state[topoll][pr == &amp;quot;ready&amp;quot;] &amp;lt;- &amp;quot;ready&amp;quot;
+private$schedule()
+ret &amp;lt;- private$tasks$id[private$tasks$state == &amp;quot;done&amp;quot;]
+if (is.finite(timeout)) timeout &amp;lt;- limit - Sys.time()
+if (length(ret) || timeout &amp;lt; 0) break;
+}
+ret
+}&lt;/code>&lt;/pre>
+&lt;p>Only the private &lt;code>schedule()&lt;/code> method is missing now:&lt;/p>
+&lt;pre class="r">&lt;code> schedule = function() {
+ready &amp;lt;- which(private$tasks$state == &amp;quot;ready&amp;quot;)
+if (!length(ready)) return()
+rss &amp;lt;- private$tasks$worker[ready]
+private$tasks$result[ready] &amp;lt;- lapply(rss, function(x) x$read())
+private$tasks$worker[ready] &amp;lt;- replicate(length(ready), NULL)
+private$tasks$state[ready] &amp;lt;-
+ifelse(private$tasks$idle[ready], &amp;quot;waiting&amp;quot;, &amp;quot;done&amp;quot;)
+waiting &amp;lt;- which(private$tasks$state == &amp;quot;waiting&amp;quot;)[1:length(ready)]
+private$tasks$worker[waiting] &amp;lt;- rss
+private$tasks$state[waiting] &amp;lt;-
+ifelse(private$tasks$idle[waiting], &amp;quot;ready&amp;quot;, &amp;quot;running&amp;quot;)
+lapply(waiting, function(i) {
+if (! private$tasks$idle[i]) {
+private$tasks$worker[[i]]$call(private$tasks$fun[[i]],
+private$tasks$args[[i]])
+}
+})
+}&lt;/code>&lt;/pre>
+&lt;p>&lt;code>schedule()&lt;/code>’s job is to perform the &lt;em>ready&lt;/em> to &lt;em>done&lt;/em> and the
+&lt;em>waiting&lt;/em> to &lt;em>running&lt;/em> state transitions. The first involves reading
+out the results of the &lt;em>ready&lt;/em> tasks and the second involves starting
+new computation on the workers.&lt;/p>
+&lt;p>For every &lt;em>ready&lt;/em> task, &lt;code>schedule()&lt;/code> perform three steps:&lt;/p>
+&lt;ol style="list-style-type: decimal">
+&lt;li>Reads out and stores its result. (It can do this for the idle tasks
+as well, for these &lt;code>r_session$read()&lt;/code> will return &lt;code>NULL&lt;/code>.)&lt;/li>
+&lt;li>Removes its worker, i.e. sets it to &lt;code>NULL&lt;/code>.&lt;/li>
+&lt;li>Updates its state to &lt;em>done&lt;/em>. (Or to &lt;em>waiting&lt;/em> if it is an idle task.)&lt;/li>
+&lt;/ol>
+&lt;p>Then it deals with the &lt;em>waiting&lt;/em> tasks, but not more than the number of
+&lt;em>ready&lt;/em> tasks the queue had. For these &lt;em>waiting&lt;/em> tasks &lt;code>schedule()&lt;/code>
+performs three steps:&lt;/p>
+&lt;ol style="list-style-type: decimal">
+&lt;li>Assigns a just removed worker to it.&lt;/li>
+&lt;li>Sets state to &lt;em>running&lt;/em>. (Or to &lt;em>ready&lt;/em> for idle tasks.)&lt;/li>
+&lt;li>Calls &lt;code>fun(args)&lt;/code> in the background session.&lt;/li>
+&lt;/ol>
+&lt;p>When selecting the waiting tasks to run, the ordering of the task table
+makes sure that the oldest task is selected first, and that idle tasks
+are only selected if there is nothing else to run. The idle tasks make sure
+that &lt;code>schedule()&lt;/code> always has at least as many waiting tasks as ready.&lt;/p>
+&lt;p>It is possible that &lt;code>schedule()&lt;/code> first sets an idle task to &lt;em>waiting&lt;/em> and
+then selects it and (re-)assigns a worker to it. This is perfectly fine.&lt;/p>
+&lt;/div>
+&lt;div id="try-it-out" class="section level2">
+&lt;h2>Try it out&lt;/h2>
+&lt;p>As a simple example, we add a bunch of fake tasks to a queue, and then
+run a simple event loop to completion. (To run this code, first
+you need to run the complete code at the end of the post.)&lt;/p>
+&lt;pre class="r">&lt;code>q &amp;lt;- task_q$new()
+for (i in 1:10) {
+q$push(function(i) { Sys.sleep(runif(1)); paste(i, &amp;quot;done&amp;quot;) }, list(i = i))
+}&lt;/code>&lt;/pre>
+&lt;p>This is how the queue looks after adding all these tasks:&lt;/p>
+&lt;pre class="r">&lt;code>q$list_tasks()&lt;/code>&lt;/pre>
+&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 14 x 7&lt;/span>&lt;span>
+#&amp;gt; id idle state fun args worker result
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;lgl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 1&lt;/span>&lt;span> .1 FALSE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 2&lt;/span>&lt;span> .2 FALSE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 3&lt;/span>&lt;span> .3 FALSE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 4&lt;/span>&lt;span> .4 FALSE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 5&lt;/span>&lt;span> .5 FALSE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 6&lt;/span>&lt;span> .6 FALSE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 7&lt;/span>&lt;span> .7 FALSE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 8&lt;/span>&lt;span> .8 FALSE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 9&lt;/span>&lt;span> .9 FALSE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'>10&lt;/span>&lt;span> .10 FALSE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'>11&lt;/span>&lt;span> .idle-1 TRUE running &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;r_sessin&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'>12&lt;/span>&lt;span> .idle-2 TRUE running &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;r_sessin&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'>13&lt;/span>&lt;span> .idle-3 TRUE running &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;r_sessin&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'>14&lt;/span>&lt;span> .idle-4 TRUE running &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;r_sessin&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;p>Probably no tasks are running just yet. The queue only has the chance to
+change its state when you &lt;code>push()&lt;/code>, &lt;code>pop()&lt;/code> or &lt;code>poll()&lt;/code>. When pushing the
+tasks to the queue, the workers were still starting up (i.e. the idle tasks
+are &lt;em>running&lt;/em>), so &lt;code>push()&lt;/code> could not start any real tasks. Never mind, as
+soon as you try to &lt;code>pop()&lt;/code> or &lt;code>poll()&lt;/code>, they’ll start running:&lt;/p>
+&lt;pre class="r">&lt;code>q$poll(1000L)
+#&amp;gt; [1] &amp;quot;.2&amp;quot;
+q$list_tasks()&lt;/code>&lt;/pre>
+&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 14 x 7&lt;/span>&lt;span>
+#&amp;gt; id idle state fun args worker result
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;lgl&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 1&lt;/span>&lt;span> .1 FALSE running &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;r_sessin&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 2&lt;/span>&lt;span> .2 FALSE done &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;cllr_ss_&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 3&lt;/span>&lt;span> .3 FALSE running &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;r_sessin&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 4&lt;/span>&lt;span> .4 FALSE running &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;r_sessin&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 5&lt;/span>&lt;span> .5 FALSE running &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;r_sessin&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 6&lt;/span>&lt;span> .6 FALSE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 7&lt;/span>&lt;span> .7 FALSE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 8&lt;/span>&lt;span> .8 FALSE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 9&lt;/span>&lt;span> .9 FALSE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'>10&lt;/span>&lt;span> .10 FALSE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;fn&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;named list [1]&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'>11&lt;/span>&lt;span> .idle-1 TRUE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;cllr_ss_&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'>12&lt;/span>&lt;span> .idle-2 TRUE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;cllr_ss_&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'>13&lt;/span>&lt;span> .idle-3 TRUE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;cllr_ss_&amp;gt;&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'>14&lt;/span>&lt;span> .idle-4 TRUE waiting &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;NULL&amp;gt;&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #555555;'>&amp;lt;cllr_ss_&amp;gt;&lt;/span>&lt;span>
+&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;pre class="r">&lt;code>while (!q$is_idle()) {
+task_result &amp;lt;- q$pop(Inf)
+print(task_result$result)
+}
+#&amp;gt; [1] &amp;quot;1 done&amp;quot;
+#&amp;gt; [1] &amp;quot;2 done&amp;quot;
+#&amp;gt; [1] &amp;quot;3 done&amp;quot;
+#&amp;gt; [1] &amp;quot;4 done&amp;quot;
+#&amp;gt; [1] &amp;quot;6 done&amp;quot;
+#&amp;gt; [1] &amp;quot;5 done&amp;quot;
+#&amp;gt; [1] &amp;quot;7 done&amp;quot;
+#&amp;gt; [1] &amp;quot;8 done&amp;quot;
+#&amp;gt; [1] &amp;quot;9 done&amp;quot;
+#&amp;gt; [1] &amp;quot;10 done&amp;quot;&lt;/code>&lt;/pre>
+&lt;p>&lt;code>pop()&lt;/code> just returns whatever &lt;code>r_session$read()&lt;/code> returns. Here is the last
+result from the loop:&lt;/p>
+&lt;pre class="r">&lt;code>task_result
+#&amp;gt; $code
+#&amp;gt; [1] 200
+#&amp;gt;
+#&amp;gt; $message
+#&amp;gt; [1] &amp;quot;done file47c57a1f62b5&amp;quot;
+#&amp;gt;
+#&amp;gt; $result
+#&amp;gt; [1] &amp;quot;10 done&amp;quot;
+#&amp;gt;
+#&amp;gt; $stdout
+#&amp;gt; [1] &amp;quot;&amp;quot;
+#&amp;gt;
+#&amp;gt; $stderr
+#&amp;gt; [1] &amp;quot;&amp;quot;
+#&amp;gt;
+#&amp;gt; $error
+#&amp;gt; NULL
+#&amp;gt;
+#&amp;gt; $task_id
+#&amp;gt; [1] &amp;quot;.10&amp;quot;&lt;/code>&lt;/pre>
+&lt;p>The important fields are:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>result&lt;/code>: the R object returned from the function. This is &lt;code>NULL&lt;/code> on
+error.&lt;/li>
+&lt;li>&lt;code>stdout&lt;/code>: the standard output of the background session, while running the
+function.&lt;/li>
+&lt;li>&lt;code>stderr&lt;/code>: the standard error.&lt;/li>
+&lt;li>&lt;code>error&lt;/code>: error object if the function failed. &lt;code>NULL&lt;/code> otherwise.&lt;/li>
+&lt;li>&lt;code>task_id&lt;/code>: the user supplied or auto-generated task id.&lt;/li>
+&lt;/ul>
+&lt;p>Let’s see a task that errors.&lt;/p>
+&lt;pre class="r">&lt;code>q$push(function() stop(&amp;quot;This failed, sorry&amp;quot;))
+res &amp;lt;- q$pop(Inf)
+res$error
+#&amp;gt; &amp;lt;callr_status_error: callr subprocess failed: This failed, sorry&amp;gt;
+#&amp;gt; in process
+#&amp;gt; --&amp;gt;
+#&amp;gt; &amp;lt;callr_remote_error in (function () stop(&amp;quot;This failed, sorry&amp;quot;))(): This failed, sorry&amp;gt;&lt;/code>&lt;/pre>
+&lt;p>The error has two parts, the first refers to the main process, and the
+second is the original error, thrown in the background process. To help with
+debugging, the error from the background process includes a stack trace:&lt;/p>
+&lt;pre class="r">&lt;code>res$error$parent$trace&lt;/code>&lt;/pre>
+&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt;
+#&amp;gt; &lt;span style='font-weight: bold;'> ERROR TRACE for simpleError&lt;/span>&lt;span>
+#&amp;gt;
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 12. &lt;/span>&lt;span>(function () ...
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 13. &lt;/span>&lt;span style='color: #BBBB00;'>base:::stop&lt;/span>&lt;span>("This failed, sorry")
+#&amp;gt; &lt;/span>&lt;span style='color: #00BBBB;font-style: italic;'>R/&amp;lt;text&amp;gt;:1:8&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 14. &lt;/span>&lt;span style='color: #BBBB00;'>base:::.handleSimpleError&lt;/span>&lt;span>(function (e) ...
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 15. &lt;/span>&lt;span style='color: #BBBB00;'>h&lt;/span>&lt;span>(simpleError(msg, call))
+#&amp;gt; &lt;/span>&lt;span style='color: #BB0000;font-weight: bold;'>
+#&amp;gt; x This failed, sorry &lt;/span>&lt;span>
+&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;p>For this simple function that just calls &lt;code>stop()&lt;/code>, the trace is not
+very exciting, but it can be very helpful in general.&lt;/p>
+&lt;/div>
+&lt;div id="how-about-process-cleanup" class="section level2">
+&lt;h2>How about process cleanup?&lt;/h2>
+&lt;p>Luckily we don’t have to do anything extra to clean up the R processes.
+&lt;code>callr::r_session&lt;/code> objects kill their background R session in their
+finalizer, i.e. when they are garbage collected. As soon as the
+workers have no references, because e.g. the queue object itself has no
+references, the garbage collector will clean them up. An explicit &lt;code>kill()&lt;/code>
+method would be still useful sometimes, but we leave that as an exercise to
+the reader.&lt;/p>
+&lt;/div>
+&lt;div id="possible-improvements" class="section level2">
+&lt;h2>Possible improvements&lt;/h2>
+&lt;p>To use this task queue in real code, you would need to make it a bit more
+robust and flexible.&lt;/p>
+&lt;ol style="list-style-type: decimal">
+&lt;li>Most importantly, you would need to handle crashes and freezes in the
+worker tasks. &lt;code>callr::r_session&lt;/code> does handle crashes properly, i.e.
+&lt;code>poll()&lt;/code> returns immediately if the session crashes, and then &lt;code>read()&lt;/code>
+returns an informative error result. But the task queue should also do
+something sensible in this case, e.g. return the error result, and
+restart the worker.&lt;/li>
+&lt;li>To handle freezing worker tasks, the queue could support task timeouts,
+and then kill the tasks that don’t finish before their timeout expires.
+This can be probably implemented using the &lt;code>r_session$interrupt()&lt;/code> and
+&lt;code>r_session$kill()&lt;/code> methods.&lt;/li>
+&lt;li>Make the queue interrupt-safe. All operations of the queue (e.g.
+&lt;code>poll()&lt;/code>, &lt;code>pop()&lt;/code>, etc.) are interruptible by the user, but they
+don’t always leave the task data frame and the background sessions in a
+consistent state. E.g. if &lt;code>schedule()&lt;/code> is interrupted and you are
+unlucky, you might lose all worker processes. This is a very hard issue
+to solve, the relatively new &lt;code>suspendInterrupts()&lt;/code> function probably
+helps a lot.&lt;/li>
+&lt;li>It would be great to be able to change the number of worker tasks of
+the queue dynamically, i.e. add and remove worker processes.&lt;/li>
+&lt;li>The whole queue could be implemented in a background process, so that
+the scheduler runs concurrently with the main R process. This is far
+from being trivial, especially if one wants to avoid copying data
+(the function arguments) twice for every task.&lt;/li>
+&lt;/ol>
+&lt;/div>
+&lt;div id="complete-code" class="section level2">
+&lt;h2>Complete code&lt;/h2>
+&lt;p>It is also available &lt;a href="https://github.com/r-lib/callr/blob/811a02f604de2cf03264f6b35ce9ec8a412f2581/vignettes/taskq.R">on GitHub&lt;/a>.&lt;/p>
+&lt;pre class="r">&lt;code>task_q &amp;lt;- R6::R6Class(
+&amp;quot;task_q&amp;quot;,
+public = list(
+initialize = function(concurrency = 4L) {
+private$start_workers(concurrency)
+invisible(self)
+},
+list_tasks = function() private$tasks,
+get_num_waiting = function()
+sum(!private$tasks$idle &amp;amp; private$tasks$state == &amp;quot;waiting&amp;quot;),
+get_num_running = function()
+sum(!private$tasks$idle &amp;amp; private$tasks$state == &amp;quot;running&amp;quot;),
+get_num_done = function() sum(private$tasks$state == &amp;quot;done&amp;quot;),
+is_idle = function() sum(!private$tasks$idle) == 0,
+push = function(fun, args = list(), id = NULL) {
+if (is.null(id)) id &amp;lt;- private$get_next_id()
+if (id %in% private$tasks$id) stop(&amp;quot;Duplicate task id&amp;quot;)
+before &amp;lt;- which(private$tasks$idle)[1]
+private$tasks &amp;lt;- tibble::add_row(private$tasks, .before = before,
+id = id, idle = FALSE, state = &amp;quot;waiting&amp;quot;, fun = list(fun),
+args = list(args), worker = list(NULL), result = list(NULL))
+private$schedule()
+invisible(id)
+},
+poll = function(timeout = 0) {
+limit &amp;lt;- Sys.time() + timeout
+as_ms &amp;lt;- function(x) if (x == Inf) -1L else as.integer(x)
+repeat{
+topoll &amp;lt;- which(private$tasks$state == &amp;quot;running&amp;quot;)
+conns &amp;lt;- lapply(
+private$tasks$worker[topoll],
+function(x) x$get_poll_connection())
+pr &amp;lt;- processx::poll(conns, as_ms(timeout))
+private$tasks$state[topoll][pr == &amp;quot;ready&amp;quot;] &amp;lt;- &amp;quot;ready&amp;quot;
+private$schedule()
+ret &amp;lt;- private$tasks$id[private$tasks$state == &amp;quot;done&amp;quot;]
+if (is.finite(timeout)) timeout &amp;lt;- limit - Sys.time()
+if (length(ret) || timeout &amp;lt; 0) break;
+}
+ret
+},
+pop = function(timeout = 0) {
+if (is.na(done &amp;lt;- self$poll(timeout)[1])) return(NULL)
+row &amp;lt;- match(done, private$tasks$id)
+result &amp;lt;- private$tasks$result[[row]]
+private$tasks &amp;lt;- private$tasks[-row, ]
+c(result, list(task_id = done))
+}
+),
+private = list(
+tasks = NULL,
+next_id = 1L,
+get_next_id = function() {
+id &amp;lt;- private$next_id
+private$next_id &amp;lt;- id + 1L
+paste0(&amp;quot;.&amp;quot;, id)
+},
+start_workers = function(concurrency) {
+private$tasks &amp;lt;- tibble::tibble(
+id = character(), idle = logical(),
+state = c(&amp;quot;waiting&amp;quot;, &amp;quot;running&amp;quot;, &amp;quot;ready&amp;quot;, &amp;quot;done&amp;quot;)[NULL],
+fun = list(), args = list(), worker = list(), result = list())
+for (i in seq_len(concurrency)) {
+rs &amp;lt;- callr::r_session$new(wait = FALSE)
+private$tasks &amp;lt;- tibble::add_row(private$tasks,
+id = paste0(&amp;quot;.idle-&amp;quot;, i), idle = TRUE, state = &amp;quot;running&amp;quot;,
+fun = list(NULL), args = list(NULL), worker = list(rs),
+result = list(NULL))
+}
+},
+schedule = function() {
+ready &amp;lt;- which(private$tasks$state == &amp;quot;ready&amp;quot;)
+if (!length(ready)) return()
+rss &amp;lt;- private$tasks$worker[ready]
+private$tasks$result[ready] &amp;lt;- lapply(rss, function(x) x$read())
+private$tasks$worker[ready] &amp;lt;- replicate(length(ready), NULL)
+private$tasks$state[ready] &amp;lt;-
+ifelse(private$tasks$idle[ready], &amp;quot;waiting&amp;quot;, &amp;quot;done&amp;quot;)
+waiting &amp;lt;- which(private$tasks$state == &amp;quot;waiting&amp;quot;)[1:length(ready)]
+private$tasks$worker[waiting] &amp;lt;- rss
+private$tasks$state[waiting] &amp;lt;-
+ifelse(private$tasks$idle[waiting], &amp;quot;ready&amp;quot;, &amp;quot;running&amp;quot;)
+lapply(waiting, function(i) {
+if (! private$tasks$idle[i]) {
+private$tasks$worker[[i]]$call(private$tasks$fun[[i]],
+private$tasks$args[[i]])
+}
+})
+}
+)
+)&lt;/code>&lt;/pre>
+&lt;/div></description></item><item><title>callr 3.3.0</title><link>https://www.tidyverse.org/blog/2019/07/callr-3.3.0/</link><pubDate>Mon, 08 Jul 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/07/callr-3.3.0/</guid><description>
+&lt;STYLE type='text/css' scoped>
+PRE.fansi SPAN {padding-top: .25em; padding-bottom: .25em};
+&lt;/STYLE>
+&lt;p>We have just updated the &lt;a href="https://callr.r-lib.org/">callr&lt;/a> package to version 3.3.0 on CRAN.
+The biggest change in this release is better support for debugging the
+background process. See the full
+&lt;a href="https://callr.r-lib.org/news/index.html">changelog here&lt;/a>.&lt;/p>
+&lt;p>callr helps with running R code in a separate R process, synchronously or
+asynchronously. With synchronous execution the main R process waits until
+the separate R subprocess finishes, see &lt;a href="https://callr.r-lib.org/reference/r.html">&lt;code>callr::r()&lt;/code>&lt;/a>. Asynchronous execution
+uses &lt;a href="https://processx.r-lib.org/">processx&lt;/a> processes, see &lt;a href="https://callr.r-lib.org/reference/r_bg.html">&lt;code>callr::r_bg()&lt;/code>&lt;/a>
+and &lt;a href="https://callr.r-lib.org/reference/r_process.html">&lt;code>callr::r_process()&lt;/code>&lt;/a> for one-off and &lt;a href="https://callr.r-lib.org/reference/r_session.html">&lt;code>callr::r_session()&lt;/code>&lt;/a> for persistent
+background R processes.&lt;/p>
+&lt;div id="callr-error-objects" class="section level2">
+&lt;h2>callr error objects&lt;/h2>
+&lt;p>Debugging code running in a background process is notoriously difficult.
+Most of the time you cannot use an interactive debugger, and often even
+print-debugging, i.e. inserting &lt;code>print()&lt;/code> and &lt;code>cat()&lt;/code> calls into the
+code that runs in the background, can be non-trivial.&lt;/p>
+&lt;p>The new 3.3.0 version of callr aims to help with this, by creating better
+error messages and error traces for errors originating from the background
+process. In particular, callr now always throws error objects that
+contain:&lt;/p>
+&lt;ul>
+&lt;li>the exit status of the R process, if the process terminated,&lt;/li>
+&lt;li>the full error object thrown in the subprocess,&lt;/li>
+&lt;li>the call that generated the error,&lt;/li>
+&lt;li>the process id of the subprocess, and&lt;/li>
+&lt;li>the full stack trace in the subprocess.&lt;/li>
+&lt;/ul>
+&lt;p>Here is an example for a trivial error that shows how to extract this
+information if the error was caught in the main process:&lt;/p>
+&lt;pre class="r">&lt;code>err &amp;lt;- tryCatch(
+callr::r(function() library(Callr)),
+error = function(e) e)
+err
+#&amp;gt; &amp;lt;callr_status_error: callr subprocess failed: there is no package called ‘Callr’&amp;gt;
+#&amp;gt; in process
+#&amp;gt; --&amp;gt;
+#&amp;gt; &amp;lt;callr_remote_error in library(Callr): there is no package called ‘Callr’&amp;gt;&lt;/code>&lt;/pre>
+&lt;p>The error objects has two parts. The first is the error object thrown in
+the main process, and the second is the error object from the the
+subprocess. We can extract more information from &lt;code>err&lt;/code>:&lt;/p>
+&lt;pre class="r">&lt;code>err$status
+#&amp;gt; [1] 0
+err$parent
+#&amp;gt; &amp;lt;callr_remote_error in library(Callr): there is no package called ‘Callr’&amp;gt;
+err$parent$call
+#&amp;gt; function() library(Callr)
+err$parent$`_pid`
+#&amp;gt; [1] 79124&lt;/code>&lt;/pre>
+&lt;p>&lt;code>err$status&lt;/code> is the exit status of the subprocess. This is not present
+for persistent background processes, i.e. the ones created by &lt;code>r_session&lt;/code>,
+because these do not exit on error, but continue running. &lt;code>err$parent&lt;/code> is
+the error object, thrown in the subprocess. &lt;code>err$parent$call&lt;/code> is the call
+that generated the error, and &lt;code>err$parent$`_pid`&lt;/code> is the process id
+of the subprocess.&lt;/p>
+&lt;p>The stack trace of the error in subprocess can be printed via
+&lt;code>err$parent$trace&lt;/code>. By default the trace omits the boilerplate frames
+added by callr, these are usually not very useful for the user.
+Nevertheless they are still included in &lt;code>err$parent$trace$calls&lt;/code>.&lt;/p>
+&lt;pre class="r">&lt;code>err$parent$trace&lt;/code>&lt;/pre>
+&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt;
+#&amp;gt; &lt;span style='font-weight: bold;'> ERROR TRACE for packageNotFoundError&lt;/span>&lt;span>
+#&amp;gt;
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 12. &lt;/span>&lt;span>(function () ...
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 13. &lt;/span>&lt;span style='color: #BBBB00;'>base:::library&lt;/span>&lt;span>(Callr)
+#&amp;gt; &lt;/span>&lt;span style='color: #00BBBB;font-style: italic;'>R/&amp;lt;text&amp;gt;:2:12&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 14. &lt;/span>&lt;span style='color: #BBBB00;'>base:::stop&lt;/span>&lt;span>(packageNotFoundError(package, lib.loc, sys.call()))
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 15. &lt;/span>&lt;span>(function (e) ...
+#&amp;gt; &lt;/span>&lt;span style='color: #BB0000;font-weight: bold;'>
+#&amp;gt; x there is no package called ‘Callr’ &lt;/span>&lt;span>
+&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;p>The trace starts with the anonymous function that we passed to &lt;code>callr::r()&lt;/code>,
+and it is annotated with package names and source references, if they are
+available.&lt;/p>
+&lt;/div>
+&lt;div id="the-last-error" class="section level2">
+&lt;h2>The last error&lt;/h2>
+&lt;p>Often, the error object is uncaught, i.e. we don’t &lt;code>tryCatch()&lt;/code> the error
+in the main R process. Then the error message is printed, but the actual
+error object is lost, and you need to re-run the code in a &lt;code>tryCatch()&lt;/code>,
+hoping that it would produce the same error.&lt;/p>
+&lt;p>For a better workflow, whenever a callr error is uncaught, callr
+assigns it to the &lt;code>.Last.error&lt;/code> variable, that can be inspected.
+Of course, a subsequent callr error will overwrite &lt;code>.Last.error&lt;/code>, it works very
+much like &lt;code>.Last.value&lt;/code>, but for errors. Here is the same code as above
+but without the &lt;code>tryCatch()&lt;/code>:&lt;/p>
+&lt;pre class="r">&lt;code>callr::r(function() library(Callr))
+#&amp;gt; Error: callr subprocess failed: there is no package called ‘Callr’&lt;/code>&lt;/pre>
+&lt;pre class="r">&lt;code>.Last.error
+#&amp;gt; &amp;lt;callr_status_error: callr subprocess failed: there is no package called ‘Callr’&amp;gt;
+#&amp;gt; --&amp;gt;
+#&amp;gt; &amp;lt;callr_remote_error in library(Callr): there is no package called ‘Callr’&amp;gt;
+.Last.error$parent$call
+#&amp;gt; function() library(Callr)&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="the-last-error-trace" class="section level2">
+&lt;h2>The last error trace&lt;/h2>
+&lt;p>If the error is uncaught, then callr adds a trace to the error object of
+the main process as well. The trace will have two parts in this case.
+callr also sets the &lt;code>.Last.error.trace&lt;/code> variable for convenience, this is
+easier to type than &lt;code>.Last.error$trace&lt;/code>.&lt;/p>
+&lt;pre class="r">&lt;code>.Last.error.trace&lt;/code>&lt;/pre>
+&lt;PRE class="fansi fansi-output">&lt;CODE>#&amp;gt;
+#&amp;gt; &lt;span style='font-weight: bold;'> ERROR TRACE for callr_status_error, callr_error, rlib_error&lt;/span>&lt;span>
+#&amp;gt;
+#&amp;gt; &lt;/span>&lt;span style='font-weight: bold;'>Process 79108:&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 30. &lt;/span>&lt;span style='color: #BBBB00;'>callr::r&lt;/span>&lt;span>(function() library(Callr))
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 31. &lt;/span>&lt;span style='color: #BBBB00;'>callr:::get_result&lt;/span>&lt;span>(output = out, options)
+#&amp;gt; &lt;/span>&lt;span style='color: #00BBBB;font-style: italic;'>R/eval.R:149:3&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 32. &lt;/span>&lt;span style='color: #BBBB00;'>base:::throw&lt;/span>&lt;span>(new_callr_error(output, msg), parent = err[[2]])
+#&amp;gt; &lt;/span>&lt;span style='color: #00BBBB;font-style: italic;'>R/result.R:73:5&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #BB0000;font-weight: bold;'>
+#&amp;gt; x callr subprocess failed: there is no package called ‘Callr’ &lt;/span>&lt;span>
+#&amp;gt;
+#&amp;gt; &lt;/span>&lt;span style='font-weight: bold;'>Process 79135:&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 44. &lt;/span>&lt;span>(function () ...
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 45. &lt;/span>&lt;span style='color: #BBBB00;'>base:::library&lt;/span>&lt;span>(Callr)
+#&amp;gt; &lt;/span>&lt;span style='color: #00BBBB;font-style: italic;'>R/&amp;lt;text&amp;gt;:1:10&lt;/span>&lt;span>
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 46. &lt;/span>&lt;span style='color: #BBBB00;'>base:::stop&lt;/span>&lt;span>(packageNotFoundError(package, lib.loc, sys.call()))
+#&amp;gt; &lt;/span>&lt;span style='color: #555555;'> 47. &lt;/span>&lt;span>(function (e) ...
+#&amp;gt; &lt;/span>&lt;span style='color: #BB0000;font-weight: bold;'>
+#&amp;gt; x there is no package called ‘Callr’ &lt;/span>&lt;span>
+&lt;/span>&lt;/CODE>&lt;/PRE>
+&lt;p>The top part of the trace contains the frames in the main process, and the
+bottom part contains the frames in the subprocess, starting with the
+anonymous function.&lt;/p>
+&lt;/div></description></item></channel></rss>

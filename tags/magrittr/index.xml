@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>magrittr | Tidyverse</title><link>https://www.tidyverse.org/tags/magrittr/</link><atom:link href="https://www.tidyverse.org/tags/magrittr/index.xml" rel="self" type="application/rss+xml"/><description>magrittr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 21 Apr 2023 00:00:00 +0000</lastBuildDate><item><title>Differences between the base R and magrittr pipes</title><link>https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/</link><pubDate>Fri, 21 Apr 2023 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>&lt;strong>Note:&lt;/strong> The following has been adapted from a section of the forthcoming second edition of
+&lt;a href="https://r4ds.hadley.nz/" target="_blank" rel="noopener">R for Data Science&lt;/a> that had to be removed due to length limitations.&lt;/p>
+&lt;h2 id="pipes">Pipes
+&lt;a href="#pipes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>R 4.1.0 introduced a native pipe operator, &lt;code>|&amp;gt;&lt;/code>. As described in the
+&lt;a href="https://cran.r-project.org/doc/manuals/r-devel/NEWS.html" target="_blank" rel="noopener">R News&lt;/a>:&lt;/p>
+&lt;blockquote>
+&lt;p>R now provides a simple native forward pipe syntax &lt;code>|&amp;gt;&lt;/code>. The simple form of the forward pipe inserts the left-hand side as the first argument in the right-hand side call. The pipe implementation as a syntax transformation was motivated by suggestions from Jim Hester and Lionel Henry.&lt;/p>
+&lt;/blockquote>
+&lt;p>The behaviour of the native pipe is by and large the same as that of the
+&lt;a href="https://magrittr.tidyverse.org/reference/pipe.html" target="_blank" rel="noopener">&lt;code>%&amp;gt;%&lt;/code>&lt;/a> pipe provided by the &lt;strong>magrittr&lt;/strong> package. Both operators (&lt;code>|&amp;gt;&lt;/code> and &lt;code>%&amp;gt;%&lt;/code>) let you &amp;ldquo;pipe&amp;rdquo; an object forward to a function or call expression, thereby allowing you to express a sequence of operations that transform an object.&lt;/p>
+&lt;p>To learn more about the basic utility of pipes, see
+&lt;a href="https://r4ds.hadley.nz/data-transform.html#the-pipe" target="_blank" rel="noopener">The pipe&lt;/a> section of R for Data Science.&lt;/p>
+&lt;p>Luckily there&amp;rsquo;s no need to commit entirely to one pipe or the other &amp;mdash; you can use the base pipe for the majority of cases where it&amp;rsquo;s sufficient and use the magrittr pipe when you really need its special features.&lt;/p>
+&lt;h2 id="-vs">&lt;code>|&amp;gt;&lt;/code> vs. &lt;code>%&amp;gt;%&lt;/code>
+&lt;a href="#-vs">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>While &lt;code>|&amp;gt;&lt;/code> and &lt;code>%&amp;gt;%&lt;/code> behave identically for simple cases, there are a few crucial differences. These are most likely to affect you if you&amp;rsquo;re a long-term user of &lt;code>%&amp;gt;%&lt;/code> who has taken advantage of some of the more advanced features. But they&amp;rsquo;re still good to know about even if you&amp;rsquo;ve never used &lt;code>%&amp;gt;%&lt;/code> because you&amp;rsquo;re likely to encounter some of them when reading wild-caught code.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>By default, the pipe passes the object on its left-hand side to the first argument of the function on the right-hand side. &lt;code>%&amp;gt;%&lt;/code> allows you to change the placement with a &lt;code>.&lt;/code> placeholder. For example, &lt;code>x %&amp;gt;% f(1)&lt;/code> is equivalent to &lt;code>f(x, 1)&lt;/code> but &lt;code>x %&amp;gt;% f(1, .)&lt;/code> is equivalent to &lt;code>f(1, x)&lt;/code>. R 4.2.0 added a &lt;code>_&lt;/code> placeholder to the base pipe, with one additional restriction: the argument has to be named. For example, &lt;code>x |&amp;gt; f(1, y = _)&lt;/code> is equivalent to &lt;code>f(1, y = x)&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The &lt;code>|&amp;gt;&lt;/code> placeholder is deliberately simple and can&amp;rsquo;t replicate many features of the &lt;code>%&amp;gt;%&lt;/code> placeholder: you can&amp;rsquo;t pass it to multiple arguments, and it doesn&amp;rsquo;t have any special behavior when the placeholder is used inside another function. For example, &lt;code>df %&amp;gt;% split(.$var)&lt;/code> is equivalent to &lt;code>split(df, df$var)&lt;/code>, and &lt;code>df %&amp;gt;% {split(.$x, .$y)}&lt;/code> is equivalent to &lt;code>split(df$x, df$y)&lt;/code>.&lt;/p>
+&lt;p>With &lt;code>%&amp;gt;%&lt;/code>, you can use &lt;code>.&lt;/code> on the left-hand side of operators like &lt;code>$&lt;/code>, &lt;code>[[&lt;/code>, &lt;code>[&lt;/code> , so you can extract a single column from a data frame with (e.g.) &lt;code>mtcars %&amp;gt;% .$cyl&lt;/code>. R added support for this feature in R 4.3.0. For the special case of extracting a column out of a data frame, you can also use &lt;code>dplyr::pull()&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>mtcars&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>pull&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>cyl&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>%&amp;gt;%&lt;/code> allows you to drop the parentheses when calling a function with no other arguments; &lt;code>|&amp;gt;&lt;/code> always requires the parentheses.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>%&amp;gt;%&lt;/code> allows you to start a pipe with &lt;code>.&lt;/code> to create a function rather than immediately executing the pipe; this is not supported by the base pipe.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="using-the-native-pipe-in-packages">Using the native pipe in packages
+&lt;a href="#using-the-native-pipe-in-packages">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Because the native pipe wasn&amp;rsquo;t introduced until 4.1.0, code using &lt;code>|&amp;gt;&lt;/code> in function reference examples or vignettes will not work on older versions of R, as it is not valid syntax. This is a problem for the tidyverse because our
+&lt;a href="https://www.tidyverse.org/blog/2019/04/r-version-support/" target="_blank" rel="noopener">versioning policies&lt;/a> mean that our packages need to work on R 3.5.0 and later.&lt;/p>
+&lt;p>Does this mean that you need to increase the minimum R version your package depends on in order to use &lt;code>|&amp;gt;&lt;/code>? Not necessarily: there are two techniques we can use to keep vignettes and examples working.&lt;/p>
+&lt;p>For example, the base pipe is used in purrr 1.0.0. As can be seen in the
+&lt;a href="https://github.com/tidyverse/purrr/commit/df4630c6e8cd5028386ee96b9036f1755f26adc4" target="_blank" rel="noopener">source for the &amp;ldquo;purrr &amp;lt;-&amp;gt; base R&amp;rdquo; vignette&lt;/a>, certain code chunks are evaluated conditionally based on the version of R being used. The setup chunk for the vignette includes: &lt;code>modern_r &amp;lt;- getRversion() &amp;gt;= &amp;quot;4.1.0&amp;quot;&lt;/code>. The results of this are then used in the &lt;code>eval&lt;/code> argument to determine whether or not a code chunk that relies on &amp;ldquo;modern R&amp;rdquo; syntax should be run.&lt;/p>
+&lt;p>The other place we use the base pipe is in examples. To disable these we use a bit of a hack that requires three files
+&lt;a href="https://github.com/tidyverse/purrr/blob/main/configure" target="_blank" rel="noopener">&lt;code>configure&lt;/code>&lt;/a>,
+&lt;a href="https://github.com/tidyverse/purrr/blob/main/cleanup" target="_blank" rel="noopener">&lt;code>cleanup&lt;/code>&lt;/a>, and
+&lt;a href="https://github.com/tidyverse/purrr/blob/main/tools/examples.R" target="_blank" rel="noopener">&lt;code>tools/examples.R&lt;/code>&lt;/a>. The basic idea is for pre-R 4.1.0 we re-define the &lt;code>\examples{}&lt;/code> tag to display an informative message but not run the code; this ensures that &lt;code>R CMD check&lt;/code> continues to work even on older versions of R.&lt;/p></description></item></channel></rss>

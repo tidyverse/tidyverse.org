@@ -1,0 +1,279 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>rules 0.0.1</title><meta property="og:title" content="rules 0.0.1"><meta property="og:description" content="The rules package is on CRAN and enables rule-based models for tidymodels."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2020/05/rules-0-0-1/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="rules 0.0.1 - Tidyverse"><meta property="description" content="The rules package is on CRAN and enables rule-based models for tidymodels."><meta property="og:description" content="The rules package is on CRAN and enables rule-based models for tidymodels."><meta property="og:image" content="https://www.tidyverse.org/blog/2020/05/rules-0-0-1/rules-0-0-1-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2020/05/rules-0-0-1/rules-0-0-1-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>rules 0.0.1</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2020/05/rules-0-0-1/rules-0-0-1-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/lu15z1m_KfM>Lili Popper</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2020/05/21</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/tidymodels/>tidymodels</a>,
+<a href=/tags/rules/>rules</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Max Kuhn</p><div class=article-content><p>We are happy to announce the release of the
+<a href=https://rules.tidymodels.org target=_blank rel=noopener>rules package</a> on
+<a href="https://cran.r-project.org/package=rules" target=_blank rel=noopener>CRAN</a>. rules is another &ldquo;parsnip-adjacent&rdquo; package that enables a specific class of models within the tidymodels infrastructure. rules currently contains three models:</p><ul><li><p><code>C5_rules()</code>: classification rule sets based on the C5.0 model.</p></li><li><p><code>cubist_rules()</code>: regression rules using Cubist.</p></li><li><p><code>rule_fit()</code>: classification or regression rules using the RuleFit model.</p></li></ul><p>If you aren&rsquo;t familiar with rule-based models, there is a
+<a href=https://rviews.rstudio.com/2020/05/21/modern-rule-based-models/ target=_blank rel=noopener>companion blog post</a> that summarizes how they work.</p><p>Install rules from CRAN like so:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>install.packages</span><span class=p>(</span><span class=s>&#34;rules&#34;</span><span class=p>)</span>
+</code></pre></div><p>Then attach it for use via:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>rules</span><span class=p>)</span>
+</code></pre></div><p>Here&rsquo;s an example of creating Cubist regression rules via the
+<a href=https://tune.tidymodels.org/ target=_blank rel=noopener>parsnip package</a>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>tidymodels</span><span class=p>)</span>
+<span class=c1>#&gt; ── Attaching packages ──────────────────────────────────── tidymodels 0.1.0 ──</span>
+<span class=c1>#&gt; ✓ broom     0.5.6      ✓ recipes   0.1.12</span>
+<span class=c1>#&gt; ✓ dials     0.0.6      ✓ rsample   0.0.6</span>
+<span class=c1>#&gt; ✓ dplyr     0.8.5      ✓ tibble    3.0.1</span>
+<span class=c1>#&gt; ✓ ggplot2   3.3.0      ✓ tune      0.1.0</span>
+<span class=c1>#&gt; ✓ infer     0.5.1      ✓ workflows 0.1.1</span>
+<span class=c1>#&gt; ✓ parsnip   0.1.1      ✓ yardstick 0.0.6</span>
+<span class=c1>#&gt; ✓ purrr     0.3.4</span>
+<span class=c1>#&gt; ── Conflicts ─────────────────────────────────────── tidymodels_conflicts() ──</span>
+<span class=c1>#&gt; x purrr::accumulate() masks foreach::accumulate()</span>
+<span class=c1>#&gt; x purrr::discard()    masks scales::discard()</span>
+<span class=c1>#&gt; x dplyr::filter()     masks stats::filter()</span>
+<span class=c1>#&gt; x dplyr::lag()        masks stats::lag()</span>
+<span class=c1>#&gt; x ggplot2::margin()   masks dials::margin()</span>
+<span class=c1>#&gt; x recipes::step()     masks stats::step()</span>
+<span class=c1>#&gt; x purrr::when()       masks foreach::when()</span>
+<span class=nf>library</span><span class=p>(</span><span class=n>rules</span><span class=p>)</span>
+
+<span class=nf>data</span><span class=p>(</span><span class=n>car_prices</span><span class=p>,</span> <span class=n>package</span> <span class=o>=</span> <span class=s>&#34;modeldata&#34;</span><span class=p>)</span>
+
+<span class=nf>set.seed</span><span class=p>(</span><span class=m>9932</span><span class=p>)</span>
+<span class=n>car_split</span> <span class=o>&lt;-</span> <span class=nf>initial_split</span><span class=p>(</span><span class=n>car_prices</span><span class=p>)</span>
+<span class=n>car_tr</span> <span class=o>&lt;-</span> <span class=nf>training</span><span class=p>(</span><span class=n>car_split</span><span class=p>)</span>
+<span class=n>car_te</span> <span class=o>&lt;-</span>  <span class=nf>testing</span><span class=p>(</span><span class=n>car_split</span><span class=p>)</span>
+
+<span class=c1># A single rule set:</span>
+<span class=n>cubist_mod</span> <span class=o>&lt;-</span>
+  <span class=nf>cubist_rules</span><span class=p>(</span><span class=n>neighbors</span> <span class=o>=</span> <span class=m>7</span><span class=p>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>set_engine</span><span class=p>(</span><span class=s>&#34;Cubist&#34;</span><span class=p>)</span>
+
+<span class=n>cubist_fit</span> <span class=o>&lt;-</span>
+  <span class=n>cubist_mod</span> <span class=o>%&gt;%</span>
+  <span class=nf>fit</span><span class=p>(</span><span class=nf>log10</span><span class=p>(</span><span class=n>Price</span><span class=p>)</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>car_tr</span><span class=p>)</span>
+
+<span class=nf>summary</span><span class=p>(</span><span class=n>cubist_fit</span><span class=o>$</span><span class=n>fit</span><span class=p>)</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt; Call:</span>
+<span class=c1>#&gt; cubist.default(x = x, y = y, committees = 1)</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt; Cubist [Release 2.07 GPL Edition]  Wed May 20 21:39:22 2020</span>
+<span class=c1>#&gt; ---------------------------------</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;     Target attribute `outcome&#39;</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt; Read 603 cases (18 attributes) from undefined.data</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt; Model:</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;   Rule 1: [210 cases, mean 4.116360, range 3.94295 to 4.2505, est err 0.030756]</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;     if</span>
+<span class=c1>#&gt; 	Cylinder &lt;= 4</span>
+<span class=c1>#&gt; 	Saab &lt;= 0</span>
+<span class=c1>#&gt;     then</span>
+<span class=c1>#&gt; 	outcome = 4.115185 + 0.12 Saab - 3.5e-06 Mileage + 0.017 Cylinder</span>
+<span class=c1>#&gt; 	          - 0.087 hatchback - 0.029 Chevy + 0.046 wagon + 0.028 Leather</span>
+<span class=c1>#&gt; 	          + 0.041 Cadillac - 0.024 sedan + 0.027 convertible</span>
+<span class=c1>#&gt; 	          + 0.006 Doors + 0.012 Buick</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;   Rule 2: [8 cases, mean 4.207121, range 4.13308 to 4.26696, est err 0.006589]</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;     if</span>
+<span class=c1>#&gt; 	Cylinder &gt; 4</span>
+<span class=c1>#&gt; 	Saturn &gt; 0</span>
+<span class=c1>#&gt;     then</span>
+<span class=c1>#&gt; 	outcome = 3.88624 + 0.057 Cylinder + 0.2 Saab + 0.141 Cadillac</span>
+<span class=c1>#&gt; 	          - 3.8e-06 Mileage - 0.054 sedan + 0.094 convertible</span>
+<span class=c1>#&gt; 	          - 0.085 hatchback + 0.019 Doors + 0.04 Buick + 0.014 Cruise</span>
+<span class=c1>#&gt; 	          + 0.01 Leather + 0.007 Sound + 0.007 Saturn</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;   Rule 3: [33 cases, mean 4.229076, range 4.16741 to 4.29184, est err 0.012903]</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;     if</span>
+<span class=c1>#&gt; 	Cylinder &gt; 4</span>
+<span class=c1>#&gt; 	Cruise &lt;= 0</span>
+<span class=c1>#&gt;     then</span>
+<span class=c1>#&gt; 	outcome = 4.265627 - 3.7e-06 Mileage + 0.039 Chevy</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;   Rule 4: [94 cases, mean 4.272727, range 4.18913 to 4.4427, est err 0.034717]</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;     if</span>
+<span class=c1>#&gt; 	Mileage &gt; 3946</span>
+<span class=c1>#&gt; 	Cylinder &gt; 4</span>
+<span class=c1>#&gt; 	Doors &gt; 2</span>
+<span class=c1>#&gt; 	Cruise &gt; 0</span>
+<span class=c1>#&gt; 	Buick &lt;= 0</span>
+<span class=c1>#&gt; 	Cadillac &lt;= 0</span>
+<span class=c1>#&gt; 	Saturn &lt;= 0</span>
+<span class=c1>#&gt;     then</span>
+<span class=c1>#&gt; 	outcome = 4.037203 + 0.051 Cylinder - 4.3e-06 Mileage + 0.061 Saab</span>
+<span class=c1>#&gt; 	          + 0.044 Cadillac - 0.016 sedan + 0.029 convertible</span>
+<span class=c1>#&gt; 	          - 0.026 hatchback + 0.006 Doors - 0.009 Chevy + 0.012 Buick</span>
+<span class=c1>#&gt; 	          + 0.004 Cruise</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;   Rule 5: [57 cases, mean 4.314541, range 4.17208 to 4.42864, est err 0.049758]</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;     if</span>
+<span class=c1>#&gt; 	Buick &gt; 0</span>
+<span class=c1>#&gt;     then</span>
+<span class=c1>#&gt; 	outcome = 4.389884 - 3e-06 Mileage</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;   Rule 6: [9 cases, mean 4.341528, range 4.23957 to 4.66962, est err 0.036309]</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;     if</span>
+<span class=c1>#&gt; 	Mileage &lt;= 3946</span>
+<span class=c1>#&gt; 	Cylinder &gt; 4</span>
+<span class=c1>#&gt; 	Cadillac &lt;= 0</span>
+<span class=c1>#&gt;     then</span>
+<span class=c1>#&gt; 	outcome = 3.439093 + 5.28e-05 Mileage + 0.129 Cylinder</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;   Rule 7: [43 cases, mean 4.354487, range 4.1778 to 4.60071, est err 0.031792]</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;     if</span>
+<span class=c1>#&gt; 	Cylinder &gt; 4</span>
+<span class=c1>#&gt; 	Doors &lt;= 2</span>
+<span class=c1>#&gt; 	Cruise &gt; 0</span>
+<span class=c1>#&gt; 	convertible &lt;= 0</span>
+<span class=c1>#&gt;     then</span>
+<span class=c1>#&gt; 	outcome = 3.40984 + 0.13 Cylinder + 0.116 Chevy - 2.7e-06 Mileage</span>
+<span class=c1>#&gt; 	          + 0.037 Sound + 0.031 Leather</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;   Rule 8: [85 cases, mean 4.462877, range 4.34723 to 4.58348, est err 0.023398]</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;     if</span>
+<span class=c1>#&gt; 	Saab &gt; 0</span>
+<span class=c1>#&gt;     then</span>
+<span class=c1>#&gt; 	outcome = 4.522928 - 3.4e-06 Mileage + 0.064 Saab - 0.021 Doors</span>
+<span class=c1>#&gt; 	          - 0.035 sedan + 0.009 Cylinder + 0.022 Cadillac</span>
+<span class=c1>#&gt; 	          - 0.024 hatchback + 0.015 convertible - 0.004 Chevy</span>
+<span class=c1>#&gt; 	          + 0.006 Buick</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;   Rule 9: [60 cases, mean 4.592824, range 4.44778 to 4.84976, est err 0.041948]</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;     if</span>
+<span class=c1>#&gt; 	Cadillac &gt; 0</span>
+<span class=c1>#&gt;     then</span>
+<span class=c1>#&gt; 	outcome = 4.774347 - 0.103 Doors + 0.036 Cylinder - 3.4e-06 Mileage</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;   Rule 10: [7 cases, mean 4.625017, range 4.58911 to 4.6727, est err 0.006627]</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;     if</span>
+<span class=c1>#&gt; 	Cylinder &gt; 4</span>
+<span class=c1>#&gt; 	Cadillac &lt;= 0</span>
+<span class=c1>#&gt; 	convertible &gt; 0</span>
+<span class=c1>#&gt;     then</span>
+<span class=c1>#&gt; 	outcome = 4.693132 - 3.9e-06 Mileage</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt; Evaluation on training data (603 cases):</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;     Average  |error|           0.032526</span>
+<span class=c1>#&gt;     Relative |error|               0.23</span>
+<span class=c1>#&gt;     Correlation coefficient        0.97</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt; 	Attribute usage:</span>
+<span class=c1>#&gt; 	  Conds  Model</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt; 	   67%    84%    Cylinder</span>
+<span class=c1>#&gt; 	   49%    66%    Saab</span>
+<span class=c1>#&gt; 	   28%    66%    Cadillac</span>
+<span class=c1>#&gt; 	   28%    17%    Cruise</span>
+<span class=c1>#&gt; 	   25%    66%    Buick</span>
+<span class=c1>#&gt; 	   23%    75%    Doors</span>
+<span class=c1>#&gt; 	   17%   100%    Mileage</span>
+<span class=c1>#&gt; 	   17%     1%    Saturn</span>
+<span class=c1>#&gt; 	    8%    66%    convertible</span>
+<span class=c1>#&gt; 	          77%    Chevy</span>
+<span class=c1>#&gt; 	          66%    hatchback</span>
+<span class=c1>#&gt; 	          66%    sedan</span>
+<span class=c1>#&gt; 	          43%    Leather</span>
+<span class=c1>#&gt; 	          35%    wagon</span>
+<span class=c1>#&gt; 	           8%    Sound</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt;</span>
+<span class=c1>#&gt; Time: 0.0 secs</span>
+
+<span class=nf>predict</span><span class=p>(</span><span class=n>cubist_fit</span><span class=p>,</span> <span class=n>car_te</span> <span class=o>%&gt;%</span> <span class=nf>select</span><span class=p>(</span><span class=o>-</span><span class=n>Price</span><span class=p>))</span>
+<span class=c1>#&gt; # A tibble: 201 x 1</span>
+<span class=c1>#&gt;    .pred</span>
+<span class=c1>#&gt;    &lt;dbl&gt;</span>
+<span class=c1>#&gt;  1  4.32</span>
+<span class=c1>#&gt;  2  4.49</span>
+<span class=c1>#&gt;  3  4.54</span>
+<span class=c1>#&gt;  4  4.54</span>
+<span class=c1>#&gt;  5  4.43</span>
+<span class=c1>#&gt;  6  4.43</span>
+<span class=c1>#&gt;  7  4.46</span>
+<span class=c1>#&gt;  8  4.44</span>
+<span class=c1>#&gt;  9  4.37</span>
+<span class=c1>#&gt; 10  4.48</span>
+<span class=c1>#&gt; # … with 191 more rows</span>
+</code></pre></div><p>The functions also work with the
+<a href=https://tune.tidymodels.org/ target=_blank rel=noopener>tune package</a>. To optimize our model, the number of committees (similar to boosting iterations) and the number of nearest-neighbors are the primary parameters for tuning.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>cb_grid</span> <span class=o>&lt;-</span> <span class=nf>expand.grid</span><span class=p>(</span><span class=n>committees</span> <span class=o>=</span> <span class=m>1</span><span class=o>:</span><span class=m>30</span><span class=p>,</span> <span class=n>neighbors</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=m>1</span><span class=p>,</span> <span class=m>3</span><span class=p>,</span> <span class=m>5</span><span class=p>,</span> <span class=m>7</span><span class=p>,</span> <span class=m>9</span><span class=p>))</span>
+
+<span class=nf>set.seed</span><span class=p>(</span><span class=m>8226</span><span class=p>)</span>
+<span class=n>car_folds</span> <span class=o>&lt;-</span> <span class=nf>vfold_cv</span><span class=p>(</span><span class=n>car_tr</span><span class=p>)</span>
+
+<span class=n>cubist_mod</span> <span class=o>&lt;-</span>
+  <span class=nf>cubist_rules</span><span class=p>(</span><span class=n>neighbors</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>(),</span> <span class=n>committees</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>())</span> <span class=o>%&gt;%</span>
+  <span class=nf>set_engine</span><span class=p>(</span><span class=s>&#34;Cubist&#34;</span><span class=p>)</span>
+
+<span class=n>car_tune_res</span> <span class=o>&lt;-</span>
+  <span class=n>cubist_mod</span> <span class=o>%&gt;%</span>
+  <span class=nf>tune_grid</span><span class=p>(</span><span class=nf>log10</span><span class=p>(</span><span class=n>Price</span><span class=p>)</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>resamples</span> <span class=o>=</span> <span class=n>car_folds</span><span class=p>,</span> <span class=n>grid</span> <span class=o>=</span> <span class=n>cb_grid</span><span class=p>)</span>
+
+<span class=n>car_tune_res</span> <span class=o>%&gt;%</span>
+  <span class=nf>collect_metrics</span><span class=p>()</span> <span class=o>%&gt;%</span>
+  <span class=nf>filter</span><span class=p>(</span><span class=n>.metric</span> <span class=o>==</span> <span class=s>&#34;rmse&#34;</span><span class=p>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>mutate</span><span class=p>(</span><span class=n>neighbors</span> <span class=o>=</span> <span class=nf>factor</span><span class=p>(</span><span class=n>neighbors</span><span class=p>))</span> <span class=o>%&gt;%</span>
+  <span class=nf>ggplot</span><span class=p>(</span><span class=nf>aes</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=n>committees</span><span class=p>,</span> <span class=n>y</span> <span class=o>=</span> <span class=n>mean</span><span class=p>,</span> <span class=n>col</span> <span class=o>=</span> <span class=n>neighbors</span><span class=p>))</span> <span class=o>+</span>
+  <span class=nf>geom_point</span><span class=p>()</span> <span class=o>+</span>
+  <span class=nf>geom_line</span><span class=p>()</span> <span class=o>+</span>
+  <span class=nf>scale_color_brewer</span><span class=p>(</span><span class=n>palette</span> <span class=o>=</span> <span class=s>&#34;Dark2&#34;</span><span class=p>)</span> <span class=o>+</span>
+  <span class=nf>theme</span><span class=p>(</span><span class=n>legend.position</span> <span class=o>=</span> <span class=s>&#34;top&#34;</span><span class=p>)</span>
+</code></pre></div><p><img src=/blog/2020-05-rules-0-0-1/index_files/figure-html/cb-tune-1.png width=700px style=display:block;margin:auto></p><div class=highlight><pre class=chroma><code class=language-r data-lang=r>
+<span class=nf>show_best</span><span class=p>(</span><span class=n>car_tune_res</span><span class=p>,</span> <span class=n>metric</span> <span class=o>=</span> <span class=s>&#34;rmse&#34;</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 5 x 7</span>
+<span class=c1>#&gt;   committees neighbors .metric .estimator   mean     n std_err</span>
+<span class=c1>#&gt;        &lt;int&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1          9         9 rmse    standard   0.0395    10 0.00133</span>
+<span class=c1>#&gt; 2          5         9 rmse    standard   0.0395    10 0.00132</span>
+<span class=c1>#&gt; 3         11         9 rmse    standard   0.0395    10 0.00133</span>
+<span class=c1>#&gt; 4         13         9 rmse    standard   0.0395    10 0.00132</span>
+<span class=c1>#&gt; 5          8         9 rmse    standard   0.0395    10 0.00131</span>
+
+<span class=n>smallest_rmse</span> <span class=o>&lt;-</span> <span class=nf>select_best</span><span class=p>(</span><span class=n>car_tune_res</span><span class=p>,</span> <span class=n>metric</span> <span class=o>=</span> <span class=s>&#34;rmse&#34;</span><span class=p>)</span>
+<span class=n>smallest_rmse</span>
+<span class=c1>#&gt; # A tibble: 1 x 2</span>
+<span class=c1>#&gt;   committees neighbors</span>
+<span class=c1>#&gt;        &lt;int&gt;     &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1          9         9</span>
+
+<span class=n>final_cb_mod</span> <span class=o>&lt;-</span>
+  <span class=n>cubist_mod</span> <span class=o>%&gt;%</span>
+  <span class=nf>finalize_model</span><span class=p>(</span><span class=n>smallest_rmse</span><span class=p>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>fit</span><span class=p>(</span><span class=nf>log10</span><span class=p>(</span><span class=n>Price</span><span class=p>)</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>car_tr</span><span class=p>)</span>
+</code></pre></div><p>It appears that the benefit of using committees occurs in the first 10 iterations. The nearest-neighbor adjustment was important to obtaining good performance.</p><p>The test set results look good and are consistent with the resampling estimate of RMSE:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>test_pred</span> <span class=o>&lt;-</span>
+  <span class=nf>predict</span><span class=p>(</span><span class=n>final_cb_mod</span><span class=p>,</span> <span class=n>car_te</span><span class=p>)</span> <span class=o>%&gt;%</span>
+  <span class=nf>bind_cols</span><span class=p>(</span><span class=n>car_te</span> <span class=o>%&gt;%</span> <span class=nf>select</span><span class=p>(</span><span class=n>Price</span><span class=p>))</span> <span class=o>%&gt;%</span>
+  <span class=nf>mutate</span><span class=p>(</span><span class=n>Price</span> <span class=o>=</span> <span class=nf>log10</span><span class=p>(</span><span class=n>Price</span><span class=p>))</span>
+
+<span class=n>test_pred</span> <span class=o>%&gt;%</span> <span class=nf>rmse</span><span class=p>(</span><span class=n>Price</span><span class=p>,</span> <span class=n>.pred</span><span class=p>)</span>
+<span class=c1>#&gt; # A tibble: 1 x 3</span>
+<span class=c1>#&gt;   .metric .estimator .estimate</span>
+<span class=c1>#&gt;   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1 rmse    standard      0.0382</span>
+
+<span class=nf>ggplot</span><span class=p>(</span><span class=n>test_pred</span><span class=p>,</span> <span class=nf>aes</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=n>.pred</span><span class=p>,</span> <span class=n>y</span> <span class=o>=</span> <span class=n>Price</span><span class=p>))</span> <span class=o>+</span>
+  <span class=nf>geom_abline</span><span class=p>(</span><span class=n>col</span> <span class=o>=</span> <span class=s>&#34;green&#34;</span><span class=p>,</span> <span class=n>lty</span> <span class=o>=</span> <span class=m>2</span><span class=p>)</span> <span class=o>+</span>
+  <span class=nf>geom_point</span><span class=p>(</span><span class=n>alpha</span> <span class=o>=</span> <span class=m>0.5</span><span class=p>)</span> <span class=o>+</span>
+  <span class=nf>coord_fixed</span><span class=p>(</span><span class=n>ratio</span> <span class=o>=</span> <span class=m>1</span><span class=p>)</span>
+</code></pre></div><p><img src=/blog/2020-05-rules-0-0-1/index_files/figure-html/cb-test-1.png width=700px style=display:block;margin:auto></p><p>I&rsquo;d like to thank
+<a href=https://github.com/holub008 target=_blank rel=noopener>Karl Holub</a> for making the
+<a href=https://github.com/holub008/xrf target=_blank rel=noopener>xrf package</a> and accepting my PRs and changes.</p></div></div><div class=column25><div class="section hideOnMobile"></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

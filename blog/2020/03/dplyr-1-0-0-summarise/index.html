@@ -1,0 +1,181 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>dplyr 1.0.0: new `summarise()` features</title><meta property="og:title" content="dplyr 1.0.0: new `summarise()` features"><meta property="og:description" content="In `summarise()`, a single summary expression can now create both multiple rows and multiple columns. This significantly increases its power and flexibility."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="dplyr 1.0.0: new `summarise()` features - Tidyverse"><meta property="description" content="In `summarise()`, a single summary expression can now create both multiple rows and multiple columns. This significantly increases its power and flexibility."><meta property="og:description" content="In `summarise()`, a single summary expression can now create both multiple rows and multiple columns. This significantly increases its power and flexibility."><meta property="og:image" content="https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-summarise/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>dplyr 1.0.0: new <code>summarise()</code> features</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2020/03/dplyr-1-0-0-summarise/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/OmCUSp8o7a4>Brigitte Tohm</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2020/03/20</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/dplyr/>dplyr</a>,
+<a href=/tags/dplyr-1-0-0/>dplyr-1-0-0</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Hadley Wickham</p><div class=article-content><p>As we&rsquo;ve mentioned,
+<a href=https://www.tidyverse.org/blog/2020/03/dplyr-1-0-0-is-coming-soon/ target=_blank rel=noopener>dplyr 1.0.0 is coming soon</a>. Today, we&rsquo;ve started the official release process by notifying maintainers of packages that have problems with dplyr 1.0.0, and we&rsquo;re planning for a CRAN release six weeks later, on May 1. This post is the first in a series that will introduce you to new features in dplyr 1.0.0. Today, I&rsquo;ll start with some big changes to <code>summarise()</code> that make it significantly more powerful.</p><hr><p><strong>Update</strong>: as of June 1, dplyr 1.0.0 is now available on CRAN! Read
+<a href=/blog/2020/06/dplyr-1-0-0/>all about it</a> or install it now with <code>install.packages("dplyr")</code>.</p><hr><h2 id=multiple-rows-and-columns>Multiple rows and columns
+<a href=#multiple-rows-and-columns><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Two big changes make <code>summarise()</code> much more flexible. A single summary expression can now return:</p><ul><li>A vector of any length, creating multiple rows.</li><li>A data frame, creating multiple columns.</li></ul><p>To get a sense for what this means, take this toy dataset:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>dplyr</span><span class=p>,</span> <span class=n>warn.conflicts</span> <span class=o>=</span> <span class=kc>FALSE</span><span class=p>)</span>
+
+<span class=n>df</span> <span class=o>&lt;-</span> <span class=nf>tibble</span><span class=p>(</span>
+  <span class=n>grp</span> <span class=o>=</span> <span class=nf>rep</span><span class=p>(</span><span class=m>1</span><span class=o>:</span><span class=m>2</span><span class=p>,</span> <span class=n>each</span> <span class=o>=</span> <span class=m>5</span><span class=p>),</span> 
+  <span class=n>x</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=nf>rnorm</span><span class=p>(</span><span class=m>5</span><span class=p>,</span> <span class=m>-0.25</span><span class=p>,</span> <span class=m>1</span><span class=p>),</span> <span class=nf>rnorm</span><span class=p>(</span><span class=m>5</span><span class=p>,</span> <span class=m>0</span><span class=p>,</span> <span class=m>1.5</span><span class=p>)),</span>
+  <span class=n>y</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=nf>rnorm</span><span class=p>(</span><span class=m>5</span><span class=p>,</span> <span class=m>0.25</span><span class=p>,</span> <span class=m>1</span><span class=p>),</span> <span class=nf>rnorm</span><span class=p>(</span><span class=m>5</span><span class=p>,</span> <span class=m>0</span><span class=p>,</span> <span class=m>0.5</span><span class=p>)),</span>
+<span class=p>)</span>
+<span class=n>df</span>
+<span class=c1>#&gt; # A tibble: 10 x 3</span>
+<span class=c1>#&gt;      grp        x       y</span>
+<span class=c1>#&gt;    &lt;int&gt;    &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class=c1>#&gt;  1     1 -1.65    -0.304 </span>
+<span class=c1>#&gt;  2     1  0.00532  0.879 </span>
+<span class=c1>#&gt;  3     1 -2.69     2.32  </span>
+<span class=c1>#&gt;  4     1 -0.256   -1.38  </span>
+<span class=c1>#&gt;  5     1  0.372    0.762 </span>
+<span class=c1>#&gt;  6     2  1.72    -0.932 </span>
+<span class=c1>#&gt;  7     2 -2.73    -0.261 </span>
+<span class=c1>#&gt;  8     2 -0.371   -0.0263</span>
+<span class=c1>#&gt;  9     2 -0.366    0.271 </span>
+<span class=c1>#&gt; 10     2 -0.424   -0.457</span>
+</code></pre></div><p>You can now use summaries that return multiple values:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>grp</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>summarise</span><span class=p>(</span><span class=n>rng</span> <span class=o>=</span> <span class=nf>range</span><span class=p>(</span><span class=n>x</span><span class=p>))</span>
+<span class=c1>#&gt; `summarise()` regrouping output by &#39;grp&#39; (override with `.groups` argument)</span>
+<span class=c1>#&gt; # A tibble: 4 x 2</span>
+<span class=c1>#&gt; # Groups:   grp [2]</span>
+<span class=c1>#&gt;     grp    rng</span>
+<span class=c1>#&gt;   &lt;int&gt;  &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     1 -2.69 </span>
+<span class=c1>#&gt; 2     1  0.372</span>
+<span class=c1>#&gt; 3     2 -2.73 </span>
+<span class=c1>#&gt; 4     2  1.72</span>
+</code></pre></div><p>Or return multiple columns from a single summary expression:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>grp</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>summarise</span><span class=p>(</span><span class=nf>tibble</span><span class=p>(</span><span class=n>min</span> <span class=o>=</span> <span class=nf>min</span><span class=p>(</span><span class=n>x</span><span class=p>),</span> <span class=n>mean</span> <span class=o>=</span> <span class=nf>mean</span><span class=p>(</span><span class=n>x</span><span class=p>)))</span>
+<span class=c1>#&gt; `summarise()` ungrouping output (override with `.groups` argument)</span>
+<span class=c1>#&gt; # A tibble: 2 x 3</span>
+<span class=c1>#&gt;     grp   min   mean</span>
+<span class=c1>#&gt; * &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     1 -2.69 -0.843</span>
+<span class=c1>#&gt; 2     2 -2.73 -0.434</span>
+</code></pre></div><p>(This isn&rsquo;t very useful when used directly, but as you&rsquo;ll see shortly, it&rsquo;s really useful inside of functions.)</p><p>To put this another way, before dplyr 1.0.0, each summary had to be a single value (one row, one column), but now we&rsquo;ve lifted that restriction so each summary can generate a rectangle of arbitrary size. This is a big change to <code>summarise()</code> but it should have minimal impact on existing code because it <em>broadens</em> the interface: all existing code will continue to work, and a number of inputs that would have previously errored now work.</p><h2 id=quantiles>Quantiles
+<a href=#quantiles><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>To demonstrate this new flexibility in a more useful situation, let&rsquo;s take a look at <code>quantile()</code>. <code>quantile()</code> was hard to use previously because it returns multiple values. Now it&rsquo;s straightforward:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>grp</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>summarise</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=nf>quantile</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=nf>c</span><span class=p>(</span><span class=m>0.25</span><span class=p>,</span> <span class=m>0.5</span><span class=p>,</span> <span class=m>0.75</span><span class=p>)),</span> <span class=n>q</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=m>0.25</span><span class=p>,</span> <span class=m>0.5</span><span class=p>,</span> <span class=m>0.75</span><span class=p>))</span>
+<span class=c1>#&gt; `summarise()` regrouping output by &#39;grp&#39; (override with `.groups` argument)</span>
+<span class=c1>#&gt; # A tibble: 6 x 3</span>
+<span class=c1>#&gt; # Groups:   grp [2]</span>
+<span class=c1>#&gt;     grp        x     q</span>
+<span class=c1>#&gt;   &lt;int&gt;    &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     1 -1.65     0.25</span>
+<span class=c1>#&gt; 2     1 -0.256    0.5 </span>
+<span class=c1>#&gt; 3     1  0.00532  0.75</span>
+<span class=c1>#&gt; 4     2 -0.424    0.25</span>
+<span class=c1>#&gt; 5     2 -0.371    0.5 </span>
+<span class=c1>#&gt; 6     2 -0.366    0.75</span>
+</code></pre></div><p>It would be nice to be able to reduce the duplication in this code so that we don&rsquo;t have to type the quantile values twice. We can now write a simple function because summary expressions can now be data frames or tibbles:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>quibble</span> <span class=o>&lt;-</span> <span class=nf>function</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>q</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=m>0.25</span><span class=p>,</span> <span class=m>0.5</span><span class=p>,</span> <span class=m>0.75</span><span class=p>))</span> <span class=p>{</span>
+  <span class=nf>tibble</span><span class=p>(</span><span class=n>x</span> <span class=o>=</span> <span class=nf>quantile</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>q</span><span class=p>),</span> <span class=n>q</span> <span class=o>=</span> <span class=n>q</span><span class=p>)</span>
+<span class=p>}</span>
+<span class=n>df</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>grp</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>summarise</span><span class=p>(</span><span class=nf>quibble</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=nf>c</span><span class=p>(</span><span class=m>0.25</span><span class=p>,</span> <span class=m>0.5</span><span class=p>,</span> <span class=m>0.75</span><span class=p>)))</span>
+<span class=c1>#&gt; `summarise()` regrouping output by &#39;grp&#39; (override with `.groups` argument)</span>
+<span class=c1>#&gt; # A tibble: 6 x 3</span>
+<span class=c1>#&gt; # Groups:   grp [2]</span>
+<span class=c1>#&gt;     grp        x     q</span>
+<span class=c1>#&gt;   &lt;int&gt;    &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     1 -1.65     0.25</span>
+<span class=c1>#&gt; 2     1 -0.256    0.5 </span>
+<span class=c1>#&gt; 3     1  0.00532  0.75</span>
+<span class=c1>#&gt; 4     2 -0.424    0.25</span>
+<span class=c1>#&gt; 5     2 -0.371    0.5 </span>
+<span class=c1>#&gt; 6     2 -0.366    0.75</span>
+</code></pre></div><p>In the past, one of the challenges of writing this sort of function was naming the columns. For example, when you call <code>quibble(y)</code> it&rsquo;d be nice if you could get columns <code>y</code> and <code>y_q</code>, rather than <code>x</code> and <code>x_q</code>. Now, thanks to the recent combination of
+<a href=https://www.tidyverse.org/blog/2020/02/glue-strings-and-tidy-eval/ target=_blank rel=noopener>glue and tidy evaluation</a>, that&rsquo;s easy to implement:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>quibble2</span> <span class=o>&lt;-</span> <span class=nf>function</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>q</span> <span class=o>=</span> <span class=nf>c</span><span class=p>(</span><span class=m>0.25</span><span class=p>,</span> <span class=m>0.5</span><span class=p>,</span> <span class=m>0.75</span><span class=p>))</span> <span class=p>{</span>
+  <span class=nf>tibble</span><span class=p>(</span><span class=s>&#34;{{ x }}&#34;</span> <span class=o>:=</span> <span class=nf>quantile</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>q</span><span class=p>),</span> <span class=s>&#34;{{ x }}_q&#34;</span> <span class=o>:=</span> <span class=n>q</span><span class=p>)</span>
+<span class=p>}</span>
+
+<span class=n>df</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>grp</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>summarise</span><span class=p>(</span><span class=nf>quibble2</span><span class=p>(</span><span class=n>y</span><span class=p>,</span> <span class=nf>c</span><span class=p>(</span><span class=m>0.25</span><span class=p>,</span> <span class=m>0.5</span><span class=p>,</span> <span class=m>0.75</span><span class=p>)))</span>
+<span class=c1>#&gt; `summarise()` regrouping output by &#39;grp&#39; (override with `.groups` argument)</span>
+<span class=c1>#&gt; # A tibble: 6 x 3</span>
+<span class=c1>#&gt; # Groups:   grp [2]</span>
+<span class=c1>#&gt;     grp       y   y_q</span>
+<span class=c1>#&gt;   &lt;int&gt;   &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     1 -0.304   0.25</span>
+<span class=c1>#&gt; 2     1  0.762   0.5 </span>
+<span class=c1>#&gt; 3     1  0.879   0.75</span>
+<span class=c1>#&gt; 4     2 -0.457   0.25</span>
+<span class=c1>#&gt; 5     2 -0.261   0.5 </span>
+<span class=c1>#&gt; 6     2 -0.0263  0.75</span>
+</code></pre></div><p>One note of caution: naming the output columns in a function like this is a surprisingly complex task, we&rsquo;re not yet sure what the best approach is. Expect to hear more about this as we continue to think about and experiment with it.</p><h2 id=data-frame-columns>Data-frame columns
+<a href=#data-frame-columns><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>We&rsquo;ve been careful not to name the result of <code>quibble()</code> in the code above. That&rsquo;s because when we leave the name off, the data frame result is automatically <strong>unpacked</strong> so each column returned by <code>quibble()</code> becomes a column in the result. What happens if we name the output?</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>out</span> <span class=o>&lt;-</span> <span class=n>df</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>grp</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>summarise</span><span class=p>(</span><span class=n>y</span> <span class=o>=</span> <span class=nf>quibble2</span><span class=p>(</span><span class=n>y</span><span class=p>,</span> <span class=nf>c</span><span class=p>(</span><span class=m>0.25</span><span class=p>,</span> <span class=m>0.75</span><span class=p>)))</span>
+<span class=c1>#&gt; `summarise()` regrouping output by &#39;grp&#39; (override with `.groups` argument)</span>
+<span class=n>out</span>
+<span class=c1>#&gt; # A tibble: 4 x 2</span>
+<span class=c1>#&gt; # Groups:   grp [2]</span>
+<span class=c1>#&gt;     grp     y$y  $y_q</span>
+<span class=c1>#&gt;   &lt;int&gt;   &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     1 -0.304   0.25</span>
+<span class=c1>#&gt; 2     1  0.879   0.75</span>
+<span class=c1>#&gt; 3     2 -0.457   0.25</span>
+<span class=c1>#&gt; 4     2 -0.0263  0.75</span>
+</code></pre></div><p>Look carefully at the output - you&rsquo;ll see a <code>$</code> in the column names. This lets you know that something weird is going on and you have what we call a <strong>df-column</strong>; a column of a data frame that is itself a data frame!</p><p>You can see the structure a little better with <code>str()</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>str</span><span class=p>(</span><span class=n>out</span><span class=p>)</span>
+<span class=c1>#&gt; tibble [4 × 2] (S3: grouped_df/tbl_df/tbl/data.frame)</span>
+<span class=c1>#&gt;  $ grp: int [1:4] 1 1 2 2</span>
+<span class=c1>#&gt;  $ y  : tibble [4 × 2] (S3: tbl_df/tbl/data.frame)</span>
+<span class=c1>#&gt;   ..$ y  : Named num [1:4] -0.3037 0.879 -0.457 -0.0263</span>
+<span class=c1>#&gt;   .. ..- attr(*, &#34;names&#34;)= chr [1:4] &#34;25%&#34; &#34;75%&#34; &#34;25%&#34; &#34;75%&#34;</span>
+<span class=c1>#&gt;   ..$ y_q: num [1:4] 0.25 0.75 0.25 0.75</span>
+<span class=c1>#&gt;  - attr(*, &#34;groups&#34;)= tibble [2 × 2] (S3: tbl_df/tbl/data.frame)</span>
+<span class=c1>#&gt;   ..$ grp  : int [1:2] 1 2</span>
+<span class=c1>#&gt;   ..$ .rows: list&lt;int&gt; [1:2] </span>
+<span class=c1>#&gt;   .. ..$ : int [1:2] 1 2</span>
+<span class=c1>#&gt;   .. ..$ : int [1:2] 3 4</span>
+<span class=c1>#&gt;   .. ..@ ptype: int(0) </span>
+<span class=c1>#&gt;   ..- attr(*, &#34;.drop&#34;)= logi TRUE</span>
+</code></pre></div><p>And you can see that <code>y</code> is indeed a data frame by extracting it:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>out</span><span class=o>$</span><span class=n>y</span>
+<span class=c1>#&gt; # A tibble: 4 x 2</span>
+<span class=c1>#&gt;         y   y_q</span>
+<span class=c1>#&gt;     &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1 -0.304   0.25</span>
+<span class=c1>#&gt; 2  0.879   0.75</span>
+<span class=c1>#&gt; 3 -0.457   0.25</span>
+<span class=c1>#&gt; 4 -0.0263  0.75</span>
+</code></pre></div><p>And of course, you can dig still deeper to get the individual values:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>out</span><span class=o>$</span><span class=n>y</span><span class=o>$</span><span class=n>y</span>
+<span class=c1>#&gt;         25%         75%         25%         75% </span>
+<span class=c1>#&gt; -0.30369938  0.87898204 -0.45703741 -0.02630095</span>
+</code></pre></div><p>These df-columns are simultaneously esoteric and commonplace. On the one hand they are an oddity of data frames that has existed for a long time, but has been used in very few places. On the other hand, they are very closely related to merged column headers, which, judging by how often they&rsquo;re found in spreadsheets, are an incredibly popular tool. Our hope is that they are mostly kept under the covers in dplyr 1.0.0, but you can still deliberately choose to access them if you&rsquo;re interested.</p><h2 id=non-summaries>Non-summaries
+<a href=#non-summaries><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>In combination with
+<a href=http://dplyr.tidyverse.org/dev/articles/rowwise.html target=_blank rel=noopener><code>rowwise()</code></a> (more on that in a future blog post), <code>summarise()</code> is now sufficiently powerful to replace many workflows that previously required a <code>map()</code> or <code>apply()</code> function.</p><p>For example, to read all the all the <code>.csv</code> files in the current directory, you could write:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>tibble</span><span class=p>(</span><span class=n>path</span> <span class=o>=</span> <span class=nf>dir</span><span class=p>(</span><span class=n>pattern</span> <span class=o>=</span> <span class=s>&#34;\\.csv$&#34;</span><span class=p>))</span> <span class=o>%&gt;%</span> 
+  <span class=nf>rowwise</span><span class=p>(</span><span class=n>path</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>summarise</span><span class=p>(</span><span class=nf>read_csv</span><span class=p>(</span><span class=n>path</span><span class=p>))</span>
+</code></pre></div><p>I feel deeply ambivalent about this code: it seems rather forced to claim that <code>read.csv()</code> computes a summary of a file path, but it&rsquo;s rather elegant pattern for reading in many files into a tibble.</p><h2 id=previous-approaches>Previous approaches
+<a href=#previous-approaches><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>There were a couple of previous approach to solving the quantile problem illustrated above. One way was to create a list-column and then unnest it:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>grp</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>summarise</span><span class=p>(</span><span class=n>y</span> <span class=o>=</span> <span class=nf>list</span><span class=p>(</span><span class=nf>quibble</span><span class=p>(</span><span class=n>y</span><span class=p>,</span> <span class=nf>c</span><span class=p>(</span><span class=m>0.25</span><span class=p>,</span> <span class=m>0.75</span><span class=p>))))</span> <span class=o>%&gt;%</span> 
+  <span class=n>tidyr</span><span class=o>::</span><span class=nf>unnest</span><span class=p>(</span><span class=n>y</span><span class=p>)</span>
+<span class=c1>#&gt; `summarise()` ungrouping output (override with `.groups` argument)</span>
+<span class=c1>#&gt; # A tibble: 4 x 3</span>
+<span class=c1>#&gt;     grp       x     q</span>
+<span class=c1>#&gt;   &lt;int&gt;   &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     1 -0.304   0.25</span>
+<span class=c1>#&gt; 2     1  0.879   0.75</span>
+<span class=c1>#&gt; 3     2 -0.457   0.25</span>
+<span class=c1>#&gt; 4     2 -0.0263  0.75</span>
+</code></pre></div><p>Or to use <code>do()</code>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>df</span> <span class=o>%&gt;%</span> 
+  <span class=nf>group_by</span><span class=p>(</span><span class=n>grp</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>do</span><span class=p>(</span><span class=nf>quibble</span><span class=p>(</span><span class=n>.$y</span><span class=p>,</span> <span class=nf>c</span><span class=p>(</span><span class=m>0.25</span><span class=p>,</span> <span class=m>0.75</span><span class=p>)))</span>
+<span class=c1>#&gt; # A tibble: 4 x 3</span>
+<span class=c1>#&gt; # Groups:   grp [2]</span>
+<span class=c1>#&gt;     grp       x     q</span>
+<span class=c1>#&gt;   &lt;int&gt;   &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class=c1>#&gt; 1     1 -0.304   0.25</span>
+<span class=c1>#&gt; 2     1  0.879   0.75</span>
+<span class=c1>#&gt; 3     2 -0.457   0.25</span>
+<span class=c1>#&gt; 4     2 -0.0263  0.75</span>
+</code></pre></div><p>We prefer the new <code>summarise()</code> approach because it&rsquo;s concise, doesn&rsquo;t require learning about list-columns and unnesting, and uses a familiar syntax.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#multiple-rows-and-columns>Multiple rows and columns</a></li><li><a href=#quantiles>Quantiles</a></li><li><a href=#data-frame-columns>Data-frame columns</a></li><li><a href=#non-summaries>Non-summaries</a></li><li><a href=#previous-approaches>Previous approaches</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

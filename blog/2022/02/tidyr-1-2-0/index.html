@@ -1,0 +1,389 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>tidyr 1.2.0</title><meta property="og:title" content="tidyr 1.2.0"><meta property="og:description" content="tidyr 1.2.0 includes a bunch of new features and bug fixes, particularly for pivoting, rectangling, and grid specific tools."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2022/02/tidyr-1-2-0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="tidyr 1.2.0 - Tidyverse"><meta property="description" content="tidyr 1.2.0 includes a bunch of new features and bug fixes, particularly for pivoting, rectangling, and grid specific tools."><meta property="og:description" content="tidyr 1.2.0 includes a bunch of new features and bug fixes, particularly for pivoting, rectangling, and grid specific tools."><meta property="og:image" content="https://www.tidyverse.org/blog/2022/02/tidyr-1-2-0/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2022/02/tidyr-1-2-0/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>tidyr 1.2.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2022/02/tidyr-1-2-0/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/Qv0d5LJCxgo>Brina Blum</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2022/02/01</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/tidyr/>tidyr</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Davis Vaughan</p><div class=article-content><p>We&rsquo;re chuffed to announce the release of
+<a href=https://tidyr.tidyverse.org target=_blank rel=noopener>tidyr</a> 1.2.0. tidyr provides a set of tools for transforming data frames to and from tidy data, where each variable is a column and each observation is a row. Tidy data is a convention for matching the semantics and structure of your data that makes using the rest of the tidyverse (and many other R packages) much easier.</p><p>You can install it from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span><span class=o>(</span><span class=s>"tidyr"</span><span class=o>)</span></code></pre></div><p>This blog post will go over the main new features, which include four new arguments to
+<a href=https://tidyr.tidyverse.org/reference/pivot_wider.html target=_blank rel=noopener><code>pivot_wider()</code></a>, the ability to unnest multiple columns at once in
+<a href=https://tidyr.tidyverse.org/reference/hoist.html target=_blank rel=noopener><code>unnest_wider()</code></a> and
+<a href=https://tidyr.tidyverse.org/reference/hoist.html target=_blank rel=noopener><code>unnest_longer()</code></a>, an enhanced
+<a href=https://tidyr.tidyverse.org/reference/complete.html target=_blank rel=noopener><code>complete()</code></a> function, and some updates to our tools for handling missing values.</p><p>You can see a full list of changes in the
+<a href=https://github.com/tidyverse/tidyr/blob/main/NEWS.md target=_blank rel=noopener>release notes</a>, where you&rsquo;ll also find details on the ~50 bugs that were fixed in this release!</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://tidyr.tidyverse.org>tidyr</a></span><span class=o>)</span>
+<span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://dplyr.tidyverse.org>dplyr</a></span>, warn.conflicts <span class=o>=</span> <span class=kc>FALSE</span><span class=o>)</span></code></pre></div><h2 id=new-author>New author
+<a href=#new-author><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>First off, we are very excited to welcome
+<a href=https://github.com/mgirlich target=_blank rel=noopener>Maximilian Girlich</a> as a new tidyr author in recognition of his significant and sustained contributions. In particular, he played a large part in speeding up a number of core functions, including:
+<a href=https://tidyr.tidyverse.org/reference/chop.html target=_blank rel=noopener><code>unchop()</code></a>,
+<a href=https://tidyr.tidyverse.org/reference/nest.html target=_blank rel=noopener><code>unnest()</code></a>,
+<a href=https://tidyr.tidyverse.org/reference/hoist.html target=_blank rel=noopener><code>unnest_wider()</code></a>, and
+<a href=https://tidyr.tidyverse.org/reference/hoist.html target=_blank rel=noopener><code>unnest_longer()</code></a>. Additionally, he provided proof-of-concept implementations for a few new features, like the <code>unused_fn</code> argument to
+<a href=https://tidyr.tidyverse.org/reference/pivot_wider.html target=_blank rel=noopener><code>pivot_wider()</code></a> discussed below.</p><h2 id=pivoting>Pivoting
+<a href=#pivoting><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><h3 id=value-expansion>Value expansion
+<a href=#value-expansion><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p><a href=https://tidyr.tidyverse.org/reference/pivot_wider.html target=_blank rel=noopener><code>pivot_wider()</code></a> has gained two new arguments related to the <em>expansion</em> of values. These arguments are similar to <code>drop = FALSE</code> from
+<a href=https://tidyr.tidyverse.org/reference/spread.html target=_blank rel=noopener><code>spread()</code></a>, but are a bit more fine grained. As you&rsquo;ll see, these are mostly useful when you have factors in either <code>names_from</code> or <code>id_cols</code> and want to ensure that all of the factor levels are retained.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>weekdays</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"Mon"</span>, <span class=s>"Tue"</span>, <span class=s>"Wed"</span>, <span class=s>"Thu"</span>, <span class=s>"Fri"</span>, <span class=s>"Sat"</span>, <span class=s>"Sun"</span><span class=o>)</span>
+
+<span class=nv>daily</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span>
+  day <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/factor.html>factor</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"Tue"</span>, <span class=s>"Thu"</span>, <span class=s>"Fri"</span>, <span class=s>"Mon"</span><span class=o>)</span>, levels <span class=o>=</span> <span class=nv>weekdays</span><span class=o>)</span>,
+  value <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>2</span>, <span class=m>3</span>, <span class=m>1</span>, <span class=m>5</span><span class=o>)</span>
+<span class=o>)</span>
+
+<span class=nv>daily</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 4 × 2</span></span>
+<span class=c>#&gt;   day   value</span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;fct&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span> Tue       2</span>
+<span class=c>#&gt; <span style=color:#555>2</span> Thu       3</span>
+<span class=c>#&gt; <span style=color:#555>3</span> Fri       1</span>
+<span class=c>#&gt; <span style=color:#555>4</span> Mon       5</span></code></pre></div><p>Imagine you&rsquo;d like to pivot the values from <code>day</code> into columns, filling the cells with <code>value</code>. By default,
+<a href=https://tidyr.tidyverse.org/reference/pivot_wider.html target=_blank rel=noopener><code>pivot_wider()</code></a> only generates columns from the data that is actually there, and will retain the ordering that was present in the data.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://tidyr.tidyverse.org/reference/pivot_wider.html>pivot_wider</a></span><span class=o>(</span><span class=nv>daily</span>, names_from <span class=o>=</span> <span class=nv>day</span>, values_from <span class=o>=</span> <span class=nv>value</span><span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 1 × 4</span></span>
+<span class=c>#&gt;     Tue   Thu   Fri   Mon</span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span>     2     3     1     5</span></code></pre></div><p>When you know the full set of possible values and have encoded them as factor levels (as we have done here), you might want to retain those levels in the pivot, even if there isn&rsquo;t any data. Additionally, it would probably be nice if they were sorted to match the levels found in the factor. The new <code>names_expand</code> argument handles both of these.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://tidyr.tidyverse.org/reference/pivot_wider.html>pivot_wider</a></span><span class=o>(</span><span class=nv>daily</span>, names_from <span class=o>=</span> <span class=nv>day</span>, values_from <span class=o>=</span> <span class=nv>value</span>, names_expand <span class=o>=</span> <span class=kc>TRUE</span><span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 1 × 7</span></span>
+<span class=c>#&gt;     Mon   Tue   Wed   Thu   Fri   Sat   Sun</span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span>     5     2    <span style=color:#b00>NA</span>     3     1    <span style=color:#b00>NA</span>    <span style=color:#b00>NA</span></span></code></pre></div><p>A related problem can occur when there are implicit missing factor levels in the <code>id_cols</code>. When this happens, there are missing rows (rather than columns) that you&rsquo;d like to explicitly represent. To demonstrate, we&rsquo;ll modify <code>daily</code> with a <code>type</code> column, and pivot on that instead, keeping <code>day</code> as an identifier column.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>daily</span> <span class=o>&lt;-</span> <span class=nv>daily</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span>
+  <span class=nf><a href=https://dplyr.tidyverse.org/reference/mutate.html>mutate</a></span><span class=o>(</span>type <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"A"</span>, <span class=s>"B"</span>, <span class=s>"B"</span>, <span class=s>"A"</span><span class=o>)</span><span class=o>)</span>
+
+<span class=nv>daily</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 4 × 3</span></span>
+<span class=c>#&gt;   day   value type </span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;fct&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span> Tue       2 A    </span>
+<span class=c>#&gt; <span style=color:#555>2</span> Thu       3 B    </span>
+<span class=c>#&gt; <span style=color:#555>3</span> Fri       1 B    </span>
+<span class=c>#&gt; <span style=color:#555>4</span> Mon       5 A</span></code></pre></div><p>In the pivot below, we are missing some rows corresponding to the missing factor levels of <code>day</code>. Again, by default
+<a href=https://tidyr.tidyverse.org/reference/pivot_wider.html target=_blank rel=noopener><code>pivot_wider()</code></a> will only use data that already exists in the <code>id_cols</code>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://tidyr.tidyverse.org/reference/pivot_wider.html>pivot_wider</a></span><span class=o>(</span>
+  <span class=nv>daily</span>, 
+  names_from <span class=o>=</span> <span class=nv>type</span>, 
+  values_from <span class=o>=</span> <span class=nv>value</span>
+<span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 4 × 3</span></span>
+<span class=c>#&gt;   day       A     B</span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;fct&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span> Tue       2    <span style=color:#b00>NA</span></span>
+<span class=c>#&gt; <span style=color:#555>2</span> Thu      <span style=color:#b00>NA</span>     3</span>
+<span class=c>#&gt; <span style=color:#555>3</span> Fri      <span style=color:#b00>NA</span>     1</span>
+<span class=c>#&gt; <span style=color:#555>4</span> Mon       5    <span style=color:#b00>NA</span></span></code></pre></div><p>To explicitly expand (and sort) these missing rows, we can use <code>id_expand</code>, which works much the same way as <code>names_expand</code>. We will also go ahead and fill the unrepresented values with zeros.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://tidyr.tidyverse.org/reference/pivot_wider.html>pivot_wider</a></span><span class=o>(</span>
+  <span class=nv>daily</span>, 
+  id_expand <span class=o>=</span> <span class=kc>TRUE</span>,
+  names_from <span class=o>=</span> <span class=nv>type</span>, 
+  values_from <span class=o>=</span> <span class=nv>value</span>,
+  values_fill <span class=o>=</span> <span class=m>0</span>
+<span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 7 × 3</span></span>
+<span class=c>#&gt;   day       A     B</span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;fct&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span> Mon       5     0</span>
+<span class=c>#&gt; <span style=color:#555>2</span> Tue       2     0</span>
+<span class=c>#&gt; <span style=color:#555>3</span> Wed       0     0</span>
+<span class=c>#&gt; <span style=color:#555>4</span> Thu       0     3</span>
+<span class=c>#&gt; <span style=color:#555>5</span> Fri       0     1</span>
+<span class=c>#&gt; <span style=color:#555>6</span> Sat       0     0</span>
+<span class=c>#&gt; <span style=color:#555>7</span> Sun       0     0</span></code></pre></div><h3 id=varying-names>Varying names
+<a href=#varying-names><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>When you specify multiple <code>values_from</code> columns, the resulting column names that get generated from the combination of <code>names_from</code> values and <code>values_from</code> names default to varying the <code>names_from</code> values <em>fastest</em>. This means that all of the columns related to the first <code>values_from</code> column will be at the front, followed by the columns related to the second <code>values_from</code> column, and so on. For example, if we wanted to flatten <code>daily</code> all the way out to a single row by specifying <code>values_from = c(value, type)</code>, then we would end up with all the columns related to <code>value</code> followed by those related to <code>type</code>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://tidyr.tidyverse.org/reference/pivot_wider.html>pivot_wider</a></span><span class=o>(</span>
+  <span class=nv>daily</span>,
+  names_from <span class=o>=</span> <span class=nv>day</span>,
+  values_from <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=nv>value</span>, <span class=nv>type</span><span class=o>)</span>,
+  names_expand <span class=o>=</span> <span class=kc>TRUE</span>
+<span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 1 × 14</span></span>
+<span class=c>#&gt;   value_Mon value_Tue value_Wed value_Thu value_Fri value_Sat value_Sun type_Mon</span>
+<span class=c>#&gt;       <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>     <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>     <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>     <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>     <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>     <span style=color:#555;font-style:italic>&lt;dbl&gt;</span>     <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span>   </span>
+<span class=c>#&gt; <span style=color:#555>1</span>         5         2        <span style=color:#b00>NA</span>         3         1        <span style=color:#b00>NA</span>        <span style=color:#b00>NA</span> A       </span>
+<span class=c>#&gt; <span style=color:#555># … with 6 more variables: type_Tue &lt;chr&gt;, type_Wed &lt;chr&gt;, type_Thu &lt;chr&gt;,</span></span>
+<span class=c>#&gt; <span style=color:#555>#   type_Fri &lt;chr&gt;, type_Sat &lt;chr&gt;, type_Sun &lt;chr&gt;</span></span></code></pre></div><p>Depending on your data, you might instead want to group all of the columns related to a particular <code>names_from</code> value together. In this example, that would mean grouping all of the columns related to Monday together, followed by Tuesday, Wednesday, etc. You can accomplish this with the new <code>names_vary</code> argument, which allows you to vary the <code>names_from</code> values <em>slowest</em>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://tidyr.tidyverse.org/reference/pivot_wider.html>pivot_wider</a></span><span class=o>(</span>
+  <span class=nv>daily</span>,
+  names_from <span class=o>=</span> <span class=nv>day</span>,
+  values_from <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=nv>value</span>, <span class=nv>type</span><span class=o>)</span>,
+  names_expand <span class=o>=</span> <span class=kc>TRUE</span>,
+  names_vary <span class=o>=</span> <span class=s>"slowest"</span>
+<span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 1 × 14</span></span>
+<span class=c>#&gt;   value_Mon type_Mon value_Tue type_Tue value_Wed type_Wed value_Thu type_Thu</span>
+<span class=c>#&gt;       <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span>        <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span>        <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span>        <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span>   </span>
+<span class=c>#&gt; <span style=color:#555>1</span>         5 A                2 A               <span style=color:#b00>NA</span> <span style=color:#b00>NA</span>               3 B       </span>
+<span class=c>#&gt; <span style=color:#555># … with 6 more variables: value_Fri &lt;dbl&gt;, type_Fri &lt;chr&gt;, value_Sat &lt;dbl&gt;,</span></span>
+<span class=c>#&gt; <span style=color:#555>#   type_Sat &lt;chr&gt;, value_Sun &lt;dbl&gt;, type_Sun &lt;chr&gt;</span></span></code></pre></div><h3 id=unused-columns>Unused columns
+<a href=#unused-columns><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>Occasionally you&rsquo;ll find yourself in a situation where you have columns in your data that are unrelated to the pivoting process itself, but you&rsquo;d still like to retain some information about them. Consider this data set that records values returned by various systems across multiple counties.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>readouts</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span>
+  county <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"Wake"</span>, <span class=s>"Wake"</span>, <span class=s>"Wake"</span>, <span class=s>"Guilford"</span>, <span class=s>"Guilford"</span><span class=o>)</span>,
+  date <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/as.Date.html>as.Date</a></span><span class=o>(</span><span class=s>"2020-01-01"</span><span class=o>)</span> <span class=o>+</span> <span class=m>0</span><span class=o>:</span><span class=m>2</span>, <span class=nf><a href=https://rdrr.io/r/base/as.Date.html>as.Date</a></span><span class=o>(</span><span class=s>"2020-01-03"</span><span class=o>)</span> <span class=o>+</span> <span class=m>0</span><span class=o>:</span><span class=m>1</span><span class=o>)</span>,
+  system <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"A"</span>, <span class=s>"B"</span>, <span class=s>"C"</span>, <span class=s>"A"</span>, <span class=s>"C"</span><span class=o>)</span>,
+  value <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>3.2</span>, <span class=m>4</span>, <span class=m>5.5</span>, <span class=m>2</span>, <span class=m>1.2</span><span class=o>)</span>
+<span class=o>)</span>
+
+<span class=nv>readouts</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 5 × 4</span></span>
+<span class=c>#&gt;   county   date       system value</span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;chr&gt;</span>    <span style=color:#555;font-style:italic>&lt;date&gt;</span>     <span style=color:#555;font-style:italic>&lt;chr&gt;</span>  <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span> Wake     2020-01-01 A        3.2</span>
+<span class=c>#&gt; <span style=color:#555>2</span> Wake     2020-01-02 B        4  </span>
+<span class=c>#&gt; <span style=color:#555>3</span> Wake     2020-01-03 C        5.5</span>
+<span class=c>#&gt; <span style=color:#555>4</span> Guilford 2020-01-03 A        2  </span>
+<span class=c>#&gt; <span style=color:#555>5</span> Guilford 2020-01-04 C        1.2</span></code></pre></div><p>You might want to pivot this into a view containing one row per <code>county</code>, with the <code>system</code> types across the columns. You might do something like:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://tidyr.tidyverse.org/reference/pivot_wider.html>pivot_wider</a></span><span class=o>(</span>
+  <span class=nv>readouts</span>,
+  id_cols <span class=o>=</span> <span class=nv>county</span>,
+  names_from <span class=o>=</span> <span class=nv>system</span>,
+  values_from <span class=o>=</span> <span class=nv>value</span>
+<span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 2 × 4</span></span>
+<span class=c>#&gt;   county       A     B     C</span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;chr&gt;</span>    <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span> Wake       3.2     4   5.5</span>
+<span class=c>#&gt; <span style=color:#555>2</span> Guilford   2      <span style=color:#b00>NA</span>   1.2</span></code></pre></div><p>This worked, but in the process we&rsquo;ve lost all of the information from the <code>date</code> column about when the values were recorded. To fix this, we can use the new <code>unused_fn</code> argument to retain a summary of the unused <code>date</code> column. In our case, we&rsquo;ll retain the most recent date a value was recorded across all systems.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://tidyr.tidyverse.org/reference/pivot_wider.html>pivot_wider</a></span><span class=o>(</span>
+  <span class=nv>readouts</span>,
+  id_cols <span class=o>=</span> <span class=nv>county</span>,
+  names_from <span class=o>=</span> <span class=nv>system</span>,
+  values_from <span class=o>=</span> <span class=nv>value</span>,
+  unused_fn <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>date <span class=o>=</span> <span class=nv>max</span><span class=o>)</span>
+<span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 2 × 5</span></span>
+<span class=c>#&gt;   county       A     B     C date      </span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;chr&gt;</span>    <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;date&gt;</span>    </span>
+<span class=c>#&gt; <span style=color:#555>1</span> Wake       3.2     4   5.5 2020-01-03</span>
+<span class=c>#&gt; <span style=color:#555>2</span> Guilford   2      <span style=color:#b00>NA</span>   1.2 2020-01-04</span></code></pre></div><p>If you want to retain the unused columns but delay the summarization entirely, you can use
+<a href=https://rdrr.io/r/base/list.html target=_blank rel=noopener><code>list()</code></a> to wrap up the value into a list column.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://tidyr.tidyverse.org/reference/pivot_wider.html>pivot_wider</a></span><span class=o>(</span>
+  <span class=nv>readouts</span>,
+  id_cols <span class=o>=</span> <span class=nv>county</span>,
+  names_from <span class=o>=</span> <span class=nv>system</span>,
+  values_from <span class=o>=</span> <span class=nv>value</span>,
+  unused_fn <span class=o>=</span> <span class=nv>list</span>
+<span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 2 × 5</span></span>
+<span class=c>#&gt;   county       A     B     C date      </span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;chr&gt;</span>    <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;list&gt;</span>    </span>
+<span class=c>#&gt; <span style=color:#555>1</span> Wake       3.2     4   5.5 <span style=color:#555>&lt;date [3]&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>2</span> Guilford   2      <span style=color:#b00>NA</span>   1.2 <span style=color:#555>&lt;date [2]&gt;</span></span></code></pre></div><p>Note that for <code>unused_fn</code> to work, you must supply <code>id_cols</code> explicitly, as otherwise all of the remaining columns are assumed to be <code>id_cols</code>.</p><h3 id=more-informative-errors>More informative errors
+<a href=#more-informative-errors><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>We&rsquo;ve improved on a number of the error messages throughout tidyr, but the error you get from
+<a href=https://tidyr.tidyverse.org/reference/pivot_wider.html target=_blank rel=noopener><code>pivot_wider()</code></a> when you encounter values that aren&rsquo;t uniquely identified is now especially nice. Let&rsquo;s &ldquo;accidentally&rdquo; add a duplicate row to <code>readouts</code>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>readouts2</span> <span class=o>&lt;-</span> <span class=nv>readouts</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span>
+  <span class=nf><a href=https://dplyr.tidyverse.org/reference/slice.html>slice</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/seq.html>seq_len</a></span><span class=o>(</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/context.html>n</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span>, <span class=nf><a href=https://dplyr.tidyverse.org/reference/context.html>n</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span> 
+
+<span class=nv>readouts2</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 6 × 4</span></span>
+<span class=c>#&gt;   county   date       system value</span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;chr&gt;</span>    <span style=color:#555;font-style:italic>&lt;date&gt;</span>     <span style=color:#555;font-style:italic>&lt;chr&gt;</span>  <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span> Wake     2020-01-01 A        3.2</span>
+<span class=c>#&gt; <span style=color:#555>2</span> Wake     2020-01-02 B        4  </span>
+<span class=c>#&gt; <span style=color:#555>3</span> Wake     2020-01-03 C        5.5</span>
+<span class=c>#&gt; <span style=color:#555>4</span> Guilford 2020-01-03 A        2  </span>
+<span class=c>#&gt; <span style=color:#555>5</span> Guilford 2020-01-04 C        1.2</span>
+<span class=c>#&gt; <span style=color:#555>6</span> Guilford 2020-01-04 C        1.2</span></code></pre></div><p>Pivoting on <code>system</code> warns us that the values from <code>value</code> are not uniquely identified.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://tidyr.tidyverse.org/reference/pivot_wider.html>pivot_wider</a></span><span class=o>(</span>
+  <span class=nv>readouts2</span>,
+  id_cols <span class=o>=</span> <span class=nv>county</span>,
+  names_from <span class=o>=</span> <span class=nv>system</span>,
+  values_from <span class=o>=</span> <span class=nv>value</span>
+<span class=o>)</span>
+<span class=c>#&gt; Warning: Values from `value` are not uniquely identified; output will contain list-cols.</span>
+<span class=c>#&gt; * Use `values_fn = list` to suppress this warning.</span>
+<span class=c>#&gt; * Use `values_fn = &#123;summary_fun&#125;` to summarise duplicates.</span>
+<span class=c>#&gt; * Use the following dplyr code to identify duplicates.</span>
+<span class=c>#&gt;   &#123;data&#125; %&gt;%</span>
+<span class=c>#&gt;     dplyr::group_by(county, system) %&gt;%</span>
+<span class=c>#&gt;     dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%</span>
+<span class=c>#&gt;     dplyr::filter(n &gt; 1L)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 2 × 4</span></span>
+<span class=c>#&gt;   county   A         B         C        </span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;chr&gt;</span>    <span style=color:#555;font-style:italic>&lt;list&gt;</span>    <span style=color:#555;font-style:italic>&lt;list&gt;</span>    <span style=color:#555;font-style:italic>&lt;list&gt;</span>   </span>
+<span class=c>#&gt; <span style=color:#555>1</span> Wake     <span style=color:#555>&lt;dbl [1]&gt;</span> <span style=color:#555>&lt;dbl [1]&gt;</span> <span style=color:#555>&lt;dbl [1]&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>2</span> Guilford <span style=color:#555>&lt;dbl [1]&gt;</span> <span style=color:#555>&lt;NULL&gt;</span>    <span style=color:#555>&lt;dbl [2]&gt;</span></span></code></pre></div><p>This provides us with a number of options, but the last one is particularly useful if we weren&rsquo;t expecting duplicates. This prints out a block of dplyr code that you can use to quickly identify duplication issues. Replacing <code>{data}</code> with <code>readouts2</code>, we get:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>readouts2</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span>
+  <span class=nf>dplyr</span><span class=nf>::</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/group_by.html>group_by</a></span><span class=o>(</span><span class=nv>county</span>, <span class=nv>system</span><span class=o>)</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span>
+  <span class=nf>dplyr</span><span class=nf>::</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/summarise.html>summarise</a></span><span class=o>(</span>n <span class=o>=</span> <span class=nf>dplyr</span><span class=nf>::</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/context.html>n</a></span><span class=o>(</span><span class=o>)</span>, .groups <span class=o>=</span> <span class=s>"drop"</span><span class=o>)</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span>
+  <span class=nf>dplyr</span><span class=nf>::</span><span class=nf><a href=https://dplyr.tidyverse.org/reference/filter.html>filter</a></span><span class=o>(</span><span class=nv>n</span> <span class=o>&gt;</span> <span class=m>1L</span><span class=o>)</span> 
+<span class=c>#&gt; <span style=color:#555># A tibble: 1 × 3</span></span>
+<span class=c>#&gt;   county   system     n</span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;chr&gt;</span>    <span style=color:#555;font-style:italic>&lt;chr&gt;</span>  <span style=color:#555;font-style:italic>&lt;int&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span> Guilford C          2</span></code></pre></div><h2 id=unnesting>(Un)nesting
+<a href=#unnesting><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><a href=https://tidyr.tidyverse.org/reference/hoist.html target=_blank rel=noopener><code>unnest_longer()</code></a> and
+<a href=https://tidyr.tidyverse.org/reference/hoist.html target=_blank rel=noopener><code>unnest_wider()</code></a> have both gained the ability to unnest multiple columns at once. This is particularly useful with
+<a href=https://tidyr.tidyverse.org/reference/hoist.html target=_blank rel=noopener><code>unnest_longer()</code></a>, where sequential unnesting would instead result in a Cartesian product, which isn&rsquo;t typically desired.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>df</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span>x <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>1</span><span class=o>:</span><span class=m>2</span><span class=o>)</span>, y <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>1</span><span class=o>:</span><span class=m>2</span><span class=o>)</span><span class=o>)</span>
+<span class=nv>df</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 2 × 2</span></span>
+<span class=c>#&gt;   x         y        </span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;list&gt;</span>    <span style=color:#555;font-style:italic>&lt;list&gt;</span>   </span>
+<span class=c>#&gt; <span style=color:#555>1</span> <span style=color:#555>&lt;dbl [1]&gt;</span> <span style=color:#555>&lt;dbl [1]&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>2</span> <span style=color:#555>&lt;int [2]&gt;</span> <span style=color:#555>&lt;int [2]&gt;</span></span></code></pre></div><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c># Sequential unnesting</span>
+<span class=nv>df</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span>
+  <span class=nf><a href=https://tidyr.tidyverse.org/reference/hoist.html>unnest_longer</a></span><span class=o>(</span><span class=nv>x</span><span class=o>)</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span>
+  <span class=nf><a href=https://tidyr.tidyverse.org/reference/hoist.html>unnest_longer</a></span><span class=o>(</span><span class=nv>y</span><span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 5 × 2</span></span>
+<span class=c>#&gt;       x     y</span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span>     1     1</span>
+<span class=c>#&gt; <span style=color:#555>2</span>     1     1</span>
+<span class=c>#&gt; <span style=color:#555>3</span>     1     2</span>
+<span class=c>#&gt; <span style=color:#555>4</span>     2     1</span>
+<span class=c>#&gt; <span style=color:#555>5</span>     2     2</span>
+
+<span class=c># Joint unnesting</span>
+<span class=nv>df</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span> 
+  <span class=nf><a href=https://tidyr.tidyverse.org/reference/hoist.html>unnest_longer</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=nv>x</span>, <span class=nv>y</span><span class=o>)</span><span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 3 × 2</span></span>
+<span class=c>#&gt;       x     y</span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span>     1     1</span>
+<span class=c>#&gt; <span style=color:#555>2</span>     1     1</span>
+<span class=c>#&gt; <span style=color:#555>3</span>     2     2</span></code></pre></div><h2 id=grids>Grids
+<a href=#grids><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>When
+<a href=https://tidyr.tidyverse.org/reference/complete.html target=_blank rel=noopener><code>complete()</code></a>-ing a data frame, it&rsquo;s often useful to immediately fill the newly generated missing values with a value that better represents their intention. For example, with the <code>daily</code> data we could complete on the <code>day</code> factor column and insert zeros for <code>value</code> in any row that wasn&rsquo;t previously represented.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>daily</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 4 × 3</span></span>
+<span class=c>#&gt;   day   value type </span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;fct&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span> Tue       2 A    </span>
+<span class=c>#&gt; <span style=color:#555>2</span> Thu       3 B    </span>
+<span class=c>#&gt; <span style=color:#555>3</span> Fri       1 B    </span>
+<span class=c>#&gt; <span style=color:#555>4</span> Mon       5 A</span>
+
+<span class=nv>daily</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span>
+  <span class=nf><a href=https://tidyr.tidyverse.org/reference/complete.html>complete</a></span><span class=o>(</span><span class=nv>day</span>, fill <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>value <span class=o>=</span> <span class=m>0</span><span class=o>)</span><span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 7 × 3</span></span>
+<span class=c>#&gt;   day   value type </span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;fct&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span> Mon       5 A    </span>
+<span class=c>#&gt; <span style=color:#555>2</span> Tue       2 A    </span>
+<span class=c>#&gt; <span style=color:#555>3</span> Wed       0 <span style=color:#b00>NA</span>   </span>
+<span class=c>#&gt; <span style=color:#555>4</span> Thu       3 B    </span>
+<span class=c>#&gt; <span style=color:#555>5</span> Fri       1 B    </span>
+<span class=c>#&gt; <span style=color:#555>6</span> Sat       0 <span style=color:#b00>NA</span>   </span>
+<span class=c>#&gt; <span style=color:#555>7</span> Sun       0 <span style=color:#b00>NA</span></span></code></pre></div><p>But what if there were already missing values before completing? By default,
+<a href=https://tidyr.tidyverse.org/reference/complete.html target=_blank rel=noopener><code>complete()</code></a> will still fill those <em>explicit</em> missing values too.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>daily2</span> <span class=o>&lt;-</span> <span class=nv>daily</span>
+<span class=nv>daily2</span><span class=o>$</span><span class=nv>value</span><span class=o>[</span><span class=nf><a href=https://rdrr.io/r/base/nrow.html>nrow</a></span><span class=o>(</span><span class=nv>daily2</span><span class=o>)</span><span class=o>]</span> <span class=o>&lt;-</span> <span class=kc>NA</span>
+<span class=nv>daily2</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 4 × 3</span></span>
+<span class=c>#&gt;   day   value type </span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;fct&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span> Tue       2 A    </span>
+<span class=c>#&gt; <span style=color:#555>2</span> Thu       3 B    </span>
+<span class=c>#&gt; <span style=color:#555>3</span> Fri       1 B    </span>
+<span class=c>#&gt; <span style=color:#555>4</span> Mon      <span style=color:#b00>NA</span> A</span>
+
+<span class=nv>daily2</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span>
+  <span class=nf><a href=https://tidyr.tidyverse.org/reference/complete.html>complete</a></span><span class=o>(</span><span class=nv>day</span>, fill <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>value <span class=o>=</span> <span class=m>0</span><span class=o>)</span><span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 7 × 3</span></span>
+<span class=c>#&gt;   day   value type </span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;fct&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span> Mon       0 A    </span>
+<span class=c>#&gt; <span style=color:#555>2</span> Tue       2 A    </span>
+<span class=c>#&gt; <span style=color:#555>3</span> Wed       0 <span style=color:#b00>NA</span>   </span>
+<span class=c>#&gt; <span style=color:#555>4</span> Thu       3 B    </span>
+<span class=c>#&gt; <span style=color:#555>5</span> Fri       1 B    </span>
+<span class=c>#&gt; <span style=color:#555>6</span> Sat       0 <span style=color:#b00>NA</span>   </span>
+<span class=c>#&gt; <span style=color:#555>7</span> Sun       0 <span style=color:#b00>NA</span></span></code></pre></div><p>To avoid this, you can now retain pre-existing explicit missing values with the new <code>explicit</code> argument:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>daily2</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span>
+  <span class=nf><a href=https://tidyr.tidyverse.org/reference/complete.html>complete</a></span><span class=o>(</span><span class=nv>day</span>, fill <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>value <span class=o>=</span> <span class=m>0</span><span class=o>)</span>, explicit <span class=o>=</span> <span class=kc>FALSE</span><span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 7 × 3</span></span>
+<span class=c>#&gt;   day   value type </span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;fct&gt;</span> <span style=color:#555;font-style:italic>&lt;dbl&gt;</span> <span style=color:#555;font-style:italic>&lt;chr&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span> Mon      <span style=color:#b00>NA</span> A    </span>
+<span class=c>#&gt; <span style=color:#555>2</span> Tue       2 A    </span>
+<span class=c>#&gt; <span style=color:#555>3</span> Wed       0 <span style=color:#b00>NA</span>   </span>
+<span class=c>#&gt; <span style=color:#555>4</span> Thu       3 B    </span>
+<span class=c>#&gt; <span style=color:#555>5</span> Fri       1 B    </span>
+<span class=c>#&gt; <span style=color:#555>6</span> Sat       0 <span style=color:#b00>NA</span>   </span>
+<span class=c>#&gt; <span style=color:#555>7</span> Sun       0 <span style=color:#b00>NA</span></span></code></pre></div><h2 id=missing-values>Missing values
+<a href=#missing-values><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The three core missing values functions,
+<a href=https://tidyr.tidyverse.org/reference/drop_na.html target=_blank rel=noopener><code>drop_na()</code></a>,
+<a href=https://tidyr.tidyverse.org/reference/replace_na.html target=_blank rel=noopener><code>replace_na()</code></a>, and
+<a href=https://tidyr.tidyverse.org/reference/fill.html target=_blank rel=noopener><code>fill()</code></a>, have all been updated to utilize
+<a href=https://vctrs.r-lib.org target=_blank rel=noopener>vctrs</a>. This allows them to work properly with a wider variety of types, and makes them safer to use with some of the existing types that they already supported.</p><p>As an example,
+<a href=https://tidyr.tidyverse.org/reference/fill.html target=_blank rel=noopener><code>fill()</code></a> now works properly with the Period types from
+<a href=https://lubridate.tidyverse.org target=_blank rel=noopener>lubridate</a>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://lubridate.tidyverse.org>lubridate</a></span>, warn.conflicts <span class=o>=</span> <span class=kc>FALSE</span><span class=o>)</span>
+
+<span class=nv>df</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span>x <span class=o>=</span> <span class=nf><a href=https://lubridate.tidyverse.org/reference/period.html>seconds</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>1</span>, <span class=m>2</span>, <span class=kc>NA</span>, <span class=m>4</span>, <span class=kc>NA</span><span class=o>)</span><span class=o>)</span><span class=o>)</span>
+
+<span class=nv>df</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span> 
+  <span class=nf><a href=https://tidyr.tidyverse.org/reference/fill.html>fill</a></span><span class=o>(</span><span class=nv>x</span>, .direction <span class=o>=</span> <span class=s>"down"</span><span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 5 × 1</span></span>
+<span class=c>#&gt;   x       </span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;Period&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span> 1S      </span>
+<span class=c>#&gt; <span style=color:#555>2</span> 2S      </span>
+<span class=c>#&gt; <span style=color:#555>3</span> 2S      </span>
+<span class=c>#&gt; <span style=color:#555>4</span> 4S      </span>
+<span class=c>#&gt; <span style=color:#555>5</span> 4S</span></code></pre></div><p>And it now treats <code>NaN</code> like any other missing value:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>df</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span>x <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=kc>NaN</span>, <span class=m>2</span>, <span class=kc>NA</span>, <span class=m>3</span><span class=o>)</span><span class=o>)</span>
+
+<span class=nv>df</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span> 
+  <span class=nf><a href=https://tidyr.tidyverse.org/reference/fill.html>fill</a></span><span class=o>(</span><span class=nv>x</span>, .direction <span class=o>=</span> <span class=s>"up"</span><span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 4 × 1</span></span>
+<span class=c>#&gt;       x</span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;dbl&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span>     2</span>
+<span class=c>#&gt; <span style=color:#555>2</span>     2</span>
+<span class=c>#&gt; <span style=color:#555>3</span>     3</span>
+<span class=c>#&gt; <span style=color:#555>4</span>     3</span></code></pre></div><p>The most drastic improvement in safety comes to
+<a href=https://tidyr.tidyverse.org/reference/replace_na.html target=_blank rel=noopener><code>replace_na()</code></a>. Previously, this relied on <code>[&lt;-</code> to replace missing values with a replacement value, which is much laxer than vctrs in terms of what the replacement value can be. This resulted in the possibility for your column type to change depending on what your replacement value was.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c># Notice that this is an integer column</span>
+<span class=nv>df</span> <span class=o>&lt;-</span> <span class=nf><a href=https://tibble.tidyverse.org/reference/tibble.html>tibble</a></span><span class=o>(</span>x <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=m>1L</span>, <span class=kc>NA</span>, <span class=m>3L</span><span class=o>)</span><span class=o>)</span>
+<span class=nv>df</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 3 × 1</span></span>
+<span class=c>#&gt;       x</span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;int&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span>     1</span>
+<span class=c>#&gt; <span style=color:#555>2</span>    <span style=color:#b00>NA</span></span>
+<span class=c>#&gt; <span style=color:#555>3</span>     3</span></code></pre></div><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c># Previous behavior without vctrs:</span>
+
+<span class=c># Integer column changed to character column</span>
+<span class=nv>df</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span> <span class=nf><a href=https://tidyr.tidyverse.org/reference/replace_na.html>replace_na</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>x <span class=o>=</span> <span class=s>"missing"</span><span class=o>)</span><span class=o>)</span>
+<span class=c>#&gt; # A tibble: 3 × 1</span>
+<span class=c>#&gt;   x      </span>
+<span class=c>#&gt;   &lt;chr&gt;  </span>
+<span class=c>#&gt; 1 1      </span>
+<span class=c>#&gt; 2 missing</span>
+<span class=c>#&gt; 3 3</span>
+
+<span class=c># Integer column changed to double column</span>
+<span class=nv>df</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span> <span class=nf><a href=https://tidyr.tidyverse.org/reference/replace_na.html>replace_na</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>x <span class=o>=</span> <span class=m>1</span><span class=o>)</span><span class=o>)</span>
+<span class=c>#&gt; # A tibble: 3 × 1</span>
+<span class=c>#&gt;       x</span>
+<span class=c>#&gt;   &lt;dbl&gt;</span>
+<span class=c>#&gt; 1     1</span>
+<span class=c>#&gt; 2     1</span>
+<span class=c>#&gt; 3     3</span></code></pre></div><p>With vctrs, we now ensure that the replacement value is always cast to the type of the column you are replacing in. This ensures that the column types remain the same before and after you replace any missing values.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c># New behavior with vctrs:</span>
+
+<span class=c># Error, because "missing" can't be converted to an integer</span>
+<span class=nv>df</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span> <span class=nf><a href=https://tidyr.tidyverse.org/reference/replace_na.html>replace_na</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>x <span class=o>=</span> <span class=s>"missing"</span><span class=o>)</span><span class=o>)</span>
+<span class=c>#&gt; Error: Can't convert `replace$x` &lt;character&gt; to match type of `data$x` &lt;integer&gt;.</span>
+
+<span class=c># Integer column type is retained, and the double value of `1` is</span>
+<span class=c># converted to an integer replacement value of `1L`</span>
+<span class=nv>df</span> <span class=o><a href=https://tidyr.tidyverse.org/reference/pipe.html>%&gt;%</a></span> <span class=nf><a href=https://tidyr.tidyverse.org/reference/replace_na.html>replace_na</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>x <span class=o>=</span> <span class=m>1</span><span class=o>)</span><span class=o>)</span>
+<span class=c>#&gt; <span style=color:#555># A tibble: 3 × 1</span></span>
+<span class=c>#&gt;       x</span>
+<span class=c>#&gt;   <span style=color:#555;font-style:italic>&lt;int&gt;</span></span>
+<span class=c>#&gt; <span style=color:#555>1</span>     1</span>
+<span class=c>#&gt; <span style=color:#555>2</span>     1</span>
+<span class=c>#&gt; <span style=color:#555>3</span>     3</span></code></pre></div><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Thanks to the 25 people who contributed to this version of tidyr by discussing ideas and suggesting new features!
+<a href=https://github.com/aliaamiri target=_blank rel=noopener>@aliaamiri</a>,
+<a href=https://github.com/allenbaron target=_blank rel=noopener>@allenbaron</a>,
+<a href=https://github.com/bersbersbers target=_blank rel=noopener>@bersbersbers</a>,
+<a href=https://github.com/cjburgess target=_blank rel=noopener>@cjburgess</a>,
+<a href=https://github.com/DanChaltiel target=_blank rel=noopener>@DanChaltiel</a>,
+<a href=https://github.com/edzer target=_blank rel=noopener>@edzer</a>,
+<a href=https://github.com/eshom target=_blank rel=noopener>@eshom</a>,
+<a href=https://github.com/gaborcsardi target=_blank rel=noopener>@gaborcsardi</a>,
+<a href=https://github.com/gergness target=_blank rel=noopener>@gergness</a>,
+<a href=https://github.com/ggrothendieck target=_blank rel=noopener>@ggrothendieck</a>,
+<a href=https://github.com/iago-pssjd target=_blank rel=noopener>@iago-pssjd</a>,
+<a href=https://github.com/issactoast target=_blank rel=noopener>@issactoast</a>,
+<a href=https://github.com/joiharalds target=_blank rel=noopener>@joiharalds</a>,
+<a href=https://github.com/LuiNov target=_blank rel=noopener>@LuiNov</a>,
+<a href=https://github.com/LukasWallrich target=_blank rel=noopener>@LukasWallrich</a>,
+<a href=https://github.com/mgirlich target=_blank rel=noopener>@mgirlich</a>,
+<a href=https://github.com/MichaelChirico target=_blank rel=noopener>@MichaelChirico</a>,
+<a href=https://github.com/NFA target=_blank rel=noopener>@NFA</a>,
+<a href=https://github.com/olehost target=_blank rel=noopener>@olehost</a>,
+<a href=https://github.com/psads-git target=_blank rel=noopener>@psads-git</a>,
+<a href=https://github.com/psychelzh target=_blank rel=noopener>@psychelzh</a>,
+<a href=https://github.com/ramiromagno target=_blank rel=noopener>@ramiromagno</a>,
+<a href=https://github.com/romainfrancois target=_blank rel=noopener>@romainfrancois</a>,
+<a href=https://github.com/TimTaylor target=_blank rel=noopener>@TimTaylor</a>, and
+<a href=https://github.com/xiangpin target=_blank rel=noopener>@xiangpin</a>.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#new-author>New author</a></li><li><a href=#pivoting>Pivoting</a></li><li><a href=#unnesting>(Un)nesting</a></li><li><a href=#grids>Grids</a></li><li><a href=#missing-values>Missing values</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

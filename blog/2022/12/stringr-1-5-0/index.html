@@ -1,0 +1,257 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>stringr 1.5.0</title><meta property="og:title" content="stringr 1.5.0"><meta property="og:description" content="It's been a long three years but a new version of stringr is now on CRAN! This release includes a bunch of small but useful new functions and some increased consistency with the rest of the tidyverse."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2022/12/stringr-1-5-0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="stringr 1.5.0 - Tidyverse"><meta property="description" content="It's been a long three years but a new version of stringr is now on CRAN! This release includes a bunch of small but useful new functions and some increased consistency with the rest of the tidyverse."><meta property="og:description" content="It's been a long three years but a new version of stringr is now on CRAN! This release includes a bunch of small but useful new functions and some increased consistency with the rest of the tidyverse."><meta property="og:image" content="https://www.tidyverse.org/blog/2022/12/stringr-1-5-0/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2022/12/stringr-1-5-0/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>stringr 1.5.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2022/12/stringr-1-5-0/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/XGqS569rdgk>Amie Bell</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2022/12/05</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/tidyverse/>tidyverse</a>,
+<a href=/tags/stringr/>stringr</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Hadley Wickham</p><div class=article-content><p>We&rsquo;re chuffed to announce the release of
+<a href=https://stringr.tidyverse.org target=_blank rel=noopener>stringr</a> 1.5.0. stringr provides a cohesive set of functions designed to make working with strings as easy as possible.</p><p>You can install it from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span><span class=o>(</span><span class=s>"stringr"</span><span class=o>)</span></span></code></pre></div><p>This blog post will give you an overview of the biggest changes (you can get a detailed list of all changes from the
+<a href=https://stringr.tidyverse.org/news/index.html target=_blank rel=noopener>release notes</a>). Firstly, we need to update you on some (small) breaking changes we&rsquo;ve made to make stringr more consistent with the rest of the tidyverse. Then, we&rsquo;ll give a quick overview of improvements to documentation and stringr&rsquo;s new license. Lastly, we&rsquo;ll finish off by diving into a few of the many small, but useful, functions that we&rsquo;ve accumulated in the three and half years since the last release.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://stringr.tidyverse.org>stringr</a></span><span class=o>)</span></span></code></pre></div><h2 id=breaking-changes>Breaking changes
+<a href=#breaking-changes><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Lets start with the important stuff: the breaking changes. We&rsquo;ve tried to keep these small and we don&rsquo;t believe they&rsquo;ll affect much code in the wild (they only affected ~20 of the ~1,600 packages that use stringr). But we&rsquo;re believe they&rsquo;re important to make as a consistent set of rules makes the tidyverse as a whole more predictable and easier to learn.</p><h3 id=recycling-rules>Recycling rules
+<a href=#recycling-rules><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>stringr functions now consistently implement the tidyverse recycling rules<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup>, which are stricter than the previous rules in two ways. Firstly, we no longer recycle shorter vectors that are an integer multiple of longer vectors:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_detect.html>str_detect</a></span><span class=o>(</span><span class=nv>letters</span>, <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"x"</span>, <span class=s>"y"</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `str_detect()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> Can't recycle `string` (size 26) to match `pattern` (size 2).</span></span>
+<span></span></code></pre></div><p>Secondly, a 0-length vector no longer implies a 0-length output. Instead it&rsquo;s recycled using the usual rules:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_detect.html>str_detect</a></span><span class=o>(</span><span class=nv>letters</span>, <span class=nf><a href=https://rdrr.io/r/base/character.html>character</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `str_detect()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> Can't recycle `string` (size 26) to match `pattern` (size 0).</span></span>
+<span></span><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_detect.html>str_detect</a></span><span class=o>(</span><span class=s>"x"</span>, <span class=nf><a href=https://rdrr.io/r/base/character.html>character</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; logical(0)</span></span>
+<span></span></code></pre></div><p>Neither of these situations occurs very commonly in data analysis, so this change primarily brings consistency with the rest of the tidyverse without affecting much existing code.</p><p>Finally, stringr functions are generally a little stricter because we require the inputs to be vectors of some type. Again, this is unlikely to affect your data analysis code and will result in a clearer error if you accidentally pass in something weird:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_detect.html>str_detect</a></span><span class=o>(</span><span class=nv>mean</span>, <span class=s>"x"</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `str_detect()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> `string` must be a vector, not a function.</span></span>
+<span></span></code></pre></div><h3 id=empty-patterns>Empty patterns
+<a href=#empty-patterns><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>In many stringr functions, <code>""</code> will match or split on every character. This is motivated by base R&rsquo;s
+<a href=https://rdrr.io/r/base/strsplit.html target=_blank rel=noopener><code>strsplit()</code></a>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://rdrr.io/r/base/strsplit.html>strsplit</a></span><span class=o>(</span><span class=s>"abc"</span>, <span class=s>""</span><span class=o>)</span><span class=o>[[</span><span class=m>1</span><span class=o>]</span><span class=o>]</span></span>
+<span><span class=c>#&gt; [1] "a" "b" "c"</span></span>
+<span></span><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_split.html>str_split</a></span><span class=o>(</span><span class=s>"abc"</span>, <span class=s>""</span><span class=o>)</span><span class=o>[[</span><span class=m>1</span><span class=o>]</span><span class=o>]</span></span>
+<span><span class=c>#&gt; [1] "a" "b" "c"</span></span>
+<span></span></code></pre></div><p>When creating stringr (over 13 years ago!), I took this idea and ran with it, implementing similar support in every function where it might possibly work. But I missed an important problem with
+<a href=https://stringr.tidyverse.org/reference/str_detect.html target=_blank rel=noopener><code>str_detect()</code></a>.</p><p>What should <code>str_detect(X, "")</code> return? You can argue two ways:</p><ul><li>To be consistent with
+<a href=https://stringr.tidyverse.org/reference/str_split.html target=_blank rel=noopener><code>str_split()</code></a>, it should return <code>TRUE</code> whenever there are characters to match, i.e. <code>x != ""</code>.</li><li>It&rsquo;s common to build up a set of possible matches by doing <code>str_flatten(matches, "|")</code>. What should this match if <code>matches</code> is empty? Ideally it would match nothing implying that <code>str_detect(x, "")</code> should be equivalent to <code>x == ""</code>.</li></ul><p>This inconsistency potentially leads to some subtle bugs, so use of <code>""</code> in
+<a href=https://stringr.tidyverse.org/reference/str_detect.html target=_blank rel=noopener><code>str_detect()</code></a> (and a few other related functions) is now an error:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_detect.html>str_detect</a></span><span class=o>(</span><span class=nv>letters</span>, <span class=s>""</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `str_detect()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> `pattern` can't be the empty string (`""`).</span></span>
+<span></span></code></pre></div><h2 id=documentation-and-licensing>Documentation and licensing
+<a href=#documentation-and-licensing><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Now that we&rsquo;ve got the breaking changes out of the way we can focus on the new stuff 😃. Most importantly, there&rsquo;s a new vignette that provides some advice if you&rsquo;re transition from (or to) base R&rsquo;s string functions:
+<a href=https://stringr.tidyverse.org/articles/from-base.html target=_blank rel=noopener><code>vignette("from-base", package = "stringr")</code></a>. It was written by
+<a href=https://sastoudt.github.io target=_blank rel=noopener>Sara Stoudt</a> during the 2019 Tidyverse developer day, and has finally made it to the released version!</p><p>We&rsquo;ve also spent a bunch of time reviewing the documentation, particularly the topic titles and descriptions. They&rsquo;re now more informative and less duplicative, hopefully make it easier to find the function that you&rsquo;re looking for. See the complete list of functions in the
+<a href=https://stringr.tidyverse.org/reference/index.html target=_blank rel=noopener>reference index</a>.</p><p>Finally, stringr is now officially
+<a href=https://www.tidyverse.org/blog/2021/12/relicensing-packages/ target=_blank rel=noopener>re-licensed as MIT</a>.</p><h2 id=new-features>New features
+<a href=#new-features><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The biggest improvement is to
+<a href=https://stringr.tidyverse.org/reference/str_view.html target=_blank rel=noopener><code>str_view()</code></a> which has gained a bunch of new features, including using the
+<a href=https://cli.r-lib.org/ target=_blank rel=noopener>cli</a> package so it can work in more places. We also have a grab bag of new functions that fill in small functionality gaps.</p><h3 id=str_view><code>str_view()</code>
+<a href=#str_view><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p><a href=https://stringr.tidyverse.org/reference/str_view.html target=_blank rel=noopener><code>str_view()</code></a> uses ANSI colouring rather than an HTML widget. This means it works in more places and requires fewer dependencies.
+<a href=https://stringr.tidyverse.org/reference/str_view.html target=_blank rel=noopener><code>str_view()</code></a> now:</p><ul><li><p>Displays strings with special characters:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>x</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"\\"</span>, <span class=s>"\"\nabcdef\n\""</span><span class=o>)</span></span>
+<span><span class=nv>x</span></span>
+<span><span class=c>#&gt; [1] "\\"             "\"\nabcdef\n\""</span></span>
+<span></span><span></span>
+<span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_view.html>str_view</a></span><span class=o>(</span><span class=nv>x</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[1] │</span> \</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[2] │</span> "</span></span>
+<span><span class=c>#&gt;     <span style=color:#555>│</span> abcdef</span></span>
+<span><span class=c>#&gt;     <span style=color:#555>│</span> "</span></span>
+<span></span></code></pre></div></li><li><p>Highlights unusual whitespace characters:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_view.html>str_view</a></span><span class=o>(</span><span class=s>"\t"</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[1] │</span> <span style=color:#0bb>&#123;\t&#125;</span></span></span>
+<span></span></code></pre></div></li><li><p>By default, only shows matching strings:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_view.html>str_view</a></span><span class=o>(</span><span class=nv>fruit</span>, <span class=s>"(.)\\1"</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#555> [1] │</span> a<span style=color:#0bb>&lt;pp&gt;</span>le</span></span>
+<span><span class=c>#&gt; <span style=color:#555> [5] │</span> be<span style=color:#0bb>&lt;ll&gt;</span> pe<span style=color:#0bb>&lt;pp&gt;</span>er</span></span>
+<span><span class=c>#&gt; <span style=color:#555> [6] │</span> bilbe<span style=color:#0bb>&lt;rr&gt;</span>y</span></span>
+<span><span class=c>#&gt; <span style=color:#555> [7] │</span> blackbe<span style=color:#0bb>&lt;rr&gt;</span>y</span></span>
+<span><span class=c>#&gt; <span style=color:#555> [8] │</span> blackcu<span style=color:#0bb>&lt;rr&gt;</span>ant</span></span>
+<span><span class=c>#&gt; <span style=color:#555> [9] │</span> bl<span style=color:#0bb>&lt;oo&gt;</span>d orange</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[10] │</span> bluebe<span style=color:#0bb>&lt;rr&gt;</span>y</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[11] │</span> boysenbe<span style=color:#0bb>&lt;rr&gt;</span>y</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[16] │</span> che<span style=color:#0bb>&lt;rr&gt;</span>y</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[17] │</span> chili pe<span style=color:#0bb>&lt;pp&gt;</span>er</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[19] │</span> cloudbe<span style=color:#0bb>&lt;rr&gt;</span>y</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[21] │</span> cranbe<span style=color:#0bb>&lt;rr&gt;</span>y</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[23] │</span> cu<span style=color:#0bb>&lt;rr&gt;</span>ant</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[28] │</span> e<span style=color:#0bb>&lt;gg&gt;</span>plant</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[29] │</span> elderbe<span style=color:#0bb>&lt;rr&gt;</span>y</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[32] │</span> goji be<span style=color:#0bb>&lt;rr&gt;</span>y</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[33] │</span> g<span style=color:#0bb>&lt;oo&gt;</span>sebe<span style=color:#0bb>&lt;rr&gt;</span>y</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[38] │</span> hucklebe<span style=color:#0bb>&lt;rr&gt;</span>y</span></span>
+<span><span class=c>#&gt; <span style=color:#555>[47] │</span> lych<span style=color:#0bb>&lt;ee&gt;</span></span></span>
+<span><span class=c>#&gt; <span style=color:#555>[50] │</span> mulbe<span style=color:#0bb>&lt;rr&gt;</span>y</span></span>
+<span><span class=c>#&gt; ... and 9 more</span></span>
+<span></span></code></pre></div><p>(This makes
+<a href=https://stringr.tidyverse.org/reference/str_view.html target=_blank rel=noopener><code>str_view_all()</code></a> redundant and hence deprecated.)</p></li></ul><h3 id=comparing-strings>Comparing strings
+<a href=#comparing-strings><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p>There are three new functions related to comparing strings:</p><ul><li><p><a href=https://stringr.tidyverse.org/reference/str_equal.html target=_blank rel=noopener><code>str_equal()</code></a> compares two character vectors using Unicode rules, optionally ignoring case:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_equal.html>str_equal</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"A"</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] FALSE</span></span>
+<span></span><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_equal.html>str_equal</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"A"</span>, ignore_case <span class=o>=</span> <span class=kc>TRUE</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] TRUE</span></span>
+<span></span></code></pre></div></li><li><p><a href=https://stringr.tidyverse.org/reference/str_order.html target=_blank rel=noopener><code>str_rank()</code></a> completes the set of order/rank/sort functions:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_order.html>str_rank</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"c"</span>, <span class=s>"b"</span>, <span class=s>"b"</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] 1 4 2 2</span></span>
+<span></span><span><span class=c># compare to:</span></span>
+<span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_order.html>str_order</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"c"</span>, <span class=s>"b"</span>, <span class=s>"b"</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] 1 3 4 2</span></span>
+<span></span></code></pre></div></li><li><p><a href=https://stringr.tidyverse.org/reference/str_unique.html target=_blank rel=noopener><code>str_unique()</code></a> returns unique values, optionally ignoring case:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_unique.html>str_unique</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"a"</span>, <span class=s>"A"</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "a" "A"</span></span>
+<span></span><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_unique.html>str_unique</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"a"</span>, <span class=s>"A"</span><span class=o>)</span>, ignore_case <span class=o>=</span> <span class=kc>TRUE</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "a"</span></span>
+<span></span></code></pre></div></li></ul><h3 id=splitting>Splitting
+<a href=#splitting><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><p><a href=https://stringr.tidyverse.org/reference/str_split.html target=_blank rel=noopener><code>str_split()</code></a> gains two useful variants:</p><ul><li><p><a href=https://stringr.tidyverse.org/reference/str_split.html target=_blank rel=noopener><code>str_split_1()</code></a> is tailored for the special case of splitting up a single string. It returns a character vector, not a list, and errors if you try and give it multiple values:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_split.html>str_split_1</a></span><span class=o>(</span><span class=s>"x-y-z"</span>, <span class=s>"-"</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "x" "y" "z"</span></span>
+<span></span><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_split.html>str_split_1</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"x-y"</span>, <span class=s>"a-b-c"</span><span class=o>)</span>, <span class=s>"-"</span><span class=o>)</span></span>
+<span><span class=c>#&gt; <span style=color:#bb0;font-weight:700>Error</span><span style=font-weight:700> in `str_split_1()`:</span></span></span>
+<span><span class=c>#&gt; <span style=color:#bb0>!</span> `string` must be a single string, not a character vector.</span></span>
+<span></span></code></pre></div><p>It&rsquo;s a shortcut for the common pattern of <code>unlist(str_split(x, " "))</code>.</p></li><li><p><a href=https://stringr.tidyverse.org/reference/str_split.html target=_blank rel=noopener><code>str_split_i()</code></a> extracts a single piece from the split string:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>x</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a-b-c"</span>, <span class=s>"d-e"</span>, <span class=s>"f-g-h-i"</span><span class=o>)</span></span>
+<span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_split.html>str_split_i</a></span><span class=o>(</span><span class=nv>x</span>, <span class=s>"-"</span>, <span class=m>2</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "b" "e" "g"</span></span>
+<span></span><span></span>
+<span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_split.html>str_split_i</a></span><span class=o>(</span><span class=nv>x</span>, <span class=s>"-"</span>, <span class=m>4</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] NA  NA  "i"</span></span>
+<span></span><span></span>
+<span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_split.html>str_split_i</a></span><span class=o>(</span><span class=nv>x</span>, <span class=s>"-"</span>, <span class=o>-</span><span class=m>1</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "c" "e" "i"</span></span>
+<span></span></code></pre></div></li></ul><h3 id=miscellaneous>Miscellaneous
+<a href=#miscellaneous><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h3><ul><li><p><a href=https://stringr.tidyverse.org/reference/str_escape.html target=_blank rel=noopener><code>str_escape()</code></a> escapes regular expression metacharacters, providing an alternative to
+<a href=https://stringr.tidyverse.org/reference/modifiers.html target=_blank rel=noopener><code>fixed()</code></a> if you want to compose a pattern from user supplied strings:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_view.html>str_view</a></span><span class=o>(</span><span class=s>"[hello]"</span>, <span class=nf><a href=https://stringr.tidyverse.org/reference/str_escape.html>str_escape</a></span><span class=o>(</span><span class=s>"[]"</span><span class=o>)</span><span class=o>)</span></span></code></pre></div></li><li><p><a href=https://stringr.tidyverse.org/reference/str_extract.html target=_blank rel=noopener><code>str_extract()</code></a> can now extract a capturing group instead of the complete match:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>x</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"Chapter 1"</span>, <span class=s>"Section 2.3"</span>, <span class=s>"Chapter 3"</span>, <span class=s>"Section 4.1.1"</span><span class=o>)</span></span>
+<span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_extract.html>str_extract</a></span><span class=o>(</span><span class=nv>x</span>, <span class=s>"([A-Za-z]+) ([0-9.]+)"</span>, group <span class=o>=</span> <span class=m>1</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "Chapter" "Section" "Chapter" "Section"</span></span>
+<span></span><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_extract.html>str_extract</a></span><span class=o>(</span><span class=nv>x</span>, <span class=s>"([A-Za-z]+) ([0-9.]+)"</span>, group <span class=o>=</span> <span class=m>2</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "1"     "2.3"   "3"     "4.1.1"</span></span>
+<span></span></code></pre></div></li><li><p><a href=https://stringr.tidyverse.org/reference/str_flatten.html target=_blank rel=noopener><code>str_flatten()</code></a> gains a <code>last</code> argument which is used to power the new
+<a href=https://stringr.tidyverse.org/reference/str_flatten.html target=_blank rel=noopener><code>str_flatten_comma()</code></a>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_flatten.html>str_flatten_comma</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"cats"</span>, <span class=s>"dogs"</span>, <span class=s>"mice"</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "cats, dogs, mice"</span></span>
+<span></span><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_flatten.html>str_flatten_comma</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"cats"</span>, <span class=s>"dogs"</span>, <span class=s>"mice"</span><span class=o>)</span>, last <span class=o>=</span> <span class=s>" and "</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "cats, dogs and mice"</span></span>
+<span></span><span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_flatten.html>str_flatten_comma</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"cats"</span>, <span class=s>"dogs"</span>, <span class=s>"mice"</span><span class=o>)</span>, last <span class=o>=</span> <span class=s>", and "</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "cats, dogs, and mice"</span></span>
+<span></span><span></span>
+<span><span class=c># correctly handles the two element case with the Oxford comma</span></span>
+<span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_flatten.html>str_flatten_comma</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"cats"</span>, <span class=s>"dogs"</span><span class=o>)</span>, last <span class=o>=</span> <span class=s>", and "</span><span class=o>)</span></span>
+<span><span class=c>#&gt; [1] "cats and dogs"</span></span>
+<span></span></code></pre></div></li><li><p><a href=https://stringr.tidyverse.org/reference/str_like.html target=_blank rel=noopener><code>str_like()</code></a> works like
+<a href=https://stringr.tidyverse.org/reference/str_detect.html target=_blank rel=noopener><code>str_detect()</code></a> but uses SQL&rsquo;s LIKE syntax:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>fruit</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"apple"</span>, <span class=s>"banana"</span>, <span class=s>"pear"</span>, <span class=s>"pineapple"</span><span class=o>)</span></span>
+<span><span class=nv>fruit</span><span class=o>[</span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_like.html>str_like</a></span><span class=o>(</span><span class=nv>fruit</span>, <span class=s>"%apple"</span><span class=o>)</span><span class=o>]</span></span>
+<span><span class=c>#&gt; [1] "apple"     "pineapple"</span></span>
+<span></span><span><span class=nv>fruit</span><span class=o>[</span><span class=nf><a href=https://stringr.tidyverse.org/reference/str_like.html>str_like</a></span><span class=o>(</span><span class=nv>fruit</span>, <span class=s>"p__r"</span><span class=o>)</span><span class=o>]</span></span>
+<span><span class=c>#&gt; [1] "pear"</span></span>
+<span></span></code></pre></div></li></ul><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>A big thanks to all 114 folks who contributed to this release through pull requests and issues!
+<a href=https://github.com/aaronrudkin target=_blank rel=noopener>@aaronrudkin</a>,
+<a href=https://github.com/adisarid target=_blank rel=noopener>@adisarid</a>,
+<a href=https://github.com/AleSR13 target=_blank rel=noopener>@AleSR13</a>,
+<a href=https://github.com/anfederico target=_blank rel=noopener>@anfederico</a>,
+<a href=https://github.com/AR1337 target=_blank rel=noopener>@AR1337</a>,
+<a href=https://github.com/arisp99 target=_blank rel=noopener>@arisp99</a>,
+<a href=https://github.com/avila target=_blank rel=noopener>@avila</a>,
+<a href=https://github.com/balthasars target=_blank rel=noopener>@balthasars</a>,
+<a href=https://github.com/batpigandme target=_blank rel=noopener>@batpigandme</a>,
+<a href=https://github.com/bbarros50 target=_blank rel=noopener>@bbarros50</a>,
+<a href=https://github.com/bbo2adwuff target=_blank rel=noopener>@bbo2adwuff</a>,
+<a href=https://github.com/bensenmansen target=_blank rel=noopener>@bensenmansen</a>,
+<a href=https://github.com/bfgray3 target=_blank rel=noopener>@bfgray3</a>,
+<a href=https://github.com/Bisaloo target=_blank rel=noopener>@Bisaloo</a>,
+<a href=https://github.com/bonmac target=_blank rel=noopener>@bonmac</a>,
+<a href=https://github.com/botan target=_blank rel=noopener>@botan</a>,
+<a href=https://github.com/bshor target=_blank rel=noopener>@bshor</a>,
+<a href=https://github.com/carlganz target=_blank rel=noopener>@carlganz</a>,
+<a href=https://github.com/chintanp target=_blank rel=noopener>@chintanp</a>,
+<a href=https://github.com/chrimaho target=_blank rel=noopener>@chrimaho</a>,
+<a href=https://github.com/chris2b5 target=_blank rel=noopener>@chris2b5</a>,
+<a href=https://github.com/clemenshug target=_blank rel=noopener>@clemenshug</a>,
+<a href=https://github.com/courtiol target=_blank rel=noopener>@courtiol</a>,
+<a href=https://github.com/dachosen1 target=_blank rel=noopener>@dachosen1</a>,
+<a href=https://github.com/dan-reznik target=_blank rel=noopener>@dan-reznik</a>,
+<a href=https://github.com/datawookie target=_blank rel=noopener>@datawookie</a>,
+<a href=https://github.com/david-romano target=_blank rel=noopener>@david-romano</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/dbarrows target=_blank rel=noopener>@dbarrows</a>,
+<a href=https://github.com/deann88 target=_blank rel=noopener>@deann88</a>,
+<a href=https://github.com/denrou target=_blank rel=noopener>@denrou</a>,
+<a href=https://github.com/deschen1 target=_blank rel=noopener>@deschen1</a>,
+<a href=https://github.com/dsg38 target=_blank rel=noopener>@dsg38</a>,
+<a href=https://github.com/dtburk target=_blank rel=noopener>@dtburk</a>,
+<a href=https://github.com/elbersb target=_blank rel=noopener>@elbersb</a>,
+<a href=https://github.com/geotheory target=_blank rel=noopener>@geotheory</a>,
+<a href=https://github.com/ghost target=_blank rel=noopener>@ghost</a>,
+<a href=https://github.com/GrimTrigger88 target=_blank rel=noopener>@GrimTrigger88</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/iago-pssjd target=_blank rel=noopener>@iago-pssjd</a>,
+<a href=https://github.com/IndigoJay target=_blank rel=noopener>@IndigoJay</a>,
+<a href=https://github.com/jashapiro target=_blank rel=noopener>@jashapiro</a>,
+<a href=https://github.com/JBGruber target=_blank rel=noopener>@JBGruber</a>,
+<a href=https://github.com/jennybc target=_blank rel=noopener>@jennybc</a>,
+<a href=https://github.com/jimhester target=_blank rel=noopener>@jimhester</a>,
+<a href=https://github.com/jjesusfilho target=_blank rel=noopener>@jjesusfilho</a>,
+<a href=https://github.com/jmbarbone target=_blank rel=noopener>@jmbarbone</a>,
+<a href=https://github.com/joethorley target=_blank rel=noopener>@joethorley</a>,
+<a href=https://github.com/jonas-hag target=_blank rel=noopener>@jonas-hag</a>,
+<a href=https://github.com/jonthegeek target=_blank rel=noopener>@jonthegeek</a>,
+<a href=https://github.com/joshyam-k target=_blank rel=noopener>@joshyam-k</a>,
+<a href=https://github.com/jpeacock29 target=_blank rel=noopener>@jpeacock29</a>,
+<a href=https://github.com/jzadra target=_blank rel=noopener>@jzadra</a>,
+<a href=https://github.com/KasperThystrup target=_blank rel=noopener>@KasperThystrup</a>,
+<a href=https://github.com/kendonB target=_blank rel=noopener>@kendonB</a>,
+<a href=https://github.com/kieran-mace target=_blank rel=noopener>@kieran-mace</a>,
+<a href=https://github.com/kiernann target=_blank rel=noopener>@kiernann</a>,
+<a href=https://github.com/Kodiologist target=_blank rel=noopener>@Kodiologist</a>,
+<a href=https://github.com/leej3 target=_blank rel=noopener>@leej3</a>,
+<a href=https://github.com/leowill01 target=_blank rel=noopener>@leowill01</a>,
+<a href=https://github.com/LimaRAF target=_blank rel=noopener>@LimaRAF</a>,
+<a href=https://github.com/lmwang9527 target=_blank rel=noopener>@lmwang9527</a>,
+<a href=https://github.com/Ludsfer target=_blank rel=noopener>@Ludsfer</a>,
+<a href=https://github.com/lz01 target=_blank rel=noopener>@lz01</a>,
+<a href=https://github.com/Marcade80 target=_blank rel=noopener>@Marcade80</a>,
+<a href=https://github.com/Mashin6 target=_blank rel=noopener>@Mashin6</a>,
+<a href=https://github.com/MattCowgill target=_blank rel=noopener>@MattCowgill</a>,
+<a href=https://github.com/maxheld83 target=_blank rel=noopener>@maxheld83</a>,
+<a href=https://github.com/mgirlich target=_blank rel=noopener>@mgirlich</a>,
+<a href=https://github.com/MichaelChirico target=_blank rel=noopener>@MichaelChirico</a>,
+<a href=https://github.com/michaelweylandt target=_blank rel=noopener>@michaelweylandt</a>,
+<a href=https://github.com/mikeaalv target=_blank rel=noopener>@mikeaalv</a>,
+<a href=https://github.com/misea target=_blank rel=noopener>@misea</a>,
+<a href=https://github.com/mitchelloharawild target=_blank rel=noopener>@mitchelloharawild</a>,
+<a href=https://github.com/mkvasnicka target=_blank rel=noopener>@mkvasnicka</a>,
+<a href=https://github.com/mrcaseb target=_blank rel=noopener>@mrcaseb</a>,
+<a href=https://github.com/mtnbikerjoshua target=_blank rel=noopener>@mtnbikerjoshua</a>,
+<a href=https://github.com/mwip target=_blank rel=noopener>@mwip</a>,
+<a href=https://github.com/nachovoss target=_blank rel=noopener>@nachovoss</a>,
+<a href=https://github.com/neonira target=_blank rel=noopener>@neonira</a>,
+<a href=https://github.com/Nischal-Karki-ATW target=_blank rel=noopener>@Nischal-Karki-ATW</a>,
+<a href=https://github.com/oliverbeagley target=_blank rel=noopener>@oliverbeagley</a>,
+<a href=https://github.com/orgadish target=_blank rel=noopener>@orgadish</a>,
+<a href=https://github.com/pachadotdev target=_blank rel=noopener>@pachadotdev</a>,
+<a href=https://github.com/PathosEthosLogos target=_blank rel=noopener>@PathosEthosLogos</a>,
+<a href=https://github.com/pdelboca target=_blank rel=noopener>@pdelboca</a>,
+<a href=https://github.com/petermeissner target=_blank rel=noopener>@petermeissner</a>,
+<a href=https://github.com/phargarten2 target=_blank rel=noopener>@phargarten2</a>,
+<a href=https://github.com/programLyrique target=_blank rel=noopener>@programLyrique</a>,
+<a href=https://github.com/psads-git target=_blank rel=noopener>@psads-git</a>,
+<a href=https://github.com/psychelzh target=_blank rel=noopener>@psychelzh</a>,
+<a href=https://github.com/PursuitOfDataScience target=_blank rel=noopener>@PursuitOfDataScience</a>,
+<a href=https://github.com/richardjtelford target=_blank rel=noopener>@richardjtelford</a>,
+<a href=https://github.com/richelbilderbeek target=_blank rel=noopener>@richelbilderbeek</a>,
+<a href=https://github.com/rjpat target=_blank rel=noopener>@rjpat</a>,
+<a href=https://github.com/romatik target=_blank rel=noopener>@romatik</a>,
+<a href=https://github.com/rressler target=_blank rel=noopener>@rressler</a>,
+<a href=https://github.com/rwbaer target=_blank rel=noopener>@rwbaer</a>,
+<a href=https://github.com/salim-b target=_blank rel=noopener>@salim-b</a>,
+<a href=https://github.com/sammo3182 target=_blank rel=noopener>@sammo3182</a>,
+<a href=https://github.com/sastoudt target=_blank rel=noopener>@sastoudt</a>,
+<a href=https://github.com/SchmidtPaul target=_blank rel=noopener>@SchmidtPaul</a>,
+<a href=https://github.com/seasmith target=_blank rel=noopener>@seasmith</a>,
+<a href=https://github.com/selesnow target=_blank rel=noopener>@selesnow</a>,
+<a href=https://github.com/slee981 target=_blank rel=noopener>@slee981</a>,
+<a href=https://github.com/Tal1987 target=_blank rel=noopener>@Tal1987</a>,
+<a href=https://github.com/tanzatanza target=_blank rel=noopener>@tanzatanza</a>,
+<a href=https://github.com/THChan11 target=_blank rel=noopener>@THChan11</a>,
+<a href=https://github.com/travis-leith target=_blank rel=noopener>@travis-leith</a>,
+<a href=https://github.com/vladtarko target=_blank rel=noopener>@vladtarko</a>,
+<a href=https://github.com/wdenton target=_blank rel=noopener>@wdenton</a>,
+<a href=https://github.com/wurli target=_blank rel=noopener>@wurli</a>,
+<a href=https://github.com/Yingjie4Science target=_blank rel=noopener>@Yingjie4Science</a>, and
+<a href=https://github.com/zeehio target=_blank rel=noopener>@zeehio</a>.</p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>You might wonder why we developed our own set of recycling rules for the tidyverse instead of using the base R rules. That&rsquo;s because, unfortunately, there isn&rsquo;t a consistent set of rules used by base R, but a
+<a href=https://vctrs.r-lib.org/articles/type-size.html#appendix-recycling-in-base-r target=_blank rel=noopener>suite of variations</a>. <a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#breaking-changes>Breaking changes</a></li><li><a href=#documentation-and-licensing>Documentation and licensing</a></li><li><a href=#new-features>New features</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

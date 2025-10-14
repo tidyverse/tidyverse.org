@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>shinymodels | Tidyverse</title><link>https://www.tidyverse.org/tags/shinymodels/</link><atom:link href="https://www.tidyverse.org/tags/shinymodels/index.xml" rel="self" type="application/rss+xml"/><description>shinymodels</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 16 Dec 2021 00:00:00 +0000</lastBuildDate><item><title>Closing out our year with a Q4 2021 tidymodels update</title><link>https://www.tidyverse.org/blog/2021/12/tidymodels-2021-q4/</link><pubDate>Thu, 16 Dec 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/12/tidymodels-2021-q4/</guid><description>&lt;!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo &amp; update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+&lt;p>The
+&lt;a href="https://www.tidymodels.org/" target="_blank" rel="noopener">tidymodels&lt;/a> framework is a collection of R packages for modeling and machine learning using tidyverse principles.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidymodels&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; ── Attaching packages ──────────────────────────── tidymodels 0.1.4 ──&lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ broom 0.7.10 ✓ rsample 0.1.1 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ dials 0.0.10 ✓ tibble 3.1.6 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ dplyr 1.0.7 ✓ tidyr 1.1.4 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ infer 1.0.0 ✓ tune 0.1.6 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ modeldata 0.1.1 ✓ workflows 0.2.4 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ parsnip 0.1.7 ✓ workflowsets 0.1.0 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ purrr 0.3.4 ✓ yardstick 0.0.9 &lt;/span>
+&lt;span class="c1">#&amp;gt; ✓ recipes 0.1.17&lt;/span>
+&lt;span class="c1">#&amp;gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──&lt;/span>
+&lt;span class="c1">#&amp;gt; x purrr::discard() masks scales::discard()&lt;/span>
+&lt;span class="c1">#&amp;gt; x dplyr::filter() masks stats::filter()&lt;/span>
+&lt;span class="c1">#&amp;gt; x dplyr::lag() masks stats::lag()&lt;/span>
+&lt;span class="c1">#&amp;gt; x recipes::step() masks stats::step()&lt;/span>
+&lt;span class="c1">#&amp;gt; • Dig deeper into tidy modeling with R at https://www.tmwr.org&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Starting at the beginning of this year, we now publish
+&lt;a href="https://www.tidyverse.org/categories/roundup/" target="_blank" rel="noopener">regular updates&lt;/a> here on the tidyverse blog summarizing what&amp;rsquo;s new in the tidymodels ecosystem. You can check out the
+&lt;a href="https://www.tidyverse.org/tags/tidymodels/" target="_blank" rel="noopener">&lt;code>tidymodels&lt;/code> tag&lt;/a> to find all tidymodels blog posts here, including our roundup posts as well as those that are more focused. The purpose of these quarterly posts is to share useful new features and any updates you may have missed.&lt;/p>
+&lt;p>Since
+&lt;a href="https://www.tidyverse.org/blog/2021/09/tidymodels-2021-q3/" target="_blank" rel="noopener">our last roundup post&lt;/a>, there have been seven CRAN releases of tidymodels packages. You can install these updates from CRAN with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;broom&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;embed&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;rsample&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;shinymodels&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="s">&amp;#34;tidymodels&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;workflows&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;yardstick&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>NEWS&lt;/code> files are linked here for each package; you&amp;rsquo;ll notice that some of these releases involve small bug fixes or internal changes that are not user-facing. We write code in these smaller, modular packages that we can release frequently both to make models easier to deploy and to keep our software easier to maintain. We know it may feel like a lot of moving parts to keep up with if you are a tidymodels user, so we want to highlight a couple of the more useful updates in these releases.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://broom.tidymodels.org/news/index.html#broom-0-7-10-2021-10-31" target="_blank" rel="noopener">broom&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://embed.tidymodels.org/news/index.html#embed-015" target="_blank" rel="noopener">embed&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://rsample.tidymodels.org/news/index.html#rsample-011" target="_blank" rel="noopener">rsample&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://shinymodels.tidymodels.org/news/index.html#shinymodels-010" target="_blank" rel="noopener">shinymodels&lt;/a>&lt;/li>
+&lt;li>the
+&lt;a href="https://tidymodels.tidymodels.org/news/index.html#tidymodels-0-1-4-2021-10-01" target="_blank" rel="noopener">tidymodels&lt;/a> metapackage itself&lt;/li>
+&lt;li>
+&lt;a href="https://workflows.tidymodels.org/news/index.html#workflows-0-2-4-2021-10-12" target="_blank" rel="noopener">workflows&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://yardstick.tidymodels.org/news/index.html#yardstick-0-0-9-2021-11-22" target="_blank" rel="noopener">yardstick&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="tools-for-tidymodels-analyses">Tools for tidymodels analyses
+&lt;a href="#tools-for-tidymodels-analyses">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Several of these releases incorporate tools to reduce the overhead for getting started with your tidymodels analysis or for understanding your results more deeply. The new release of the tidymodels metapackage itself provides an R Markdown template. To use the tidymodels analysis template from RStudio, access through &lt;code>File -&amp;gt; New File -&amp;gt; R Markdown&lt;/code>. This will open the dialog box where you can select from one of the available templates:&lt;/p>
+&lt;p>&lt;img src="figure/tidymodels-template.png" title="R Markdown template dialog box with three choices, including the tidymodels Model Analysis template" alt="R Markdown template dialog box with three choices, including the tidymodels Model Analysis template" width="70%" />&lt;/p>
+&lt;p>If you are not using RStudio, you&amp;rsquo;ll also need to install
+&lt;a href="https://pandoc.org" target="_blank" rel="noopener">Pandoc&lt;/a>. Then, use the &lt;code>rmarkdown::draft()&lt;/code> function to create the model card:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">rmarkdown&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">draft&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="s">&amp;#34;my_model_analysis.Rmd&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">template&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;model-analysis&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">package&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;tidymodels&amp;#34;&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This template offers an opinionated guide on how to structure a basic modeling analysis from exploratory data analysis through evaluating your models. Your individual modeling analysis may require you to add to, subtract from, or otherwise change this structure, but you can consider this a general framework to start from.&lt;/p>
+&lt;p>This quarter, the package
+&lt;a href="https://shinymodels.tidymodels.org/" target="_blank" rel="noopener">shinymodels&lt;/a> had its first CRAN release. This package was the focus of our tidymodels summer intern
+&lt;a href="https://www.shishamad.com/posts/how-i-got-my-rstudio-internship/" target="_blank" rel="noopener">Shisham Adhikari&lt;/a> in 2021, and it provides support for launching a Shiny app to interactively explore tuning or resampling results.&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/tidymodels/shinymodels/main/man/figures/example.png" alt="Screenshot of shinymodels app exploring a regression model">&lt;/p>
+&lt;h2 id="make-your-own-rsample-split-objects">Make your own rsample split objects
+&lt;a href="#make-your-own-rsample-split-objects">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The data resampling infrastructure provided by the
+&lt;a href="https://rsample.tidymodels.org/" target="_blank" rel="noopener">rsample&lt;/a> package has always worked well when you start off with a dataset to split into training and testing. However, we heard from users that in some situations they have training and testing sets determined by other processes, or need to create their data split using more complex conditions. The latest release of rsample provides more fluent and flexible support for custom &lt;code>rsplit&lt;/code> creation that sets you up for the rest of your tidymodels analysis. For example, you can create a split object from two dataframes.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gapminder&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">year_split&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">make_splits&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">gapminder&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">year&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="m">2000&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">gapminder&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span> &lt;span class="nf">filter&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">year&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="m">2000&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="n">year_split&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;Analysis/Assess/Total&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;1420/284/1704&amp;gt;&lt;/span>
+&lt;span class="nf">testing&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">year_split&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 284 × 6&lt;/span>
+&lt;span class="c1">#&amp;gt; country continent year lifeExp pop gdpPercap&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;fct&amp;gt; &amp;lt;fct&amp;gt; &amp;lt;int&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 Afghanistan Asia 2002 42.1 25268405 727.&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 Afghanistan Asia 2007 43.8 31889923 975.&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 Albania Europe 2002 75.7 3508512 4604.&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 Albania Europe 2007 76.4 3600523 5937.&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 Algeria Africa 2002 71.0 31287142 5288.&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 Algeria Africa 2007 72.3 33333216 6223.&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 Angola Africa 2002 41.0 10866106 2773.&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 Angola Africa 2007 42.7 12420476 4797.&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 Argentina Americas 2002 74.3 38331121 8798.&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 Argentina Americas 2007 75.3 40301927 12779.&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 274 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can alternatively
+&lt;a href="https://rsample.tidymodels.org/reference/make_splits.html" target="_blank" rel="noopener">create a split using a list of indices&lt;/a>; this &lt;code>make_splits()&lt;/code> flexibility is good for when the defaults in &lt;code>initial_split()&lt;/code> and &lt;code>initial_time_split()&lt;/code> are not appropriate. We also added a
+&lt;a href="https://rsample.tidymodels.org/reference/validation_split.html" target="_blank" rel="noopener">new function &lt;code>validation_time_split()&lt;/code>&lt;/a> to create a single validation resample, much like &lt;code>validation_split()&lt;/code>, but taking the first &lt;code>prop&lt;/code> samples for training.&lt;/p>
+&lt;h2 id="survey-says">Survey says&amp;hellip;
+&lt;a href="#survey-says">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This fall, we
+&lt;a href="https://www.tidyverse.org/blog/2021/10/tidymodels-2022-survey/" target="_blank" rel="noopener">launched our second tidymodels survey&lt;/a> to gather community input on our priorities for 2022. Thank you so much to everyone who shared their opinion! Over 600 people completed the survey, a significant increase from last year, and the top three requested features overall are:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>Supervised feature selection:&lt;/strong> This includes basic supervised filtering methods as well as techniques such as recursive feature elimination.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Model fairness analysis and metrics:&lt;/strong> Techniques to measure if there are biases in model predictions that treat groups or individuals unfairly.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Post modeling probability calibration:&lt;/strong> Methods to characterize (and correct) probability predictions to make sure that probability estimates reflect the observed event rate(s).&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>You can also
+&lt;a href="https://colorado.rstudio.com/rsc/tidymodels-priorities-2022/" target="_blank" rel="noopener">check out our full analysis of the survey results&lt;/a>.&lt;/p>
+&lt;p>&lt;img src="figure/survey-results.png" alt="Bar chart broken out by role showing that all groups (students, academics, industry, hobbyists) rate supervised feature selection highest">&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We’d like to extend our thanks to all of the contributors who helped make these releases during Q4 possible!&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>broom:
+&lt;a href="https://github.com/gjones1219" target="_blank" rel="noopener">@gjones1219&lt;/a>,
+&lt;a href="https://github.com/gravesti" target="_blank" rel="noopener">@gravesti&lt;/a>,
+&lt;a href="https://github.com/gregmacfarlane" target="_blank" rel="noopener">@gregmacfarlane&lt;/a>,
+&lt;a href="https://github.com/ilapros" target="_blank" rel="noopener">@ilapros&lt;/a>,
+&lt;a href="https://github.com/jamesrrae" target="_blank" rel="noopener">@jamesrrae&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/lcgodoy" target="_blank" rel="noopener">@lcgodoy&lt;/a>,
+&lt;a href="https://github.com/RobBinS83" target="_blank" rel="noopener">@RobBinS83&lt;/a>,
+&lt;a href="https://github.com/simonpcouch" target="_blank" rel="noopener">@simonpcouch&lt;/a>,
+&lt;a href="https://github.com/statzhero" target="_blank" rel="noopener">@statzhero&lt;/a>,
+&lt;a href="https://github.com/vincentarelbundock" target="_blank" rel="noopener">@vincentarelbundock&lt;/a>, and
+&lt;a href="https://github.com/wviechtb" target="_blank" rel="noopener">@wviechtb&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>embed:
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/jlmelville" target="_blank" rel="noopener">@jlmelville&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>rsample:
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/jmgirard" target="_blank" rel="noopener">@jmgirard&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/mmp3" target="_blank" rel="noopener">@mmp3&lt;/a>, and
+&lt;a href="https://github.com/Shafi2016" target="_blank" rel="noopener">@Shafi2016&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>shinymodels:
+&lt;a href="https://github.com/romainfrancois" target="_blank" rel="noopener">@romainfrancois&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>tidymodels:
+&lt;a href="https://github.com/agronomofiorentini" target="_blank" rel="noopener">@agronomofiorentini&lt;/a>,
+&lt;a href="https://github.com/AshleyHenry15" target="_blank" rel="noopener">@AshleyHenry15&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>workflows:
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dkgaraujo" target="_blank" rel="noopener">@dkgaraujo&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>, and
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>yardstick:
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/joeycouse" target="_blank" rel="noopener">@joeycouse&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/mattwarkentin" target="_blank" rel="noopener">@mattwarkentin&lt;/a>,
+&lt;a href="https://github.com/romainfrancois" target="_blank" rel="noopener">@romainfrancois&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item></channel></rss>

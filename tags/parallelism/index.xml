@@ -1,0 +1,756 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>parallelism | Tidyverse</title><link>https://www.tidyverse.org/tags/parallelism/</link><atom:link href="https://www.tidyverse.org/tags/parallelism/index.xml" rel="self" type="application/rss+xml"/><description>parallelism</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 05 Sep 2025 00:00:00 +0000</lastBuildDate><item><title>mirai 2.5.0</title><link>https://www.tidyverse.org/blog/2025/09/mirai-2-5-0/</link><pubDate>Fri, 05 Sep 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/09/mirai-2-5-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re excited to announce
+&lt;a href="https://mirai.r-lib.org" target="_blank" rel="noopener">mirai&lt;/a> 2.5.0, bringing production-grade async computing to R!&lt;/p>
+&lt;p>This milestone release delivers enhanced observability through OpenTelemetry, reproducible parallel RNG, and key user interface improvements. We&amp;rsquo;ve also packed in twice as many
+&lt;a href="https://mirai.r-lib.org/news/index.html" target="_blank" rel="noopener">changes&lt;/a> as usual - going all out in delivering a round of quality-of-life fixes to make your use of mirai even smoother!&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"mirai"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="introduction-to-mirai">Introduction to mirai
+&lt;a href="#introduction-to-mirai">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>mirai (Japanese for &amp;lsquo;future&amp;rsquo;) provides a clean, modern approach to parallel computing in R. Built on current communication technologies, it delivers extreme performance through professional-grade scheduling and an event-driven architecture.&lt;/p>
+&lt;p>It continues to evolve as the foundation for asynchronous and parallel computing across the R ecosystem, powering everything from
+&lt;a href="https://rstudio.github.io/promises/articles/promises_04_mirai.html" target="_blank" rel="noopener">async Shiny&lt;/a> applications to
+&lt;a href="https://www.tidyverse.org/blog/2025/07/purrr-1-1-0-parallel/" target="_blank" rel="noopener">parallel map&lt;/a> in purrr to
+&lt;a href="https://tune.tidymodels.org/news/index.html#parallel-processing-2-0-0" target="_blank" rel="noopener">hyperparameter tuning&lt;/a> in tidymodels.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://mirai.r-lib.org'>mirai&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Set up persistent background processes&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://mirai.r-lib.org/reference/daemons.html'>daemons&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>4&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Async evaluation - non-blocking&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>m&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://mirai.r-lib.org/reference/mirai.html'>mirai&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Sys.sleep.html'>Sys.sleep&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='m'>100&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='m'>42&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>m&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;lt; mirai [] &amp;gt;&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Results are available when ready&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>m&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='o'>]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 142&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Shut down persistent background processes&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://mirai.r-lib.org/reference/daemons.html'>daemons&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="a-unique-design-philosophy">A unique design philosophy
+&lt;a href="#a-unique-design-philosophy">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>&lt;strong>Modern foundation&lt;/strong>: mirai builds on
+&lt;a href="https://nanonext.r-lib.org" target="_blank" rel="noopener">nanonext&lt;/a>, the R binding to Nanomsg Next Generation, a high-performance messaging library designed for distributed systems. This means that it&amp;rsquo;s using the very latest technologies, and supports the most optimal connections out of the box: IPC (inter-process communications), TCP or secure TLS. It also extends base R&amp;rsquo;s serialization mechanism to support custom serialization of newer cross-language data formats such as safetensors, Arrow and Polars.&lt;/p>
+&lt;p>&lt;strong>Extreme performance&lt;/strong>: as a consequence of its solid technological foundation, mirai has the proven capacity to scale to millions of concurrent tasks over thousands of connections. Moreover, it delivers up to 1,000x the efficiency and responsiveness of other alternatives. A key innovation is the implementation of event-driven promises that react with zero latency - this provides an extra edge for real-time applications such as live inference or Shiny apps.&lt;/p>
+&lt;p>&lt;strong>Production first&lt;/strong>: mirai provides a clear mental model for parallel computation, with a clean separation of a user&amp;rsquo;s current environment with that in which a mirai is evaluated. This explicitness and simplicity helps avoid common pitfalls that can afflict parallel processing, such as capturing incorrect or extraneous variables. Transparency and robustness are key to mirai&amp;rsquo;s design, and are achieved by minimizing complexity, and eliminating all hidden state with no reliance on options or environment variables. Finally, its integration with OpenTelemetry provides for production-grade observability.&lt;/p>
+&lt;p>&lt;strong>Deploy everywhere&lt;/strong>: deployment of daemon processes is made through a consistent interface across local, remote (SSH), and
+&lt;a href="https://shikokuchuo.net/posts/27-mirai-240/" target="_blank" rel="noopener">HPC environments&lt;/a> (Slurm, SGE, PBS, LSF). Compute profiles are daemons settings that are managed independently, such that you can be connected to all three resource types simultaneously. You then have the freedom to distribute workload to the most appropriate resource for any given task - especially important if tasks have differing requirements such as GPU compute.&lt;/p>
+&lt;h2 id="opentelemetry-integration">OpenTelemetry integration
+&lt;a href="#opentelemetry-integration">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>New in mirai 2.5.0: complete observability of mirai requests through OpenTelemetry traces. This is a core feature that completes the final pillar in mirai&amp;rsquo;s &amp;lsquo;production first&amp;rsquo; design philosophy.&lt;/p>
+&lt;p>When tracing is enabled via the otel and otelsdk packages, you can monitor the entire lifecycle of your async computations, from creation through to evaluation, making it easier to debug and optimize performance in production environments. This is especially powerful when used in conjunction with other otel-enabled packages (such as an upcoming Shiny release), providing end-to-end observability across your entire application stack.&lt;/p>
+&lt;figure>
+&lt;img src="otel-screenshot.png" alt="Illustrative OpenTelemetry span structure shown in a Jaeger collector UI" />
+&lt;figcaption aria-hidden="true">&lt;em>Illustrative OpenTelemetry span structure shown in a Jaeger collector UI&lt;/em>&lt;/figcaption>
+&lt;/figure>
+&lt;h2 id="reproducible-parallel-rng">Reproducible parallel RNG
+&lt;a href="#reproducible-parallel-rng">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Introduced in mirai 2.4.1: reproducible parallel random number generation. Developed in consultation with our tidymodels colleagues and core members of the mlr team, this is a great example of the R community pulling together to solve a common problem. It addresses a long-standing challenge in parallel computing in R, important for reproducible science.&lt;/p>
+&lt;p>mirai has, since its early days, used L&amp;rsquo;Ecuyer-CMRG streams for statistically-sound parallel RNG. Streams essentially cut into the RNG&amp;rsquo;s period (a very long sequence of pseudo-random numbers) at intervals that are far apart from each other that they do not in practice overlap. This ensures that statistical results obtained from parallel computations remain correct and valid.&lt;/p>
+&lt;p>Previously, we only offered the following option, matching the behaviour of base R&amp;rsquo;s parallel package:&lt;/p>
+&lt;p>&lt;strong>Default behaviour&lt;/strong> &lt;code>daemons(seed = NULL)&lt;/code>: creates independent streams for each daemon. This ensures statistical validity but not numerical reproducibility between runs.&lt;/p>
+&lt;p>Now, we also offer the following option:&lt;/p>
+&lt;p>&lt;strong>Reproducible mode&lt;/strong> &lt;code>daemons(seed = integer)&lt;/code>: creates a stream for each
+&lt;a href="https://mirai.r-lib.org/reference/mirai.html" target="_blank" rel="noopener">&lt;code>mirai()&lt;/code>&lt;/a> call rather than each daemon. This guarantees identical results across runs, regardless of the number of daemons used.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># Always provides identical results:&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/with.html'>with&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://mirai.r-lib.org/reference/daemons.html'>daemons&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>3&lt;/span>, seed &lt;span class='o'>=&lt;/span> &lt;span class='m'>1234L&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://mirai.r-lib.org/reference/mirai_map.html'>mirai_map&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>3&lt;/span>, &lt;span class='nv'>rnorm&lt;/span>, .args &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/list.html'>list&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>mean &lt;span class='o'>=&lt;/span> &lt;span class='m'>20&lt;/span>, sd &lt;span class='o'>=&lt;/span> &lt;span class='m'>2&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='o'>]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [[1]]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 19.86409&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [[2]]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 19.55834 22.30159&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [[3]]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 20.62193 23.06144 19.61896&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="user-interface-improvements">User interface improvements
+&lt;a href="#user-interface-improvements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="compute-profile-helper-functions">Compute profile helper functions
+&lt;a href="#compute-profile-helper-functions">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>
+&lt;a href="https://mirai.r-lib.org/reference/with_daemons.html" target="_blank" rel="noopener">&lt;code>with_daemons()&lt;/code>&lt;/a> and
+&lt;a href="https://mirai.r-lib.org/reference/with_daemons.html" target="_blank" rel="noopener">&lt;code>local_daemons()&lt;/code>&lt;/a> make working with compute profiles much more convenient by allowing the temporary switching of contexts. This means that developers can continue to write mirai code without worrying about the resources on which it is eventually run. End-users now have the ability to change the destination of any mirai computation dynamically using one of these scoped helpers.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># Work with specific compute profiles&lt;/span>
+&lt;span class="nf">with_daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;gpu&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">result&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">mirai&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">gpu_intensive_task&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="p">})&lt;/span>
+&lt;span class="c1"># Local version for use inside functions&lt;/span>
+&lt;span class="n">async_gpu_intensive_task&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nf">local_daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;gpu&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">mirai&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">gpu_intensive_task&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="re-designed-daemons">Re-designed &lt;code>daemons()&lt;/code>
+&lt;a href="#re-designed-daemons">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Creating new daemons is now more ergonomic, as it automatically resets existing ones. This provides for more convenient use in contexts such as notebooks, where cells may be run out of order. Manual &lt;code>daemons(0)&lt;/code> calls are no longer required to reset daemons.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># Old approach&lt;/span>
+&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># Had to reset first&lt;/span>
+&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">4&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># New approach - automatic reset&lt;/span>
+&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">4&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># Just works, resets if needed&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="new-info-function">New &lt;code>info()&lt;/code> function
+&lt;a href="#new-info-function">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Provides a more succinct alternative to
+&lt;a href="https://mirai.r-lib.org/reference/status.html" target="_blank" rel="noopener">&lt;code>status()&lt;/code>&lt;/a> for reporting key statistics. This is optimized and is now a supported developer interface for programmatic use.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://mirai.r-lib.org/reference/info.html'>info&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; connections cumulative awaiting executing completed &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 4 4 8 4 2&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We extend our gratitude to the R community for their continued feedback and contributions. Special thanks to all contributors who helped shape this release through feature requests, bug reports, and code contributions:
+&lt;a href="https://github.com/agilly" target="_blank" rel="noopener">@agilly&lt;/a>,
+&lt;a href="https://github.com/D3SL" target="_blank" rel="noopener">@D3SL&lt;/a>,
+&lt;a href="https://github.com/DavZim" target="_blank" rel="noopener">@DavZim&lt;/a>,
+&lt;a href="https://github.com/dipterix" target="_blank" rel="noopener">@dipterix&lt;/a>,
+&lt;a href="https://github.com/eliocamp" target="_blank" rel="noopener">@eliocamp&lt;/a>,
+&lt;a href="https://github.com/erydit" target="_blank" rel="noopener">@erydit&lt;/a>,
+&lt;a href="https://github.com/karangattu" target="_blank" rel="noopener">@karangattu&lt;/a>,
+&lt;a href="https://github.com/louisaslett" target="_blank" rel="noopener">@louisaslett&lt;/a>,
+&lt;a href="https://github.com/mikkmart" target="_blank" rel="noopener">@mikkmart&lt;/a>,
+&lt;a href="https://github.com/sebffischer" target="_blank" rel="noopener">@sebffischer&lt;/a>,
+&lt;a href="https://github.com/shikokuchuo" target="_blank" rel="noopener">@shikokuchuo&lt;/a>, and
+&lt;a href="https://github.com/wlandau" target="_blank" rel="noopener">@wlandau&lt;/a>.&lt;/p></description></item><item><title>Parallel processing in purrr 1.1.0</title><link>https://www.tidyverse.org/blog/2025/07/purrr-1-1-0-parallel/</link><pubDate>Thu, 10 Jul 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/07/purrr-1-1-0-parallel/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re thrilled to announce the release of
+&lt;a href="https://purrr.tidyverse.org" target="_blank" rel="noopener">purrr&lt;/a> 1.1.0, bringing a game-changing feature to this cornerstone of the tidyverse: &lt;strong>parallel processing&lt;/strong>.&lt;/p>
+&lt;p>For the first time in purrr&amp;rsquo;s history, you can now scale your &lt;code>map()&lt;/code> operations across multiple cores and even distributed systems, all while maintaining the elegant, functional programming style you know and love.&lt;/p>
+&lt;p>This milestone represents more than just a performance boost&amp;mdash;it&amp;rsquo;s a fundamental shift that makes purrr suitable for production-scale data processing tasks without sacrificing the clarity and composability that make it such a joy to use.&lt;/p>
+&lt;p>Get started by installing purrr 1.1.0 today:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;purrr&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The parallel processing functionality requires the mirai and carrier packages. You will be prompted to install them when you first call &lt;code>in_parallel()&lt;/code>.&lt;/p>
+&lt;p>Ready to supercharge your functional programming workflows? Parallel purrr is here, and it&amp;rsquo;s remarkably simple to use.&lt;/p>
+&lt;h2 id="the-power-of-in_parallel">The power of &lt;code>in_parallel()&lt;/code>
+&lt;a href="#the-power-of-in_parallel">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The magic happens through a shiny new function: &lt;code>in_parallel()&lt;/code>. This purrr adverb wraps your functions to signal that they should run in parallel, powered by the venerable
+&lt;a href="https://mirai.r-lib.org/" target="_blank" rel="noopener">mirai&lt;/a> package.&lt;/p>
+&lt;p>Here&amp;rsquo;s how simple it is to transform your sequential operations:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">purrr&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mirai&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Set up parallel processing (6 background processes)&lt;/span>
+&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">6&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Sequential version&lt;/span>
+&lt;span class="n">mtcars&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span> &lt;span class="nf">map_dbl&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">\&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">mean&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; mpg cyl disp hp drat wt qsec vs am gear carb &lt;/span>
+&lt;span class="c1">#&amp;gt; 20.09 6.19 230.72 146.69 3.60 3.22 17.85 0.44 0.41 3.69 2.81&lt;/span>
+&lt;span class="c1"># Parallel version - just wrap your function with in_parallel()&lt;/span>
+&lt;span class="n">mtcars&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span> &lt;span class="nf">map_dbl&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">in_parallel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">\&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">mean&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)))&lt;/span>
+&lt;span class="c1">#&amp;gt; mpg cyl disp hp drat wt qsec vs am gear carb &lt;/span>
+&lt;span class="c1">#&amp;gt; 20.09 6.19 230.72 146.69 3.60 3.22 17.85 0.44 0.41 3.69 2.81&lt;/span>
+&lt;span class="c1"># Don&amp;#39;t forget to clean up when done&lt;/span>
+&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The results are identical, but the second version distributes the work across multiple CPU cores. For computationally intensive tasks, the performance gains can be dramatic.&lt;/p>
+&lt;p>The beauty of using an adverb is that &lt;code>in_parallel()&lt;/code> works not just with &lt;code>map()&lt;/code>, but across the entire purrr ecosystem:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">6&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">output&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Works with all map variants&lt;/span>
+&lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">4&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span> &lt;span class="nf">map_int&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">in_parallel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">\&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">x^2&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">4&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span> &lt;span class="nf">map_chr&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">in_parallel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">\&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">paste&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Number&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">)))&lt;/span>
+&lt;span class="c1"># Works with map2 and pmap&lt;/span>
+&lt;span class="nf">map2_dbl&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">4&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">6&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">in_parallel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">\&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">y&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">x&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">y&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">b&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">4&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">6&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">c&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">7&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">9&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span>
+&lt;span class="nf">pmap_dbl&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">in_parallel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">\&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">c&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">mean&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">a&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">c&lt;/span>&lt;span class="p">))))&lt;/span>
+&lt;span class="c1"># Even works with walk for side effects&lt;/span>
+&lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span> &lt;span class="nf">walk&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">in_parallel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">\&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">cat&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Processing&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;\n&amp;#34;&lt;/span>&lt;span class="p">)))&lt;/span>
+&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>If you use &lt;code>in_parallel()&lt;/code> but don&amp;rsquo;t set &lt;code>daemons()&lt;/code>, then the map will just proceed sequentially, so you don&amp;rsquo;t need to worry about having two separate code paths for parallel vs non-parallel execution.&lt;/p>
+&lt;h2 id="real-world-example-parallel-model-fitting">Real-world example: parallel model fitting
+&lt;a href="#real-world-example-parallel-model-fitting">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Let&amp;rsquo;s look at a more realistic scenario where parallel processing truly shines&amp;mdash;fitting multiple models:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">purrr&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mirai&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Set up 4 parallel processes&lt;/span>
+&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">4&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Define a slow model fitting function&lt;/span>
+&lt;span class="n">slow_lm&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">formula&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nf">Sys.sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0.1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># Simulate computational complexity&lt;/span>
+&lt;span class="nf">lm&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">formula&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="c1"># Fit models to different subsets of data in parallel&lt;/span>
+&lt;span class="n">models&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">mtcars&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span>
+&lt;span class="nf">split&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">cyl&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span>
+&lt;span class="nf">map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">in_parallel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">\&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">slow_lm&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">wt&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">hp&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">df&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">slow_lm&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">slow_lm&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1"># Extract R-squared values&lt;/span>
+&lt;span class="n">models&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span>
+&lt;span class="nf">map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">summary&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span>
+&lt;span class="nf">map_dbl&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;r.squared&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 6 8 &lt;/span>
+&lt;span class="c1">#&amp;gt; 0.6807065 0.5889239 0.4970692&lt;/span>
+&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Notice how we pass the &lt;code>slow_lm&lt;/code> function as an argument to &lt;code>in_parallel()&lt;/code>&amp;mdash;this ensures our custom function is available in the parallel processes.&lt;/p>
+&lt;h2 id="production-ready-with-mirai">Production-ready with mirai
+&lt;a href="#production-ready-with-mirai">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The choice of
+&lt;a href="https://mirai.r-lib.org" target="_blank" rel="noopener">mirai&lt;/a> as the parallel backend wasn&amp;rsquo;t arbitrary.
+&lt;a href="https://mirai.r-lib.org" target="_blank" rel="noopener">mirai&lt;/a> is a production-grade async evaluation framework that brings several key advantages:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Minimal overhead&lt;/strong>: Built on modern networking and concurrency principles&lt;/li>
+&lt;li>&lt;strong>Reliable scheduling&lt;/strong>: Leveraging fast inter-process communications locally&lt;/li>
+&lt;li>&lt;strong>Scalable architecture&lt;/strong>: From multi-process to distributed computing on HPC clusters&lt;/li>
+&lt;li>&lt;strong>Security&lt;/strong>: Offers zero-configuration TLS over TCP for additional assurance&lt;/li>
+&lt;/ul>
+&lt;p>This means your parallel purrr code isn&amp;rsquo;t just fast&amp;mdash;it&amp;rsquo;s production-ready.&lt;/p>
+&lt;p>Compared to the
+&lt;a href="https://furrr.futureverse.org" target="_blank" rel="noopener">furrr&lt;/a> package:&lt;/p>
+&lt;ul>
+&lt;li>Much lower overhead means you can get a performance boost even for relatively fast functions&lt;/li>
+&lt;li>More linear scaling means you get the same benefits whether you&amp;rsquo;re running on 2 or 200 cores&lt;/li>
+&lt;/ul>
+&lt;p>We&amp;rsquo;ve learned a lot from our work on furrr, and from
+&lt;a href="https://github.com/henrikbengtsson" target="_blank" rel="noopener">Henrik Bengtsson&lt;/a>&amp;lsquo;s excellent work on the
+&lt;a href="https://github.com/futureverse" target="_blank" rel="noopener">futureverse&lt;/a> ecosystem. purrr doesn&amp;rsquo;t use future as the underlying engine for parallelism because we&amp;rsquo;ve made some design decisions that differ at a fundamental level, but Henrik&amp;rsquo;s entire ecosystem deserves credit for pushing the boundaries of parallelism in R farther than many thought possible.&lt;/p>
+&lt;h2 id="creating-self-contained-functions">Creating self-contained functions
+&lt;a href="#creating-self-contained-functions">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>One of the key concepts when using &lt;code>in_parallel()&lt;/code> is creating self-contained functions. Since your function gets serialized and sent to parallel processes, it needs to be completely standalone:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># ❌ This won&amp;#39;t work - external dependencies not declared&lt;/span>
+&lt;span class="n">my_data&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">in_parallel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">\&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">mean&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">my_data&lt;/span>&lt;span class="p">)))&lt;/span>
+&lt;span class="c1"># ✅ This works - dependencies explicitly provided&lt;/span>
+&lt;span class="n">my_data&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">in_parallel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">\&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">mean&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">my_data&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">my_data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">my_data&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1"># ✅ Package functions need explicit namespacing&lt;/span>
+&lt;span class="nf">map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">in_parallel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">\&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">vctrs&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">vec_init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">integer&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">)))&lt;/span>
+&lt;span class="c1"># ✅ Or load packages within the function&lt;/span>
+&lt;span class="nf">map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">in_parallel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">\&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">vctrs&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">vec_init&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">integer&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">}))&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This explicit dependency management might seem verbose, but it ensures your parallel code is reliable and predictable&amp;mdash;crucial for production environments.&lt;/p>
+&lt;p>It also removes the danger of accidentally shipping large objects to parallel processes&amp;mdash;often a source of performance degradation.&lt;/p>
+&lt;h2 id="when-to-use-parallel-processing">When to use parallel processing
+&lt;a href="#when-to-use-parallel-processing">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Not every &lt;code>map()&lt;/code> operation benefits from parallelization. The overhead of setting up parallel tasks and communicating between processes can outweigh the benefits for simple operations. As a rule of thumb, consider parallel processing when:&lt;/p>
+&lt;ul>
+&lt;li>Each iteration takes at least 100 microseconds to 1 millisecond&lt;/li>
+&lt;li>You&amp;rsquo;re performing CPU-intensive computations&lt;/li>
+&lt;li>You&amp;rsquo;re working with I/O-bound operations that can benefit from concurrency&lt;/li>
+&lt;li>The data being passed between processes isn&amp;rsquo;t excessively large&lt;/li>
+&lt;/ul>
+&lt;p>For quick operations like simple arithmetic, sequential processing will often be faster.&lt;/p>
+&lt;p>If you&amp;rsquo;re a package developer, use &lt;code>in_parallel()&lt;/code> where you see fit, but please be mindful not to call &lt;code>daemons()&lt;/code> within your package code. How to set mirai daemons should be always be for the end user to decide.&lt;/p>
+&lt;h2 id="distributed-computing-made-simple">Distributed computing made simple
+&lt;a href="#distributed-computing-made-simple">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Want to scale beyond your local machine? mirai&amp;rsquo;s networking capabilities make distributed computing surprisingly straightforward:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mirai&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Set up remote daemons on a Slurm HPC cluster&lt;/span>
+&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">n&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">100&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">url&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">host_url&lt;/span>&lt;span class="p">(),&lt;/span>
+&lt;span class="n">remote&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">cluster_config&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">command&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;sbatch&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Your purrr code remains exactly the same!&lt;/span>
+&lt;span class="n">results&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">big_dataset&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span>
+&lt;span class="nf">split&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">big_dataset&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">group&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span>
+&lt;span class="nf">map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">in_parallel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">\&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">complex_analysis&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">df&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">complex_analysis&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">complex_analysis&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The same &lt;code>in_parallel()&lt;/code> syntax that works locally scales seamlessly to distributed systems.&lt;/p>
+&lt;p>Please refer to the mirai documentation on
+&lt;a href="https://mirai.r-lib.org/articles/mirai.html#remote-daemons" target="_blank" rel="noopener">remote daemons&lt;/a> and
+&lt;a href="https://mirai.r-lib.org/articles/mirai.html#launching-remote-daemons" target="_blank" rel="noopener">launching remote daemons&lt;/a> for more details. This
+&lt;a href="https://shikokuchuo.net/posts/27-mirai-240/" target="_blank" rel="noopener">mirai blog post&lt;/a> will also be useful if you&amp;rsquo;re working with High-Performance Computing (HPC) clusters.&lt;/p>
+&lt;h2 id="looking-forward">Looking forward
+&lt;a href="#looking-forward">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The addition of parallel processing to purrr 1.1.0 represents a significant evolution in the package&amp;rsquo;s capabilities. It maintains purrr&amp;rsquo;s core philosophy of functional programming while opening doors to high-performance computing scenarios that were previously challenging to achieve with such clean, readable code.&lt;/p>
+&lt;p>This feature is currently marked as experimental as we gather feedback from the community, but the underlying mirai infrastructure is production-proven and battle-tested. We encourage you to try it out and let us know about your experiences.&lt;/p>
+&lt;p>Whether you&amp;rsquo;re processing large datasets, fitting complex models, or running simulations, purrr 1.1.0&amp;rsquo;s parallel processing capabilities can help you scale your R workflows without sacrificing code clarity or reliability.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all those who posted issues and contributed PRs since our last release!
+&lt;a href="https://github.com/ar-puuk" target="_blank" rel="noopener">@ar-puuk&lt;/a>,
+&lt;a href="https://github.com/DanChaltiel" target="_blank" rel="noopener">@DanChaltiel&lt;/a>,
+&lt;a href="https://github.com/davidrsch" target="_blank" rel="noopener">@davidrsch&lt;/a>,
+&lt;a href="https://github.com/ErdaradunGaztea" target="_blank" rel="noopener">@ErdaradunGaztea&lt;/a>,
+&lt;a href="https://github.com/h-a-graham" target="_blank" rel="noopener">@h-a-graham&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/HenningLorenzen-ext-bayer" target="_blank" rel="noopener">@HenningLorenzen-ext-bayer&lt;/a>,
+&lt;a href="https://github.com/krivit" target="_blank" rel="noopener">@krivit&lt;/a>,
+&lt;a href="https://github.com/MarceloRTonon" target="_blank" rel="noopener">@MarceloRTonon&lt;/a>,
+&lt;a href="https://github.com/MarkPaulin" target="_blank" rel="noopener">@MarkPaulin&lt;/a>,
+&lt;a href="https://github.com/salim-b" target="_blank" rel="noopener">@salim-b&lt;/a>,
+&lt;a href="https://github.com/ScientiaFelis" target="_blank" rel="noopener">@ScientiaFelis&lt;/a>,
+&lt;a href="https://github.com/shikokuchuo" target="_blank" rel="noopener">@shikokuchuo&lt;/a>, and
+&lt;a href="https://github.com/sierrajohnson" target="_blank" rel="noopener">@sierrajohnson&lt;/a>.&lt;/p></description></item><item><title>tune 1.2.0</title><link>https://www.tidyverse.org/blog/2024/04/tune-1-2-0/</link><pubDate>Thu, 18 Apr 2024 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2024/04/tune-1-2-0/</guid><description>&lt;div class="highlight">
+&lt;/div>
+&lt;p>We&amp;rsquo;re indubitably amped to announce the release of
+&lt;a href="https://tune.tidymodels.org/" target="_blank" rel="noopener">tune&lt;/a> 1.2.0, a package for hyperparameter tuning in the
+&lt;a href="https://www.tidymodels.org/" target="_blank" rel="noopener">tidymodels framework&lt;/a>.&lt;/p>
+&lt;p>You can install it from CRAN, along with the rest of the core packages in tidymodels, using the tidymodels meta-package:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"tidymodels"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The 1.2.0 release of tune has introduced support for two major features that we&amp;rsquo;ve written about on the tidyverse blog already:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://www.tidyverse.org/blog/2024/04/tidymodels-survival-analysis/" target="_blank" rel="noopener">Survival analysis for time-to-event data with tidymodels&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://www.tidyverse.org/blog/2024/03/tidymodels-fairness/" target="_blank" rel="noopener">Fair machine learning with tidymodels&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>While those features got their own blog posts, there are several more features in this release that we thought were worth calling out. This post will highlight improvements to our support for parallel processing, the introduction of support for percentile confidence intervals for performance metrics, and a few other bits and bobs. You can see a full list of changes in the
+&lt;a href="https://github.com/tidymodels/tune/releases/tag/v1.2.0" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://tidymodels.tidymodels.org'>tidymodels&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Throughout this post, I&amp;rsquo;ll refer to the example of tuning an XGBoost model to predict the fuel efficiency of various car models. I hear this is already a well-explored modeling problem, but alas:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>2024&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>xgb_res&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>tune_grid&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>boost_tree&lt;/span>&lt;span class='o'>(&lt;/span>mode &lt;span class='o'>=&lt;/span> &lt;span class='s'>"regression"&lt;/span>, mtry &lt;span class='o'>=&lt;/span> &lt;span class='nf'>tune&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, learn_rate &lt;span class='o'>=&lt;/span> &lt;span class='nf'>tune&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>mpg&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>bootstraps&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> control &lt;span class='o'>=&lt;/span> &lt;span class='nf'>control_grid&lt;/span>&lt;span class='o'>(&lt;/span>save_pred &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Note that we&amp;rsquo;ve used the
+&lt;a href="https://tune.tidymodels.org/reference/control_grid.html" target="_blank" rel="noopener">control option&lt;/a> &lt;code>save_pred = TRUE&lt;/code> to indicate that we want to save the predictions from our resampled models in the tuning results. Both &lt;code>int_pctl()&lt;/code> and &lt;code>compute_metrics()&lt;/code> below will need those predictions. The metrics for our resampled model look like so:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>collect_metrics&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>xgb_res&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 20 × 8&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; mtry learn_rate .metric .estimator mean n std_err .config &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> 2 0.002&lt;span style='text-decoration: underline;'>04&lt;/span> rmse standard 19.7 25 0.262 Preprocessor1_Model01&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> 2 0.002&lt;span style='text-decoration: underline;'>04&lt;/span> rsq standard 0.659 25 0.031&lt;span style='text-decoration: underline;'>4&lt;/span> Preprocessor1_Model01&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> 6 0.008&lt;span style='text-decoration: underline;'>59&lt;/span> rmse standard 18.0 25 0.260 Preprocessor1_Model02&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> 6 0.008&lt;span style='text-decoration: underline;'>59&lt;/span> rsq standard 0.607 25 0.027&lt;span style='text-decoration: underline;'>0&lt;/span> Preprocessor1_Model02&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> 3 0.027&lt;span style='text-decoration: underline;'>6&lt;/span> rmse standard 14.0 25 0.267 Preprocessor1_Model03&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> 3 0.027&lt;span style='text-decoration: underline;'>6&lt;/span> rsq standard 0.710 25 0.023&lt;span style='text-decoration: underline;'>7&lt;/span> Preprocessor1_Model03&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 14 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="modernized-support-for-parallel-processing">Modernized support for parallel processing
+&lt;a href="#modernized-support-for-parallel-processing">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The tidymodels framework has long supported evaluating models in parallel using the
+&lt;a href="https://cran.r-project.org/web/packages/foreach/vignettes/foreach.html" target="_blank" rel="noopener">foreach&lt;/a> package. This release of tune has introduced support for parallelism using the
+&lt;a href="https://www.futureverse.org/" target="_blank" rel="noopener">futureverse&lt;/a> framework, and we will begin deprecating our support for foreach in a coming release.&lt;/p>
+&lt;p>To tune a model in parallel with foreach, a user would load a &lt;em>parallel backend&lt;/em> package (usually with a name like
+&lt;a href="https://rdrr.io/r/base/library.html" target="_blank" rel="noopener">&lt;code>library(doBackend)&lt;/code>&lt;/a>) and then &lt;em>register&lt;/em> it with foreach (with a function call like &lt;code>registerDoBackend()&lt;/code>). The tune package would then detect that registered backend and take it from there. For example, the code to distribute the above tuning process across 10 cores with foreach would look like:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>doMC&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/pkg/doMC/man/registerDoMC.html'>registerDoMC&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>cores &lt;span class='o'>=&lt;/span> &lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>2024&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>xgb_res&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>tune_grid&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>boost_tree&lt;/span>&lt;span class='o'>(&lt;/span>mode &lt;span class='o'>=&lt;/span> &lt;span class='s'>"regression"&lt;/span>, mtry &lt;span class='o'>=&lt;/span> &lt;span class='nf'>tune&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, learn_rate &lt;span class='o'>=&lt;/span> &lt;span class='nf'>tune&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>mpg&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>bootstraps&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> control &lt;span class='o'>=&lt;/span> &lt;span class='nf'>control_grid&lt;/span>&lt;span class='o'>(&lt;/span>save_pred &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The code to do so with future is similarly simple. Users first load the
+&lt;a href="https://future.futureverse.org/index.html" target="_blank" rel="noopener">future&lt;/a> package, and then specify a
+&lt;a href="https://future.futureverse.org/reference/plan.html" target="_blank" rel="noopener">&lt;code>plan()&lt;/code>&lt;/a> which dictates how computations will be distributed. For example, the code to distribute the above tuning process across 10 cores with future looks like:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://future.futureverse.org'>future&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://future.futureverse.org/reference/plan.html'>plan&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>multisession&lt;/span>, workers &lt;span class='o'>=&lt;/span> &lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>2024&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>xgb_res&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>tune_grid&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>boost_tree&lt;/span>&lt;span class='o'>(&lt;/span>mode &lt;span class='o'>=&lt;/span> &lt;span class='s'>"regression"&lt;/span>, mtry &lt;span class='o'>=&lt;/span> &lt;span class='nf'>tune&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, learn_rate &lt;span class='o'>=&lt;/span> &lt;span class='nf'>tune&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>mpg&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>bootstraps&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> control &lt;span class='o'>=&lt;/span> &lt;span class='nf'>control_grid&lt;/span>&lt;span class='o'>(&lt;/span>save_pred &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>For users, the transition to parallelism with future has several benefits:&lt;/p>
+&lt;ul>
+&lt;li>The futureverse presently supports a greater number of parallelism technologies and has been more likely to receive implementations for new ones.&lt;/li>
+&lt;li>Once foreach is fully deprecated, users will be able to use the
+&lt;a href="https://www.tidyverse.org/blog/2023/04/tuning-delights/#interactive-issue-logging" target="_blank" rel="noopener">interactive logger&lt;/a> when tuning in parallel.&lt;/li>
+&lt;/ul>
+&lt;p>From our perspective, transitioning our parallelism support to future makes our packages much more maintainable, reducing complexity in random number generation, error handling, and progress reporting.&lt;/p>
+&lt;p>In an upcoming release of the package, you&amp;rsquo;ll see a deprecation warning when a foreach parallel backend is registered but no future plan has been specified, so start transitioning your code sooner than later!&lt;/p>
+&lt;h2 id="percentile-confidence-intervals">Percentile confidence intervals
+&lt;a href="#percentile-confidence-intervals">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Following up on changes in the
+&lt;a href="https://github.com/tidymodels/rsample/releases/tag/v1.2.0" target="_blank" rel="noopener">most recent rsample release&lt;/a>, tune has introduced a
+&lt;a href="https://tune.tidymodels.org/reference/int_pctl.tune_results.html" target="_blank" rel="noopener">method for &lt;code>int_pctl()&lt;/code>&lt;/a> that calculates percentile confidence intervals for performance metrics. To calculate a 90% confidence interval for the values of each performance metric returned in &lt;code>collect_metrics()&lt;/code>, we&amp;rsquo;d write:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>2024&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>int_pctl&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>xgb_res&lt;/span>, alpha &lt;span class='o'>=&lt;/span> &lt;span class='m'>.1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 20 × 8&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .metric .estimator .lower .estimate .upper .config mtry learn_rate&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> rmse bootstrap 18.1 19.9 22.0 Preprocessor1_Mod… 2 0.002&lt;span style='text-decoration: underline;'>04&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> rsq bootstrap 0.570 0.679 0.778 Preprocessor1_Mod… 2 0.002&lt;span style='text-decoration: underline;'>04&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> rmse bootstrap 16.6 18.3 19.9 Preprocessor1_Mod… 6 0.008&lt;span style='text-decoration: underline;'>59&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> rsq bootstrap 0.548 0.665 0.765 Preprocessor1_Mod… 6 0.008&lt;span style='text-decoration: underline;'>59&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> rmse bootstrap 12.5 14.1 15.9 Preprocessor1_Mod… 3 0.027&lt;span style='text-decoration: underline;'>6&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> rsq bootstrap 0.622 0.720 0.818 Preprocessor1_Mod… 3 0.027&lt;span style='text-decoration: underline;'>6&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 14 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Note that the output has the same number of rows as the &lt;code>collect_metrics()&lt;/code> output: one for each unique pair of metric and workflow.&lt;/p>
+&lt;p>This is very helpful for validation sets. Other resampling methods generate replicated performance statistics. We can compute simple interval estimates using the mean and standard error for those. Validation sets produce only one estimate, and these bootstrap methods are probably the best option for obtaining interval estimates.&lt;/p>
+&lt;h2 id="breaking-change-relocation-of-ellipses">Breaking change: relocation of ellipses
+&lt;a href="#breaking-change-relocation-of-ellipses">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;ve made a &lt;strong>breaking change&lt;/strong> in argument order for several functions in the package (and downstream packages like finetune and workflowsets). Ellipses (&amp;hellip;) are now used consistently in the package to require optional arguments to be named. For functions that previously had unused ellipses at the end of the function signature, they have been moved to follow the last argument without a default value, and several other functions that previously did not have ellipses in their signatures gained them. This applies to methods for &lt;code>augment()&lt;/code>, &lt;code>collect_predictions()&lt;/code>, &lt;code>collect_metrics()&lt;/code>, &lt;code>select_best()&lt;/code>, &lt;code>show_best()&lt;/code>, and &lt;code>conf_mat_resampled()&lt;/code>.&lt;/p>
+&lt;h2 id="compute-new-metrics-without-re-fitting">Compute new metrics without re-fitting
+&lt;a href="#compute-new-metrics-without-re-fitting">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;ve also added a new function,
+&lt;a href="https://tune.tidymodels.org/reference/compute_metrics.html" target="_blank" rel="noopener">&lt;code>compute_metrics()&lt;/code>&lt;/a>, that allows for calculating metrics that were not used when evaluating against resamples. For example, consider our &lt;code>xgb_res&lt;/code> object. Since we didn&amp;rsquo;t supply any metrics to evaluate, and this model is a regression model, tidymodels selected RMSE and R&lt;sup>2&lt;/sup> as defaults:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>collect_metrics&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>xgb_res&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 20 × 8&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; mtry learn_rate .metric .estimator mean n std_err .config &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> 2 0.002&lt;span style='text-decoration: underline;'>04&lt;/span> rmse standard 19.7 25 0.262 Preprocessor1_Model01&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> 2 0.002&lt;span style='text-decoration: underline;'>04&lt;/span> rsq standard 0.659 25 0.031&lt;span style='text-decoration: underline;'>4&lt;/span> Preprocessor1_Model01&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> 6 0.008&lt;span style='text-decoration: underline;'>59&lt;/span> rmse standard 18.0 25 0.260 Preprocessor1_Model02&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> 6 0.008&lt;span style='text-decoration: underline;'>59&lt;/span> rsq standard 0.607 25 0.027&lt;span style='text-decoration: underline;'>0&lt;/span> Preprocessor1_Model02&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> 3 0.027&lt;span style='text-decoration: underline;'>6&lt;/span> rmse standard 14.0 25 0.267 Preprocessor1_Model03&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> 3 0.027&lt;span style='text-decoration: underline;'>6&lt;/span> rsq standard 0.710 25 0.023&lt;span style='text-decoration: underline;'>7&lt;/span> Preprocessor1_Model03&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 14 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>In the past, if you wanted to evaluate that workflow against a performance metric that you hadn&amp;rsquo;t included in your &lt;code>tune_grid()&lt;/code> run, you&amp;rsquo;d need to re-run &lt;code>tune_grid()&lt;/code>, fitting models and predicting new values all over again. Now, using the &lt;code>compute_metrics()&lt;/code> function, you can use the &lt;code>tune_grid()&lt;/code> output you&amp;rsquo;ve already generated and compute any number of new metrics without having to fit any more models as long as you use the control option &lt;code>save_pred = TRUE&lt;/code> when tuning.&lt;/p>
+&lt;p>So, say I want to additionally calculate Huber Loss and Mean Absolute Percent Error. I just pass those metrics along with the tuning result to &lt;code>compute_metrics()&lt;/code>, and the result looks just like &lt;code>collect_metrics()&lt;/code> output for the metrics originally calculated:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>compute_metrics&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>xgb_res&lt;/span>, &lt;span class='nf'>metric_set&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>huber_loss&lt;/span>, &lt;span class='nv'>mape&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 20 × 8&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; mtry learn_rate .metric .estimator mean n std_err .config &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> 2 0.002&lt;span style='text-decoration: underline;'>04&lt;/span> huber_loss standard 18.3 25 0.232 Preprocessor1_Mode…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> 2 0.002&lt;span style='text-decoration: underline;'>04&lt;/span> mape standard 94.4 25 0.068&lt;span style='text-decoration: underline;'>5&lt;/span> Preprocessor1_Mode…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> 6 0.008&lt;span style='text-decoration: underline;'>59&lt;/span> huber_loss standard 16.7 25 0.229 Preprocessor1_Mode…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> 6 0.008&lt;span style='text-decoration: underline;'>59&lt;/span> mape standard 85.7 25 0.178 Preprocessor1_Mode…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> 3 0.027&lt;span style='text-decoration: underline;'>6&lt;/span> huber_loss standard 12.6 25 0.230 Preprocessor1_Mode…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> 3 0.027&lt;span style='text-decoration: underline;'>6&lt;/span> mape standard 64.4 25 0.435 Preprocessor1_Mode…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 14 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="easily-pivot-resampled-metrics">Easily pivot resampled metrics
+&lt;a href="#easily-pivot-resampled-metrics">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Finally, the &lt;code>collect_metrics()&lt;/code> method for tune results recently
+&lt;a href="https://tune.tidymodels.org/reference/collect_predictions.html#arguments" target="_blank" rel="noopener">gained a new argument&lt;/a>, &lt;code>type&lt;/code>, indicating the shape of the returned metrics. The default, &lt;code>type = &amp;quot;long&amp;quot;&lt;/code>, is the same shape as before. The argument value &lt;code>type = &amp;quot;wide&amp;quot;&lt;/code> will allot each metric its own column, making it easier to compare metrics across different models.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>collect_metrics&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>xgb_res&lt;/span>, type &lt;span class='o'>=&lt;/span> &lt;span class='s'>"wide"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 10 × 5&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; mtry learn_rate .config rmse rsq&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> 2 0.002&lt;span style='text-decoration: underline;'>04&lt;/span> Preprocessor1_Model01 19.7 0.659&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> 6 0.008&lt;span style='text-decoration: underline;'>59&lt;/span> Preprocessor1_Model02 18.0 0.607&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> 3 0.027&lt;span style='text-decoration: underline;'>6&lt;/span> Preprocessor1_Model03 14.0 0.710&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> 2 0.037&lt;span style='text-decoration: underline;'>1&lt;/span> Preprocessor1_Model04 12.3 0.728&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> 5 0.005&lt;span style='text-decoration: underline;'>39&lt;/span> Preprocessor1_Model05 18.8 0.595&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> 9 0.011&lt;span style='text-decoration: underline;'>0&lt;/span> Preprocessor1_Model06 17.4 0.577&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># ℹ 4 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Under the hood, this is indeed just a &lt;code>pivot_wider()&lt;/code> call. We&amp;rsquo;ve found that it&amp;rsquo;s time-consuming and error-prone to programmatically determine identifying columns when pivoting resampled metrics, so we&amp;rsquo;ve localized and thoroughly tested the code that we use to do so with this feature.&lt;/p>
+&lt;h2 id="more-love-for-the-brier-score">More love for the Brier score
+&lt;a href="#more-love-for-the-brier-score">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Tuning and resampling functions use default metrics when the user does not specify a custom metric set. For regression models, these are RMSE and R&lt;sup>2&lt;/sup>. For classification, accuracy and the area under the ROC curve &lt;em>were&lt;/em> the default. We&amp;rsquo;ve also added the
+&lt;a href="https://en.wikipedia.org/wiki/Brier_score" target="_blank" rel="noopener">Brier score&lt;/a> to the default classification metric list.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>As always, we&amp;rsquo;re appreciative of the community contributors who helped make this release happen:
+&lt;a href="https://github.com/AlbertoImg" target="_blank" rel="noopener">@AlbertoImg&lt;/a>,
+&lt;a href="https://github.com/dramanica" target="_blank" rel="noopener">@dramanica&lt;/a>,
+&lt;a href="https://github.com/epiheather" target="_blank" rel="noopener">@epiheather&lt;/a>,
+&lt;a href="https://github.com/joranE" target="_blank" rel="noopener">@joranE&lt;/a>,
+&lt;a href="https://github.com/jrosell" target="_blank" rel="noopener">@jrosell&lt;/a>,
+&lt;a href="https://github.com/jxu" target="_blank" rel="noopener">@jxu&lt;/a>,
+&lt;a href="https://github.com/kbodwin" target="_blank" rel="noopener">@kbodwin&lt;/a>,
+&lt;a href="https://github.com/kenraywilliams" target="_blank" rel="noopener">@kenraywilliams&lt;/a>,
+&lt;a href="https://github.com/KJT-Habitat" target="_blank" rel="noopener">@KJT-Habitat&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/marcozanotti" target="_blank" rel="noopener">@marcozanotti&lt;/a>,
+&lt;a href="https://github.com/MasterLuke84" target="_blank" rel="noopener">@MasterLuke84&lt;/a>,
+&lt;a href="https://github.com/mikemahoney218" target="_blank" rel="noopener">@mikemahoney218&lt;/a>,
+&lt;a href="https://github.com/PathosEthosLogos" target="_blank" rel="noopener">@PathosEthosLogos&lt;/a>, and
+&lt;a href="https://github.com/Peter4801" target="_blank" rel="noopener">@Peter4801&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;/div></description></item><item><title>Parallel processing with tune</title><link>https://www.tidyverse.org/blog/2020/11/tune-parallel/</link><pubDate>Fri, 27 Nov 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/11/tune-parallel/</guid><description>&lt;!--
+TODO:
+* [ ] Pick category and tags (see existing with `post_tags()`)
+* [ ] Find photo &amp; update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnail()`
+* [ ] Add intro sentence
+* [ ] `use_tidy_thanks()`
+-->
+&lt;p>This is the third post related to version 0.1.2 of the tune package. The
+&lt;a href="https://www.tidyverse.org/blog/2020/11/tune-0-1-2/" target="_blank" rel="noopener">first post&lt;/a> discussed various new features while the
+&lt;a href="https://www.tidyverse.org/blog/2020/11/tidymodels-sparse-support/" target="_blank" rel="noopener">second post&lt;/a> describes sparse matrix support. This post is an excerpt from an upcoming chapter in
+&lt;a href="https://www.tmwr.org/" target="_blank" rel="noopener">&lt;em>Tidy Modeling with R&lt;/em>&lt;/a> and is focused on parallel processing.&lt;/p>
+&lt;p>Previously, the tune package allowed for parallel processing of calculations in a few different places:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Simple model resampling via &lt;code>resample_fit()&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Model tuning via &lt;code>tune_grid()&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>During Bayesian optimization (&lt;code>tune_bayes()&lt;/code>)&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>In the new version of tune, there are more options related to how parallelism occurs. It&amp;rsquo;s a little complicated and we&amp;rsquo;ll start by describing the most basic method.&lt;/p>
+&lt;h2 id="parallelizing-the-resampling-loop">Parallelizing the resampling loop
+&lt;a href="#parallelizing-the-resampling-loop">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>For illustration, let&amp;rsquo;s suppose that we are tuning a set of model parameters (e.g. not recipe parameters). In tidymodels, we always use
+&lt;a href="https://www.tmwr.org/resampling.html" target="_blank" rel="noopener">out-of-sample predictions to measure performance&lt;/a>. With grid search, pseudo-code that illustrates the computations are:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">for &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">resample&lt;/span> &lt;span class="n">in&lt;/span> &lt;span class="n">resamples&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="c1"># Create analysis and assessment sets&lt;/span>
+&lt;span class="c1"># Preprocess data (e.g. formula or recipe)&lt;/span>
+&lt;span class="nf">for &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">model&lt;/span> &lt;span class="n">in&lt;/span> &lt;span class="n">configurations&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="c1"># Fit {model} to the {resample} analysis set&lt;/span>
+&lt;span class="c1"># Predict the {resample} assessment set&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Prior to the new version of tune, the only option was to run the outer resampling loop in parallel. The inner modeling loop is run sequentially. The rationale for this was this: if you are doing any significant preprocessing of the data (e.g., a complex recipe), you only have to do that as many times as you have resamples. Since the model tuning is conditional on the preprocessed data, this is pretty computationally efficient.&lt;/p>
+&lt;p>There were two downsides to this approach:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Suppose you have 10 resamples but access to 20 cores. The maximum core utilization would be 10 and using 10 cores might not maximize the computational efficiency.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Since tidymodels treats validation sets as a single resample, you can&amp;rsquo;t parallel process at all.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Parallel processing is somewhat unpredictable. While you might have a lot of cores (or machines) to throw at the problem, adding more might not help. This really depends on the model, the size of the data, and the parallel strategy used (i.e. forking vs socket).&lt;/p>
+&lt;p>To illustrate how this approach utilizes parallel workers, we&amp;rsquo;ll use a case where there are 7 model tuning parameter values along with 5-fold cross-validation. This visualization shows how the tasks are allocated to the worker processes:&lt;/p>
+&lt;p>&lt;img src="figure/grid-logging-rs-1.svg" title="plot of chunk grid-logging-rs" alt="plot of chunk grid-logging-rs" width="70%" />&lt;/p>
+&lt;p>The code assigns each of the five resamples to their own worker process which, in this case, is a core on a single desktop machine. That worker conducts the preprocessing then loops over the models. The preprocessing happens once per resample.&lt;/p>
+&lt;p>In the new version of tune, there is a control option called &lt;code>parallel_over&lt;/code>. Setting this to a value of &lt;code>&amp;quot;resamples&amp;quot;&lt;/code> will select this scheme to parallelize the computations.&lt;/p>
+&lt;h2 id="parallelizing-everything">Parallelizing everything
+&lt;a href="#parallelizing-everything">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Another option that we can pursue is to take the two loops shown above and merge them into a single loop.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">all_tasks&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">crossing&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">resamples&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">configurations&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">for &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">iter&lt;/span> &lt;span class="n">in&lt;/span> &lt;span class="n">all_tasks&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="c1"># Create analysis and assessment sets for {iter}&lt;/span>
+&lt;span class="c1"># Preprocess data (e.g. formula or recipe)&lt;/span>
+&lt;span class="c1"># Fit model {iter} to the {iter} analysis set&lt;/span>
+&lt;span class="c1"># Predict the {iter} assessment set&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>With seven models and five resamples there are a total of 35 separate tasks that can be given to the worker processes. For this example, that would allow up to 35 cores/machines to run simultaneously. If we use a validation set, this would also enable the model loop to run in parallel.&lt;/p>
+&lt;p>The downside to this approach is that the preprocessing is unnecessarily repeated multiple times (depending on how tasks are allocated to the worker processes).&lt;/p>
+&lt;p>Taking our previous example, here is what the allocations look like if the 35 tasks are run across 10 cores:&lt;/p>
+&lt;p>&lt;img src="figure/grid-logging-all-1.svg" alt="plot of chunk grid-logging-all">&lt;/p>
+&lt;p>For each resample, the preprocessing is needlessly run six additional times. If the preprocessing is fast, this might be the best approach.&lt;/p>
+&lt;p>To enable this approach, the control option is set to &lt;code>parallel_over = &amp;quot;everything&amp;quot;&lt;/code>.&lt;/p>
+&lt;h2 id="automatic-strategy-detection">Automatic strategy detection
+&lt;a href="#automatic-strategy-detection">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The default for &lt;code>parallel_over&lt;/code> is &lt;code>NULL&lt;/code>. This allows us to check and see if there are multiple resamples. If that is the case, it uses a value of &lt;code>&amp;quot;resamples&amp;quot;&lt;/code>; otherwise, &lt;code>&amp;quot;everything&amp;quot;&lt;/code> is used.&lt;/p>
+&lt;h2 id="how-much-faster-are-the-computations">How much faster are the computations?
+&lt;a href="#how-much-faster-are-the-computations">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>As an example, we tuned a boosted tree with the &lt;code>xgboost&lt;/code> engine on a data set of 4,000 samples. Five-fold cross-validation was used with 10 candidate models. These data required some baseline preprocessing that did not require any estimation. The preprocessing was handled three different ways:&lt;/p>
+&lt;ol>
+&lt;li>Preprocess the data prior to modeling using a &lt;code>dplyr&lt;/code> pipeline (labeled as &amp;ldquo;none&amp;rdquo; in the plots below).&lt;/li>
+&lt;li>Conduct the same preprocessing using a recipe (shown as &amp;ldquo;light&amp;rdquo; preprocessing).&lt;/li>
+&lt;li>With a recipe, add an additional step that has a high computational cost (labeled as &amp;ldquo;expensive&amp;rdquo;).&lt;/li>
+&lt;/ol>
+&lt;p>The first and second preprocessing options are designed to measure the computational cost of the recipe. The third option measures the cost of performing redundant computations with &lt;code>parallel_over = &amp;quot;everything&amp;quot;&lt;/code>.&lt;/p>
+&lt;p>We evaluated this process using variable number of worker processes and using the two &lt;code>parallel_over&lt;/code> options. The computer has 10 physical cores and 20 virtual cores (via hyper threading).&lt;/p>
+&lt;p>Let&amp;rsquo;s consider the raw execution times:&lt;/p>
+&lt;p>&lt;img src="figure/grid-par-times-1.svg" alt="plot of chunk grid-par-times">&lt;/p>
+&lt;p>Since there were only five resamples, the number of cores used when &lt;code>parallel_over = &amp;quot;resamples&amp;quot;&lt;/code> is limited to five.&lt;/p>
+&lt;p>Comparing the curves in the first two panels for &amp;ldquo;none&amp;rdquo; and &amp;ldquo;light&amp;rdquo;:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>There is little difference in the execution times between the panels. This indicates, for these data, there is no real computational penalty for doing the preprocessing steps in a recipe.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>There is some benefit for using &lt;code>parallel_over = &amp;quot;everything&amp;quot;&lt;/code> with many cores. However, as shown below, the majority of the benefit of parallel processing occurs in the first five workers.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>With the expensive preprocessing step, there is a considerable difference in execution times. Using &lt;code>parallel_over = &amp;quot;everything&amp;quot;&lt;/code> is problematic since, even using all cores, it never achieves the execution time that &lt;code>parallel_over = &amp;quot;resamples&amp;quot;&lt;/code> attains with five cores. This is because the costly preprocessing step is unnecessarily repeated in the computational scheme.&lt;/p>
+&lt;h2 id="psock-clusters">PSOCK clusters
+&lt;a href="#psock-clusters">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The primary method for parallel processing on Windows computers uses a PSOCK cluster. From
+&lt;a href="https://www.oreilly.com/library/view/parallel-r/9781449317850/" target="_blank" rel="noopener">&lt;em>Parallel R&lt;/em>&lt;/a>:&lt;/p>
+&lt;blockquote>
+&lt;p>&amp;ldquo;The parallel package comes with two transports: &amp;lsquo;PSOCK&amp;rsquo; and &amp;lsquo;FORK&amp;rsquo;. The &amp;lsquo;PSOCK&amp;rsquo; transport is a streamlined version of
+&lt;a href="https://biostats.bepress.com/uwbiostat/paper193/" target="_blank" rel="noopener">snow&lt;/a>&amp;lsquo;s &amp;lsquo;SOCK&amp;rsquo; transport. It starts workers using the Rscript command, and communicates between the master and workers using socket connections.&amp;rdquo;&lt;/p>
+&lt;/blockquote>
+&lt;p>This method works on all major operating systems.&lt;/p>
+&lt;p>Different parallel processing technologies work in different ways. About mid-year we started to receive a number of issue reports where PSOCK clusters were failing on Windows. This was due to how parallel workers are initialized; they really don&amp;rsquo;t know anything about the main R process (e.g., what packages are loaded, what data objects should have access, etc). Those problems are now solved with the most recent versions of the parsnip, recipes, and tune packages.&lt;/p></description></item></channel></rss>

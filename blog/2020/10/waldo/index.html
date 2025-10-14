@@ -1,0 +1,233 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>waldo</title><meta property="og:title" content="waldo"><meta property="og:description" content="waldo is a new package that makes it easier to see the differences between a pair of complex R objects."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2020/10/waldo/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="waldo - Tidyverse"><meta property="description" content="waldo is a new package that makes it easier to see the differences between a pair of complex R objects."><meta property="og:description" content="waldo is a new package that makes it easier to see the differences between a pair of complex R objects."><meta property="og:image" content="https://www.tidyverse.org/blog/2020/10/waldo/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2020/10/waldo/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>waldo</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2020/10/waldo/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/JVD3XPqjLaQ>Jason Dent</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2020/10/15</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/testthat/>testthat</a>,
+<a href=/tags/waldo/>waldo</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Hadley Wickham</p><div class=article-content><p>We&rsquo;re stoked to announce the
+<a href=http://waldo.r-lib.org/ target=_blank rel=noopener>waldo</a> package. waldo is designed to find and concisely describe the difference between a pair of R objects. It was designed primarily to improve failure messages for
+<a href=https://testthat.r-lib.org/reference/equality-expectations.html target=_blank rel=noopener><code>testthat::expect_equal()</code></a>, but it turns out to be useful in a number of other situations.</p><p>You can install it from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span><span class=o>(</span><span class=s>"waldo"</span><span class=o>)</span>
+</code></pre></div><h2 id=waldo-basics>waldo basics
+<a href=#waldo-basics><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://github.com/r-lib/waldo>waldo</a></span><span class=o>)</span>
+</code></pre></div><p>There&rsquo;s really only one function in waldo that you&rsquo;ll ever use:
+<a href=https://rdrr.io/pkg/waldo/man/compare.html target=_blank rel=noopener><code>waldo::compare()</code></a>. Its job is to take a pair of objects and succinctly display all differences. When comparing atomic vectors,
+<a href=https://rdrr.io/pkg/waldo/man/compare.html target=_blank rel=noopener><code>compare()</code></a> uses the
+<a href=https://github.com/brodieG/diffobj target=_blank rel=noopener>diffobj</a> package by Brodie Gaslam to show additions, deletions, and changes:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c># addition</span>
+<span class=nf><a href=https://rdrr.io/pkg/waldo/man/compare.html>compare</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"b"</span>, <span class=s>"c"</span><span class=o>)</span>, <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"b"</span><span class=o>)</span><span class=o>)</span>
+
+<span class=c>#&gt; `old`: <span style=color:#555>"a"</span><span> </span><span style=color:#555>"b"</span><span> </span><span style=color:#bb0>"c"</span></span>
+<span class=c>#&gt; `new`: <span style=color:#555>"a"</span><span> </span><span style=color:#555>"b"</span></span>
+
+
+<span class=c># deletion</span>
+<span class=nf><a href=https://rdrr.io/pkg/waldo/man/compare.html>compare</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"b"</span><span class=o>)</span>, <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"b"</span>, <span class=s>"c"</span><span class=o>)</span><span class=o>)</span>
+
+<span class=c>#&gt; `old`: <span style=color:#555>"a"</span><span> </span><span style=color:#555>"b"</span><span>    </span></span>
+<span class=c>#&gt; `new`: <span style=color:#555>"a"</span><span> </span><span style=color:#555>"b"</span><span> </span><span style=color:#00b>"c"</span></span>
+
+
+<span class=c># modification</span>
+<span class=nf><a href=https://rdrr.io/pkg/waldo/man/compare.html>compare</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"b"</span>, <span class=s>"c"</span><span class=o>)</span>, <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"a"</span>, <span class=s>"B"</span>, <span class=s>"c"</span><span class=o>)</span><span class=o>)</span>
+
+<span class=c>#&gt; `old`: <span style=color:#555>"a"</span><span> </span><span style=color:#0b0>"b"</span><span> </span><span style=color:#555>"c"</span></span>
+<span class=c>#&gt; `new`: <span style=color:#555>"a"</span><span> </span><span style=color:#0b0>"B"</span><span> </span><span style=color:#555>"c"</span></span>
+</code></pre></div><p>Large vectors with small changes only show a little context around the changes, not all the parts that are the same:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/pkg/waldo/man/compare.html>compare</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"X"</span>, <span class=nv>letters</span>, <span class=nv>letters</span><span class=o>)</span>, <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=nv>letters</span>, <span class=nv>letters</span>, <span class=s>"X"</span><span class=o>)</span><span class=o>)</span>
+
+<span class=c>#&gt; `old[1:4]`: <span style=color:#bb0>"X"</span><span> </span><span style=color:#555>"a"</span><span> </span><span style=color:#555>"b"</span><span> </span><span style=color:#555>"c"</span></span>
+<span class=c>#&gt; `new[1:3]`:     <span style=color:#555>"a"</span><span> </span><span style=color:#555>"b"</span><span> </span><span style=color:#555>"c"</span></span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt; `old[51:53]`: <span style=color:#555>"x"</span><span> </span><span style=color:#555>"y"</span><span> </span><span style=color:#555>"z"</span><span>    </span></span>
+<span class=c>#&gt; `new[50:53]`: <span style=color:#555>"x"</span><span> </span><span style=color:#555>"y"</span><span> </span><span style=color:#555>"z"</span><span> </span><span style=color:#00b>"X"</span></span>
+</code></pre></div><p>Depending on the size of the differences and the width of your console you&rsquo;ll get one of three displays. The default display shows the vectors one atop the other. If there&rsquo;s not enough room for that, the two vectors are shown side-by-side. And if there&rsquo;s still not enough room for side-by-side, then each element is shown on its own line:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>with_width</span> <span class=o>&lt;-</span> <span class=kr>function</span><span class=o>(</span><span class=nv>width</span>, <span class=nv>code</span><span class=o>)</span> <span class=o>{</span>
+  <span class=nf>withr</span><span class=nf>::</span><span class=nf><a href=https://withr.r-lib.org/reference/with_options.html>local_options</a></span><span class=o>(</span>width <span class=o>=</span> <span class=nv>width</span><span class=o>)</span>
+  <span class=nv>code</span>
+<span class=o>}</span>
+
+<span class=nv>old</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"x"</span>, <span class=s>"y"</span>, <span class=s>"a"</span>, <span class=s>"b"</span>, <span class=s>"c"</span><span class=o>)</span>
+<span class=nv>new</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"y"</span>, <span class=s>"a"</span>, <span class=s>"B"</span>, <span class=s>"c"</span>, <span class=s>"d"</span><span class=o>)</span>
+
+<span class=nf>with_width</span><span class=o>(</span><span class=m>80</span>, <span class=nf><a href=https://rdrr.io/pkg/waldo/man/compare.html>compare</a></span><span class=o>(</span><span class=nv>old</span>, <span class=nv>new</span><span class=o>)</span><span class=o>)</span>
+
+<span class=c>#&gt; `old`: <span style=color:#bb0>"x"</span><span> </span><span style=color:#555>"y"</span><span> </span><span style=color:#555>"a"</span><span> </span><span style=color:#0b0>"b"</span><span> </span><span style=color:#555>"c"</span><span>    </span></span>
+<span class=c>#&gt; `new`:     <span style=color:#555>"y"</span><span> </span><span style=color:#555>"a"</span><span> </span><span style=color:#0b0>"B"</span><span> </span><span style=color:#555>"c"</span><span> </span><span style=color:#00b>"d"</span></span>
+
+<span class=nf>with_width</span><span class=o>(</span><span class=m>20</span>, <span class=nf><a href=https://rdrr.io/pkg/waldo/man/compare.html>compare</a></span><span class=o>(</span><span class=nv>old</span>, <span class=nv>new</span><span class=o>)</span><span class=o>)</span>
+
+<span class=c>#&gt;     old | new    </span>
+<span class=c>#&gt; [1] <span style=color:#bb0>"x"</span><span> -        </span></span>
+<span class=c>#&gt; [2] <span style=color:#555>"y"</span><span> | </span><span style=color:#555>"y"</span><span> [1]</span></span>
+<span class=c>#&gt; [3] <span style=color:#555>"a"</span><span> | </span><span style=color:#555>"a"</span><span> [2]</span></span>
+<span class=c>#&gt; [4] <span style=color:#0b0>"b"</span><span> - </span><span style=color:#0b0>"B"</span><span> [3]</span></span>
+<span class=c>#&gt; [5] <span style=color:#555>"c"</span><span> | </span><span style=color:#555>"c"</span><span> [4]</span></span>
+<span class=c>#&gt;         - <span style=color:#00b>"d"</span><span> [5]</span></span>
+
+<span class=nf>with_width</span><span class=o>(</span><span class=m>10</span>, <span class=nf><a href=https://rdrr.io/pkg/waldo/man/compare.html>compare</a></span><span class=o>(</span><span class=nv>old</span>, <span class=nv>new</span><span class=o>)</span><span class=o>)</span>
+
+<span class=c>#&gt; old vs new</span>
+<span class=c>#&gt; <span style=color:#00b>+ "x"</span></span>
+<span class=c>#&gt; <span style=color:#555>  "y"</span></span>
+<span class=c>#&gt; <span style=color:#555>  "a"</span></span>
+<span class=c>#&gt; <span style=color:#bb0>- "B"</span></span>
+<span class=c>#&gt; <span style=color:#00b>+ "b"</span></span>
+<span class=c>#&gt; <span style=color:#555>  "c"</span></span>
+<span class=c>#&gt; <span style=color:#bb0>- "d"</span></span>
+</code></pre></div><p>As you can see, in situations where colour is available, additions are coloured in blue, deletions in yellow, and changes in green.</p><h2 id=nested-objects>Nested objects
+<a href=#nested-objects><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>For more complex objects, waldo drills down precisely to the location of differences, using R code to describe their location. Unnamed lists show the position of changes:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/pkg/waldo/man/compare.html>compare</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/factor.html>factor</a></span><span class=o>(</span><span class=s>"x"</span><span class=o>)</span><span class=o>)</span>, <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span><span class=m>1L</span><span class=o>)</span><span class=o>)</span>
+
+<span class=c>#&gt; `old[[1]]` is <span style=color:#0b0>an S3 object of class &lt;factor&gt;</span></span>
+<span class=c>#&gt; `new[[1]]` is <span style=color:#0b0>an integer vector</span><span> (1)</span></span>
+</code></pre></div><p>But most complex lists have names, so if they&rsquo;re available waldo will use them:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/pkg/waldo/man/compare.html>compare</a></span><span class=o>(</span>
+  <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>x <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>y <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>z <span class=o>=</span> <span class=m>3</span><span class=o>)</span><span class=o>)</span><span class=o>)</span>,
+  <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>x <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>y <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>z <span class=o>=</span> <span class=s>"a"</span><span class=o>)</span><span class=o>)</span><span class=o>)</span>
+<span class=o>)</span>
+
+<span class=c>#&gt; `old$x$y$z` is <span style=color:#0b0>a double vector</span><span> (3)</span></span>
+<span class=c>#&gt; `new$x$y$z` is <span style=color:#0b0>a character vector</span><span> ('a')</span></span>
+</code></pre></div><p>If named valued are the same but with different positions, waldo just reports on the difference in names:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/pkg/waldo/man/compare.html>compare</a></span><span class=o>(</span>
+  <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>x <span class=o>=</span> <span class=m>1</span>, y <span class=o>=</span> <span class=m>2</span><span class=o>)</span>,
+  <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>y <span class=o>=</span> <span class=m>2</span>, x <span class=o>=</span> <span class=m>1</span><span class=o>)</span>
+<span class=o>)</span>
+
+<span class=c>#&gt; `names(old)`: <span style=color:#bb0>"x"</span><span> </span><span style=color:#555>"y"</span><span>    </span></span>
+<span class=c>#&gt; `names(new)`:     <span style=color:#555>"y"</span><span> </span><span style=color:#00b>"x"</span></span>
+</code></pre></div><p>waldo also reports on differences in attributes:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/pkg/waldo/man/compare.html>compare</a></span><span class=o>(</span>
+  <span class=nf><a href=https://rdrr.io/r/base/structure.html>structure</a></span><span class=o>(</span><span class=m>1</span><span class=o>:</span><span class=m>5</span>, a <span class=o>=</span> <span class=m>1</span><span class=o>)</span>,
+  <span class=nf><a href=https://rdrr.io/r/base/structure.html>structure</a></span><span class=o>(</span><span class=m>1</span><span class=o>:</span><span class=m>5</span>, a <span class=o>=</span> <span class=m>2</span><span class=o>)</span>
+<span class=o>)</span>
+
+<span class=c>#&gt; `attr(old, 'a')`: <span style=color:#0b0>1</span></span>
+<span class=c>#&gt; `attr(new, 'a')`: <span style=color:#0b0>2</span></span>
+</code></pre></div><p>And can recurse arbitrarily deep:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>x</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>a <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>b <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>c <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/structure.html>structure</a></span><span class=o>(</span><span class=m>1</span>, d <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/factor.html>factor</a></span><span class=o>(</span><span class=s>"a"</span><span class=o>)</span><span class=o>)</span><span class=o>)</span><span class=o>)</span><span class=o>)</span>
+<span class=nv>y</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>a <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>b <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>c <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/structure.html>structure</a></span><span class=o>(</span><span class=m>1</span>, d <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/factor.html>factor</a></span><span class=o>(</span><span class=s>"a"</span>, levels <span class=o>=</span> <span class=nv>letters</span><span class=o>[</span><span class=m>1</span><span class=o>:</span><span class=m>2</span><span class=o>]</span><span class=o>)</span><span class=o>)</span><span class=o>)</span><span class=o>)</span><span class=o>)</span>
+<span class=nf><a href=https://rdrr.io/pkg/waldo/man/compare.html>compare</a></span><span class=o>(</span><span class=nv>x</span>, <span class=nv>y</span><span class=o>)</span>
+
+<span class=c>#&gt; `levels(attr(old$a$b$c, 'd'))`: <span style=color:#555>"a"</span><span>    </span></span>
+<span class=c>#&gt; `levels(attr(new$a$b$c, 'd'))`: <span style=color:#555>"a"</span><span> </span><span style=color:#00b>"b"</span></span>
+</code></pre></div><p>To illustrate how you might use waldo in practice, I include two case studies below. They both come from my colleagues at RStudio, who have been trying it out prior to its public debut.</p><h2 id=case-study-github-api>Case study: GitHub API
+<a href=#case-study-github-api><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The first case study comes from Jenny Bryan. She was trying to figure out precisely what changed when a certain request to the GitHub API was performed with and without authentication:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c># Use default auth</span>
+<span class=nv>x1</span> <span class=o>&lt;-</span> <span class=nf>gh</span><span class=nf>::</span><span class=nf><a href=https://gh.r-lib.org/reference/gh.html>gh</a></span><span class=o>(</span><span class=s>"/repos/gaborcsardi/roxygenlabs"</span><span class=o>)</span>
+<span class=c># Suppress auth</span>
+<span class=nv>x2</span> <span class=o>&lt;-</span> <span class=nf>gh</span><span class=nf>::</span><span class=nf><a href=https://gh.r-lib.org/reference/gh.html>gh</a></span><span class=o>(</span><span class=s>"/repos/gaborcsardi/roxygenlabs"</span>, .token <span class=o>=</span> <span class=s>""</span><span class=o>)</span>
+
+<span class=c># Strip part of the results that might expose my GitHub credentials</span>
+<span class=nf><a href=https://rdrr.io/r/base/attr.html>attr</a></span><span class=o>(</span><span class=nv>x1</span>, <span class=s>"response"</span><span class=o>)</span> <span class=o>&lt;-</span> <span class=kc>NULL</span>
+<span class=nf><a href=https://rdrr.io/r/base/attr.html>attr</a></span><span class=o>(</span><span class=nv>x1</span>, <span class=s>".send_headers"</span><span class=o>)</span> <span class=o>&lt;-</span> <span class=kc>NULL</span>
+<span class=nf><a href=https://rdrr.io/r/base/attr.html>attr</a></span><span class=o>(</span><span class=nv>x2</span>, <span class=s>"response"</span><span class=o>)</span> <span class=o>&lt;-</span> <span class=kc>NULL</span>
+<span class=nf><a href=https://rdrr.io/r/base/attr.html>attr</a></span><span class=o>(</span><span class=nv>x2</span>, <span class=s>".send_headers"</span><span class=o>)</span> <span class=o>&lt;-</span> <span class=kc>NULL</span>
+</code></pre></div><p>The individual objects are rather complicated!</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=nv>x1</span>, list.len <span class=o>=</span> <span class=m>10</span><span class=o>)</span>
+
+<span class=c>#&gt; List of 77</span>
+<span class=c>#&gt;  $ id               : int 229545533</span>
+<span class=c>#&gt;  $ node_id          : chr "MDEwOlJlcG9zaXRvcnkyMjk1NDU1MzM="</span>
+<span class=c>#&gt;  $ name             : chr "roxygenlabs"</span>
+<span class=c>#&gt;  $ full_name        : chr "gaborcsardi/roxygenlabs"</span>
+<span class=c>#&gt;  $ private          : logi FALSE</span>
+<span class=c>#&gt;  $ owner            :List of 18</span>
+<span class=c>#&gt;   ..$ login              : chr "gaborcsardi"</span>
+<span class=c>#&gt;   ..$ id                 : int 660288</span>
+<span class=c>#&gt;   ..$ node_id            : chr "MDQ6VXNlcjY2MDI4OA=="</span>
+<span class=c>#&gt;   ..$ avatar_url         : chr "https://avatars3.githubusercontent.com/u/660288?v=4"</span>
+<span class=c>#&gt;   ..$ gravatar_id        : chr ""</span>
+<span class=c>#&gt;   ..$ url                : chr "https://api.github.com/users/gaborcsardi"</span>
+<span class=c>#&gt;   ..$ html_url           : chr "https://github.com/gaborcsardi"</span>
+<span class=c>#&gt;   ..$ followers_url      : chr "https://api.github.com/users/gaborcsardi/followers"</span>
+<span class=c>#&gt;   ..$ following_url      : chr "https://api.github.com/users/gaborcsardi/following{/other_user}"</span>
+<span class=c>#&gt;   ..$ gists_url          : chr "https://api.github.com/users/gaborcsardi/gists{/gist_id}"</span>
+<span class=c>#&gt;   .. [list output truncated]</span>
+<span class=c>#&gt;  $ html_url         : chr "https://github.com/gaborcsardi/roxygenlabs"</span>
+<span class=c>#&gt;  $ description      : chr "Experimental roxygen tags and extensions"</span>
+<span class=c>#&gt;  $ fork             : logi FALSE</span>
+<span class=c>#&gt;  $ url              : chr "https://api.github.com/repos/gaborcsardi/roxygenlabs"</span>
+<span class=c>#&gt;   [list output truncated]</span>
+<span class=c>#&gt;  - attr(*, "method")= chr "GET"</span>
+<span class=c>#&gt;  - attr(*, "class")= chr [1:2] "gh_response" "list"</span>
+</code></pre></div><p>While
+<a href=https://rdrr.io/r/base/all.equal.html target=_blank rel=noopener><code>all.equal()</code></a> identifies that there is a difference, it doesn&rsquo;t make it easy to see what the difference is:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/base/all.equal.html>all.equal</a></span><span class=o>(</span><span class=nv>x1</span>, <span class=nv>x2</span><span class=o>)</span>
+
+<span class=c>#&gt; [1] "Names: 3 string mismatches"                           </span>
+<span class=c>#&gt; [2] "Length mismatch: comparison on first 76 components"   </span>
+<span class=c>#&gt; [3] "Component 74: Modes: list, NULL"                      </span>
+<span class=c>#&gt; [4] "Component 74: Lengths: 3, 0"                          </span>
+<span class=c>#&gt; [5] "Component 74: names for target but not for current"   </span>
+<span class=c>#&gt; [6] "Component 74: current is not list-like"               </span>
+<span class=c>#&gt; [7] "Component 75: Modes: character, numeric"              </span>
+<span class=c>#&gt; [8] "Component 75: target is character, current is numeric"</span>
+<span class=c>#&gt; [9] "Component 76: Mean relative difference: 0.5"</span>
+</code></pre></div><p>waldo makes it easy: the request with auth returns a new key that contains the <code>permissions</code>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>waldo</span><span class=nf>::</span><span class=nf><a href=https://rdrr.io/pkg/waldo/man/compare.html>compare</a></span><span class=o>(</span><span class=nv>x1</span>, <span class=nv>x2</span><span class=o>)</span>
+
+<span class=c>#&gt; `old` is length 77</span>
+<span class=c>#&gt; `new` is length 76</span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt;      names(old)          | names(new)              </span>
+<span class=c>#&gt; [71] <span style=color:#555>"open_issues"</span><span>       | </span><span style=color:#555>"open_issues"</span><span>       [71]</span></span>
+<span class=c>#&gt; [72] <span style=color:#555>"watchers"</span><span>          | </span><span style=color:#555>"watchers"</span><span>          [72]</span></span>
+<span class=c>#&gt; [73] <span style=color:#555>"default_branch"</span><span>    | </span><span style=color:#555>"default_branch"</span><span>    [73]</span></span>
+<span class=c>#&gt; [74] <span style=color:#bb0>"permissions"</span><span>       -                         </span></span>
+<span class=c>#&gt; [75] <span style=color:#555>"temp_clone_token"</span><span>  | </span><span style=color:#555>"temp_clone_token"</span><span>  [74]</span></span>
+<span class=c>#&gt; [76] <span style=color:#555>"network_count"</span><span>     | </span><span style=color:#555>"network_count"</span><span>     [75]</span></span>
+<span class=c>#&gt; [77] <span style=color:#555>"subscribers_count"</span><span> | </span><span style=color:#555>"subscribers_count"</span><span> [76]</span></span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt; `old$permissions` is <span style=color:#00b>a list</span></span>
+<span class=c>#&gt; `new$permissions` is absent</span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt; `old$temp_clone_token` is <span style=color:#0b0>a character vector</span><span> ('')</span></span>
+<span class=c>#&gt; `new$temp_clone_token` is <span style=color:#0b0>NULL</span></span>
+</code></pre></div><h2 id=case-study-spatial-data>Case study: Spatial data
+<a href=#case-study-spatial-data><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The second case study comes from Joe Cheng who received a request from Roger Bivand to update map data bundled in the leaftlet package. Roger Bivand had helpfully provide the updated data, but Joe wanted to understand exactly what had changed:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nv>old</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/readRDS.html>readRDS</a></span><span class=o>(</span><span class=s>"storms-old.rds"</span><span class=o>)</span>
+<span class=nv>new</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/readRDS.html>readRDS</a></span><span class=o>(</span><span class=s>"storms-new.rds"</span><span class=o>)</span>
+</code></pre></div><p>Again, the individual objects are complicated:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/utils/str.html>str</a></span><span class=o>(</span><span class=nv>old</span>, list.len <span class=o>=</span> <span class=m>5</span>, max.level <span class=o>=</span> <span class=m>5</span><span class=o>)</span>
+
+<span class=c>#&gt; Loading required package: sp</span>
+
+<span class=c>#&gt; Formal class 'SpatialLinesDataFrame' [package "sp"] with 4 slots</span>
+<span class=c>#&gt;   ..@ data       :'data.frame':  24 obs. of  3 variables:</span>
+<span class=c>#&gt;   .. ..$ Name    : Factor w/ 24 levels "ALPHA","ARLENE",..: 1 2 3 4 5 6 7 8 9 10 ...</span>
+<span class=c>#&gt;   .. ..$ MaxWind : num [1:24] 45 60 35 65 60 130 140 75 60 45 ...</span>
+<span class=c>#&gt;   .. ..$ MinPress: num [1:24] 998 989 1002 991 980 ...</span>
+<span class=c>#&gt;   ..@ lines      :List of 24</span>
+<span class=c>#&gt;   .. ..$ :Formal class 'Lines' [package "sp"] with 2 slots</span>
+<span class=c>#&gt;   .. .. .. ..@ Lines:List of 1</span>
+<span class=c>#&gt;   .. .. .. ..@ ID   : chr "1"</span>
+<span class=c>#&gt;   .. ..$ :Formal class 'Lines' [package "sp"] with 2 slots</span>
+<span class=c>#&gt;   .. .. .. ..@ Lines:List of 1</span>
+<span class=c>#&gt;   .. .. .. ..@ ID   : chr "2"</span>
+<span class=c>#&gt;   .. ..$ :Formal class 'Lines' [package "sp"] with 2 slots</span>
+<span class=c>#&gt;   .. .. .. ..@ Lines:List of 1</span>
+<span class=c>#&gt;   .. .. .. ..@ ID   : chr "3"</span>
+<span class=c>#&gt;   .. ..$ :Formal class 'Lines' [package "sp"] with 2 slots</span>
+<span class=c>#&gt;   .. .. .. ..@ Lines:List of 1</span>
+<span class=c>#&gt;   .. .. .. ..@ ID   : chr "4"</span>
+<span class=c>#&gt;   .. ..$ :Formal class 'Lines' [package "sp"] with 2 slots</span>
+<span class=c>#&gt;   .. .. .. ..@ Lines:List of 1</span>
+<span class=c>#&gt;   .. .. .. ..@ ID   : chr "5"</span>
+<span class=c>#&gt;   .. .. [list output truncated]</span>
+<span class=c>#&gt;   ..@ bbox       : num [1:2, 1:2] -101.4 10.7 6.6 68.8</span>
+<span class=c>#&gt;   .. ..- attr(*, "dimnames")=List of 2</span>
+<span class=c>#&gt;   .. .. ..$ : chr [1:2] "x" "y"</span>
+<span class=c>#&gt;   .. .. ..$ : chr [1:2] "min" "max"</span>
+<span class=c>#&gt;   ..@ proj4string:Formal class 'CRS' [package "sp"] with 1 slot</span>
+<span class=c>#&gt;   .. .. ..@ projargs: chr "+init=epsg:4326 +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"</span>
+</code></pre></div><p><a href=https://rdrr.io/r/base/all.equal.html target=_blank rel=noopener><code>all.equal()</code></a> is bit more helpful here, at least getting us to the right general vicinity:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/base/all.equal.html>all.equal</a></span><span class=o>(</span><span class=nv>old</span>, <span class=nv>new</span><span class=o>)</span>
+
+<span class=c>#&gt; [1] "Attributes: &lt; Component \"proj4string\": Attributes: &lt; Names: 1 string mismatch &gt; &gt;"                         </span>
+<span class=c>#&gt; [2] "Attributes: &lt; Component \"proj4string\": Attributes: &lt; Length mismatch: comparison on first 2 components &gt; &gt;"</span>
+<span class=c>#&gt; [3] "Attributes: &lt; Component \"proj4string\": Attributes: &lt; Component 2: 1 string mismatch &gt; &gt;"</span>
+</code></pre></div><p>But waldo gets us right to the change: the definition of the spatial projection has changed, and it now contains a comment with a lot more data.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>waldo</span><span class=nf>::</span><span class=nf><a href=https://rdrr.io/pkg/waldo/man/compare.html>compare</a></span><span class=o>(</span><span class=nv>old</span>, <span class=nv>new</span><span class=o>)</span>
+
+<span class=c>#&gt; old@proj4string@projargs vs new@proj4string@projargs</span>
+<span class=c>#&gt; <span style=color:#bb0>- "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs"</span></span>
+<span class=c>#&gt; <span style=color:#00b>+ "+init=epsg:4326 +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"</span></span>
+<span class=c>#&gt; </span>
+<span class=c>#&gt; `comment(old@proj4string)` is absent</span>
+<span class=c>#&gt; `comment(new@proj4string)` is <span style=color:#bb0>a character vector</span><span> ('GEOGCRS["unknown",\n    DATUM["World Geodetic System 1984",\n        ELLIPSOID["WGS 84",6378137,298.257223563,\n            LENGTHUNIT["metre",1]],\n        ID["EPSG",6326]],\n    PRIMEM["Greenwich",0,\n        ANGLEUNIT["degree",0.0174532925199433],\n        ID["EPSG",8901]],\n    CS[ellipsoidal,2],\n        AXIS["longitude",east,\n            ORDER[1],\n            ANGLEUNIT["degree",0.0174532925199433,\n                ID["EPSG",9122]]],\n        AXIS["latitude",north,\n            ORDER[2],\n            ANGLEUNIT["degree",0.0174532925199433,\n                ID["EPSG",9122]]]]')</span></span>
+</code></pre></div></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#waldo-basics>waldo basics</a></li><li><a href=#nested-objects>Nested objects</a></li><li><a href=#case-study-github-api>Case study: GitHub API</a></li><li><a href=#case-study-spatial-data>Case study: Spatial data</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

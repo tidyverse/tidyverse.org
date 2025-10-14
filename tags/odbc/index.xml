@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>odbc | Tidyverse</title><link>https://www.tidyverse.org/tags/odbc/</link><atom:link href="https://www.tidyverse.org/tags/odbc/index.xml" rel="self" type="application/rss+xml"/><description>odbc</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 02 Dec 2019 00:00:00 +0000</lastBuildDate><item><title>odbc 1.2.0</title><link>https://www.tidyverse.org/blog/2019/12/odbc-1-2-0/</link><pubDate>Mon, 02 Dec 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/12/odbc-1-2-0/</guid><description>&lt;p>odbc 1.2.0 is now on CRAN! The odbc package provides a
+&lt;a href="https://dbi.r-dbi.org/" target="_blank" rel="noopener">DataBase Interface (DBI)&lt;/a> to
+&lt;a href="https://en.wikipedia.org/wiki/Open_Database_Connectivity" target="_blank" rel="noopener">Open DataBase Connectivity (ODBC)&lt;/a> drivers.
+ODBC drivers exist for nearly all widely used databases, including
+&lt;a href="https://www.microsoft.com/en-us/sql-server/" target="_blank" rel="noopener">SQL Server&lt;/a>,
+&lt;a href="https://www.oracle.com/database" target="_blank" rel="noopener">Oracle&lt;/a>,
+&lt;a href="https://www.mysql.com/" target="_blank" rel="noopener">MySQL&lt;/a>,
+&lt;a href="https://www.postgresql.org/" target="_blank" rel="noopener">PostgreSQL&lt;/a>,
+&lt;a href="https://sqlite.org/" target="_blank" rel="noopener">SQLite&lt;/a> and others.
+RStudio also provides a set of
+&lt;a href="https://db.rstudio.com/rstudio/pro-drivers/" target="_blank" rel="noopener">Professional ODBC Drivers&lt;/a> free of charge for customers who have RStudio Server Pro, RStudio Connect, or Shiny Server Pro.
+In addition,
+&lt;a href="https://db.rstudio.com/" target="_blank" rel="noopener">db.rstudio.com&lt;/a> has extensive resources on connecting to and working with databases from R.
+The odbc package allows you to query these databases from within R.
+Get the latest version with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;odbc&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Generally you will &lt;em>not&lt;/em> need to load the odbc package with &lt;code>library()&lt;/code>, instead you can load the &lt;code>DBI&lt;/code> package and use &lt;code>odbc::odbc()&lt;/code> to reference the driver when connecting. e.g.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">DBI&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">con&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">dbConnect&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">odbc&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">odbc&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="s">&amp;#34;MicrosoftSQLServer&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">UID&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;SA&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">PWD&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;Password12&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The biggest improvements in this release are related to querying within schemas, an API for immediate execution, and a new &lt;code>timezone_out&lt;/code> parameter to control the displayed time of timezones returned by the query.
+See the
+&lt;a href="https://cloud.r-project.org/web/packages/odbc/news/news.html" target="_blank" rel="noopener">change log&lt;/a> for the full set of changes for this release.&lt;/p>
+&lt;h2 id="querying-schemas">Querying schemas
+&lt;a href="#querying-schemas">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Use &lt;code>DBI::Id()&lt;/code> reference a table within a schema.
+This will allow odbc to handle any quoting necessary for your particular database. e.g. you can write to a table named &lt;code>my.iris&lt;/code> even if there is a schema named &lt;code>my&lt;/code>.&lt;/p>
+&lt;pre>&lt;code class="language-{r," data-lang="{r,">library(DBI)
+con &amp;lt;- dbConnect(odbc::odbc(), &amp;quot;MicrosoftSQLServer&amp;quot;, UID = &amp;quot;SA&amp;quot;, PWD = &amp;quot;Password12&amp;quot;)
+my_tbl &amp;lt;- Id(schema = &amp;quot;my&amp;quot;, table = &amp;quot;my.iris&amp;quot;)
+dbWriteTable(con, my_tbl, iris)
+tbl &amp;lt;- dbReadTable(con, my_tbl)
+# The quoting for &amp;quot;my&amp;quot;.&amp;quot;my.iris&amp;quot; is done automatically when
+# using DBI::Id()
+tbl2 &amp;lt;- dbGetQuery(con, 'SELECT * FROM &amp;quot;my&amp;quot;.&amp;quot;my.iris&amp;quot;')
+all.equal(tbl, tbl2)
+#&amp;gt; TRUE
+&lt;/code>&lt;/pre>&lt;p>This feature has actually existed for a number of odbc releases, but due to driver inconsistencies was not working properly on SQL Server, which is now fixed.&lt;/p>
+&lt;h2 id="immediatedirect-execution">Immediate/direct execution
+&lt;a href="#immediatedirect-execution">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The odbc package uses
+&lt;a href="https://en.wikipedia.org/wiki/Prepared_statement" target="_blank" rel="noopener">Prepared Statements&lt;/a> to compile the query once and reuse it, allowing large or repeated queries to be more efficient.
+However, prepared statements can actually perform worse in some cases, such as many different small queries that are all only executed once.
+Because of this the odbc package now also supports direct queries by specifying &lt;code>immediate = TRUE&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># This will use a prepared statement&lt;/span>
+&lt;span class="nf">dbGetQuery&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;SELECT * from iris&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># This will execute the statement directly&lt;/span>
+&lt;span class="nf">dbGetQuery&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;SELECT * from iris&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">immediate&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="timezone-display">Timezone display
+&lt;a href="#timezone-display">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The odbc package has historically imported date times with a &lt;code>UTC&lt;/code> timezone.
+This ensures that the same code will produce the same output regardless of the local time.
+However this can confuse users, particularly if the server timezones are stored or displayed in a non-UTC timezone.
+Because of this, the odbc package now supports a &lt;code>timezone_out&lt;/code> parameter, which allows users to set the timezone the times should be displayed in.
+Setting this to your local timezone, or the timezone of the database may reduce this confusion.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">DBI&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Create a new connection, specifying a timezone_out of UTC (this is the default)&lt;/span>
+&lt;span class="n">con_utc&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">dbConnect&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">odbc&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">odbc&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="s">&amp;#34;MicrosoftSQLServer&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">UID&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;SA&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">PWD&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;Password12&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">timezone_out&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;UTC&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Create a table with the current timestamp as a value&lt;/span>
+&lt;span class="nf">dbExecute&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">con_utc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;SELECT CURRENT_TIMESTAMP AS x INTO now&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 1&lt;/span>
+&lt;span class="c1"># Read that table, the time is displayed in UTC&lt;/span>
+&lt;span class="n">res_utc&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">dbReadTable&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">con_utc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;now&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">res_utc&lt;/span>
+&lt;span class="c1">#&amp;gt; x&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 2019-11-29 15:03:59&lt;/span>
+&lt;span class="c1"># Create another connection, this time with the timezone in United States eastern time&lt;/span>
+&lt;span class="n">con_est&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">dbConnect&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">odbc&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">odbc&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="s">&amp;#34;MicrosoftSQLServer&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">UID&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;SA&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">PWD&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s">&amp;#34;Password12&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">timezone_out&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;US/Eastern&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Read the same table again, this time the time is displayed in EST&lt;/span>
+&lt;span class="n">res_est&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">dbReadTable&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">con_est&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;now&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">res_est&lt;/span>
+&lt;span class="c1">#&amp;gt; x&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 2019-11-29 10:03:59&lt;/span>
+&lt;span class="c1"># These two times equal the same time point, the only difference is the display&lt;/span>
+&lt;span class="n">res_utc&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">res_est&lt;/span>
+&lt;span class="c1">#&amp;gt; Warning in check_tzones(e1, e2): &amp;#39;tzone&amp;#39; attributes are inconsistent&lt;/span>
+&lt;span class="c1">#&amp;gt; x&lt;/span>
+&lt;span class="c1">#&amp;gt; [1,] TRUE&lt;/span>
+&lt;span class="c1"># You can convert res_utc to res_est by changing the `tzone` attribute&lt;/span>
+&lt;span class="nf">attr&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">res_utc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;tzone&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="s">&amp;#34;US/Eastern&amp;#34;&lt;/span>
+&lt;span class="n">res_utc&lt;/span>
+&lt;span class="c1">#&amp;gt; x&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 2019-11-29 10:03:59&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>There were a number of additional features and bug fixes in this version, see the
+&lt;a href="https://cloud.r-project.org/web/packages/odbc/news/news.html" target="_blank" rel="noopener">change log&lt;/a> for details.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thanks to Xianying Tan, James Blair and Kirill Müller who all submitted multiple pull requests with improvements, and to all the 114 GitHub contributors who have opened issues or submitted code improvements to help make this release happen!&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/ajholguin" target="_blank" rel="noopener">@ajholguin&lt;/a>,
+&lt;a href="https://github.com/ammarelsh" target="_blank" rel="noopener">@ammarelsh&lt;/a>,
+&lt;a href="https://github.com/anchal02" target="_blank" rel="noopener">@anchal02&lt;/a>,
+&lt;a href="https://github.com/andreaspano" target="_blank" rel="noopener">@andreaspano&lt;/a>,
+&lt;a href="https://github.com/andrewsali" target="_blank" rel="noopener">@andrewsali&lt;/a>,
+&lt;a href="https://github.com/arestrom" target="_blank" rel="noopener">@arestrom&lt;/a>,
+&lt;a href="https://github.com/aryoda" target="_blank" rel="noopener">@aryoda&lt;/a>,
+&lt;a href="https://github.com/berkorbay" target="_blank" rel="noopener">@berkorbay&lt;/a>,
+&lt;a href="https://github.com/blairj09" target="_blank" rel="noopener">@blairj09&lt;/a>,
+&lt;a href="https://github.com/blmayer" target="_blank" rel="noopener">@blmayer&lt;/a>,
+&lt;a href="https://github.com/cboettig" target="_blank" rel="noopener">@cboettig&lt;/a>,
+&lt;a href="https://github.com/cdumoulin-usgs" target="_blank" rel="noopener">@cdumoulin-usgs&lt;/a>,
+&lt;a href="https://github.com/CerebralMastication" target="_blank" rel="noopener">@CerebralMastication&lt;/a>,
+&lt;a href="https://github.com/cfisher5" target="_blank" rel="noopener">@cfisher5&lt;/a>,
+&lt;a href="https://github.com/chrishaug" target="_blank" rel="noopener">@chrishaug&lt;/a>,
+&lt;a href="https://github.com/ChristianAlvaradoAP" target="_blank" rel="noopener">@ChristianAlvaradoAP&lt;/a>,
+&lt;a href="https://github.com/cnolanminich" target="_blank" rel="noopener">@cnolanminich&lt;/a>,
+&lt;a href="https://github.com/colearendt" target="_blank" rel="noopener">@colearendt&lt;/a>,
+&lt;a href="https://github.com/copernican" target="_blank" rel="noopener">@copernican&lt;/a>,
+&lt;a href="https://github.com/crossxwill" target="_blank" rel="noopener">@crossxwill&lt;/a>,
+&lt;a href="https://github.com/david-cortes" target="_blank" rel="noopener">@david-cortes&lt;/a>,
+&lt;a href="https://github.com/davidchall" target="_blank" rel="noopener">@davidchall&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/detule" target="_blank" rel="noopener">@detule&lt;/a>,
+&lt;a href="https://github.com/dhaycraft" target="_blank" rel="noopener">@dhaycraft&lt;/a>,
+&lt;a href="https://github.com/dirkschumacher" target="_blank" rel="noopener">@dirkschumacher&lt;/a>,
+&lt;a href="https://github.com/dpprdan" target="_blank" rel="noopener">@dpprdan&lt;/a>,
+&lt;a href="https://github.com/duncanrellis" target="_blank" rel="noopener">@duncanrellis&lt;/a>,
+&lt;a href="https://github.com/edgararuiz" target="_blank" rel="noopener">@edgararuiz&lt;/a>,
+&lt;a href="https://github.com/elbamos" target="_blank" rel="noopener">@elbamos&lt;/a>,
+&lt;a href="https://github.com/elben10" target="_blank" rel="noopener">@elben10&lt;/a>,
+&lt;a href="https://github.com/etienne-s" target="_blank" rel="noopener">@etienne-s&lt;/a>,
+&lt;a href="https://github.com/etiennebr" target="_blank" rel="noopener">@etiennebr&lt;/a>,
+&lt;a href="https://github.com/felipegerard" target="_blank" rel="noopener">@felipegerard&lt;/a>,
+&lt;a href="https://github.com/foundinblank" target="_blank" rel="noopener">@foundinblank&lt;/a>,
+&lt;a href="https://github.com/Freekers" target="_blank" rel="noopener">@Freekers&lt;/a>,
+&lt;a href="https://github.com/ghost" target="_blank" rel="noopener">@ghost&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/halpo" target="_blank" rel="noopener">@halpo&lt;/a>,
+&lt;a href="https://github.com/happyshows" target="_blank" rel="noopener">@happyshows&lt;/a>,
+&lt;a href="https://github.com/harrismcgehee" target="_blank" rel="noopener">@harrismcgehee&lt;/a>,
+&lt;a href="https://github.com/hiltonmbr" target="_blank" rel="noopener">@hiltonmbr&lt;/a>,
+&lt;a href="https://github.com/hoxo-m" target="_blank" rel="noopener">@hoxo-m&lt;/a>,
+&lt;a href="https://github.com/iamsaini87" target="_blank" rel="noopener">@iamsaini87&lt;/a>,
+&lt;a href="https://github.com/its-gazza" target="_blank" rel="noopener">@its-gazza&lt;/a>,
+&lt;a href="https://github.com/JarkoDubbeldam" target="_blank" rel="noopener">@JarkoDubbeldam&lt;/a>,
+&lt;a href="https://github.com/jasperDD" target="_blank" rel="noopener">@jasperDD&lt;/a>,
+&lt;a href="https://github.com/javierluraschi" target="_blank" rel="noopener">@javierluraschi&lt;/a>,
+&lt;a href="https://github.com/jeroenhabets" target="_blank" rel="noopener">@jeroenhabets&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jrisi256" target="_blank" rel="noopener">@jrisi256&lt;/a>,
+&lt;a href="https://github.com/jsonbecker" target="_blank" rel="noopener">@jsonbecker&lt;/a>,
+&lt;a href="https://github.com/jtelleria" target="_blank" rel="noopener">@jtelleria&lt;/a>,
+&lt;a href="https://github.com/jtelleriar" target="_blank" rel="noopener">@jtelleriar&lt;/a>,
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>,
+&lt;a href="https://github.com/kbzsl" target="_blank" rel="noopener">@kbzsl&lt;/a>,
+&lt;a href="https://github.com/kerry-ja" target="_blank" rel="noopener">@kerry-ja&lt;/a>,
+&lt;a href="https://github.com/kevinushey" target="_blank" rel="noopener">@kevinushey&lt;/a>,
+&lt;a href="https://github.com/khotilov" target="_blank" rel="noopener">@khotilov&lt;/a>,
+&lt;a href="https://github.com/KimmoMW" target="_blank" rel="noopener">@KimmoMW&lt;/a>,
+&lt;a href="https://github.com/kjaanson" target="_blank" rel="noopener">@kjaanson&lt;/a>,
+&lt;a href="https://github.com/kohleth" target="_blank" rel="noopener">@kohleth&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/lee170" target="_blank" rel="noopener">@lee170&lt;/a>,
+&lt;a href="https://github.com/leungi" target="_blank" rel="noopener">@leungi&lt;/a>,
+&lt;a href="https://github.com/madlogos" target="_blank" rel="noopener">@madlogos&lt;/a>,
+&lt;a href="https://github.com/martindut" target="_blank" rel="noopener">@martindut&lt;/a>,
+&lt;a href="https://github.com/mateusz1981" target="_blank" rel="noopener">@mateusz1981&lt;/a>,
+&lt;a href="https://github.com/matthijsvanderloos" target="_blank" rel="noopener">@matthijsvanderloos&lt;/a>,
+&lt;a href="https://github.com/maverix13" target="_blank" rel="noopener">@maverix13&lt;/a>,
+&lt;a href="https://github.com/maxPunck" target="_blank" rel="noopener">@maxPunck&lt;/a>,
+&lt;a href="https://github.com/mbfsdatascience" target="_blank" rel="noopener">@mbfsdatascience&lt;/a>,
+&lt;a href="https://github.com/md0u80c9" target="_blank" rel="noopener">@md0u80c9&lt;/a>,
+&lt;a href="https://github.com/meztez" target="_blank" rel="noopener">@meztez&lt;/a>,
+&lt;a href="https://github.com/mhsilvav" target="_blank" rel="noopener">@mhsilvav&lt;/a>,
+&lt;a href="https://github.com/mingwandroid" target="_blank" rel="noopener">@mingwandroid&lt;/a>,
+&lt;a href="https://github.com/mlaviolet" target="_blank" rel="noopener">@mlaviolet&lt;/a>,
+&lt;a href="https://github.com/mmastand" target="_blank" rel="noopener">@mmastand&lt;/a>,
+&lt;a href="https://github.com/move[bot]" target="_blank" rel="noopener">@move[bot]&lt;/a>,
+&lt;a href="https://github.com/muranyia" target="_blank" rel="noopener">@muranyia&lt;/a>,
+&lt;a href="https://github.com/nwstephens" target="_blank" rel="noopener">@nwstephens&lt;/a>,
+&lt;a href="https://github.com/nzbart" target="_blank" rel="noopener">@nzbart&lt;/a>,
+&lt;a href="https://github.com/patperu" target="_blank" rel="noopener">@patperu&lt;/a>,
+&lt;a href="https://github.com/PatWilson" target="_blank" rel="noopener">@PatWilson&lt;/a>,
+&lt;a href="https://github.com/pchiacchiari-coatue" target="_blank" rel="noopener">@pchiacchiari-coatue&lt;/a>,
+&lt;a href="https://github.com/pgensler" target="_blank" rel="noopener">@pgensler&lt;/a>,
+&lt;a href="https://github.com/pythiantech" target="_blank" rel="noopener">@pythiantech&lt;/a>,
+&lt;a href="https://github.com/quartin" target="_blank" rel="noopener">@quartin&lt;/a>,
+&lt;a href="https://github.com/r2evans" target="_blank" rel="noopener">@r2evans&lt;/a>,
+&lt;a href="https://github.com/ralsouza" target="_blank" rel="noopener">@ralsouza&lt;/a>,
+&lt;a href="https://github.com/renkun-ken" target="_blank" rel="noopener">@renkun-ken&lt;/a>,
+&lt;a href="https://github.com/revodavid" target="_blank" rel="noopener">@revodavid&lt;/a>,
+&lt;a href="https://github.com/ronblum" target="_blank" rel="noopener">@ronblum&lt;/a>,
+&lt;a href="https://github.com/rtgdk" target="_blank" rel="noopener">@rtgdk&lt;/a>,
+&lt;a href="https://github.com/s-fleck" target="_blank" rel="noopener">@s-fleck&lt;/a>,
+&lt;a href="https://github.com/satvenkat" target="_blank" rel="noopener">@satvenkat&lt;/a>,
+&lt;a href="https://github.com/scmck17" target="_blank" rel="noopener">@scmck17&lt;/a>,
+&lt;a href="https://github.com/sebschub" target="_blank" rel="noopener">@sebschub&lt;/a>,
+&lt;a href="https://github.com/shapenaji" target="_blank" rel="noopener">@shapenaji&lt;/a>,
+&lt;a href="https://github.com/shizidushu" target="_blank" rel="noopener">@shizidushu&lt;/a>,
+&lt;a href="https://github.com/shrektan" target="_blank" rel="noopener">@shrektan&lt;/a>,
+&lt;a href="https://github.com/smingerson" target="_blank" rel="noopener">@smingerson&lt;/a>,
+&lt;a href="https://github.com/stlouiso" target="_blank" rel="noopener">@stlouiso&lt;/a>,
+&lt;a href="https://github.com/timabe" target="_blank" rel="noopener">@timabe&lt;/a>,
+&lt;a href="https://github.com/totalgit74" target="_blank" rel="noopener">@totalgit74&lt;/a>,
+&lt;a href="https://github.com/TTudino" target="_blank" rel="noopener">@TTudino&lt;/a>,
+&lt;a href="https://github.com/UpsideDownRide" target="_blank" rel="noopener">@UpsideDownRide&lt;/a>,
+&lt;a href="https://github.com/versipellis" target="_blank" rel="noopener">@versipellis&lt;/a>,
+&lt;a href="https://github.com/vh-d" target="_blank" rel="noopener">@vh-d&lt;/a>,
+&lt;a href="https://github.com/vpanfilov" target="_blank" rel="noopener">@vpanfilov&lt;/a>,
+&lt;a href="https://github.com/warnes" target="_blank" rel="noopener">@warnes&lt;/a>,
+&lt;a href="https://github.com/washcycle" target="_blank" rel="noopener">@washcycle&lt;/a>,
+&lt;a href="https://github.com/wibeasley" target="_blank" rel="noopener">@wibeasley&lt;/a>, and
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>&lt;/p></description></item></channel></rss>

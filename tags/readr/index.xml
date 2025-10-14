@@ -1,0 +1,852 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>readr | Tidyverse</title><link>https://www.tidyverse.org/tags/readr/</link><atom:link href="https://www.tidyverse.org/tags/readr/index.xml" rel="self" type="application/rss+xml"/><description>readr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 11 Nov 2021 00:00:00 +0000</lastBuildDate><item><title>Eager vs lazy reading in readr 2.1.0</title><link>https://www.tidyverse.org/blog/2021/11/readr-2-1-0-lazy/</link><pubDate>Thu, 11 Nov 2021 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2021/11/readr-2-1-0-lazy/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re pleased to announce the release of
+&lt;a href="https://readr.tidyverse.org/" target="_blank" rel="noopener">readr&lt;/a> 2.1.0. The readr package makes it easy to get rectangular data out of comma separated (csv), tab separated (tsv) or fixed width files (fwf) and into R. It is designed to flexibly parse many types of data found in the wild, while still cleanly failing when data unexpectedly changes.&lt;/p>
+&lt;p>The easiest way to install the latest version from CRAN is to install the whole tidyverse.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"tidyverse"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Alternatively, install just readr from CRAN:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"readr"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This blog post will discuss the recent change in readr 2.0 to lazy reading by default, and the recent change back to eager reading in readr 2.1.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://github.com/tidyverse/readr/releases" target="_blank" rel="noopener">readr release notes&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://readr.tidyverse.org'>readr&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="the-advantages-of-lazy-reading">The advantages of Lazy reading
+&lt;a href="#the-advantages-of-lazy-reading">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>readr 2.0 introduced &amp;lsquo;lazy&amp;rsquo; reading by default. The idea of lazy reading is that instead of reading all the data in a CSV file up front you instead read it only on-demand.&lt;/p>
+&lt;p>For example the following code reads the column headers, filters based on column &lt;code>hp&lt;/code> then computes the mean of the filtered column &lt;code>mpg&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://tidyverse.tidyverse.org'>tidyverse&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>df&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://readr.tidyverse.org/reference/read_delim.html'>read_csv&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://readr.tidyverse.org/reference/readr_example.html'>readr_example&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"mtcars.csv"&lt;/span>&lt;span class='o'>)&lt;/span>, lazy &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='nv'>df&lt;/span> |&amp;gt;
+&lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/filter.html'>filter&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>hp&lt;/span> &lt;span class='o'>&amp;gt;&lt;/span> &lt;span class='m'>200&lt;/span>&lt;span class='o'>)&lt;/span> |&amp;gt;
+&lt;span class='nf'>summarise&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/mean.html'>mean&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 1 × 1&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; `mean(mpg)`&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> 13.4&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>When you run this example readr would then only read the data in the orange colored parts of the file.&lt;/p>
+&lt;p>&lt;img src="lazy.png" alt="lazy diagram">&lt;/p>
+&lt;p>The long orange strip at the top is the column headers, the vertical bar is the data in the &lt;code>hp&lt;/code> column, and the dotted parts are the filtered &lt;code>mpg&lt;/code> values used to calculate the mean. As you can see depending on what you are doing with the file using lazy reading can drastically reduce the amount of the total file you end up needing to access.&lt;/p>
+&lt;p>This idea, first explored in the
+&lt;a href="https://vroom.r-lib.org/" target="_blank" rel="noopener">vroom&lt;/a> package, can result in considerable speed improvements depending on the size of the file and what parts you are interested in. readr 2.0 used vroom under the hood to provide this type of lazy reading by default.&lt;/p>
+&lt;h2 id="the-problems-with-lazy-reading">The problems with lazy reading
+&lt;a href="#the-problems-with-lazy-reading">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>vroom was first released to CRAN in May 2019, and not added to readr until 2 years later in July 2021. Unfortunately usage of vroom was dwarfed by that of readr and the overall pool of users using vroom remained small. In particular the proportion of Windows users using vroom was much lower than those using readr. Crucially the behavior of lazy reading on Windows suffers due to how Windows works with file handles.&lt;/p>
+&lt;p>One major downside to lazy reading is that the program needs to keep a file handle open to the file. File handles are the low level way computer programs read to or write to a file. How they work varies by the operating system. POSIX (Portable Operating System Interface) systems like macOS and linux allow multiple processes to hold read only file handles to the same file. In contrast on Windows the situation is different, once a process opens a file handle that file is locked from other processes opening it for as long as the handle is open. If you have ever encountered a message like&lt;/p>
+&lt;blockquote>
+&lt;p>File/Folder in Use. The action can&amp;rsquo;t be completed because the file is open in another program. Close the folder or file and try again.&lt;/p>
+&lt;/blockquote>
+&lt;p>Then this file handle locking behavior is the likely cause. You are trying to open a file in program A that program B also has open.&lt;/p>
+&lt;p>We were aware of this issue, however we underestimated the prevalence of situations where users would run into this problem and amount of user confusion this would entail.&lt;/p>
+&lt;h2 id="decision-to-change-the-default">Decision to change the default
+&lt;a href="#decision-to-change-the-default">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Upon release of readr 2.0 most of the reaction was positive. However a number of people opened issues related to locked files and the use of lazy reading. Many of these cases occurred when users tried to open files in other programs like Excel or view it in the RStudio IDE, but there was another case we hadn&amp;rsquo;t considered in detail.&lt;/p>
+&lt;p>A number of users had workflows where they read in a file, cleaned the data in R, and then wrote back to that same file name in the same R session. vroom and readr&amp;rsquo;s writing functions had code in them to ensure if users did this with a lazily read data frame the data would be first fully read eagerly (and the file handle closed) before writing. However other functions we don&amp;rsquo;t control (like
+&lt;a href="https://rdrr.io/r/utils/write.table.html" target="_blank" rel="noopener">&lt;code>utils::write.csv&lt;/code>&lt;/a>,
+&lt;a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" target="_blank" rel="noopener">&lt;code>data.table::fread()&lt;/code>&lt;/a>, etc.) would have no notion of this problem and would therefore fail to work. In addition this failure is hard to reason about unless you have a good mental model of how lazy reading works &lt;em>and&lt;/em> happened to know that readr 2.0 now used lazy reading by default.&lt;/p>
+&lt;p>Because of the prevalence of these issues we started to consider changing the default to eager rather than lazy reading. But to get a better sense of the community&amp;rsquo;s opinion we
+&lt;a href="https://twitter.com/jimhester_/status/1446173748579770375" target="_blank" rel="noopener">conducted a survey&lt;/a> about this issue. We received over 250 responses to the survey (thanks to everyone who responded!) and the results were very conclusive.&lt;/p>
+&lt;ul>
+&lt;li>~1/2 of the respondents used Windows&lt;/li>
+&lt;li>~3/4 of users overall would prefer &lt;code>lazy = FALSE&lt;/code> as the default.&lt;/li>
+&lt;li>~9/10 of Windows users would prefer &lt;code>lazy = FALSE&lt;/code> as the default.&lt;/li>
+&lt;/ul>
+&lt;p>This reinforced our intuition that changing the default to &lt;code>lazy = FALSE&lt;/code> was the right choice for the community going forward.&lt;/p>
+&lt;h2 id="controlling-the-default-yourself">Controlling the default yourself
+&lt;a href="#controlling-the-default-yourself">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Aside from changing the default to &lt;code>lazy = FALSE&lt;/code> readr 2.1 also gives users a way to control the lazy default themselves.&lt;/p>
+&lt;pre>&lt;code>options(readr.read_lazy = TRUE)
+&lt;/code>&lt;/pre>
+&lt;p>This will change the default value back to lazy by default for the current R session. Note that this can have unintended consequences, code in downstream packages you are using may be using readr without your knowledge, and changing the default will also change their usage. The surest way to ensure consistency in your own code is to explicitly set either &lt;code>lazy = FALSE&lt;/code> or &lt;code>lazy = TRUE&lt;/code> when you call a
+&lt;a href="https://readr.tidyverse.org/reference/read_delim.html" target="_blank" rel="noopener">&lt;code>read_csv()&lt;/code>&lt;/a> function.&lt;/p>
+&lt;h2 id="lessons-learned">Lessons learned
+&lt;a href="#lessons-learned">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Reaching a more representative cross section of users and having them experiment with a new package is a challenge. As mentioned above, vroom was on CRAN for more than two years, and had significant performance advantages to readr, but even so only a small fraction of the community ended up using it. Crucially this usage did not reveal a complete enough picture of the challenges associated with lazy reading.&lt;/p>
+&lt;p>Most R users seem to prefer something which &amp;lsquo;just works&amp;rsquo; for &lt;em>all&lt;/em> use cases, even at the cost of reduced default performance.&lt;/p>
+&lt;p>Community surveys continue to be the best way to gauge the overall opinion of the community. In hindsight, we should have conducted the survey prior to the release of readr 2.0, though the full scope of the issue was not well known then.&lt;/p>
+&lt;p>Thank you to everyone who has used readr, opened an issue about this topic, or responded to the survey. Open source software is written to serve the community and your input is crucial to make sure we are making the best decisions. We apologize if this issue affected your work negatively and hope this article helps explain our rational for the initial behavior and change back. We hope readr will continue to make you more productive in the future.&lt;/p>
+&lt;p>Also a special thank you to all the 81 contributors who opened issues or contributed code since the readr 2.0 release, without your input readr would be a less useful package.&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/a-hurst" target="_blank" rel="noopener">@a-hurst&lt;/a>,
+&lt;a href="https://github.com/alon-sarid" target="_blank" rel="noopener">@alon-sarid&lt;/a>,
+&lt;a href="https://github.com/anonsmoose" target="_blank" rel="noopener">@anonsmoose&lt;/a>,
+&lt;a href="https://github.com/AshesITR" target="_blank" rel="noopener">@AshesITR&lt;/a>,
+&lt;a href="https://github.com/bersbersbers" target="_blank" rel="noopener">@bersbersbers&lt;/a>,
+&lt;a href="https://github.com/boshek" target="_blank" rel="noopener">@boshek&lt;/a>,
+&lt;a href="https://github.com/chrbknudsen" target="_blank" rel="noopener">@chrbknudsen&lt;/a>,
+&lt;a href="https://github.com/christopherkenny" target="_blank" rel="noopener">@christopherkenny&lt;/a>,
+&lt;a href="https://github.com/cwby" target="_blank" rel="noopener">@cwby&lt;/a>,
+&lt;a href="https://github.com/damianooldoni" target="_blank" rel="noopener">@damianooldoni&lt;/a>,
+&lt;a href="https://github.com/Darxor" target="_blank" rel="noopener">@Darxor&lt;/a>,
+&lt;a href="https://github.com/DizzyLimit" target="_blank" rel="noopener">@DizzyLimit&lt;/a>,
+&lt;a href="https://github.com/djnavarro" target="_blank" rel="noopener">@djnavarro&lt;/a>,
+&lt;a href="https://github.com/dongzhuoer" target="_blank" rel="noopener">@dongzhuoer&lt;/a>,
+&lt;a href="https://github.com/dzhang32" target="_blank" rel="noopener">@dzhang32&lt;/a>,
+&lt;a href="https://github.com/eutwt" target="_blank" rel="noopener">@eutwt&lt;/a>,
+&lt;a href="https://github.com/fernandovmacedo" target="_blank" rel="noopener">@fernandovmacedo&lt;/a>,
+&lt;a href="https://github.com/garrettgman" target="_blank" rel="noopener">@garrettgman&lt;/a>,
+&lt;a href="https://github.com/garthtarr" target="_blank" rel="noopener">@garthtarr&lt;/a>,
+&lt;a href="https://github.com/ggrothendieck" target="_blank" rel="noopener">@ggrothendieck&lt;/a>,
+&lt;a href="https://github.com/gorkang" target="_blank" rel="noopener">@gorkang&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/HakuShuu" target="_blank" rel="noopener">@HakuShuu&lt;/a>,
+&lt;a href="https://github.com/HedvigS" target="_blank" rel="noopener">@HedvigS&lt;/a>,
+&lt;a href="https://github.com/HenrikBengtsson" target="_blank" rel="noopener">@HenrikBengtsson&lt;/a>,
+&lt;a href="https://github.com/hidekoji" target="_blank" rel="noopener">@hidekoji&lt;/a>,
+&lt;a href="https://github.com/hongyuanjia" target="_blank" rel="noopener">@hongyuanjia&lt;/a>,
+&lt;a href="https://github.com/huixinz2" target="_blank" rel="noopener">@huixinz2&lt;/a>,
+&lt;a href="https://github.com/ibombonato" target="_blank" rel="noopener">@ibombonato&lt;/a>,
+&lt;a href="https://github.com/jcarbaut" target="_blank" rel="noopener">@jcarbaut&lt;/a>,
+&lt;a href="https://github.com/jeffeaton" target="_blank" rel="noopener">@jeffeaton&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jimmyday12" target="_blank" rel="noopener">@jimmyday12&lt;/a>,
+&lt;a href="https://github.com/jkeuskamp" target="_blank" rel="noopener">@jkeuskamp&lt;/a>,
+&lt;a href="https://github.com/jmbarbone" target="_blank" rel="noopener">@jmbarbone&lt;/a>,
+&lt;a href="https://github.com/jmobrien" target="_blank" rel="noopener">@jmobrien&lt;/a>,
+&lt;a href="https://github.com/JoshuaSturm" target="_blank" rel="noopener">@JoshuaSturm&lt;/a>,
+&lt;a href="https://github.com/jpquast" target="_blank" rel="noopener">@jpquast&lt;/a>,
+&lt;a href="https://github.com/kiernann" target="_blank" rel="noopener">@kiernann&lt;/a>,
+&lt;a href="https://github.com/knokknok" target="_blank" rel="noopener">@knokknok&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/l-gorman" target="_blank" rel="noopener">@l-gorman&lt;/a>,
+&lt;a href="https://github.com/lindsayplatt" target="_blank" rel="noopener">@lindsayplatt&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/lukeholman" target="_blank" rel="noopener">@lukeholman&lt;/a>,
+&lt;a href="https://github.com/MilesMcBain" target="_blank" rel="noopener">@MilesMcBain&lt;/a>,
+&lt;a href="https://github.com/mkvasnicka" target="_blank" rel="noopener">@mkvasnicka&lt;/a>,
+&lt;a href="https://github.com/nigeljmckernan" target="_blank" rel="noopener">@nigeljmckernan&lt;/a>,
+&lt;a href="https://github.com/nik-humphries" target="_blank" rel="noopener">@nik-humphries&lt;/a>,
+&lt;a href="https://github.com/nstjhp" target="_blank" rel="noopener">@nstjhp&lt;/a>,
+&lt;a href="https://github.com/oharac" target="_blank" rel="noopener">@oharac&lt;/a>,
+&lt;a href="https://github.com/palderman" target="_blank" rel="noopener">@palderman&lt;/a>,
+&lt;a href="https://github.com/peterdesmet" target="_blank" rel="noopener">@peterdesmet&lt;/a>,
+&lt;a href="https://github.com/pfreese" target="_blank" rel="noopener">@pfreese&lt;/a>,
+&lt;a href="https://github.com/PierreStevenin" target="_blank" rel="noopener">@PierreStevenin&lt;/a>,
+&lt;a href="https://github.com/pieterjanvc" target="_blank" rel="noopener">@pieterjanvc&lt;/a>,
+&lt;a href="https://github.com/pschloss" target="_blank" rel="noopener">@pschloss&lt;/a>,
+&lt;a href="https://github.com/rbufba" target="_blank" rel="noopener">@rbufba&lt;/a>,
+&lt;a href="https://github.com/rdinnager" target="_blank" rel="noopener">@rdinnager&lt;/a>,
+&lt;a href="https://github.com/richelbilderbeek" target="_blank" rel="noopener">@richelbilderbeek&lt;/a>,
+&lt;a href="https://github.com/rvalieris" target="_blank" rel="noopener">@rvalieris&lt;/a>,
+&lt;a href="https://github.com/s-andrews" target="_blank" rel="noopener">@s-andrews&lt;/a>,
+&lt;a href="https://github.com/saulo1305" target="_blank" rel="noopener">@saulo1305&lt;/a>,
+&lt;a href="https://github.com/sbachstein" target="_blank" rel="noopener">@sbachstein&lt;/a>,
+&lt;a href="https://github.com/sdevine188" target="_blank" rel="noopener">@sdevine188&lt;/a>,
+&lt;a href="https://github.com/ShinyFabio" target="_blank" rel="noopener">@ShinyFabio&lt;/a>,
+&lt;a href="https://github.com/slodge" target="_blank" rel="noopener">@slodge&lt;/a>,
+&lt;a href="https://github.com/snaut" target="_blank" rel="noopener">@snaut&lt;/a>,
+&lt;a href="https://github.com/stephenturner" target="_blank" rel="noopener">@stephenturner&lt;/a>,
+&lt;a href="https://github.com/svraka" target="_blank" rel="noopener">@svraka&lt;/a>,
+&lt;a href="https://github.com/tarheel" target="_blank" rel="noopener">@tarheel&lt;/a>,
+&lt;a href="https://github.com/TCLamnidis" target="_blank" rel="noopener">@TCLamnidis&lt;/a>,
+&lt;a href="https://github.com/thackl" target="_blank" rel="noopener">@thackl&lt;/a>,
+&lt;a href="https://github.com/timothy-barry" target="_blank" rel="noopener">@timothy-barry&lt;/a>,
+&lt;a href="https://github.com/timothyslau" target="_blank" rel="noopener">@timothyslau&lt;/a>,
+&lt;a href="https://github.com/tmelliott" target="_blank" rel="noopener">@tmelliott&lt;/a>,
+&lt;a href="https://github.com/Tonyynot14" target="_blank" rel="noopener">@Tonyynot14&lt;/a>,
+&lt;a href="https://github.com/UrsineWelles" target="_blank" rel="noopener">@UrsineWelles&lt;/a>,
+&lt;a href="https://github.com/xinyu-zheng" target="_blank" rel="noopener">@xinyu-zheng&lt;/a>, and
+&lt;a href="https://github.com/yogat3ch" target="_blank" rel="noopener">@yogat3ch&lt;/a>.&lt;/p></description></item><item><title>readr 1.4.0</title><link>https://www.tidyverse.org/blog/2020/10/readr-1-4-0/</link><pubDate>Tue, 06 Oct 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/10/readr-1-4-0/</guid><description>&lt;p>
+&lt;a href="http://readr.tidyverse.org" target="_blank" rel="noopener">readr&lt;/a> 1.4.0 is now available on CRAN! Learn more about readr at &lt;a href="https://readr.tidyverse.org" class="uri">&lt;a href="https://readr.tidyverse.org">https://readr.tidyverse.org&lt;/a>&lt;/a>. Detailed notes are always in the
+&lt;a href="https://readr.tidyverse.org/news/index.html#readr-1-4-0" target="_blank" rel="noopener">change log&lt;/a>.&lt;/p>
+&lt;p>The readr package makes it easy to get rectangular data out of comma separated (csv), tab separated (tsv) or fixed width files (fwf) and into R. It is designed to flexibly parse many types of data found in the wild, while still cleanly failing when data unexpectedly changes. If you are new to readr, the best place to start is the
+&lt;a href="https://r4ds.had.co.nz/data-import.html" target="_blank" rel="noopener">data import chapter&lt;/a> in R for data science.&lt;/p>
+&lt;p>Install readr with&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;readr&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>And load it with&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>(&lt;span class='k'>&lt;a href='http://tidyverse.tidyverse.org'>tidyverse&lt;/a>&lt;/span>)
+&lt;span class='c'>#&amp;gt; ── &lt;span style='font-weight: bold;'>Attaching packages&lt;/span>&lt;span> ─────────────────────────────────────── tidyverse 1.3.0 ──&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #0000BB;'>ggplot2&lt;/span>&lt;span> 3.3.2 &lt;/span>&lt;span style='color: #00BB00;'>✔&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #0000BB;'>purrr &lt;/span>&lt;span> 0.3.4&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #0000BB;'>tibble &lt;/span>&lt;span> 3.0.3 &lt;/span>&lt;span style='color: #00BB00;'>✔&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #0000BB;'>dplyr &lt;/span>&lt;span> 1.0.2&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #0000BB;'>tidyr &lt;/span>&lt;span> 1.1.2 &lt;/span>&lt;span style='color: #00BB00;'>✔&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #0000BB;'>stringr&lt;/span>&lt;span> 1.4.0&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #0000BB;'>readr &lt;/span>&lt;span> 1.4.0 &lt;/span>&lt;span style='color: #00BB00;'>✔&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #0000BB;'>forcats&lt;/span>&lt;span> 0.5.0&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; ── &lt;span style='font-weight: bold;'>Conflicts&lt;/span>&lt;span> ────────────────────────────────────────── tidyverse_conflicts() ──&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #0000BB;'>dplyr&lt;/span>&lt;span>::&lt;/span>&lt;span style='color: #00BB00;'>filter()&lt;/span>&lt;span> masks &lt;/span>&lt;span style='color: #0000BB;'>stats&lt;/span>&lt;span>::filter()&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span>&lt;span> &lt;/span>&lt;span style='color: #0000BB;'>dplyr&lt;/span>&lt;span>::&lt;/span>&lt;span style='color: #00BB00;'>lag()&lt;/span>&lt;span> masks &lt;/span>&lt;span style='color: #0000BB;'>stats&lt;/span>&lt;span>::lag()&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="breaking-changes">Breaking Changes
+&lt;a href="#breaking-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="argument-name-consistency">Argument name consistency
+&lt;a href="#argument-name-consistency">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The first argument to all of the &lt;code>write_()&lt;/code> functions, like &lt;code>write_csv()&lt;/code> had previously been &lt;code>path&lt;/code>. However the first argument to all of the &lt;code>read_()&lt;/code> functions is &lt;code>file&lt;/code>. As of readr 1.4.0 the first argument to both &lt;code>read_()&lt;/code> and &lt;code>write_()&lt;/code> functions is &lt;code>file&lt;/code> and &lt;code>path&lt;/code> is now deprecated.&lt;/p>
+&lt;h3 id="nan-behavior">NaN behavior
+&lt;a href="#nan-behavior">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Some floating point operations can produce a &lt;code>NaN&lt;/code> value, e.g. &lt;code>0 / 0&lt;/code>. Previously &lt;code>write_csv()&lt;/code> would output &lt;code>NaN&lt;/code> values always as &lt;code>NaN&lt;/code> and this could not be controlled by the &lt;code>write_csv(na=)&lt;/code> argument. Now the output value of &lt;code>NaN&lt;/code> is the same as the &lt;code>NA&lt;/code> and can be controlled by the argument. This is a breaking change in that the same code would produce different output, but it should be rare in practice.&lt;/p>
+&lt;h2 id="new-features">New features
+&lt;a href="#new-features">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="generate-column-specifications-from-datasets">Generate column specifications from datasets
+&lt;a href="#generate-column-specifications-from-datasets">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Using &lt;code>as.col_spec()&lt;/code> on any &lt;code>data.frame&lt;/code> or &lt;code>tibble&lt;/code> object will now generate a column specification with the column types in the data.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>(&lt;span class='k'>&lt;a href='https://allisonhorst.github.io/palmerpenguins/'>palmerpenguins&lt;/a>&lt;/span>)
+&lt;span class='k'>spec&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>as.col_spec&lt;/span>(&lt;span class='k'>penguins&lt;/span>)
+&lt;span class='k'>spec&lt;/span>
+&lt;span class='c'>#&amp;gt; cols(&lt;/span>
+&lt;span class='c'>#&amp;gt; species = &lt;span style='color: #BB0000;'>col_factor(levels = c("Adelie", "Chinstrap", "Gentoo"), ordered = FALSE, include_na = FALSE)&lt;/span>&lt;span>,&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; island = &lt;span style='color: #BB0000;'>col_factor(levels = c("Biscoe", "Dream", "Torgersen"), ordered = FALSE, include_na = FALSE)&lt;/span>&lt;span>,&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; bill_length_mm = &lt;span style='color: #00BB00;'>col_double()&lt;/span>&lt;span>,&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; bill_depth_mm = &lt;span style='color: #00BB00;'>col_double()&lt;/span>&lt;span>,&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; flipper_length_mm = &lt;span style='color: #00BB00;'>col_integer()&lt;/span>&lt;span>,&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; body_mass_g = &lt;span style='color: #00BB00;'>col_integer()&lt;/span>&lt;span>,&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; sex = &lt;span style='color: #BB0000;'>col_factor(levels = c("female", "male"), ordered = FALSE, include_na = FALSE)&lt;/span>&lt;span>,&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; year = &lt;span style='color: #00BB00;'>col_integer()&lt;/span>&lt;/span>
+&lt;span class='c'>#&amp;gt; )&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>You can also convert the column specifications to a condensed textual representation with
+&lt;a href="https://rdrr.io/r/base/character.html" target="_blank" rel="noopener">&lt;code>as.character()&lt;/code>&lt;/a>&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/character.html'>as.character&lt;/a>&lt;/span>(&lt;span class='k'>spec&lt;/span>)
+&lt;span class='c'>#&amp;gt; [1] "ffddiifi"&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h3 id="writing-end-of-line-characters">Writing end of line characters
+&lt;a href="#writing-end-of-line-characters">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Write functions now take a &lt;code>eol&lt;/code> argument to allow control of the end of line characters. Previously readr only supported using a single newline (&lt;code>\n&lt;/code>) character. You can now specify any number of characters, though windows linefeed newline (&lt;code>\r\n&lt;/code>) is by far the most common alternative.&lt;/p>
+&lt;h3 id="cli-package-is-now-used-for-messages">cli package is now used for messages
+&lt;a href="#cli-package-is-now-used-for-messages">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The cli package is now used for messages. The most prominent place you will notice this is printing the column specifications. Previously these functions used
+&lt;a href="https://rdrr.io/r/base/message.html" target="_blank" rel="noopener">&lt;code>message()&lt;/code>&lt;/a>, which in RStudio prints the text in red.&lt;/p>
+&lt;p>While cli still uses message objects, they will now be more naturally colored, which hopefully will make them easier to read.&lt;/p>
+&lt;h3 id="rcpp-dependency-removed">Rcpp dependency removed
+&lt;a href="#rcpp-dependency-removed">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The Rcpp dependency has been removed in favor of
+&lt;a href="https://cpp11.r-lib.org/" target="_blank" rel="noopener">cpp11&lt;/a>. Compiling readr should now take less time and use less memory.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>As usual, there were many more additional changes and bugfixes included in this release see the
+&lt;a href="https://readr.tidyverse.org/news/index.html#readr-1-4-0" target="_blank" rel="noopener">change log&lt;/a> for details.&lt;/p>
+&lt;p>Thank you to the 132 contributors who made this release possible by opening issues or submitting pull requests:
+&lt;a href="https://github.com/adamroyjones" target="_blank" rel="noopener">@adamroyjones&lt;/a>,
+&lt;a href="https://github.com/aetiologicCanada" target="_blank" rel="noopener">@aetiologicCanada&lt;/a>,
+&lt;a href="https://github.com/ailich" target="_blank" rel="noopener">@ailich&lt;/a>,
+&lt;a href="https://github.com/antoine-sachet" target="_blank" rel="noopener">@antoine-sachet&lt;/a>,
+&lt;a href="https://github.com/archenemies" target="_blank" rel="noopener">@archenemies&lt;/a>,
+&lt;a href="https://github.com/ashuchawla" target="_blank" rel="noopener">@ashuchawla&lt;/a>,
+&lt;a href="https://github.com/Athanasiamo" target="_blank" rel="noopener">@Athanasiamo&lt;/a>,
+&lt;a href="https://github.com/bastianilso" target="_blank" rel="noopener">@bastianilso&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/Ben-Cox" target="_blank" rel="noopener">@Ben-Cox&lt;/a>,
+&lt;a href="https://github.com/bergen288" target="_blank" rel="noopener">@bergen288&lt;/a>,
+&lt;a href="https://github.com/boshek" target="_blank" rel="noopener">@boshek&lt;/a>,
+&lt;a href="https://github.com/bovender" target="_blank" rel="noopener">@bovender&lt;/a>,
+&lt;a href="https://github.com/bransonf" target="_blank" rel="noopener">@bransonf&lt;/a>,
+&lt;a href="https://github.com/brianrice2" target="_blank" rel="noopener">@brianrice2&lt;/a>,
+&lt;a href="https://github.com/briatte" target="_blank" rel="noopener">@briatte&lt;/a>,
+&lt;a href="https://github.com/c30saux" target="_blank" rel="noopener">@c30saux&lt;/a>,
+&lt;a href="https://github.com/cboettig" target="_blank" rel="noopener">@cboettig&lt;/a>,
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/cdhowe" target="_blank" rel="noopener">@cdhowe&lt;/a>,
+&lt;a href="https://github.com/ceresek" target="_blank" rel="noopener">@ceresek&lt;/a>,
+&lt;a href="https://github.com/charliejhadley" target="_blank" rel="noopener">@charliejhadley&lt;/a>,
+&lt;a href="https://github.com/chipkoziara" target="_blank" rel="noopener">@chipkoziara&lt;/a>,
+&lt;a href="https://github.com/cwolk" target="_blank" rel="noopener">@cwolk&lt;/a>,
+&lt;a href="https://github.com/damianooldoni" target="_blank" rel="noopener">@damianooldoni&lt;/a>,
+&lt;a href="https://github.com/dan-reznik" target="_blank" rel="noopener">@dan-reznik&lt;/a>,
+&lt;a href="https://github.com/DanielleQuinn" target="_blank" rel="noopener">@DanielleQuinn&lt;/a>,
+&lt;a href="https://github.com/DarwinAwardWinner" target="_blank" rel="noopener">@DarwinAwardWinner&lt;/a>,
+&lt;a href="https://github.com/dhmontgomery" target="_blank" rel="noopener">@dhmontgomery&lt;/a>,
+&lt;a href="https://github.com/djbirke" target="_blank" rel="noopener">@djbirke&lt;/a>,
+&lt;a href="https://github.com/dkahle" target="_blank" rel="noopener">@dkahle&lt;/a>,
+&lt;a href="https://github.com/dmitrienka" target="_blank" rel="noopener">@dmitrienka&lt;/a>,
+&lt;a href="https://github.com/dmurdoch" target="_blank" rel="noopener">@dmurdoch&lt;/a>,
+&lt;a href="https://github.com/dpprdan" target="_blank" rel="noopener">@dpprdan&lt;/a>,
+&lt;a href="https://github.com/dwachsmuth" target="_blank" rel="noopener">@dwachsmuth&lt;/a>,
+&lt;a href="https://github.com/EarlGlynn" target="_blank" rel="noopener">@EarlGlynn&lt;/a>,
+&lt;a href="https://github.com/edo91" target="_blank" rel="noopener">@edo91&lt;/a>,
+&lt;a href="https://github.com/ellessenne" target="_blank" rel="noopener">@ellessenne&lt;/a>,
+&lt;a href="https://github.com/Fernal73" target="_blank" rel="noopener">@Fernal73&lt;/a>,
+&lt;a href="https://github.com/firasm" target="_blank" rel="noopener">@firasm&lt;/a>,
+&lt;a href="https://github.com/fjuniorr" target="_blank" rel="noopener">@fjuniorr&lt;/a>,
+&lt;a href="https://github.com/frahimov" target="_blank" rel="noopener">@frahimov&lt;/a>,
+&lt;a href="https://github.com/frousseu" target="_blank" rel="noopener">@frousseu&lt;/a>,
+&lt;a href="https://github.com/GegznaV" target="_blank" rel="noopener">@GegznaV&lt;/a>,
+&lt;a href="https://github.com/georgevbsantiago" target="_blank" rel="noopener">@georgevbsantiago&lt;/a>,
+&lt;a href="https://github.com/geotheory" target="_blank" rel="noopener">@geotheory&lt;/a>,
+&lt;a href="https://github.com/greg-minshall" target="_blank" rel="noopener">@greg-minshall&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hidekoji" target="_blank" rel="noopener">@hidekoji&lt;/a>,
+&lt;a href="https://github.com/huashan" target="_blank" rel="noopener">@huashan&lt;/a>,
+&lt;a href="https://github.com/ifendo" target="_blank" rel="noopener">@ifendo&lt;/a>,
+&lt;a href="https://github.com/ijlyttle" target="_blank" rel="noopener">@ijlyttle&lt;/a>,
+&lt;a href="https://github.com/isaactpetersen" target="_blank" rel="noopener">@isaactpetersen&lt;/a>,
+&lt;a href="https://github.com/jangorecki" target="_blank" rel="noopener">@jangorecki&lt;/a>,
+&lt;a href="https://github.com/jdblischak" target="_blank" rel="noopener">@jdblischak&lt;/a>,
+&lt;a href="https://github.com/jemunro" target="_blank" rel="noopener">@jemunro&lt;/a>,
+&lt;a href="https://github.com/jennahamlin" target="_blank" rel="noopener">@jennahamlin&lt;/a>,
+&lt;a href="https://github.com/jesse-ross" target="_blank" rel="noopener">@jesse-ross&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jmarshallnz" target="_blank" rel="noopener">@jmarshallnz&lt;/a>,
+&lt;a href="https://github.com/jmcloughlin" target="_blank" rel="noopener">@jmcloughlin&lt;/a>,
+&lt;a href="https://github.com/jmobrien" target="_blank" rel="noopener">@jmobrien&lt;/a>,
+&lt;a href="https://github.com/jnolis" target="_blank" rel="noopener">@jnolis&lt;/a>,
+&lt;a href="https://github.com/jokedurnez" target="_blank" rel="noopener">@jokedurnez&lt;/a>,
+&lt;a href="https://github.com/jpwhitney" target="_blank" rel="noopener">@jpwhitney&lt;/a>,
+&lt;a href="https://github.com/jssa98" target="_blank" rel="noopener">@jssa98&lt;/a>,
+&lt;a href="https://github.com/juangomezduaso" target="_blank" rel="noopener">@juangomezduaso&lt;/a>,
+&lt;a href="https://github.com/junqi108" target="_blank" rel="noopener">@junqi108&lt;/a>,
+&lt;a href="https://github.com/JustGitting" target="_blank" rel="noopener">@JustGitting&lt;/a>,
+&lt;a href="https://github.com/jxu" target="_blank" rel="noopener">@jxu&lt;/a>,
+&lt;a href="https://github.com/kainhofer" target="_blank" rel="noopener">@kainhofer&lt;/a>,
+&lt;a href="https://github.com/katgit" target="_blank" rel="noopener">@katgit&lt;/a>,
+&lt;a href="https://github.com/kbzsl" target="_blank" rel="noopener">@kbzsl&lt;/a>,
+&lt;a href="https://github.com/keesdeschepper" target="_blank" rel="noopener">@keesdeschepper&lt;/a>,
+&lt;a href="https://github.com/kiernann" target="_blank" rel="noopener">@kiernann&lt;/a>,
+&lt;a href="https://github.com/knausb" target="_blank" rel="noopener">@knausb&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/kvittingseerup" target="_blank" rel="noopener">@kvittingseerup&lt;/a>,
+&lt;a href="https://github.com/lambdamoses" target="_blank" rel="noopener">@lambdamoses&lt;/a>,
+&lt;a href="https://github.com/leopoldsw" target="_blank" rel="noopener">@leopoldsw&lt;/a>,
+&lt;a href="https://github.com/lsaravia" target="_blank" rel="noopener">@lsaravia&lt;/a>,
+&lt;a href="https://github.com/MihaiBabiac" target="_blank" rel="noopener">@MihaiBabiac&lt;/a>,
+&lt;a href="https://github.com/mkearney" target="_blank" rel="noopener">@mkearney&lt;/a>,
+&lt;a href="https://github.com/mlaunois" target="_blank" rel="noopener">@mlaunois&lt;/a>,
+&lt;a href="https://github.com/mmuurr" target="_blank" rel="noopener">@mmuurr&lt;/a>,
+&lt;a href="https://github.com/moodymudskipper" target="_blank" rel="noopener">@moodymudskipper&lt;/a>,
+&lt;a href="https://github.com/MZellou" target="_blank" rel="noopener">@MZellou&lt;/a>,
+&lt;a href="https://github.com/nacnudus" target="_blank" rel="noopener">@nacnudus&lt;/a>,
+&lt;a href="https://github.com/natecobb" target="_blank" rel="noopener">@natecobb&lt;/a>,
+&lt;a href="https://github.com/NFA" target="_blank" rel="noopener">@NFA&lt;/a>,
+&lt;a href="https://github.com/NikKrieger" target="_blank" rel="noopener">@NikKrieger&lt;/a>,
+&lt;a href="https://github.com/njtierney" target="_blank" rel="noopener">@njtierney&lt;/a>,
+&lt;a href="https://github.com/nogeel" target="_blank" rel="noopener">@nogeel&lt;/a>,
+&lt;a href="https://github.com/orderlyquant" target="_blank" rel="noopener">@orderlyquant&lt;/a>,
+&lt;a href="https://github.com/oscci" target="_blank" rel="noopener">@oscci&lt;/a>,
+&lt;a href="https://github.com/Ozan147" target="_blank" rel="noopener">@Ozan147&lt;/a>,
+&lt;a href="https://github.com/pcgreen7" target="_blank" rel="noopener">@pcgreen7&lt;/a>,
+&lt;a href="https://github.com/perog" target="_blank" rel="noopener">@perog&lt;/a>,
+&lt;a href="https://github.com/phil-grayson" target="_blank" rel="noopener">@phil-grayson&lt;/a>,
+&lt;a href="https://github.com/pralitp" target="_blank" rel="noopener">@pralitp&lt;/a>,
+&lt;a href="https://github.com/psychelzh" target="_blank" rel="noopener">@psychelzh&lt;/a>,
+&lt;a href="https://github.com/QuLogic" target="_blank" rel="noopener">@QuLogic&lt;/a>,
+&lt;a href="https://github.com/r2evans" target="_blank" rel="noopener">@r2evans&lt;/a>,
+&lt;a href="https://github.com/Rajesh-Ramasamy" target="_blank" rel="noopener">@Rajesh-Ramasamy&lt;/a>,
+&lt;a href="https://github.com/ralsouza" target="_blank" rel="noopener">@ralsouza&lt;/a>,
+&lt;a href="https://github.com/rcragun" target="_blank" rel="noopener">@rcragun&lt;/a>,
+&lt;a href="https://github.com/romainfrancois" target="_blank" rel="noopener">@romainfrancois&lt;/a>,
+&lt;a href="https://github.com/salim-b" target="_blank" rel="noopener">@salim-b&lt;/a>,
+&lt;a href="https://github.com/sfrenk" target="_blank" rel="noopener">@sfrenk&lt;/a>,
+&lt;a href="https://github.com/Shians" target="_blank" rel="noopener">@Shians&lt;/a>,
+&lt;a href="https://github.com/shrektan" target="_blank" rel="noopener">@shrektan&lt;/a>,
+&lt;a href="https://github.com/skaltman" target="_blank" rel="noopener">@skaltman&lt;/a>,
+&lt;a href="https://github.com/sonhan18" target="_blank" rel="noopener">@sonhan18&lt;/a>,
+&lt;a href="https://github.com/StevenMMortimer" target="_blank" rel="noopener">@StevenMMortimer&lt;/a>,
+&lt;a href="https://github.com/thays42" target="_blank" rel="noopener">@thays42&lt;/a>,
+&lt;a href="https://github.com/ThePrez" target="_blank" rel="noopener">@ThePrez&lt;/a>,
+&lt;a href="https://github.com/tmalsburg" target="_blank" rel="noopener">@tmalsburg&lt;/a>,
+&lt;a href="https://github.com/TrentLobdell" target="_blank" rel="noopener">@TrentLobdell&lt;/a>,
+&lt;a href="https://github.com/ttimbers" target="_blank" rel="noopener">@ttimbers&lt;/a>,
+&lt;a href="https://github.com/vnijs" target="_blank" rel="noopener">@vnijs&lt;/a>,
+&lt;a href="https://github.com/wch" target="_blank" rel="noopener">@wch&lt;/a>,
+&lt;a href="https://github.com/we-hop" target="_blank" rel="noopener">@we-hop&lt;/a>,
+&lt;a href="https://github.com/wehopkins" target="_blank" rel="noopener">@wehopkins&lt;/a>,
+&lt;a href="https://github.com/wibeasley" target="_blank" rel="noopener">@wibeasley&lt;/a>,
+&lt;a href="https://github.com/wolski" target="_blank" rel="noopener">@wolski&lt;/a>,
+&lt;a href="https://github.com/wwgordon" target="_blank" rel="noopener">@wwgordon&lt;/a>,
+&lt;a href="https://github.com/xianwenchen" target="_blank" rel="noopener">@xianwenchen&lt;/a>,
+&lt;a href="https://github.com/xiaodaigh" target="_blank" rel="noopener">@xiaodaigh&lt;/a>,
+&lt;a href="https://github.com/xinyue-li" target="_blank" rel="noopener">@xinyue-li&lt;/a>,
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>,
+&lt;a href="https://github.com/Zack-83" target="_blank" rel="noopener">@Zack-83&lt;/a>, and
+&lt;a href="https://github.com/zenggyu" target="_blank" rel="noopener">@zenggyu&lt;/a>.&lt;/p></description></item><item><title>readr 1.3.1</title><link>https://www.tidyverse.org/blog/2018/12/readr-1-3-1/</link><pubDate>Thu, 27 Dec 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/12/readr-1-3-1/</guid><description>&lt;p>
+&lt;a href="http://readr.tidyverse.org" target="_blank" rel="noopener">readr&lt;/a> 1.3.1 is now available on CRAN! Learn more
+about readr at &lt;a href="https://readr.tidyverse.org">https://readr.tidyverse.org&lt;/a>. Detailed notes are always in the
+&lt;a href="https://readr.tidyverse.org/news/index.html#readr-1-3-1" target="_blank" rel="noopener">change log&lt;/a>.&lt;/p>
+&lt;p>The readr package makes it easy to get rectangular data out of comma separated
+(csv), tab separated (tsv) or fixed width files (fwf) and into R. It
+is designed to flexibly parse many types of data found in the wild, while still
+cleanly failing when data unexpectedly changes. If you are new to readr, the
+best place to start is the
+&lt;a href="https://r4ds.had.co.nz/data-import.html" target="_blank" rel="noopener">data import
+chapter&lt;/a> in R for data science.&lt;/p>
+&lt;p>The easiest way to install the latest version from CRAN is to install the whole tidyverse.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;tidyverse&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Alternatively, install just readr from CRAN:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;readr&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>readr is part of the core tidyverse, so load it with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidyverse&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; ── Attaching packages ────────────────────────────────── tidyverse 1.2.1 ──&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ ggplot2 3.1.0 ✔ purrr 0.2.5&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ tibble 1.4.2 ✔ dplyr 0.7.8&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ tidyr 0.8.2 ✔ stringr 1.3.1&lt;/span>
+&lt;span class="c1">#&amp;gt; ✔ readr 1.3.1 ✔ forcats 0.3.0&lt;/span>
+&lt;span class="c1">#&amp;gt; ── Conflicts ───────────────────────────────────── tidyverse_conflicts() ──&lt;/span>
+&lt;span class="c1">#&amp;gt; ✖ dplyr::filter() masks stats::filter()&lt;/span>
+&lt;span class="c1">#&amp;gt; ✖ dplyr::lag() masks stats::lag()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>There have been three releases of readr recently, this post will highlight the
+most significant changes across all three releases.&lt;/p>
+&lt;h2 id="breaking-changes">Breaking Changes
+&lt;a href="#breaking-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="blank-line-skipping">Blank line skipping
+&lt;a href="#blank-line-skipping">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The logic for blank line skipping has been overhauled, which should make it
+easier to predict and more robust.&lt;/p>
+&lt;p>Now both commented lines and completely blank lines are skipped by default.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">file&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="s">&amp;#34;# A file with comments
+&lt;/span>&lt;span class="s">
+&lt;/span>&lt;span class="s">first_name,last_name
+&lt;/span>&lt;span class="s">Mary,Sue
+&lt;/span>&lt;span class="s">John,Doe
+&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>
+&lt;span class="nf">read_csv&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">file&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">comment&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;#&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 2 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; first_name last_name&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 Mary Sue &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 John Doe&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Some useful properties about &lt;code>skip&lt;/code>.&lt;/p>
+&lt;ul>
+&lt;li>It is a &lt;em>lower&lt;/em> bound on the number of lines that will actually be skipped.
+e.g. both of the following examples result in identical output.&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">read_csv&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">file&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">skip&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 2 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; first_name last_name&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 Mary Sue &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 John Doe&lt;/span>
+&lt;span class="nf">read_csv&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">file&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">skip&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 2 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; first_name last_name&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 Mary Sue &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 John Doe&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;ul>
+&lt;li>&lt;code>skip&lt;/code> is enforced without looking at the line contents, so both commented
+and blank lines are counted.&lt;/li>
+&lt;/ul>
+&lt;p>So if you wanted to skip all the way including the &lt;code>first_name,last_name&lt;/code> line
+you would need to use &lt;code>skip = 3&lt;/code>. N.B. the results are identical with and
+without &lt;code>comment = &amp;quot;#&amp;quot;&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">read_csv&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">file&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">skip&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">col_names&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">FALSE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 2 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; X1 X2 &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 Mary Sue &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 John Doe&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="integer-column-guessing">Integer column guessing
+&lt;a href="#integer-column-guessing">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>readr functions no longer guess columns are of type integer, instead these
+columns are guessed as numeric. Because R uses 32 bit integers and 64 bit
+doubles all integers can be stored in doubles, guaranteeing no loss of
+information. This change was made to remove errors when numeric columns were
+incorrectly guessed as integers. If you know a certain column is an integer and
+would like to read it as such you can do so by specifying the column type
+explicitly with the &lt;code>col_types&lt;/code> argument.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">file&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="s">&amp;#34;a,b
+&lt;/span>&lt;span class="s">1,3
+&lt;/span>&lt;span class="s">2,4
+&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>
+&lt;span class="nf">read_csv&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">file&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">col_type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">b&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;i&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 2 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; a b&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 1 3&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 2 4&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="tibble-subclass">tibble subclass
+&lt;a href="#tibble-subclass">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>readr now returns results with a &lt;code>spec_tbl_df&lt;/code> subclass. This differs from a
+regular tibble only in that the &lt;code>spec&lt;/code> attribute (which holds the column
+specification) is lost as soon as the object is subset and a normal &lt;code>tbl_df&lt;/code>
+object is returned.&lt;/p>
+&lt;p>Historically &lt;code>tbl_df&lt;/code>'s lost their attributes once they were subset. However
+recent versions of tibble retain the attributes when subsetting, so the
+&lt;code>spec_tbl_df&lt;/code> subclass is needed to retain the previous behavior.&lt;/p>
+&lt;p>This should only break compatibility if you are explicitly checking the class
+of the returned object. A way to get backwards compatible behavior is to
+call subset with no arguments on your object, e.g. &lt;code>x[]&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">data&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">read_csv&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">file&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">class&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;spec_tbl_df&amp;#34; &amp;#34;tbl_df&amp;#34; &amp;#34;tbl&amp;#34; &amp;#34;data.frame&amp;#34;&lt;/span>
+&lt;span class="nf">class&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data[]&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;tbl_df&amp;#34; &amp;#34;tbl&amp;#34; &amp;#34;data.frame&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="new-features">New features
+&lt;a href="#new-features">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="colored-specifications">Colored specifications
+&lt;a href="#colored-specifications">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The most user visible change is coloration of the column specifications. The column types are now colored based on 4 broad classes&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>&lt;font color="#CC0000">Red&lt;/font>&lt;/strong> - Character data (characters, factors)&lt;/li>
+&lt;li>&lt;strong>&lt;font color="#4D9901">Green&lt;/font>&lt;/strong> - Numeric data (doubles, integers)&lt;/li>
+&lt;li>&lt;strong>&lt;font color="#C6A30D">Yellow&lt;/font>&lt;/strong> - Logical data (logicals)&lt;/li>
+&lt;li>&lt;strong>&lt;font color="#265A9E">Blue&lt;/font>&lt;/strong> - Temporal data (dates, times, datetimes)&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://www.tidyverse.org/images/readr-1.3.1/readr-colors.png" alt="Readr column specifications">&lt;/p>
+&lt;p>By coloring the specification, we hope to make it easier to spot when a column
+differs from the rest or when guessing leads to import with an unexpected type.&lt;/p>
+&lt;p>The coloring can be disabled by setting &lt;code>options(crayon.enabled = FALSE)&lt;/code>.&lt;/p>
+&lt;h3 id="melt-functions">Melt functions
+&lt;a href="#melt-functions">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>There is now a family of &lt;code>melt_*()&lt;/code> functions in readr. These functions store
+data in &amp;lsquo;long&amp;rsquo; or &amp;lsquo;melted&amp;rsquo; form, where each row corresponds to a single
+value in the dataset. This form is useful when your data is ragged and not
+rectangular.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">file&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="s">&amp;#34;a,b,c
+&lt;/span>&lt;span class="s">1,2
+&lt;/span>&lt;span class="s">w,x,y,z&amp;#34;&lt;/span>
+&lt;span class="n">readr&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">melt_csv&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">file&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 9 x 4&lt;/span>
+&lt;span class="c1">#&amp;gt; row col data_type value&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 1 1 character a &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 1 2 character b &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 1 3 character c &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 2 1 integer 1 &lt;/span>
+&lt;span class="c1">#&amp;gt; 5 2 2 integer 2 &lt;/span>
+&lt;span class="c1">#&amp;gt; 6 3 1 character w &lt;/span>
+&lt;span class="c1">#&amp;gt; 7 3 2 character x &lt;/span>
+&lt;span class="c1">#&amp;gt; 8 3 3 character y &lt;/span>
+&lt;span class="c1">#&amp;gt; 9 3 4 character z&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Thanks to
+&lt;a href="https://github.com/nacnudus" target="_blank" rel="noopener">Duncan Garmonsway (@nacnudus)&lt;/a> for great work on the idea and
+implementation of the &lt;code>melt_*()&lt;/code> functions!&lt;/p>
+&lt;h3 id="connection-improvements">Connection improvements
+&lt;a href="#connection-improvements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>In previous versions of readr the connections were read into an in-memory raw
+vector, then passed to the readr functions. This made reading connections for
+small to medium datasets fast, but also meant that the dataset had to fit into
+memory at least twice (once for the raw data, once for the parsed data). It
+also meant that reading could not begin until the full vector was read through
+the connection.&lt;/p>
+&lt;p>We now write the connection to a temporary file (in the R temporary directory),
+than parse that temporary file. This means connections may take a little longer
+to be read, but also means they will no longer need to fit into memory. It also
+allows the use of the chunked readers to process the data in parts.&lt;/p>
+&lt;p>Future improvements to readr could allow it to parse data from connections in a
+streaming fashion, which would avoid many of the drawbacks of either approach.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thank you to the 188 contributors who made this release possible by opening issues or submitting pull requests:
+&lt;a href="https://github.com/aaronschiff" target="_blank" rel="noopener">@aaronschiff&lt;/a>,
+&lt;a href="https://github.com/abelew" target="_blank" rel="noopener">@abelew&lt;/a>,
+&lt;a href="https://github.com/Abhijitsj" target="_blank" rel="noopener">@Abhijitsj&lt;/a>,
+&lt;a href="https://github.com/ADraginda" target="_blank" rel="noopener">@ADraginda&lt;/a>,
+&lt;a href="https://github.com/adrtod" target="_blank" rel="noopener">@adrtod&lt;/a>,
+&lt;a href="https://github.com/ajdamico" target="_blank" rel="noopener">@ajdamico&lt;/a>,
+&lt;a href="https://github.com/alessandro-gentilini" target="_blank" rel="noopener">@alessandro-gentilini&lt;/a>,
+&lt;a href="https://github.com/arendsee" target="_blank" rel="noopener">@arendsee&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/bbrewington" target="_blank" rel="noopener">@bbrewington&lt;/a>,
+&lt;a href="https://github.com/benmarwick" target="_blank" rel="noopener">@benmarwick&lt;/a>,
+&lt;a href="https://github.com/benwhalley" target="_blank" rel="noopener">@benwhalley&lt;/a>,
+&lt;a href="https://github.com/benzipperer" target="_blank" rel="noopener">@benzipperer&lt;/a>,
+&lt;a href="https://github.com/BerwinTurlach" target="_blank" rel="noopener">@BerwinTurlach&lt;/a>,
+&lt;a href="https://github.com/bheavner" target="_blank" rel="noopener">@bheavner&lt;/a>,
+&lt;a href="https://github.com/billdenney" target="_blank" rel="noopener">@billdenney&lt;/a>,
+&lt;a href="https://github.com/biostu24" target="_blank" rel="noopener">@biostu24&lt;/a>,
+&lt;a href="https://github.com/blablablerg" target="_blank" rel="noopener">@blablablerg&lt;/a>,
+&lt;a href="https://github.com/blakeboswell" target="_blank" rel="noopener">@blakeboswell&lt;/a>,
+&lt;a href="https://github.com/brainfood" target="_blank" rel="noopener">@brainfood&lt;/a>,
+&lt;a href="https://github.com/brianstamper" target="_blank" rel="noopener">@brianstamper&lt;/a>,
+&lt;a href="https://github.com/brisk022" target="_blank" rel="noopener">@brisk022&lt;/a>,
+&lt;a href="https://github.com/Brunohnp" target="_blank" rel="noopener">@Brunohnp&lt;/a>,
+&lt;a href="https://github.com/bschneidr" target="_blank" rel="noopener">@bschneidr&lt;/a>,
+&lt;a href="https://github.com/cameron-faerber" target="_blank" rel="noopener">@cameron-faerber&lt;/a>,
+&lt;a href="https://github.com/Carenser" target="_blank" rel="noopener">@Carenser&lt;/a>,
+&lt;a href="https://github.com/cboettig" target="_blank" rel="noopener">@cboettig&lt;/a>,
+&lt;a href="https://github.com/cderv" target="_blank" rel="noopener">@cderv&lt;/a>,
+&lt;a href="https://github.com/ChiWPak" target="_blank" rel="noopener">@ChiWPak&lt;/a>,
+&lt;a href="https://github.com/christellacaze" target="_blank" rel="noopener">@christellacaze&lt;/a>,
+&lt;a href="https://github.com/cimentadaj" target="_blank" rel="noopener">@cimentadaj&lt;/a>,
+&lt;a href="https://github.com/conchoecia" target="_blank" rel="noopener">@conchoecia&lt;/a>,
+&lt;a href="https://github.com/cuttlefish44" target="_blank" rel="noopener">@cuttlefish44&lt;/a>,
+&lt;a href="https://github.com/dan-reznik" target="_blank" rel="noopener">@dan-reznik&lt;/a>,
+&lt;a href="https://github.com/danielsjf" target="_blank" rel="noopener">@danielsjf&lt;/a>,
+&lt;a href="https://github.com/dapperjapper" target="_blank" rel="noopener">@dapperjapper&lt;/a>,
+&lt;a href="https://github.com/DarioS" target="_blank" rel="noopener">@DarioS&lt;/a>,
+&lt;a href="https://github.com/DataStrategist" target="_blank" rel="noopener">@DataStrategist&lt;/a>,
+&lt;a href="https://github.com/DDWetzel" target="_blank" rel="noopener">@DDWetzel&lt;/a>,
+&lt;a href="https://github.com/DevGri" target="_blank" rel="noopener">@DevGri&lt;/a>,
+&lt;a href="https://github.com/dfjenkins3" target="_blank" rel="noopener">@dfjenkins3&lt;/a>,
+&lt;a href="https://github.com/dhbrand" target="_blank" rel="noopener">@dhbrand&lt;/a>,
+&lt;a href="https://github.com/dhimmel" target="_blank" rel="noopener">@dhimmel&lt;/a>,
+&lt;a href="https://github.com/digital-dharma" target="_blank" rel="noopener">@digital-dharma&lt;/a>,
+&lt;a href="https://github.com/dioh" target="_blank" rel="noopener">@dioh&lt;/a>,
+&lt;a href="https://github.com/djbirke" target="_blank" rel="noopener">@djbirke&lt;/a>,
+&lt;a href="https://github.com/dkulp2" target="_blank" rel="noopener">@dkulp2&lt;/a>,
+&lt;a href="https://github.com/dongzhuoer" target="_blank" rel="noopener">@dongzhuoer&lt;/a>,
+&lt;a href="https://github.com/dpprdan" target="_blank" rel="noopener">@dpprdan&lt;/a>,
+&lt;a href="https://github.com/Dulani" target="_blank" rel="noopener">@Dulani&lt;/a>,
+&lt;a href="https://github.com/eddelbuettel" target="_blank" rel="noopener">@eddelbuettel&lt;/a>,
+&lt;a href="https://github.com/ElToro1966" target="_blank" rel="noopener">@ElToro1966&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/Enchufa2" target="_blank" rel="noopener">@Enchufa2&lt;/a>,
+&lt;a href="https://github.com/epetrovski" target="_blank" rel="noopener">@epetrovski&lt;/a>,
+&lt;a href="https://github.com/eric-pedersen" target="_blank" rel="noopener">@eric-pedersen&lt;/a>,
+&lt;a href="https://github.com/EricHe98" target="_blank" rel="noopener">@EricHe98&lt;/a>,
+&lt;a href="https://github.com/EruIluvatar" target="_blank" rel="noopener">@EruIluvatar&lt;/a>,
+&lt;a href="https://github.com/evelynmitchell" target="_blank" rel="noopener">@evelynmitchell&lt;/a>,
+&lt;a href="https://github.com/EvgenyPetrovsky" target="_blank" rel="noopener">@EvgenyPetrovsky&lt;/a>,
+&lt;a href="https://github.com/gandalf-randolph" target="_blank" rel="noopener">@gandalf-randolph&lt;/a>,
+&lt;a href="https://github.com/GegznaV" target="_blank" rel="noopener">@GegznaV&lt;/a>,
+&lt;a href="https://github.com/gergness" target="_blank" rel="noopener">@gergness&lt;/a>,
+&lt;a href="https://github.com/ghost" target="_blank" rel="noopener">@ghost&lt;/a>,
+&lt;a href="https://github.com/gksmyth" target="_blank" rel="noopener">@gksmyth&lt;/a>,
+&lt;a href="https://github.com/gregrs-uk" target="_blank" rel="noopener">@gregrs-uk&lt;/a>,
+&lt;a href="https://github.com/gwarnes-mdsol" target="_blank" rel="noopener">@gwarnes-mdsol&lt;/a>,
+&lt;a href="https://github.com/ha0ye" target="_blank" rel="noopener">@ha0ye&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hbeale" target="_blank" rel="noopener">@hbeale&lt;/a>,
+&lt;a href="https://github.com/Henri-Lo" target="_blank" rel="noopener">@Henri-Lo&lt;/a>,
+&lt;a href="https://github.com/hiltonmbr" target="_blank" rel="noopener">@hiltonmbr&lt;/a>,
+&lt;a href="https://github.com/hmorzaria" target="_blank" rel="noopener">@hmorzaria&lt;/a>,
+&lt;a href="https://github.com/holstius" target="_blank" rel="noopener">@holstius&lt;/a>,
+&lt;a href="https://github.com/hstojic" target="_blank" rel="noopener">@hstojic&lt;/a>,
+&lt;a href="https://github.com/huftis" target="_blank" rel="noopener">@huftis&lt;/a>,
+&lt;a href="https://github.com/ilyasustun" target="_blank" rel="noopener">@ilyasustun&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/isomorphisms" target="_blank" rel="noopener">@isomorphisms&lt;/a>,
+&lt;a href="https://github.com/isteves" target="_blank" rel="noopener">@isteves&lt;/a>,
+&lt;a href="https://github.com/j-bartholome" target="_blank" rel="noopener">@j-bartholome&lt;/a>,
+&lt;a href="https://github.com/J535D165" target="_blank" rel="noopener">@J535D165&lt;/a>,
+&lt;a href="https://github.com/jaearick" target="_blank" rel="noopener">@jaearick&lt;/a>,
+&lt;a href="https://github.com/jasonserviss" target="_blank" rel="noopener">@jasonserviss&lt;/a>,
+&lt;a href="https://github.com/javierluraschi" target="_blank" rel="noopener">@javierluraschi&lt;/a>,
+&lt;a href="https://github.com/jdeboer" target="_blank" rel="noopener">@jdeboer&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jhpoelen" target="_blank" rel="noopener">@jhpoelen&lt;/a>,
+&lt;a href="https://github.com/jiho" target="_blank" rel="noopener">@jiho&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/jimmo" target="_blank" rel="noopener">@jimmo&lt;/a>,
+&lt;a href="https://github.com/johncassil" target="_blank" rel="noopener">@johncassil&lt;/a>,
+&lt;a href="https://github.com/jomuller" target="_blank" rel="noopener">@jomuller&lt;/a>,
+&lt;a href="https://github.com/jonovik" target="_blank" rel="noopener">@jonovik&lt;/a>,
+&lt;a href="https://github.com/josiekre" target="_blank" rel="noopener">@josiekre&lt;/a>,
+&lt;a href="https://github.com/jpiggod" target="_blank" rel="noopener">@jpiggod&lt;/a>,
+&lt;a href="https://github.com/jschelbert" target="_blank" rel="noopener">@jschelbert&lt;/a>,
+&lt;a href="https://github.com/jstaf" target="_blank" rel="noopener">@jstaf&lt;/a>,
+&lt;a href="https://github.com/jtelleria" target="_blank" rel="noopener">@jtelleria&lt;/a>,
+&lt;a href="https://github.com/jtelleriar" target="_blank" rel="noopener">@jtelleriar&lt;/a>,
+&lt;a href="https://github.com/jtr13" target="_blank" rel="noopener">@jtr13&lt;/a>,
+&lt;a href="https://github.com/juyeongkim" target="_blank" rel="noopener">@juyeongkim&lt;/a>,
+&lt;a href="https://github.com/jzadra" target="_blank" rel="noopener">@jzadra&lt;/a>,
+&lt;a href="https://github.com/kadekillary" target="_blank" rel="noopener">@kadekillary&lt;/a>,
+&lt;a href="https://github.com/kendonB" target="_blank" rel="noopener">@kendonB&lt;/a>,
+&lt;a href="https://github.com/kerry-ja" target="_blank" rel="noopener">@kerry-ja&lt;/a>,
+&lt;a href="https://github.com/kevinushey" target="_blank" rel="noopener">@kevinushey&lt;/a>,
+&lt;a href="https://github.com/kforner" target="_blank" rel="noopener">@kforner&lt;/a>,
+&lt;a href="https://github.com/kk22boy" target="_blank" rel="noopener">@kk22boy&lt;/a>,
+&lt;a href="https://github.com/KKulma" target="_blank" rel="noopener">@KKulma&lt;/a>,
+&lt;a href="https://github.com/kos59125" target="_blank" rel="noopener">@kos59125&lt;/a>,
+&lt;a href="https://github.com/kwstat" target="_blank" rel="noopener">@kwstat&lt;/a>,
+&lt;a href="https://github.com/laresbernardo" target="_blank" rel="noopener">@laresbernardo&lt;/a>,
+&lt;a href="https://github.com/lbartnik" target="_blank" rel="noopener">@lbartnik&lt;/a>,
+&lt;a href="https://github.com/ldecicco-USGS" target="_blank" rel="noopener">@ldecicco-USGS&lt;/a>,
+&lt;a href="https://github.com/Leo-Lee15" target="_blank" rel="noopener">@Leo-Lee15&lt;/a>,
+&lt;a href="https://github.com/lsusatyo-gcmlp" target="_blank" rel="noopener">@lsusatyo-gcmlp&lt;/a>,
+&lt;a href="https://github.com/martinjhnhadley" target="_blank" rel="noopener">@martinjhnhadley&lt;/a>,
+&lt;a href="https://github.com/martj42" target="_blank" rel="noopener">@martj42&lt;/a>,
+&lt;a href="https://github.com/matthewarbo" target="_blank" rel="noopener">@matthewarbo&lt;/a>,
+&lt;a href="https://github.com/MatthieuStigler" target="_blank" rel="noopener">@MatthieuStigler&lt;/a>,
+&lt;a href="https://github.com/mawds" target="_blank" rel="noopener">@mawds&lt;/a>,
+&lt;a href="https://github.com/md0u80c9" target="_blank" rel="noopener">@md0u80c9&lt;/a>,
+&lt;a href="https://github.com/mgirlich" target="_blank" rel="noopener">@mgirlich&lt;/a>,
+&lt;a href="https://github.com/mikmart" target="_blank" rel="noopener">@mikmart&lt;/a>,
+&lt;a href="https://github.com/mirkhosro" target="_blank" rel="noopener">@mirkhosro&lt;/a>,
+&lt;a href="https://github.com/mohkar123" target="_blank" rel="noopener">@mohkar123&lt;/a>,
+&lt;a href="https://github.com/momeara" target="_blank" rel="noopener">@momeara&lt;/a>,
+&lt;a href="https://github.com/msberends" target="_blank" rel="noopener">@msberends&lt;/a>,
+&lt;a href="https://github.com/msmall318" target="_blank" rel="noopener">@msmall318&lt;/a>,
+&lt;a href="https://github.com/Naboum" target="_blank" rel="noopener">@Naboum&lt;/a>,
+&lt;a href="https://github.com/nacnudus" target="_blank" rel="noopener">@nacnudus&lt;/a>,
+&lt;a href="https://github.com/namelessjon" target="_blank" rel="noopener">@namelessjon&lt;/a>,
+&lt;a href="https://github.com/nan1949" target="_blank" rel="noopener">@nan1949&lt;/a>,
+&lt;a href="https://github.com/nbenn" target="_blank" rel="noopener">@nbenn&lt;/a>,
+&lt;a href="https://github.com/neveldo" target="_blank" rel="noopener">@neveldo&lt;/a>,
+&lt;a href="https://github.com/nevrome" target="_blank" rel="noopener">@nevrome&lt;/a>,
+&lt;a href="https://github.com/NicolasImberty" target="_blank" rel="noopener">@NicolasImberty&lt;/a>,
+&lt;a href="https://github.com/normandev" target="_blank" rel="noopener">@normandev&lt;/a>,
+&lt;a href="https://github.com/olgamie" target="_blank" rel="noopener">@olgamie&lt;/a>,
+&lt;a href="https://github.com/osorensen" target="_blank" rel="noopener">@osorensen&lt;/a>,
+&lt;a href="https://github.com/pachevalier" target="_blank" rel="noopener">@pachevalier&lt;/a>,
+&lt;a href="https://github.com/pakuipers" target="_blank" rel="noopener">@pakuipers&lt;/a>,
+&lt;a href="https://github.com/pgensler" target="_blank" rel="noopener">@pgensler&lt;/a>,
+&lt;a href="https://github.com/PMassicotte" target="_blank" rel="noopener">@PMassicotte&lt;/a>,
+&lt;a href="https://github.com/prebours" target="_blank" rel="noopener">@prebours&lt;/a>,
+&lt;a href="https://github.com/prosoitos" target="_blank" rel="noopener">@prosoitos&lt;/a>,
+&lt;a href="https://github.com/QuLogic" target="_blank" rel="noopener">@QuLogic&lt;/a>,
+&lt;a href="https://github.com/rafazaya" target="_blank" rel="noopener">@rafazaya&lt;/a>,
+&lt;a href="https://github.com/ramiromagno" target="_blank" rel="noopener">@ramiromagno&lt;/a>,
+&lt;a href="https://github.com/randomgambit" target="_blank" rel="noopener">@randomgambit&lt;/a>,
+&lt;a href="https://github.com/raw937" target="_blank" rel="noopener">@raw937&lt;/a>,
+&lt;a href="https://github.com/rdisalv2" target="_blank" rel="noopener">@rdisalv2&lt;/a>,
+&lt;a href="https://github.com/rensa" target="_blank" rel="noopener">@rensa&lt;/a>,
+&lt;a href="https://github.com/richierocks" target="_blank" rel="noopener">@richierocks&lt;/a>,
+&lt;a href="https://github.com/RickPack" target="_blank" rel="noopener">@RickPack&lt;/a>,
+&lt;a href="https://github.com/rmcd1024" target="_blank" rel="noopener">@rmcd1024&lt;/a>,
+&lt;a href="https://github.com/RomeroBarata" target="_blank" rel="noopener">@RomeroBarata&lt;/a>,
+&lt;a href="https://github.com/roshnamohan" target="_blank" rel="noopener">@roshnamohan&lt;/a>,
+&lt;a href="https://github.com/ryanatanner" target="_blank" rel="noopener">@ryanatanner&lt;/a>,
+&lt;a href="https://github.com/s-fleck" target="_blank" rel="noopener">@s-fleck&lt;/a>,
+&lt;a href="https://github.com/saghirb" target="_blank" rel="noopener">@saghirb&lt;/a>,
+&lt;a href="https://github.com/sambrady3" target="_blank" rel="noopener">@sambrady3&lt;/a>,
+&lt;a href="https://github.com/seandavi" target="_blank" rel="noopener">@seandavi&lt;/a>,
+&lt;a href="https://github.com/seanpor" target="_blank" rel="noopener">@seanpor&lt;/a>,
+&lt;a href="https://github.com/sellisd" target="_blank" rel="noopener">@sellisd&lt;/a>,
+&lt;a href="https://github.com/sibojan" target="_blank" rel="noopener">@sibojan&lt;/a>,
+&lt;a href="https://github.com/SimonGoring" target="_blank" rel="noopener">@SimonGoring&lt;/a>,
+&lt;a href="https://github.com/sindile" target="_blank" rel="noopener">@sindile&lt;/a>,
+&lt;a href="https://github.com/statsccpr" target="_blank" rel="noopener">@statsccpr&lt;/a>,
+&lt;a href="https://github.com/stelsemeyer" target="_blank" rel="noopener">@stelsemeyer&lt;/a>,
+&lt;a href="https://github.com/StevenMMortimer" target="_blank" rel="noopener">@StevenMMortimer&lt;/a>,
+&lt;a href="https://github.com/stianlagstad" target="_blank" rel="noopener">@stianlagstad&lt;/a>,
+&lt;a href="https://github.com/tarmenic" target="_blank" rel="noopener">@tarmenic&lt;/a>,
+&lt;a href="https://github.com/tdsmith" target="_blank" rel="noopener">@tdsmith&lt;/a>,
+&lt;a href="https://github.com/thanosgatos" target="_blank" rel="noopener">@thanosgatos&lt;/a>,
+&lt;a href="https://github.com/tigertoes" target="_blank" rel="noopener">@tigertoes&lt;/a>,
+&lt;a href="https://github.com/tomsing1" target="_blank" rel="noopener">@tomsing1&lt;/a>,
+&lt;a href="https://github.com/TPreijers" target="_blank" rel="noopener">@TPreijers&lt;/a>,
+&lt;a href="https://github.com/tres-pitt" target="_blank" rel="noopener">@tres-pitt&lt;/a>,
+&lt;a href="https://github.com/tungmilan" target="_blank" rel="noopener">@tungmilan&lt;/a>,
+&lt;a href="https://github.com/wgrundlingh" target="_blank" rel="noopener">@wgrundlingh&lt;/a>,
+&lt;a href="https://github.com/wibeasley" target="_blank" rel="noopener">@wibeasley&lt;/a>,
+&lt;a href="https://github.com/willemvdb42" target="_blank" rel="noopener">@willemvdb42&lt;/a>,
+&lt;a href="https://github.com/xhudik" target="_blank" rel="noopener">@xhudik&lt;/a>,
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>,
+&lt;a href="https://github.com/Zack-83" target="_blank" rel="noopener">@Zack-83&lt;/a>, and
+&lt;a href="https://github.com/zeehio" target="_blank" rel="noopener">@zeehio&lt;/a>&lt;/p></description></item></channel></rss>

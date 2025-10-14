@@ -1,0 +1,236 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>testthat 3.2.0</title><meta property="og:title" content="testthat 3.2.0"><meta property="og:description" content="Catch up on the last two years of testthat development which includes  improved documentation, new expectations, a new style for error snapshots, support for mocking, a new way to detect if a test has changed global state,  and a handful of UI improvements."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2023/10/testthat-3-2-0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="testthat 3.2.0 - Tidyverse"><meta property="description" content="Catch up on the last two years of testthat development which includes  improved documentation, new expectations, a new style for error snapshots, support for mocking, a new way to detect if a test has changed global state,  and a handful of UI improvements."><meta property="og:description" content="Catch up on the last two years of testthat development which includes  improved documentation, new expectations, a new style for error snapshots, support for mocking, a new way to detect if a test has changed global state,  and a handful of UI improvements."><meta property="og:image" content="https://www.tidyverse.org/blog/2023/10/testthat-3-2-0/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2023/10/testthat-3-2-0/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>testthat 3.2.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2023/10/testthat-3-2-0/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/PtabTe6iJ_8>Mika Baumeister</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2023/10/08</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/devtools/>devtools</a>,
+<a href=/tags/testthat/>testthat</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Hadley Wickham</p><div class=article-content><p>We&rsquo;re chuffed to announce the release of
+<a href=http://testthat.r-lib.org/ target=_blank rel=noopener>testthat</a> 3.2.0. testthat makes it easy to turn your existing informal tests into formal, automated tests that you can rerun quickly and easily. testthat is the most popular unit-testing package for R, and is used by almost 9,000 CRAN and Bioconductor packages. You can learn more about unit testing at <a href=https://r-pkgs.org/tests.html>https://r-pkgs.org/tests.html</a>.</p><p>You can install it from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span><span class=o>(</span><span class=s>"testthat"</span><span class=o>)</span></span></code></pre></div><p>testthat 3.2.0 includes relatively few new features but there have been nine patch releases since testthat 3.1.0. These patch releases contained a bunch of experiments that we now believe are ready for the world. So this blog post summarises the changes in
+<a href=https://github.com/r-lib/testthat/releases/tag/v3.1.1 target=_blank rel=noopener>3.1.1</a>,
+<a href=https://github.com/r-lib/testthat/releases/tag/v3.1.2 target=_blank rel=noopener>3.1.2</a>,
+<a href=https://github.com/r-lib/testthat/releases/tag/v3.1.3 target=_blank rel=noopener>3.1.3</a>,
+<a href=https://github.com/r-lib/testthat/releases/tag/v3.1.4 target=_blank rel=noopener>3.1.4</a>,
+<a href=https://github.com/r-lib/testthat/releases/tag/v3.1.5 target=_blank rel=noopener>3.1.5</a>,
+<a href=https://github.com/r-lib/testthat/releases/tag/v3.1.6 target=_blank rel=noopener>3.1.6</a>,
+<a href=https://github.com/r-lib/testthat/releases/tag/v3.1.7 target=_blank rel=noopener>3.1.7</a>,
+<a href=https://github.com/r-lib/testthat/releases/tag/v3.1.8 target=_blank rel=noopener>3.1.8</a>,
+<a href=https://github.com/r-lib/testthat/releases/tag/v3.1.9 target=_blank rel=noopener>3.1.9</a>, and
+<a href=https://github.com/r-lib/testthat/releases/tag/v3.1.10 target=_blank rel=noopener>3.1.10</a> over the last two years.</p><p>Here we&rsquo;ll focus on the biggest news: new expectations, tweaks to the way that error snapshots are reported, support for mocking, a new way to detect if a test has changed global state, and a bunch of smaller UI improvements.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=kr><a href=https://rdrr.io/r/base/library.html>library</a></span><span class=o>(</span><span class=nv><a href=https://testthat.r-lib.org>testthat</a></span><span class=o>)</span></span></code></pre></div><h2 id=documentation>Documentation
+<a href=#documentation><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The first and most important thing to point out is that the second edition of
+<a href=https://r-pkgs.org target=_blank rel=noopener>R Packages</a> contains updated and much expanded coverage of testing. Coverage of testing is now split up over three chapters:</p><ul><li><a href=https://r-pkgs.org/testing-basics.html target=_blank rel=noopener>Testing basics</a></li><li><a href=https://r-pkgs.org/testing-design.html target=_blank rel=noopener>Designing your test suite</a></li><li><a href=https://r-pkgs.org/testing-advanced.html target=_blank rel=noopener>Advanced testing techniques</a></li></ul><p>There&rsquo;s also a new vignette about special files (
+<a href=https://testthat.r-lib.org/articles/special-files.html target=_blank rel=noopener><code>vignette("special-files")</code></a>) which describes the various special files that you find in <code>tests/testthat</code> and when you might need to use them.</p><h2 id=new-expectations>New expectations
+<a href=#new-expectations><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>There are a handful of notable new expectations.
+<a href=https://testthat.r-lib.org/reference/expect_setequal.html target=_blank rel=noopener><code>expect_contains()</code></a> and
+<a href=https://testthat.r-lib.org/reference/expect_setequal.html target=_blank rel=noopener><code>expect_in()</code></a> work similarly to <code>expect_true(all(expected %in% object))</code> or <code>expect_true(all(object %in% expected))</code> but give more informative failure messages:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>fruits</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"apple"</span>, <span class=s>"banana"</span>, <span class=s>"pear"</span><span class=o>)</span></span>
+<span><span class=nf><a href=https://testthat.r-lib.org/reference/expect_setequal.html>expect_contains</a></span><span class=o>(</span><span class=nv>fruits</span>, <span class=s>"apple"</span><span class=o>)</span></span>
+<span><span class=nf><a href=https://testthat.r-lib.org/reference/expect_setequal.html>expect_contains</a></span><span class=o>(</span><span class=nv>fruits</span>, <span class=s>"pineapple"</span><span class=o>)</span></span>
+<span><span class=c>#&gt; Error: `fruits` (`actual`) doesn't fully contain all the values in "pineapple" (`expected`).</span></span>
+<span><span class=c>#&gt; * Missing from `actual`: "pineapple"</span></span>
+<span><span class=c>#&gt; * Present in `actual`:   "apple", "banana", "pear"</span></span>
+<span></span><span></span>
+<span><span class=nv>x</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=kc>TRUE</span>, <span class=kc>FALSE</span>, <span class=kc>TRUE</span>, <span class=kc>FALSE</span><span class=o>)</span></span>
+<span><span class=nf><a href=https://testthat.r-lib.org/reference/expect_setequal.html>expect_in</a></span><span class=o>(</span><span class=nv>x</span>, <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=kc>TRUE</span>, <span class=kc>FALSE</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=nv>x</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=kc>TRUE</span>, <span class=kc>FALSE</span>, <span class=kc>TRUE</span>, <span class=kc>NA</span>, <span class=kc>FALSE</span><span class=o>)</span></span>
+<span><span class=nf><a href=https://testthat.r-lib.org/reference/expect_setequal.html>expect_in</a></span><span class=o>(</span><span class=nv>x</span>, <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=kc>TRUE</span>, <span class=kc>FALSE</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; Error: `x` (`actual`) isn't fully contained within c(TRUE, FALSE) (`expected`).</span></span>
+<span><span class=c>#&gt; * Missing from `expected`: NA</span></span>
+<span><span class=c>#&gt; * Present in `expected`:   TRUE, FALSE</span></span>
+<span></span></code></pre></div><p><a href=https://testthat.r-lib.org/reference/expect_no_error.html target=_blank rel=noopener><code>expect_no_error()</code></a>,
+<a href=https://testthat.r-lib.org/reference/expect_no_error.html target=_blank rel=noopener><code>expect_no_warning()</code></a>, and
+<a href=https://testthat.r-lib.org/reference/expect_no_error.html target=_blank rel=noopener><code>expect_no_message()</code></a> make it easier (and clearer) to confirm that code runs without errors, warnings, or messages. The default fails if there is any error/warning/message, but you can optionally supply either the <code>message</code> or <code>class</code> arguments to confirm the absence of a specific error/warning/message.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>foo</span> <span class=o>&lt;-</span> <span class=kr>function</span><span class=o>(</span><span class=nv>x</span><span class=o>)</span> <span class=o>&#123;</span></span>
+<span>  <span class=kr>if</span> <span class=o>(</span><span class=nv>x</span> <span class=o>&lt;</span> <span class=m>0</span><span class=o>)</span> <span class=o>&#123;</span></span>
+<span>    <span class=nv>x</span> <span class=o>+</span> <span class=s>"10"</span></span>
+<span>  <span class=o>&#125;</span> <span class=kr>else</span> <span class=o>&#123;</span></span>
+<span>    <span class=nv>x</span> <span class=o>=</span> <span class=m>20</span></span>
+<span>  <span class=o>&#125;</span></span>
+<span><span class=o>&#125;</span></span>
+<span></span>
+<span><span class=nf><a href=https://testthat.r-lib.org/reference/expect_no_error.html>expect_no_error</a></span><span class=o>(</span><span class=nf>foo</span><span class=o>(</span><span class=o>-</span><span class=m>10</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=c>#&gt; Error: Expected `foo(-10)` to run without any errors.</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>ℹ</span> Actually got a &lt;simpleError&gt; with text:</span></span>
+<span><span class=c>#&gt;   non-numeric argument to binary operator</span></span>
+<span></span><span></span>
+<span><span class=c># No difference here but will lead to a better failure later</span></span>
+<span><span class=c># once you've fixed this problem and later introduce a new one</span></span>
+<span><span class=nf><a href=https://testthat.r-lib.org/reference/expect_no_error.html>expect_no_error</a></span><span class=o>(</span><span class=nf>foo</span><span class=o>(</span><span class=o>-</span><span class=m>10</span><span class=o>)</span>, message <span class=o>=</span> <span class=s>"non-numeric argument"</span><span class=o>)</span></span>
+<span><span class=c>#&gt; Error: Expected `foo(-10)` to run without any errors matching pattern 'non-numeric argument'.</span></span>
+<span><span class=c>#&gt; <span style=color:#00b>ℹ</span> Actually got a &lt;simpleError&gt; with text:</span></span>
+<span><span class=c>#&gt;   non-numeric argument to binary operator</span></span>
+<span></span></code></pre></div><h2 id=snapshotting-changes>Snapshotting changes
+<a href=#snapshotting-changes><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p><code>expect_snapshot(error = TRUE)</code> has a new display of error messages that strives to be closer to what you see interactively. In particular, you&rsquo;ll no longer see the error class and you will now see the error call.</p><ul><li><p>Old display:</p><pre><code>Code
+  f()
+Error &lt;simpleError&gt;
+  baz
+</code></pre></li><li><p>New display:</p><pre><code>Code
+  f()
+Condition
+  Error in `f()`:
+  ! baz
+</code></pre></li></ul><p>If you have used <code>expect_snapshot(error = TRUE)</code> in your package, this means that you will need to re-run and approve your snapshots. We hope this is not too annoying and we believe it is worth it given the more accurate reflection of generated error messages. This will not affect checks on CRAN because, by default, snapshot tests are not run on CRAN.</p><h2 id=mocking>Mocking
+<a href=#mocking><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Mocking<sup id=fnref:1><a href=#fn:1 class=footnote-ref role=doc-noteref>1</a></sup> is a tool for temporarily replacing the implementation of a function in order to make testing easier. Sometimes when testing a function, one part of it is challenging to run in your test environment (maybe it requires human interaction, a live database connection, or maybe it just takes a long time to run). For example, take the following imaginary function. It has a bunch of straightforward computation that would be easy to test but right in the middle of the function it calls <code>complicated()</code> which is hard to test:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nv>my_function</span> <span class=o>&lt;-</span> <span class=kr>function</span><span class=o>(</span><span class=nv>x</span>, <span class=nv>y</span>, <span class=nv>z</span><span class=o>)</span> <span class=o>&#123;</span></span>
+<span>  <span class=nv>a</span> <span class=o>&lt;-</span> <span class=nf>f</span><span class=o>(</span><span class=nv>x</span>, <span class=nv>y</span><span class=o>)</span></span>
+<span>  <span class=nv>b</span> <span class=o>&lt;-</span> <span class=nf>g</span><span class=o>(</span><span class=nv>y</span>, <span class=nv>z</span><span class=o>)</span></span>
+<span>  <span class=nv>c</span> <span class=o>&lt;-</span> <span class=nf>h</span><span class=o>(</span><span class=nv>a</span>, <span class=nv>b</span><span class=o>)</span></span>
+<span>  </span>
+<span>  <span class=nv>d</span> <span class=o>&lt;-</span> <span class=nf>complicated</span><span class=o>(</span><span class=nv>c</span><span class=o>)</span></span>
+<span>  </span>
+<span>  <span class=nf>i</span><span class=o>(</span><span class=nv>d</span>, <span class=m>1</span>, <span class=kc>TRUE</span><span class=o>)</span></span>
+<span><span class=o>&#125;</span></span></code></pre></div><p>Mocking allows you to temporarily replace <code>complicated()</code> with something simpler, allowing you to test the rest of the function. testthat now supports mocking with
+<a href=https://testthat.r-lib.org/reference/local_mocked_bindings.html target=_blank rel=noopener><code>local_mocked_bindings()</code></a>, which temporarily replaces the implementation of a function. For example, to test <code>my_function()</code> you might write something like this:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://testthat.r-lib.org/reference/test_that.html>test_that</a></span><span class=o>(</span><span class=s>"my_function() returns expected result"</span>, <span class=o>&#123;</span></span>
+<span>  <span class=nf><a href=https://testthat.r-lib.org/reference/local_mocked_bindings.html>local_mocked_bindings</a></span><span class=o>(</span></span>
+<span>    complicated <span class=o>=</span> <span class=kr>function</span><span class=o>(</span><span class=nv>x</span><span class=o>)</span> <span class=kc>TRUE</span></span>
+<span>  <span class=o>)</span></span>
+<span>  <span class=nv>...</span></span>
+<span><span class=o>&#125;</span><span class=o>)</span></span></code></pre></div><p>testthat has a complicated past with mocking. testthat introduced
+<a href=https://testthat.r-lib.org/reference/with_mock.html target=_blank rel=noopener><code>with_mock()</code></a> in v0.9 (way back in 2014), but we started discovering problems with the implementation in v2.0.0 (2017) leading to its deprecation in v3.0.0 (2020). A few packages arose to fill the gap (like
+<a href=https://github.com/r-lib/mockery target=_blank rel=noopener>mockery</a>,
+<a href=https://krlmlr.github.io/mockr/ target=_blank rel=noopener>mockr</a>, and
+<a href=https://nbenn.github.io/mockthat/ target=_blank rel=noopener>mockthat</a>) but none of their implementations were completely satisfactory. Earlier this year a new approach occurred to me that avoids many of the problems of the previous approaches. This is now implemented in
+<a href=https://testthat.r-lib.org/reference/local_mocked_bindings.html target=_blank rel=noopener><code>with_mocked_bindings()</code></a> and
+<a href=https://testthat.r-lib.org/reference/local_mocked_bindings.html target=_blank rel=noopener><code>local_mocked_bindings()</code></a>; we&rsquo;ve been using these new functions for a few months now without problems, and it feels like time to announce to the world.</p><h2 id=state-inspector>State inspector
+<a href=#state-inspector><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>In times gone by it was very easy to accidentally change the state of the world in a test:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://testthat.r-lib.org/reference/test_that.html>test_that</a></span><span class=o>(</span><span class=s>"side-by-side diffs work"</span>, <span class=o>&#123;</span></span>
+<span>  <span class=nf><a href=https://rdrr.io/r/base/options.html>options</a></span><span class=o>(</span>width <span class=o>=</span> <span class=m>20</span><span class=o>)</span></span>
+<span>  <span class=nf><a href=https://testthat.r-lib.org/reference/expect_snapshot.html>expect_snapshot</a></span><span class=o>(</span></span>
+<span>    <span class=nf>waldo</span><span class=nf>::</span><span class=nf><a href=https://waldo.r-lib.org/reference/compare.html>compare</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=s>"X"</span>, <span class=nv>letters</span><span class=o>)</span>, <span class=nf><a href=https://rdrr.io/r/base/c.html>c</a></span><span class=o>(</span><span class=nv>letters</span>, <span class=s>"X"</span><span class=o>)</span><span class=o>)</span></span>
+<span>  <span class=o>)</span></span>
+<span><span class=o>&#125;</span><span class=o>)</span></span></code></pre></div><p>When you look at a single test it&rsquo;s easy to spot the problem, and switch to a more appropriate way of temporarily changing the options, like
+<a href=https://withr.r-lib.org/reference/with_options.html target=_blank rel=noopener><code>withr::local_options()</code></a>. But sometimes this mistake crept in a long time ago and is now hiding amongst hundreds or thousands of tests.</p><p>In earlier versions of testthat, finding tests that accidentally changed the world was painful: the only way was to painstakingly review each test. Now you can use
+<a href=https://testthat.r-lib.org/reference/set_state_inspector.html target=_blank rel=noopener><code>set_state_inspector()</code></a> to register a function that&rsquo;s called before and after every test. If the function returns different values, testthat will let you know. You&rsquo;ll typically do this either in <code>tests/testhat/setup.R</code> or an existing helper file.</p><p>So, for example, to detect if any of your tests have modified options you could use this state inspector:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://testthat.r-lib.org/reference/set_state_inspector.html>set_state_inspector</a></span><span class=o>(</span><span class=kr>function</span><span class=o>(</span><span class=o>)</span> <span class=o>&#123;</span></span>
+<span>  <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>options <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/options.html>options</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=o>&#125;</span><span class=o>)</span></span></code></pre></div><p>Or maybe you&rsquo;ve seen an <code>R CMD check</code> warning that you&rsquo;ve forgotten to close a connection:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span><span class=nf><a href=https://testthat.r-lib.org/reference/set_state_inspector.html>set_state_inspector</a></span><span class=o>(</span><span class=kr>function</span><span class=o>(</span><span class=o>)</span> <span class=o>&#123;</span></span>
+<span>  <span class=nf><a href=https://rdrr.io/r/base/list.html>list</a></span><span class=o>(</span>connections <span class=o>=</span> <span class=nf><a href=https://rdrr.io/r/base/nrow.html>nrow</a></span><span class=o>(</span><span class=nf><a href=https://rdrr.io/r/base/showConnections.html>showConnections</a></span><span class=o>(</span><span class=o>)</span><span class=o>)</span><span class=o>)</span></span>
+<span><span class=o>&#125;</span><span class=o>)</span></span></code></pre></div><p>And you can of course combine multiple checks just by returning a more complicated list.</p><h2 id=ui-improvements>UI improvements
+<a href=#ui-improvements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>testthat 3.2.0 includes a bunch of minor user interface improvements that should make day-to-day use of testthat more enjoyable. Some of our favourite highlights are:</p><ul><li>Parallel testing now works much better with snapshot tests. (And updates to the processx package means that testthat no longer leaves processes around if you terminate a test process early.)</li><li>We use an improved algorithm to find the source reference associated with an expectation/error/warning/skip. We now look for the most recent call (within inside
+<a href=https://testthat.r-lib.org/reference/test_that.html target=_blank rel=noopener><code>test_that()</code></a> that has known source. This generally gives more specific locations than the previous approach and gives much better locations if an error occurs in an exit handler.</li><li>Tracebacks are no longer truncated and we use rlang&rsquo;s default tree display; this should make it easier to track down problems when testing in non-interactive contexts.</li><li>Assuming you have a recent RStudio, test failures are now clickable, taking you to the line where the problem occurred. Similarly, when a snapshot test changes, you can now click that suggested code to run the appropriate
+<a href=https://testthat.r-lib.org/reference/snapshot_accept.html target=_blank rel=noopener><code>snapshot_accept()</code></a> call.</li><li>Skips are now only shown at the end of reporter summaries, not as tests are run. This makes them less intrusive in interactive tests while still allowing you to verify that the correct tests are skipped.</li></ul><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>A big thanks to all 127 contributors who helped make these last 10 release of testthat happen, whether it be through contributed code or filing issues:
+<a href=https://github.com/ALanguillaume target=_blank rel=noopener>@ALanguillaume</a>,
+<a href=https://github.com/alessandroaccettulli target=_blank rel=noopener>@alessandroaccettulli</a>,
+<a href=https://github.com/ambica-aas target=_blank rel=noopener>@ambica-aas</a>,
+<a href=https://github.com/annweideman target=_blank rel=noopener>@annweideman</a>,
+<a href=https://github.com/aronatkins target=_blank rel=noopener>@aronatkins</a>,
+<a href=https://github.com/ashander target=_blank rel=noopener>@ashander</a>,
+<a href=https://github.com/AshesITR target=_blank rel=noopener>@AshesITR</a>,
+<a href=https://github.com/astayleraz target=_blank rel=noopener>@astayleraz</a>,
+<a href=https://github.com/ateucher target=_blank rel=noopener>@ateucher</a>,
+<a href=https://github.com/avraam-inside target=_blank rel=noopener>@avraam-inside</a>,
+<a href=https://github.com/b-steve target=_blank rel=noopener>@b-steve</a>,
+<a href=https://github.com/bersbersbers target=_blank rel=noopener>@bersbersbers</a>,
+<a href=https://github.com/billdenney target=_blank rel=noopener>@billdenney</a>,
+<a href=https://github.com/Bisaloo target=_blank rel=noopener>@Bisaloo</a>,
+<a href=https://github.com/cboettig target=_blank rel=noopener>@cboettig</a>,
+<a href=https://github.com/cderv target=_blank rel=noopener>@cderv</a>,
+<a href=https://github.com/chendaniely target=_blank rel=noopener>@chendaniely</a>,
+<a href=https://github.com/ChrisBeeley target=_blank rel=noopener>@ChrisBeeley</a>,
+<a href=https://github.com/ColinFay target=_blank rel=noopener>@ColinFay</a>,
+<a href=https://github.com/CorradoLanera target=_blank rel=noopener>@CorradoLanera</a>,
+<a href=https://github.com/daattali target=_blank rel=noopener>@daattali</a>,
+<a href=https://github.com/damianooldoni target=_blank rel=noopener>@damianooldoni</a>,
+<a href=https://github.com/DanChaltiel target=_blank rel=noopener>@DanChaltiel</a>,
+<a href=https://github.com/danielinteractive target=_blank rel=noopener>@danielinteractive</a>,
+<a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/daynefiler target=_blank rel=noopener>@daynefiler</a>,
+<a href=https://github.com/dbdimitrov target=_blank rel=noopener>@dbdimitrov</a>,
+<a href=https://github.com/dcaseykc target=_blank rel=noopener>@dcaseykc</a>,
+<a href=https://github.com/dgkf target=_blank rel=noopener>@dgkf</a>,
+<a href=https://github.com/dhicks target=_blank rel=noopener>@dhicks</a>,
+<a href=https://github.com/dimfalk target=_blank rel=noopener>@dimfalk</a>,
+<a href=https://github.com/dougwyu target=_blank rel=noopener>@dougwyu</a>,
+<a href=https://github.com/dpprdan target=_blank rel=noopener>@dpprdan</a>,
+<a href=https://github.com/dvg-p4 target=_blank rel=noopener>@dvg-p4</a>,
+<a href=https://github.com/elong0527 target=_blank rel=noopener>@elong0527</a>,
+<a href=https://github.com/Enchufa2 target=_blank rel=noopener>@Enchufa2</a>,
+<a href=https://github.com/etiennebacher target=_blank rel=noopener>@etiennebacher</a>,
+<a href=https://github.com/FlippieCoetser target=_blank rel=noopener>@FlippieCoetser</a>,
+<a href=https://github.com/florisvdh target=_blank rel=noopener>@florisvdh</a>,
+<a href=https://github.com/gaborcsardi target=_blank rel=noopener>@gaborcsardi</a>,
+<a href=https://github.com/gareth-j target=_blank rel=noopener>@gareth-j</a>,
+<a href=https://github.com/gavinsimpson target=_blank rel=noopener>@gavinsimpson</a>,
+<a href=https://github.com/ghill-fusion target=_blank rel=noopener>@ghill-fusion</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/heavywatal target=_blank rel=noopener>@heavywatal</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/hhau target=_blank rel=noopener>@hhau</a>,
+<a href=https://github.com/hpages target=_blank rel=noopener>@hpages</a>,
+<a href=https://github.com/hsloot target=_blank rel=noopener>@hsloot</a>,
+<a href=https://github.com/hughjonesd target=_blank rel=noopener>@hughjonesd</a>,
+<a href=https://github.com/IndrajeetPatil target=_blank rel=noopener>@IndrajeetPatil</a>,
+<a href=https://github.com/jameslairdsmith target=_blank rel=noopener>@jameslairdsmith</a>,
+<a href=https://github.com/jamieRowen target=_blank rel=noopener>@jamieRowen</a>,
+<a href=https://github.com/jayruffell target=_blank rel=noopener>@jayruffell</a>,
+<a href=https://github.com/JBGruber target=_blank rel=noopener>@JBGruber</a>,
+<a href=https://github.com/jennybc target=_blank rel=noopener>@jennybc</a>,
+<a href=https://github.com/JohnCoene target=_blank rel=noopener>@JohnCoene</a>,
+<a href=https://github.com/jonathanvoelkle target=_blank rel=noopener>@jonathanvoelkle</a>,
+<a href=https://github.com/jonthegeek target=_blank rel=noopener>@jonthegeek</a>,
+<a href=https://github.com/josherrickson target=_blank rel=noopener>@josherrickson</a>,
+<a href=https://github.com/kalaschnik target=_blank rel=noopener>@kalaschnik</a>,
+<a href=https://github.com/kapsner target=_blank rel=noopener>@kapsner</a>,
+<a href=https://github.com/kevinushey target=_blank rel=noopener>@kevinushey</a>,
+<a href=https://github.com/kjytay target=_blank rel=noopener>@kjytay</a>,
+<a href=https://github.com/krivit target=_blank rel=noopener>@krivit</a>,
+<a href=https://github.com/krlmlr target=_blank rel=noopener>@krlmlr</a>,
+<a href=https://github.com/larmarange target=_blank rel=noopener>@larmarange</a>,
+<a href=https://github.com/lionel- target=_blank rel=noopener>@lionel-</a>,
+<a href=https://github.com/llrs target=_blank rel=noopener>@llrs</a>,
+<a href=https://github.com/luma-sb target=_blank rel=noopener>@luma-sb</a>,
+<a href=https://github.com/machow target=_blank rel=noopener>@machow</a>,
+<a href=https://github.com/maciekbanas target=_blank rel=noopener>@maciekbanas</a>,
+<a href=https://github.com/maelle target=_blank rel=noopener>@maelle</a>,
+<a href=https://github.com/majr-red target=_blank rel=noopener>@majr-red</a>,
+<a href=https://github.com/maksymiuks target=_blank rel=noopener>@maksymiuks</a>,
+<a href=https://github.com/mardam target=_blank rel=noopener>@mardam</a>,
+<a href=https://github.com/MarkMc1089 target=_blank rel=noopener>@MarkMc1089</a>,
+<a href=https://github.com/markschat target=_blank rel=noopener>@markschat</a>,
+<a href=https://github.com/MatthieuStigler target=_blank rel=noopener>@MatthieuStigler</a>,
+<a href=https://github.com/maurolepore target=_blank rel=noopener>@maurolepore</a>,
+<a href=https://github.com/maxheld83 target=_blank rel=noopener>@maxheld83</a>,
+<a href=https://github.com/mbojan target=_blank rel=noopener>@mbojan</a>,
+<a href=https://github.com/mcol target=_blank rel=noopener>@mcol</a>,
+<a href=https://github.com/mgirlich target=_blank rel=noopener>@mgirlich</a>,
+<a href=https://github.com/MichaelChirico target=_blank rel=noopener>@MichaelChirico</a>,
+<a href=https://github.com/mkb13 target=_blank rel=noopener>@mkb13</a>,
+<a href=https://github.com/mkoohafkan target=_blank rel=noopener>@mkoohafkan</a>,
+<a href=https://github.com/MKyhos target=_blank rel=noopener>@MKyhos</a>,
+<a href=https://github.com/moodymudskipper target=_blank rel=noopener>@moodymudskipper</a>,
+<a href=https://github.com/Mosk915 target=_blank rel=noopener>@Mosk915</a>,
+<a href=https://github.com/mpjashby target=_blank rel=noopener>@mpjashby</a>,
+<a href=https://github.com/ms609 target=_blank rel=noopener>@ms609</a>,
+<a href=https://github.com/mtmorgan target=_blank rel=noopener>@mtmorgan</a>,
+<a href=https://github.com/musvaage target=_blank rel=noopener>@musvaage</a>,
+<a href=https://github.com/nealrichardson target=_blank rel=noopener>@nealrichardson</a>,
+<a href=https://github.com/netique target=_blank rel=noopener>@netique</a>,
+<a href=https://github.com/njtierney target=_blank rel=noopener>@njtierney</a>,
+<a href=https://github.com/olivroy target=_blank rel=noopener>@olivroy</a>,
+<a href=https://github.com/osorensen target=_blank rel=noopener>@osorensen</a>,
+<a href=https://github.com/pbulsink target=_blank rel=noopener>@pbulsink</a>,
+<a href=https://github.com/peterdesmet target=_blank rel=noopener>@peterdesmet</a>,
+<a href=https://github.com/r2evans target=_blank rel=noopener>@r2evans</a>,
+<a href=https://github.com/radbasa target=_blank rel=noopener>@radbasa</a>,
+<a href=https://github.com/remlapmot target=_blank rel=noopener>@remlapmot</a>,
+<a href=https://github.com/rfineman target=_blank rel=noopener>@rfineman</a>,
+<a href=https://github.com/rgayler target=_blank rel=noopener>@rgayler</a>,
+<a href=https://github.com/romainfrancois target=_blank rel=noopener>@romainfrancois</a>,
+<a href=https://github.com/s-fleck target=_blank rel=noopener>@s-fleck</a>,
+<a href=https://github.com/salim-b target=_blank rel=noopener>@salim-b</a>,
+<a href=https://github.com/schloerke target=_blank rel=noopener>@schloerke</a>,
+<a href=https://github.com/sorhawell target=_blank rel=noopener>@sorhawell</a>,
+<a href=https://github.com/StatisMike target=_blank rel=noopener>@StatisMike</a>,
+<a href=https://github.com/StatsMan53 target=_blank rel=noopener>@StatsMan53</a>,
+<a href=https://github.com/stela2502 target=_blank rel=noopener>@stela2502</a>,
+<a href=https://github.com/stla target=_blank rel=noopener>@stla</a>,
+<a href=https://github.com/t-kalinowski target=_blank rel=noopener>@t-kalinowski</a>,
+<a href=https://github.com/tansaku target=_blank rel=noopener>@tansaku</a>,
+<a href=https://github.com/tomliptrot target=_blank rel=noopener>@tomliptrot</a>,
+<a href=https://github.com/torres-pedro target=_blank rel=noopener>@torres-pedro</a>,
+<a href=https://github.com/wes-brooks target=_blank rel=noopener>@wes-brooks</a>,
+<a href=https://github.com/wfmueller29 target=_blank rel=noopener>@wfmueller29</a>,
+<a href=https://github.com/wleoncio target=_blank rel=noopener>@wleoncio</a>,
+<a href=https://github.com/wurli target=_blank rel=noopener>@wurli</a>,
+<a href=https://github.com/yogat3ch target=_blank rel=noopener>@yogat3ch</a>,
+<a href=https://github.com/yuliaUU target=_blank rel=noopener>@yuliaUU</a>,
+<a href=https://github.com/yutannihilation target=_blank rel=noopener>@yutannihilation</a>, and
+<a href=https://github.com/zsigmas target=_blank rel=noopener>@zsigmas</a>.</p><section class=footnotes role=doc-endnotes><hr><ol><li id=fn:1 role=doc-endnote><p>Think mimicking, like a mockingbird, not making fun of. <a href=#fnref:1 class=footnote-backref role=doc-backlink>&#8617;&#xfe0e;</a></p></li></ol></section></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#documentation>Documentation</a></li><li><a href=#new-expectations>New expectations</a></li><li><a href=#snapshotting-changes>Snapshotting changes</a></li><li><a href=#mocking>Mocking</a></li><li><a href=#state-inspector>State inspector</a></li><li><a href=#ui-improvements>UI improvements</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

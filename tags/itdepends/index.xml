@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>itdepends | Tidyverse</title><link>https://www.tidyverse.org/tags/itdepends/</link><atom:link href="https://www.tidyverse.org/tags/itdepends/index.xml" rel="self" type="application/rss+xml"/><description>itdepends</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 29 May 2019 00:00:00 +0000</lastBuildDate><item><title>It depends - A dialog about dependencies</title><link>https://www.tidyverse.org/blog/2019/05/itdepends/</link><pubDate>Wed, 29 May 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/05/itdepends/</guid><description>
+&lt;h1 id="it-depends---a-dialog-about-dependencies">It depends - A dialog about dependencies
+&lt;a href="#it-depends---a-dialog-about-dependencies">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h1>&lt;blockquote>
+&lt;p>This post paraphrases my
+&lt;a href="https://resources.rstudio.com/rstudio-conf-2019/it-depends-a-dialog-about-dependencies" target="_blank" rel="noopener">talk with the same name&lt;/a> at rstudio::conf 2019.&lt;/p>
+&lt;/blockquote>
+&lt;p>Software dependencies can be a double-edged sword.&lt;/p>
+&lt;p>On one hand, they let you take advantage of others&amp;rsquo; work, giving your software
+marvelous new features and reducing bugs.&lt;/p>
+&lt;p>On the other hand, they can change over time, causing your software to break
+unexpectedly and (potentially) increasing your maintenance burden. They can also
+take additional disk space and installation time.&lt;/p>
+&lt;p>These downsides have led some to suggest a &amp;lsquo;dependency zero&amp;rsquo; mindset.&lt;/p>
+&lt;p>We feel that this is a major mistake for most projects, and will instead increase
+maintenance burden, lower functionality and introduce additional bugs.&lt;/p>
+&lt;h2 id="dependencies-are-not-equal">Dependencies are not equal
+&lt;a href="#dependencies-are-not-equal">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>One issue with striving for minimal dependencies is it treats all dependencies
+as equivalent. However, in reality this is far from the case. There are many
+axes upon which dependencies can differ, but some of the most important include:&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>The type of the dependency. Some dependencies come bundled with R
+itself (e.g. base, utils, stats) or are part of the &amp;lsquo;Recommended&amp;rsquo; packages
+(e.g. Matrix, survival). These packages are very low cost to depend on,
+as they are (nearly) universally installed on all users systems, and change
+generally only with new R versions. In contrast dependencies can also come
+from
+&lt;a href="https://CRAN.r-project.org" target="_blank" rel="noopener">CRAN&lt;/a> or even from non-CRAN repositories
+such as
+&lt;a href="https://www.bioconductor.org/" target="_blank" rel="noopener">Bioconductor&lt;/a>,
+&lt;a href="http://www.omegahat.net/" target="_blank" rel="noopener">Omegahat&lt;/a> or
+&lt;a href="https://github.com/eddelbuettel/drat" target="_blank" rel="noopener">drat&lt;/a> which require users to configure
+additional repositories before installation.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The number of upstream dependencies. For example, the
+&lt;a href="https://github.com/r-lib/rlang" target="_blank" rel="noopener">rlang&lt;/a> package has no upstream
+dependencies apart from R; while the
+&lt;a href="https://cran.r-project.org/package=CNVScope" target="_blank" rel="noopener">CNVscope&lt;/a> package has 125 upstream
+dependencies, on both CRAN and Bioconductor.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Already fulfilled dependencies. If your package depends on dplyr then
+taking an additional dependency on tibble comes at no additional cost, as
+dplyr itself already depends on tibble. Additionally some of the most
+popular packages (e.g. ggplot2) will already be installed on the majority
+of users&amp;rsquo; machines. So adding a ggplot2 dependency is unlikely to incur additional
+installation costs in most cases.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The time taken to compile the package from source. Packages containing R code
+generally install in roughly the same amount of time, but those that contain
+C, C++ or Fortran code can take very different amounts of time depending
+on the complexity of the code. For example, the
+&lt;a href="https://cran.r-project.org/package=glue" target="_blank" rel="noopener">glue&lt;/a> package takes ~5 seconds to
+compile on CRAN&amp;rsquo;s build machines, whereas the
+&lt;a href="https://cran.r-project.org/package=readr" target="_blank" rel="noopener">readr&lt;/a> package takes ~500
+seconds to install on the same machines.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The size of the built binary package. Users installing binary packages need
+to download them, so the size of the built binary is relevant, particularly
+for those with slow internet connections. This also varies a great deal
+across packages. The
+&lt;a href="https://cran.r-project.org/package=awspack" target="_blank" rel="noopener">awspack&lt;/a>
+binary is only 8.6 Kb in size, while the
+&lt;a href="https://cran.r-project.org/package=h2o" target="_blank" rel="noopener">h2o&lt;/a> package is 123 Mb, and the
+largest binary on Bioconductor is over 4 Gb!&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The system requirements to build and use the package. Some packages
+require additional system dependencies in order to be used.
+For instance, the
+&lt;a href="https://cran.r-project.org/package=rgdal" target="_blank" rel="noopener">rgdal&lt;/a> package
+requires the GDAL and PROJ.4 dependencies, each of which in turn have
+additional system dependencies. Another example is
+&lt;a href="https://cran.r-project.org/package=rJava" target="_blank" rel="noopener">rJava&lt;/a> which requires a Java SDK
+and also has additional steps needed to configure R for the proper Java
+installation, which has caused
+&lt;a href="https://stackoverflow.com/questions/tagged/rjava" target="_blank" rel="noopener">installation issues for many
+people&lt;/a>.&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;p>I hope the above examples illustrate that not all package dependencies are
+equal, and we should not treat them as such by using a simple count of
+dependencies as our metric.&lt;/p>
+&lt;h2 id="prefer-a-holistic-balanced-and-quantitative-approach">Prefer a holistic, balanced and quantitative approach
+&lt;a href="#prefer-a-holistic-balanced-and-quantitative-approach">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Instead of striving for a minimal number of dependencies, I would instead suggest
+a more holistic, balanced, and quantitative approach.&lt;/p>
+&lt;p>A holistic approach looks at the project as a whole and asks who is the primary
+audience? If the audience is other package authors, then a leaner package with fewer
+dependencies may be more appropriate. If instead it is primarily data scientists or
+statisticians they will likely already have many popular dependencies installed and
+a more feature-full package is preferred.&lt;/p>
+&lt;p>A balanced approach understands that adding (or removing) dependencies
+come with trade-offs. Adding a dependency gives you additional features,
+bug fixes, and real-world testing, at the costs of increased installation time,
+disk space and maintenance if the dependency has breaking changes. In some
+cases it makes sense to &lt;em>increase&lt;/em> dependencies for a package, even if an
+implementation already exists. For instance base R has a number of different
+implementations of non-standard evaluation with varying semantics across its
+functions. The same used to be true of tidyverse packages as well, but now they
+all depend on the implementations in the tidyselect and rlang packages,
+which improves consistency of the feature substantially.&lt;/p>
+&lt;p>In contrast, removing a dependency lowers installation time, disk space and
+avoids potential breaking changes. However it also removes potential features,
+increases bugs and takes additional development time.&lt;/p>
+&lt;p>A quantitative approach lets you more accurately measure your dependencies, and
+see which are heavier or lighter along various axes. Measuring each of the
+dependencies gives you more power to reason about which dependencies would be
+most beneficial to remove (if any).&lt;/p>
+&lt;p>How you weigh these costs and benefits varies by the skills and experience of
+the maintainer and the goals of the project.&lt;/p>
+&lt;h2 id="beware-illusory-superiority">Beware illusory superiority
+&lt;a href="#beware-illusory-superiority">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>When making these decisions it is important to consider the
+psychological phenomenon of
+&lt;a href="https://en.wikipedia.org/wiki/Illusory_superiority" target="_blank" rel="noopener">Illusory
+Superiority&lt;/a>. Illusory
+superiority is the idea that people (regardless of background) overestimate
+(sometimes greatly) their own abilities in a given field. No one is truly
+immune to this phenomenon, including the author of this post! This phenomenon
+will cause you to overestimate your ability to re-implement features, and
+underestimate the introduction of new bugs.&lt;/p>
+&lt;p>However, even if you truly &lt;em>are&lt;/em> a more skilled programmer than the maintainer of
+a dependency, we would still advise caution. The existing package has the
+significant benefits of &lt;em>time&lt;/em> and &lt;em>users&lt;/em>. Users who have undoubtedly uncovered
+numerous bugs using the package in the real world, which are now fixed.&lt;/p>
+&lt;h2 id="itdepends-a-package-to-help-with-dependencies">itdepends, a package to help with dependencies
+&lt;a href="#itdepends-a-package-to-help-with-dependencies">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The
+&lt;a href="https://github.com/r-lib/itdepends" target="_blank" rel="noopener">itdepends&lt;/a> package
+aids you in having a holistic, balanced and quantitative approach. It provides tools to
+assess usage, measure weights, visualize proportions and if needed, assist
+removal of dependencies.&lt;/p>
+&lt;h2 id="assess-usage-with-itdependsdep_usage">Assess usage with &lt;code>itdepends::dep_usage()&lt;/code>
+&lt;a href="#assess-usage-with-itdependsdep_usage">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>&lt;code>dep_usage_proj()&lt;/code> and &lt;code>dep_usage_pkg()&lt;/code> return a tibble of
+every function call in your project or package. This information can then be
+used to do things like&lt;/p>
+&lt;ul>
+&lt;li>show which packages you are using the most in a project&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidyverse&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">itdepends&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">dep_usage_pkg&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;ggplot2&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">count&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">pkg&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">sort&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 23 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; pkg n&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;int&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 base 10333&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 ggplot2 1225&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 grid 313&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 scales 118&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 gtable 78&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 rlang 68&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 plyr 53&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 stats 44&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 utils 24&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 grDevices 20&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 13 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;ul>
+&lt;li>show the most frequently used &lt;em>function&lt;/em> from each package&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">itdepends&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">dep_usage_pkg&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;ggplot2&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">pkg&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">count&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">fun&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">top_n&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">arrange&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">desc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">n&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">head&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; Selecting by n&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 6 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; # Groups: pkg [6]&lt;/span>
+&lt;span class="c1">#&amp;gt; pkg fun n&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;int&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 base &amp;lt;- 1627&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 grid unit 101&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 ggplot2 waiver 99&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 gtable gtable_add_grob 30&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 scales alpha 17&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 utils head 12&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="measure-weights-with-itdependsdep_weight">Measure weights with &lt;code>itdepends::dep_weight()&lt;/code>
+&lt;a href="#measure-weights-with-itdependsdep_weight">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>&lt;code>dep_weight()&lt;/code> weighs the supplied packages and returns a tibble of 24
+different metrics that can be used to compare them. The most important metric
+varies by person, so it is useful to examine the full spectrum.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">weights&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">itdepends&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">dep_weight&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;dplyr&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;data.table&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="n">weights&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 2 x 25&lt;/span>
+&lt;span class="c1">#&amp;gt; package num_user bin_self bin_user install_self install_user funs&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;int&amp;gt; &amp;lt;int&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;int&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 dplyr 21 1821891 23147844 272. 436. 260&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 data.t… 0 6222622 6222622 29.5 29.5 108&lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 18 more variables: downloads &amp;lt;dbl&amp;gt;, last_release &amp;lt;dttm&amp;gt;,&lt;/span>
+&lt;span class="c1">#&amp;gt; # open_issues &amp;lt;int&amp;gt;, last_updated &amp;lt;dttm&amp;gt;, stars &amp;lt;int&amp;gt;, forks &amp;lt;int&amp;gt;,&lt;/span>
+&lt;span class="c1">#&amp;gt; # first_release &amp;lt;dttm&amp;gt;, total_releases &amp;lt;dbl&amp;gt;, releases_last_52 &amp;lt;int&amp;gt;,&lt;/span>
+&lt;span class="c1">#&amp;gt; # num_dev &amp;lt;int&amp;gt;, install_dev &amp;lt;dbl&amp;gt;, bin_dev &amp;lt;dbl&amp;gt;, src_size &amp;lt;int&amp;gt;,&lt;/span>
+&lt;span class="c1">#&amp;gt; # user_deps &amp;lt;list&amp;gt;, dev_deps &amp;lt;list&amp;gt;, self_timings &amp;lt;list&amp;gt;,&lt;/span>
+&lt;span class="c1">#&amp;gt; # user_timings &amp;lt;list&amp;gt;, dev_timings &amp;lt;list&amp;gt;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The measures break down into a few rough categories:&lt;/p>
+&lt;ul>
+&lt;li>package and repository information (&lt;code>package&lt;/code>, &lt;code>funs&lt;/code>, &lt;code>downloads&lt;/code>, &lt;code>open_issues&lt;/code>, &lt;code>last_updated&lt;/code>, &lt;code>forks&lt;/code>, &lt;code>stars&lt;/code>)&lt;/li>
+&lt;li>dependency information (&lt;code>num_users&lt;/code>, &lt;code>num_dev&lt;/code>, &lt;code>user_deps&lt;/code>, &lt;code>dev_deps&lt;/code>)&lt;/li>
+&lt;li>compiled binary sizes (&lt;code>bin_self&lt;/code>, &lt;code>bin_user&lt;/code>, &lt;code>bin_dev&lt;/code>)&lt;/li>
+&lt;li>time to compile dependencies, and the raw times (&lt;code>install_self&lt;/code>, &lt;code>install_user&lt;/code>, &lt;code>install_dev&lt;/code>, &lt;code>self_timings&lt;/code>, &lt;code>user_timings&lt;/code>, &lt;code>dev_timings&lt;/code>)&lt;/li>
+&lt;li>CRAN release information (&lt;code>downloads&lt;/code>, &lt;code>first_release&lt;/code>, &lt;code>last_release&lt;/code>, &lt;code>total_releases&lt;/code>, &lt;code>releases_last_52&lt;/code>)&lt;/li>
+&lt;/ul>
+&lt;p>The total number of dependencies, binary sizes, and installation times give you
+a good idea the magnitude of the dependency load.&lt;/p>
+&lt;p>Equally important, however, are the downloads, release information and open
+issues, which tell you how long the package has existed, how many people are
+using it and how many open issues exist. Packages that have existed longer,
+with more users and fewer issues should generally be more reliable.&lt;/p>
+&lt;h2 id="visualize-proportions-with-itdependsdep_plot">Visualize proportions with &lt;code>itdepends::dep_plot()&lt;/code>
+&lt;a href="#visualize-proportions-with-itdependsdep_plot">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>There are two functions available to plot the relative weights of dependencies.&lt;/p>
+&lt;ol>
+&lt;li>&lt;code>dep_plot_time()&lt;/code> plots the median compilation time on CRAN&amp;rsquo;s servers.&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">itdepends&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">dep_plot_time&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;dplyr&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://www.tidyverse.org/articles/2019-05-itdepends_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" />&lt;/p>
+&lt;p>From the above plot we see that the installation time of dplyr for users is
+mostly due to compiling dplyr itself. However, for development dependencies, the
+readr, stringi and RSQLite packages also take significant time to install.&lt;/p>
+&lt;ol start="2">
+&lt;li>&lt;code>dep_plot_size()&lt;/code> plots the pre-compiled binary size, which is often the more
+useful measure, as most users install pre-compiled binaries.&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">itdepends&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">dep_plot_size&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;dplyr&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://www.tidyverse.org/articles/2019-05-itdepends_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" />&lt;/p>
+&lt;p>From this we see the largest user dependencies are BH and Rcpp, and the largest
+development dependencies are stringi, and two data packages, Lahman and
+nycflights13.&lt;/p>
+&lt;h2 id="assist-removal-with-itdependsdep_locate">Assist removal with &lt;code>itdepends::dep_locate()&lt;/code>
+&lt;a href="#assist-removal-with-itdependsdep_locate">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If you do decide that a given dependency is too heavy or is too unstable to
+keep, what are the best practices for removing it?&lt;/p>
+&lt;p>First carefully review the operation of the function you are replacing. Many
+functions in CRAN packages appear superficially similar to base equivalents,
+but often handle edge cases (that you&amp;rsquo;ve likely never encountered) more
+consistently. Next and most importantly, write &lt;em>tests&lt;/em> for the existing
+behavior. This is an essential step which will greatly reduce the introduction
+of new bugs. Only once you have written the tests should you start performing
+the replacement. If you are porting a function with existing tests a good practice is
+to port its tests as well.&lt;/p>
+&lt;p>Then, use the &lt;code>dep_locate()&lt;/code> function to find all the instances when you use
+functions from a given dependency in your code base. If &lt;code>dep_locate()&lt;/code> is run
+in RStudio the function will add source markers for all the locations, which
+can then be clicked individually to do the replacement.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">itdepends&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">dep_locate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;purrr&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">path&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;~/p/tidyversedashboard&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="https://www.tidyverse.org/images/itdepends/dep_locate.png" width="100%" style="display: block; margin: auto;" />&lt;/p>
+&lt;h2 id="be-balanced-and-use-data">Be balanced and use data
+&lt;a href="#be-balanced-and-use-data">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>In almost any area of life striving towards absolutes rarely provides the best
+outcome. Package dependencies are no exception. Keep the expected users of your
+package in mind, and use the tools provided in itdepends to
+obtain data which can help you assess which dependencies to remove (if any).&lt;/p>
+&lt;p>Donald Knuth has great advice about the importance of measurement during
+performance optimization&lt;/p>
+&lt;blockquote>
+&lt;p>Programmers waste enormous amounts of time thinking about, or worrying about,
+the speed of noncritical parts of their programs, and these attempts at
+efficiency actually have a strong negative impact when debugging and
+maintenance are considered. We should forget about small efficiencies, say
+about 97% of the time: premature optimization is the root of all evil. Yet we
+should not pass up our opportunities in that critical 3%.&lt;/p>
+&lt;/blockquote>
+&lt;p>Performance optimization &lt;em>is&lt;/em> important, but we should not seek to optimize
+it until we have &lt;em>measured&lt;/em> our program to see where the this critical 3% lies.
+The same is true of dependencies, lowering the dependencies &lt;em>is&lt;/em>
+important for some packages, however we should not do so blindly without
+identifying if it is truly necessary and measuring to discover what the most
+critical dependencies are.&lt;/p>
+&lt;p>Finally it is important to remember
+&lt;a href="https://en.wikipedia.org/wiki/Goodhart%27s_law" target="_blank" rel="noopener">Goodhart&amp;rsquo;s Law&lt;/a>&lt;/p>
+&lt;blockquote>
+&lt;p>When a measure becomes a target, it ceases to be a good measure.&lt;/p>
+&lt;/blockquote></description></item></channel></rss>

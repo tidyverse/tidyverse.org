@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>GitHub Actions | Tidyverse</title><link>https://www.tidyverse.org/tags/github-actions/</link><atom:link href="https://www.tidyverse.org/tags/github-actions/index.xml" rel="self" type="application/rss+xml"/><description>GitHub Actions</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 01 Jun 2022 00:00:00 +0000</lastBuildDate><item><title>GitHub Actions for R developers, v2</title><link>https://www.tidyverse.org/blog/2022/06/actions-2-0-0/</link><pubDate>Wed, 01 Jun 2022 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2022/06/actions-2-0-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re tickled pink to announce a &lt;code>v2&lt;/code> release of our collection of R related GitHub Actions at &lt;a href="https://github.com/r-lib/actions">https://github.com/r-lib/actions&lt;/a>.&lt;/p>
+&lt;p>If you are already using these actions, you might want to take look at the
+&lt;a href="https://github.com/r-lib/actions/releases/tag/v2" target="_blank" rel="noopener">full list of changes&lt;/a> first.&lt;/p>
+&lt;p>In this post, we&amp;rsquo;ll show how to set up &lt;code>r-lib/actions&lt;/code> for your R package or project, and what is new in the &lt;code>v2&lt;/code> version.&lt;/p>
+&lt;h2 id="about-rlibactions">About &lt;code>rlib/actions&lt;/code>
+&lt;a href="#about-rlibactions">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://github.com/features/actions" target="_blank" rel="noopener">GitHub Actions&lt;/a> is a continuous integration service that allows you to automatically run code whenever you push to GitHub. If you&amp;rsquo;re developing a package this allows you to automate tasks like running &lt;code>R CMD check&lt;/code> on multiple platforms or rebuilding your
+&lt;a href="https://pkgdown.r-lib.org/" target="_blank" rel="noopener">pkgdown&lt;/a> website.&lt;/p>
+&lt;p>The
+&lt;a href="https://github.com/r-lib/actions#readme" target="_blank" rel="noopener">&lt;code>r-lib/actions&lt;/code>&lt;/a> repo has a number of reusable actions that perform common R-related tasks: installing R and Rtools, pandoc, installing dependencies of R packages, running &lt;code>R CMD check&lt;/code>, etc.:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://github.com/r-lib/actions/tree/v2/setup-r#readme" target="_blank" rel="noopener">&lt;code>setup-r&lt;/code>&lt;/a> installs R and on Windows Rtools,&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://github.com/r-lib/actions/tree/v2/setup-pandoc#readme" target="_blank" rel="noopener">&lt;code>setup-pandoc&lt;/code>&lt;/a> installs pandoc,&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://github.com/r-lib/actions/tree/v2/setup-r-dependencies#readme" target="_blank" rel="noopener">&lt;code>setup-r-dependencies&lt;/code>&lt;/a> installs R package dependencies,&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://github.com/r-lib/actions/tree/v2/check-r-package#readme" target="_blank" rel="noopener">&lt;code>check-r-package&lt;/code>&lt;/a> runs &lt;code>R CMD check&lt;/code> on an R package.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>See the
+&lt;a href="https://github.com/r-lib/actions#readme" target="_blank" rel="noopener">README&lt;/a> for the complete list of actions.&lt;/p>
+&lt;h2 id="setting-up-r-libactions">Setting up &lt;code>r-lib/actions&lt;/code>
+&lt;a href="#setting-up-r-libactions">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The &lt;code>r-lib/actions&lt;/code> repo has
+&lt;a href="https://github.com/r-lib/actions/tree/v2-branch/examples#example-workflows" target="_blank" rel="noopener">example workflows&lt;/a>, it is best to start with these.&lt;/p>
+&lt;p>You can copy the ones you&amp;rsquo;d like to use to the &lt;code>.github/workflows&lt;/code> directory of your R package or project. For an R package you would typically want the &lt;code>test-coverage&lt;/code> workflow and one of the &lt;code>check-&lt;/code> workflows, depending on how thoroughly you want to check your package across operating systems and R versions. If your package has a pkgdown site then you probably also want the &lt;code>pkgdown&lt;/code> workflow.&lt;/p>
+&lt;p>The usethis package has several helper functions to set up GitHub Actions for you:
+&lt;a href="https://usethis.r-lib.org/reference/github_actions.html" target="_blank" rel="noopener">&lt;code>?usethis::use_github_action&lt;/code>&lt;/a>. You&amp;rsquo;ll need the latest version of usethis, version 2.1.6 for this.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">usethis&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">use_github_action&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;check-standard&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">usethis&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">use_github_action&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;test-coverage&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">usethis&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">use_github_action&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;pkgdown&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="which-tag-or-branch-should-i-use">Which tag or branch should I use?
+&lt;a href="#which-tag-or-branch-should-i-use">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>In short, use the &lt;code>v2&lt;/code> tag.&lt;/p>
+&lt;p>The &lt;code>v2&lt;/code> tag is a &lt;em>sliding&lt;/em> tag. It is not fixed to a certain version, but we regularly update it with (non-breaking) improvements and fixes. If it is absolutely crucial that your workflow runs the same way, use one of the fixed tags, e.g. &lt;code>v2.2.2&lt;/code> is the most recent one.&lt;/p>
+&lt;p>As of today, usethis v2.1.6 defaults to configuring workflows from the &lt;code>v2&lt;/code> tag. But &lt;code>use_github_action()&lt;/code> accepts a &lt;code>ref&lt;/code> argument, which allows you specify a different tag (such as &lt;code>v2.2.2&lt;/code>) or even a branch name or specific SHA.&lt;/p>
+&lt;h2 id="what-is-new">What is new?
+&lt;a href="#what-is-new">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="make-a-plan-and-stick-to-it">Make a plan and stick to it
+&lt;a href="#make-a-plan-and-stick-to-it">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>&lt;code>setup-r-dependencies@v2&lt;/code> takes a more principled approach to resolving and installing system and package dependencies:&lt;/p>
+&lt;ol>
+&lt;li>It looks up all system (on supported Linux distributions) and package dependencies, and works out an installation plan with a set of package versions that are compatible with each other. (If it cannot find such set, then the action already fails here.)&lt;/li>
+&lt;li>It writes the plan into a &lt;em>lock file&lt;/em>. This is a machine readable (JSON) file, that it also printed to the job&amp;rsquo;s log file. This is the blueprint of the installation.&lt;/li>
+&lt;li>It potentially restores a cached set of installed packages. These are often the same exact package versions that are included in the installation plan. However, for efficiency, &lt;code>setup-r-dependencies&lt;/code> also restores cache versions that are slightly different.&lt;/li>
+&lt;li>On Linux (if the distribution is supported) it installs all system requirements, according to the lock file.&lt;/li>
+&lt;li>It goes over the install plan again, to check that the packages (potentially) restored from the cache are the same as the ones in the plan. If a package is different, then it upgrades (or downgrades) it according to the plan.&lt;/li>
+&lt;li>At the end of the job, is saves the installed packages into the cache.&lt;/li>
+&lt;/ol>
+&lt;p>At the end of the installation you can be sure that exactly the planned packages are installed.&lt;/p>
+&lt;p>See the &lt;code>setup-r-dependencies&lt;/code>
+&lt;a href="https://github.com/r-lib/actions/tree/v2-branch/setup-r-dependencies#readme" target="_blank" rel="noopener">README&lt;/a> for more explanation and examples.&lt;/p>
+&lt;h3 id="simpler-workflow-files">Simpler workflow files
+&lt;a href="#simpler-workflow-files">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>If you update your existing workflows to use the &lt;code>v2&lt;/code> actions, also take a look at the new
+&lt;a href="https://github.com/r-lib/actions/tree/v2/examples" target="_blank" rel="noopener">example workflows&lt;/a>. These are typically much simpler than the previously suggested workflows, because we moved some workflow steps into the new actions. E.g. &lt;code>check-r-package&lt;/code> always prints testthat output and it uploads the check directory as an artifact on failure, you don&amp;rsquo;t need to do these explicitly in the workflow. &lt;code>setup-r-dependencies&lt;/code> now prints the session info with all installed packages, no need to do this explicitly.&lt;/p>
+&lt;p>To be clear, &amp;ldquo;updating your GHA workflows to &lt;code>v2&lt;/code>&amp;rdquo; generally goes beyond just changing every instance of &lt;code>v1&lt;/code> to &lt;code>v2&lt;/code>. The example workflows have also evolved, i.e. you really need to update entire YAML workflow file.&lt;/p>
+&lt;h3 id="snapshots-as-artifacts">Snapshots as artifacts
+&lt;a href="#snapshots-as-artifacts">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Encoding issues are not uncommon in snapshot tests across platforms. To make these easier to debug, &lt;code>check-r-package@v2&lt;/code> will now upload snapshot output as artifacts if you set the &lt;code>upload-snapshots&lt;/code> parameter to &lt;code>true&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="w"> &lt;/span>- &lt;span class="k">uses&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>r-lib/actions/check-r-package@v2&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">with&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">upload-snapshots&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>See the
+&lt;a href="https://testthat.r-lib.org/articles/snapshotting.html" target="_blank" rel="noopener">Snapshot tests&lt;/a> article in the testthat manual for more about testthat snapshots.&lt;/p>
+&lt;h3 id="rtools42-support">Rtools42 support
+&lt;a href="#rtools42-support">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>
+&lt;a href="https://www.r-project.org/nosvn/winutf8/ucrt3/web/rtools.html" target="_blank" rel="noopener">Rtools42&lt;/a> is the new version of the Rtools compiler bundle, which will be the default for latest R 4.2.0. You can now optionally install Rtools42 with the &lt;code>setup-r&lt;/code> action. By default &lt;code>setup-r&lt;/code> uses
+&lt;a href="https://cran.r-project.org/bin/windows/Rtools/rtools40.html" target="_blank" rel="noopener">Rtools40&lt;/a> because it is pre-installed on the CI machines, and it is fully compatible with Rtools42. To select Rtools42, set the &lt;code>rtools-version&lt;/code> parameter to &lt;code>42&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="w"> &lt;/span>- &lt;span class="k">uses&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>r-lib/actions/setup-r@v2-branch&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">with&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">r-version&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s1">&amp;#39;devel&amp;#39;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">rtools-version&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s1">&amp;#39;42&amp;#39;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>See
+&lt;a href="https://github.com/r-lib/actions/blob/27ac87278d916382a04662af42392f3c921ee37e/.github/workflows/check-full.yaml" target="_blank" rel="noopener">this example&lt;/a> if you want to use &lt;code>rtools-version&lt;/code> in a matrix build.&lt;/p>
+&lt;h3 id="other-changes">Other changes
+&lt;a href="#other-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>See the READMEs for more details.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>setup-r-dependencies&lt;/code> now does not always install the latest versions of the dependencies.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>You can ask &lt;code>setup-r-dependencies&lt;/code> to ignore some optional dependencies on older R versions.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The Linux system requirements look-up is more robust now, and uses &lt;code>SystemRequirements&lt;/code> fields from all local, GitHub or URL remotes, and it also uses the package installation plan, instead of only relying on the dependency tress of CRAN packages.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>setup-r-dependencies&lt;/code> and &lt;code>check-r-package&lt;/code> now have a &lt;code>working-directory&lt;/code> parameter.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>setup-r-dependencies&lt;/code> now works on all x86_64 Linux distributions (but only installs system requirements on supported ones, see the README).&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The example *down (blogdown, pkgdown and bookdown) workflows now build the web site in pull requests as well, but only deploy on push and release events. They also have a manual trigger.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The example *down workflows now protect against race conditions.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="feedback">Feedback
+&lt;a href="#feedback">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Your feedback is much appreciated. Before reporting a
+&lt;a href="https://github.com/r-lib/actions/issues/new/choose" target="_blank" rel="noopener">new issue&lt;/a>, please check if it was already reported, see the
+&lt;a href="https://github.com/r-lib/actions/issues" target="_blank" rel="noopener">list of issues&lt;/a>, especially the pinned issues (if any) at the top of the issue page.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thanks to everyone who contributed to &lt;code>r-lib/actions&lt;/code>:
+&lt;a href="https://github.com/andrewl776" target="_blank" rel="noopener">@andrewl776&lt;/a>,
+&lt;a href="https://github.com/arisp99" target="_blank" rel="noopener">@arisp99&lt;/a>,
+&lt;a href="https://github.com/assignUser" target="_blank" rel="noopener">@assignUser&lt;/a>,
+&lt;a href="https://github.com/astamm" target="_blank" rel="noopener">@astamm&lt;/a>,
+&lt;a href="https://github.com/bribroder" target="_blank" rel="noopener">@bribroder&lt;/a>,
+&lt;a href="https://github.com/duckmayr" target="_blank" rel="noopener">@duckmayr&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/harupy" target="_blank" rel="noopener">@harupy&lt;/a>,
+&lt;a href="https://github.com/ijlyttle" target="_blank" rel="noopener">@ijlyttle&lt;/a>,
+&lt;a href="https://github.com/IndrajeetPatil" target="_blank" rel="noopener">@IndrajeetPatil&lt;/a>,
+&lt;a href="https://github.com/jeroen" target="_blank" rel="noopener">@jeroen&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/lorenzwalthert" target="_blank" rel="noopener">@lorenzwalthert&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/MikkoVihtakari" target="_blank" rel="noopener">@MikkoVihtakari&lt;/a>,
+&lt;a href="https://github.com/ms609" target="_blank" rel="noopener">@ms609&lt;/a>,
+&lt;a href="https://github.com/pat-s" target="_blank" rel="noopener">@pat-s&lt;/a>,
+&lt;a href="https://github.com/s-u" target="_blank" rel="noopener">@s-u&lt;/a>,
+&lt;a href="https://github.com/slwu89" target="_blank" rel="noopener">@slwu89&lt;/a>,
+&lt;a href="https://github.com/vincentarelbundock" target="_blank" rel="noopener">@vincentarelbundock&lt;/a>, and
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>.&lt;/p></description></item></channel></rss>

@@ -1,0 +1,133 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>furrr 0.2.0</title><meta property="og:title" content="furrr 0.2.0"><meta property="og:description" content="furrr 0.2.0 is now on CRAN!"><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2020/10/furrr-0-2-0/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="furrr 0.2.0 - Tidyverse"><meta property="description" content="furrr 0.2.0 is now on CRAN!"><meta property="og:description" content="furrr 0.2.0 is now on CRAN!"><meta property="og:image" content="https://www.tidyverse.org/blog/2020/10/furrr-0-2-0/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2020/10/furrr-0-2-0/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>furrr 0.2.0</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2020/10/furrr-0-2-0/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/0pDUGYuDYWw>Bhargava Srivari</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2020/10/19</span></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Davis Vaughan</p><div class=article-content><p>We&rsquo;re stoked to announce the release of
+<a href=https://davisvaughan.github.io/furrr/ target=_blank rel=noopener>furrr</a> 0.2.0. furrr is a bridge between
+<a href=https://purrr.tidyverse.org/ target=_blank rel=noopener>purrr</a>&lsquo;s family of mapping functions and
+<a href=https://cran.r-project.org/web/packages/future/index.html target=_blank rel=noopener>future</a>&lsquo;s parallel processing capabilities. It attempts to make mapping in parallel as seamless as possible.</p><p>You can install it from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/utils/install.packages.html>install.packages</a></span>(<span class=s>"furrr"</span>)
+</code></pre></div><p>This blog post will highlight a few of the key changes since the last release of furrr, which was over two years ago!</p><p>This release of furrr is also a complete rewrite of the original version. This should make furrr more maintainable going forward, and fixed a ton of minor bugs from the original release. You can see a full list of those changes in the
+<a href=https://davisvaughan.github.io/furrr/news/index.html target=_blank rel=noopener>release notes</a>.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/base/library.html>library</a></span>(<span class=k><a href=https://github.com/DavisVaughan/furrr>furrr</a></span>)
+</code></pre></div><h2 id=hex-sticker>Hex sticker
+<a href=#hex-sticker><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Perhaps most importantly, furrr now has a hex sticker! A big thanks to Dan Kuhn for creating this furrry little guy.</p><p><img src=furrr.png alt="New furrr hex sticker."></p><h2 id=future_walk>future_walk()
+<a href=#future_walk><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>furrr now includes a parallel version of
+<a href=https://purrr.tidyverse.org/reference/map.html target=_blank rel=noopener><code>purrr::walk()</code></a>. This was a highly requested addition, and allows you to call <code>.f</code> for its side effects, like for rendering output to the screen or for saving files to disk.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>plan</span>(<span class=k>multisession</span>, workers = <span class=m>2</span>)
+
+<span class=nf><a href=https://rdrr.io/pkg/furrr/man/future_map.html>future_walk</a></span>(<span class=m>1</span><span class=o>:</span><span class=m>5</span>, <span class=o>~</span><span class=nf><a href=https://rdrr.io/r/base/print.html>print</a></span>(<span class=nf><a href=https://rdrr.io/r/base/paste.html>paste0</a></span>(<span class=s>"Iteration: "</span>, <span class=k>.x</span>)))
+
+<span class=c>#&gt; [1] "Iteration: 1"</span>
+<span class=c>#&gt; [1] "Iteration: 2"</span>
+<span class=c>#&gt; [1] "Iteration: 3"</span>
+<span class=c>#&gt; [1] "Iteration: 4"</span>
+<span class=c>#&gt; [1] "Iteration: 5"</span>
+</code></pre></div><div class=highlight></div><h2 id=vignettes>Vignettes
+<a href=#vignettes><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>There are a whopping 5 new vignettes detailing several frequently asked questions about furrr.</p><ul><li><p><a href=https://davisvaughan.github.io/furrr/articles/articles/gotchas.html target=_blank rel=noopener>Common gotchas</a></p></li><li><p><a href=https://davisvaughan.github.io/furrr/articles/articles/chunking.html target=_blank rel=noopener>Learn how furrr &ldquo;chunks&rdquo; your input</a></p></li><li><p><a href=https://davisvaughan.github.io/furrr/articles/articles/carrier.html target=_blank rel=noopener>carrier - An alternative to automatic globals detection</a></p></li><li><p><a href=https://davisvaughan.github.io/furrr/articles/articles/progress.html target=_blank rel=noopener>Progress notifications with progressr</a></p></li><li><p><a href=https://davisvaughan.github.io/furrr/articles/articles/remote-connections.html target=_blank rel=noopener>Using furrr with remote connections</a></p></li></ul><h2 id=progress-bar-update>Progress bar update
+<a href=#progress-bar-update><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The above vignette regarding progress bars deserves a special mention.
+<a href=https://twitter.com/henrikbengtsson target=_blank rel=noopener>Henrik Bengtsson</a> (the author of the future and globals packages, which furrr would be nothing without) recently introduced a new package for generalized <em>progress updates</em>,
+<a href=https://cran.r-project.org/web/packages/progressr/index.html target=_blank rel=noopener>progressr</a>. It has been integrated with future in such a way that it can relay near real-time progress updates from sequential, multisession, and even cluster futures (meaning that even remote connections can return live updates). This integration automatically extends to furrr, and looks a little like this:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf><a href=https://rdrr.io/r/base/library.html>library</a></span>(<span class=k><a href=https://github.com/HenrikBengtsson/progressr>progressr</a></span>)
+
+<span class=nf>plan</span>(<span class=k>multisession</span>, workers = <span class=m>2</span>)
+
+<span class=k>x</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/r/base/lapply.html>replicate</a></span>(n = <span class=m>10</span>, <span class=nf><a href=https://rdrr.io/r/stats/Uniform.html>runif</a></span>(<span class=m>20</span>), simplify = <span class=kc>FALSE</span>)
+
+<span class=nf><a href=https://rdrr.io/pkg/progressr/man/with_progress.html>with_progress</a></span>({
+  <span class=k>p</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/pkg/progressr/man/progressor.html>progressor</a></span>(steps = <span class=nf><a href=https://rdrr.io/r/base/length.html>length</a></span>(<span class=k>x</span>))
+  
+  <span class=k>result</span> <span class=o>&lt;-</span> <span class=nf><a href=https://rdrr.io/pkg/furrr/man/future_map.html>future_map</a></span>(<span class=k>x</span>, <span class=o>~</span>{
+    <span class=nf>p</span>()
+    <span class=nf><a href=https://rdrr.io/r/base/Sys.sleep.html>Sys.sleep</a></span>(<span class=m>.2</span>)
+    <span class=nf><a href=https://rdrr.io/r/base/sum.html>sum</a></span>(<span class=k>.x</span>)
+  })
+})
+<span class=c>#&gt; |=====================                                               |  20%</span>
+</code></pre></div><p>progressr is a relatively new package, and its API isn&rsquo;t perfectly compatible with furrr and tidyverse workflows yet, but I&rsquo;d encourage you to read the previously mentioned vignette about
+<a href=https://davisvaughan.github.io/furrr/articles/articles/progress.html target=_blank rel=noopener>progress notifications with progressr</a> to learn more. In the future, furrr will likely have an even tighter integration with progressr to make this even easier.</p><p>Along those lines, once furrr and progressr become more tightly integrated, the <code>.progress</code> bar of furrr will be removed. It has not been deprecated yet, but I would encourage you to go ahead and switch to using progressr, if possible. To be completely honest, the progress bar in furrr is a bit of a hack, and progressr provides a much more robust solution.</p><h2 id=options>Options
+<a href=#options><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The
+<a href=https://rdrr.io/pkg/furrr/man/future_options.html target=_blank rel=noopener><code>future_options()</code></a> helper has been renamed in favor of
+<a href=https://rdrr.io/pkg/furrr/man/furrr_options.html target=_blank rel=noopener><code>furrr_options()</code></a>. This change was made to free up this function name in case the future package requires it. Additionally,
+<a href=https://rdrr.io/pkg/furrr/man/furrr_options.html target=_blank rel=noopener><code>furrr_options()</code></a> has a number of new arguments, including one that allows you to further tweak how furrr &ldquo;chunks&rdquo; your input, <code>chunk_size</code>. If you are curious about this, read the new vignette on
+<a href=https://davisvaughan.github.io/furrr/articles/articles/chunking.html target=_blank rel=noopener>chunking</a>.</p><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>We&rsquo;re very thankful to the 81 contributions that went into this release. In particular, a huge thanks to Henrik Bengtsson for his work on the future and globals packages that power furrr.</p><p><a href=https://github.com/aaronpeikert target=_blank rel=noopener>@aaronpeikert</a>,
+<a href=https://github.com/adrfantini target=_blank rel=noopener>@adrfantini</a>,
+<a href=https://github.com/agilebean target=_blank rel=noopener>@agilebean</a>,
+<a href=https://github.com/al-obrien target=_blank rel=noopener>@al-obrien</a>,
+<a href=https://github.com/alexhallam target=_blank rel=noopener>@alexhallam</a>,
+<a href=https://github.com/andrjohns target=_blank rel=noopener>@andrjohns</a>,
+<a href=https://github.com/aornugent target=_blank rel=noopener>@aornugent</a>,
+<a href=https://github.com/Ax3man target=_blank rel=noopener>@Ax3man</a>,
+<a href=https://github.com/BChukwuSmith target=_blank rel=noopener>@BChukwuSmith</a>,
+<a href=https://github.com/burchill target=_blank rel=noopener>@burchill</a>,
+<a href=https://github.com/cipherz target=_blank rel=noopener>@cipherz</a>,
+<a href=https://github.com/cwickham target=_blank rel=noopener>@cwickham</a>,
+<a href=https://github.com/data-al target=_blank rel=noopener>@data-al</a>,
+<a href=https://github.com/datawookie target=_blank rel=noopener>@datawookie</a>,
+<a href=https://github.com/dhicks target=_blank rel=noopener>@dhicks</a>,
+<a href=https://github.com/draben target=_blank rel=noopener>@draben</a>,
+<a href=https://github.com/edavidaja target=_blank rel=noopener>@edavidaja</a>,
+<a href=https://github.com/edgBR target=_blank rel=noopener>@edgBR</a>,
+<a href=https://github.com/EdJeeOnGitHub target=_blank rel=noopener>@EdJeeOnGitHub</a>,
+<a href=https://github.com/edvardoss target=_blank rel=noopener>@edvardoss</a>,
+<a href=https://github.com/gadenbuie target=_blank rel=noopener>@gadenbuie</a>,
+<a href=https://github.com/Gomesdrg target=_blank rel=noopener>@Gomesdrg</a>,
+<a href=https://github.com/GShotwell target=_blank rel=noopener>@GShotwell</a>,
+<a href=https://github.com/hadley target=_blank rel=noopener>@hadley</a>,
+<a href=https://github.com/HanjoStudy target=_blank rel=noopener>@HanjoStudy</a>,
+<a href=https://github.com/HenrikBengtsson target=_blank rel=noopener>@HenrikBengtsson</a>,
+<a href=https://github.com/ignacio82 target=_blank rel=noopener>@ignacio82</a>,
+<a href=https://github.com/Ilia-Kosenkov target=_blank rel=noopener>@Ilia-Kosenkov</a>,
+<a href=https://github.com/ivanhigueram target=_blank rel=noopener>@ivanhigueram</a>,
+<a href=https://github.com/JanLauGe target=_blank rel=noopener>@JanLauGe</a>,
+<a href=https://github.com/jmlondon target=_blank rel=noopener>@jmlondon</a>,
+<a href=https://github.com/joethorley target=_blank rel=noopener>@joethorley</a>,
+<a href=https://github.com/jschelbert target=_blank rel=noopener>@jschelbert</a>,
+<a href=https://github.com/julou target=_blank rel=noopener>@julou</a>,
+<a href=https://github.com/jzadra target=_blank rel=noopener>@jzadra</a>,
+<a href=https://github.com/kendonB target=_blank rel=noopener>@kendonB</a>,
+<a href=https://github.com/khvorov45 target=_blank rel=noopener>@khvorov45</a>,
+<a href=https://github.com/kimip24 target=_blank rel=noopener>@kimip24</a>,
+<a href=https://github.com/kkmann target=_blank rel=noopener>@kkmann</a>,
+<a href=https://github.com/klahrich target=_blank rel=noopener>@klahrich</a>,
+<a href=https://github.com/kurt1984 target=_blank rel=noopener>@kurt1984</a>,
+<a href=https://github.com/leungi target=_blank rel=noopener>@leungi</a>,
+<a href=https://github.com/lrnv target=_blank rel=noopener>@lrnv</a>,
+<a href=https://github.com/marcosci target=_blank rel=noopener>@marcosci</a>,
+<a href=https://github.com/MatthieuStigler target=_blank rel=noopener>@MatthieuStigler</a>,
+<a href=https://github.com/mattocci27 target=_blank rel=noopener>@mattocci27</a>,
+<a href=https://github.com/mattwarkentin target=_blank rel=noopener>@mattwarkentin</a>,
+<a href=https://github.com/mikekaminsky target=_blank rel=noopener>@mikekaminsky</a>,
+<a href=https://github.com/mikkeltp target=_blank rel=noopener>@mikkeltp</a>,
+<a href=https://github.com/mikldk target=_blank rel=noopener>@mikldk</a>,
+<a href=https://github.com/MokeEire target=_blank rel=noopener>@MokeEire</a>,
+<a href=https://github.com/mpickard-niu target=_blank rel=noopener>@mpickard-niu</a>,
+<a href=https://github.com/naglemi target=_blank rel=noopener>@naglemi</a>,
+<a href=https://github.com/nick-youngblut target=_blank rel=noopener>@nick-youngblut</a>,
+<a href=https://github.com/philerooski target=_blank rel=noopener>@philerooski</a>,
+<a href=https://github.com/picousse target=_blank rel=noopener>@picousse</a>,
+<a href=https://github.com/Plebejer target=_blank rel=noopener>@Plebejer</a>,
+<a href=https://github.com/PMassicotte target=_blank rel=noopener>@PMassicotte</a>,
+<a href=https://github.com/qpmnguyen target=_blank rel=noopener>@qpmnguyen</a>,
+<a href=https://github.com/randomgambit target=_blank rel=noopener>@randomgambit</a>,
+<a href=https://github.com/rcarboni target=_blank rel=noopener>@rcarboni</a>,
+<a href=https://github.com/rlbarter target=_blank rel=noopener>@rlbarter</a>,
+<a href=https://github.com/roman-tremmel target=_blank rel=noopener>@roman-tremmel</a>,
+<a href=https://github.com/rossellhayes target=_blank rel=noopener>@rossellhayes</a>,
+<a href=https://github.com/sefabey target=_blank rel=noopener>@sefabey</a>,
+<a href=https://github.com/sheffe target=_blank rel=noopener>@sheffe</a>,
+<a href=https://github.com/ShixiangWang target=_blank rel=noopener>@ShixiangWang</a>,
+<a href=https://github.com/skalyan91 target=_blank rel=noopener>@skalyan91</a>,
+<a href=https://github.com/snp target=_blank rel=noopener>@snp</a>,
+<a href=https://github.com/solomonsg target=_blank rel=noopener>@solomonsg</a>,
+<a href=https://github.com/solunsteve target=_blank rel=noopener>@solunsteve</a>,
+<a href=https://github.com/srvanderplas target=_blank rel=noopener>@srvanderplas</a>,
+<a href=https://github.com/statist-bhfz target=_blank rel=noopener>@statist-bhfz</a>,
+<a href=https://github.com/timvink target=_blank rel=noopener>@timvink</a>,
+<a href=https://github.com/tklebel target=_blank rel=noopener>@tklebel</a>,
+<a href=https://github.com/vincentarelbundock target=_blank rel=noopener>@vincentarelbundock</a>,
+<a href=https://github.com/vrontosc target=_blank rel=noopener>@vrontosc</a>,
+<a href=https://github.com/wenjia2018 target=_blank rel=noopener>@wenjia2018</a>,
+<a href=https://github.com/wjchulme target=_blank rel=noopener>@wjchulme</a>,
+<a href=https://github.com/xiaodaigh target=_blank rel=noopener>@xiaodaigh</a>, and
+<a href=https://github.com/yonicd target=_blank rel=noopener>@yonicd</a>.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#hex-sticker>Hex sticker</a></li><li><a href=#future_walk>future_walk()</a></li><li><a href=#vignettes>Vignettes</a></li><li><a href=#progress-bar-update>Progress bar update</a></li><li><a href=#options>Options</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

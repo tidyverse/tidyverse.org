@@ -1,0 +1,1042 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ggplot2-3-5-0 | Tidyverse</title><link>https://www.tidyverse.org/tags/ggplot2-3-5-0/</link><atom:link href="https://www.tidyverse.org/tags/ggplot2-3-5-0/index.xml" rel="self" type="application/rss+xml"/><description>ggplot2-3-5-0</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 01 Mar 2024 00:00:00 +0000</lastBuildDate><item><title>ggplot2 3.5.0: Introducing: coord_radial()</title><link>https://www.tidyverse.org/blog/2024/03/ggplot2-3-5-0-coord-radial/</link><pubDate>Fri, 01 Mar 2024 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2024/03/ggplot2-3-5-0-coord-radial/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We are happy to announce the release of
+&lt;a href="https://ggplot2.tidyverse.org" target="_blank" rel="noopener">ggplot2&lt;/a> 3.5.0. This is one blogpost among several outlining a new polar coordinate system. Please find the
+&lt;a href="https://www.tidyverse.org/blog/2024/02/ggplot2-3-5-0/">main release post&lt;/a> to read about other exciting changes.&lt;/p>
+&lt;p>Polar coordinates are a good reminder of the flexibility of the Grammar of Graphics: pie charts are just bar charts with polar coordinates. While the tried and tested
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_polar()&lt;/code>&lt;/a> has served well in the past to fulfill your pie chart needs, we felt it was due some modernisation. We realised we could not adapt
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_polar()&lt;/code>&lt;/a> to fit with the
+&lt;a href="https://www.tidyverse.org/blog/2024/02/ggplot2-3-5-0/#guide-rewrite">new guide system&lt;/a> without severely breaking existing plots, so
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_radial()&lt;/code>&lt;/a> was born to give a facelift to the polar coordinate system in ggplot2.&lt;/p>
+&lt;p>Relative to
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_polar()&lt;/code>&lt;/a>,
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_radial()&lt;/code>&lt;/a> can:&lt;/p>
+&lt;ol>
+&lt;li>Draw circle sectors instead of only full circles.&lt;/li>
+&lt;li>Avoid data vanishing in the centre of the plot.&lt;/li>
+&lt;li>Adjust text angles on the fly.&lt;/li>
+&lt;li>Use the new guide system.&lt;/li>
+&lt;/ol>
+&lt;h2 id="an-updated-look">An updated look
+&lt;a href="#an-updated-look">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The first noticeable contrast with
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_polar()&lt;/code>&lt;/a> is that
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_radial()&lt;/code>&lt;/a> is not particularly suited to building pie charts. Instead, it uses the scale expansion conventions like
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" target="_blank" rel="noopener">&lt;code>coord_cartesian()&lt;/code>&lt;/a>. This makes sense for most chart types, but not pie charts. Nonetheless, you can use the &lt;code>expand = FALSE&lt;/code> setting to use
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_radial()&lt;/code>&lt;/a> for pie charts.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://ggplot2.tidyverse.org'>ggplot2&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://patchwork.data-imaginist.com'>patchwork&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://scales.r-lib.org'>scales&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>pie&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>, fill &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>cyl&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>width &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_discrete.html'>scale_y_discrete&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>guide &lt;span class='o'>=&lt;/span> &lt;span class='s'>"none"&lt;/span>, name &lt;span class='o'>=&lt;/span> &lt;span class='kc'>NULL&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guides.html'>guides&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>fill &lt;span class='o'>=&lt;/span> &lt;span class='s'>"none"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>default&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>pie&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/coord_polar.html'>coord_radial&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"default"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>no_expand&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>pie&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/coord_polar.html'>coord_radial&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>expand &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"expand = FALSE"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>polar&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>pie&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/coord_polar.html'>coord_polar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"coord_polar()"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>default&lt;/span> &lt;span class='o'>|&lt;/span> &lt;span class='nv'>no_expand&lt;/span> &lt;span class='o'>|&lt;/span> &lt;span class='nv'>polar&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/compare_polar-1.png" alt="Three pie charts showing the proportion of each cylinder number. The first has a gap in the middle and at the top with a grey circle in the background and is titled 'default'. The second is titled 'expand = FALSE' and shows a full pie chart with tick marks labelling the angle positions. The last plot is a full pie chart with a gray rectangular background without tick marks and a white line around the pie." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Some visual differences stand out in the plots above. In
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_radial()&lt;/code>&lt;/a>, the panel background covers the data area of the plot, not a rectangle. It also does not have a grid-line encircling the plot and instead uses tick marks to indicate values along the theta (angle) coordinate. You may also notice that
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_polar()&lt;/code>&lt;/a> still draws the radius axis, despite instructions to use &lt;code>guide = &amp;quot;none&amp;quot;&lt;/code>. That is the integration with the guide system that birthed
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_radial()&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="partial-polar-plots">Partial polar plots
+&lt;a href="#partial-polar-plots">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Another important difference is that
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_radial()&lt;/code>&lt;/a> does not necessarily need to display a full circle. By setting the &lt;code>start&lt;/code> and &lt;code>end&lt;/code> arguments separately, you can now make a partial polar plot. This makes it much easier to make semi- or quarter-circle plots.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>half&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/coord_polar.html'>coord_radial&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>start &lt;span class='o'>=&lt;/span> &lt;span class='o'>-&lt;/span>&lt;span class='m'>0.5&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='nv'>pi&lt;/span>, end &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.5&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='nv'>pi&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"−0.5π to +0.5π"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>quarter&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/coord_polar.html'>coord_radial&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>start &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>, end &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.5&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='nv'>pi&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>ggtitle&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"0 to +0.5π"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>half&lt;/span> &lt;span class='o'>|&lt;/span> &lt;span class='nv'>quarter&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/partial_polar-1.png" alt="Two polar scatterplots of the 'mpg' dataset. The left plot is shaped like as a semicircle and the right plot as a quarter circle." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="donuts">Donuts
+&lt;a href="#donuts">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>It was already possible to turn a pie-chart into a donut-chart with
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_polar()&lt;/code>&lt;/a>. This is made even easier in
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_radial()&lt;/code>&lt;/a> by setting the &lt;code>inner.radius&lt;/code> argument to make a donut hole. For most plots, this avoids crowding data points in the center of the plot: points with a widely different &lt;code>theta&lt;/code> coordinate but similarly small &lt;code>r&lt;/code> coordinate are placed further apart.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/coord_polar.html'>coord_radial&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>inner.radius &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.3&lt;/span>, r_axis_inside &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/open_radial_plot-1.png" alt="A donut-shaped scatterplot of the 'mpg' dataset." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="text-annotations">Text annotations
+&lt;a href="#text-annotations">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A common grievance with about polar coordinates is that it was cumbersome to rotate text annotations along with the &lt;code>theta&lt;/code> coordinate. Calculating the correct angles for labels is pretty involved and usually changes from plot to plot depending on how many items need to be displayed. To remove some of this hassle
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_radial()&lt;/code>&lt;/a> has a &lt;code>rotate_angle&lt;/code> switch, that will line up the text&amp;rsquo;s &lt;code>angle&lt;/code> aesthetic with the theta coordinate. For text angles of 0 degrees, this will place text in a tangent orientation to the circle and for angles of 90 degrees, this places text along the radius, as in the plot below.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/seq.html'>seq_along&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='nv'>mpg&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_col&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>width &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>geom_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>y &lt;span class='o'>=&lt;/span> &lt;span class='m'>32&lt;/span>, label &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/colnames.html'>rownames&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> angle &lt;span class='o'>=&lt;/span> &lt;span class='m'>90&lt;/span>, hjust &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/coord_polar.html'>coord_radial&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>rotate_angle &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>, expand &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/text_angles-1.png" alt="A wind rose plot showing miles per gallon for different cars. The car names skirt the outer edge of the plot and are oriented towards the centre." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="axes">Axes
+&lt;a href="#axes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Because the logic of drawing axes for polar coordinates is not the same as when axes are perfectly vertical or horizontal, we used the new guide system to build an axis specific to
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_radial()&lt;/code>&lt;/a>: the
+&lt;a href="https://ggplot2.tidyverse.org/reference/guide_axis_theta.html" target="_blank" rel="noopener">&lt;code>guide_axis_theta()&lt;/code>&lt;/a> axis. Guides for
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_radial()&lt;/code>&lt;/a> can be set using &lt;code>theta&lt;/code> and &lt;code>r&lt;/code> name in the
+&lt;a href="https://ggplot2.tidyverse.org/reference/guides.html" target="_blank" rel="noopener">&lt;code>guides()&lt;/code>&lt;/a> function. While the &lt;code>r&lt;/code> axis can be the regular
+&lt;a href="https://ggplot2.tidyverse.org/reference/guide_axis.html" target="_blank" rel="noopener">&lt;code>guide_axis()&lt;/code>&lt;/a>, the &lt;code>theta&lt;/code> axis uses the highly specialised
+&lt;a href="https://ggplot2.tidyverse.org/reference/guide_axis_theta.html" target="_blank" rel="noopener">&lt;code>guide_axis_theta()&lt;/code>&lt;/a>. The theta axis shares many features with typical axes, like setting the text angle or the new &lt;code>minor.ticks&lt;/code> and &lt;code>cap&lt;/code> settings. More on these settings in the
+&lt;a href="https://www.tidyverse.org/blog/2024/02/ggplot2-3-5-0-axes/">axis blog&lt;/a>. As seen in previous plots, the default is to place text horizontally. One neat trick we&amp;rsquo;ve put into
+&lt;a href="https://ggplot2.tidyverse.org/reference/coord_polar.html" target="_blank" rel="noopener">&lt;code>coord_radial()&lt;/code>&lt;/a> is that we can set a &lt;em>relative&lt;/em> text angle in the guides, such as in the plot below.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>class&lt;/span>, &lt;span class='nv'>displ&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_boxplot.html'>geom_boxplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/coord_polar.html'>coord_radial&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>start &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.25&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='nv'>pi&lt;/span>, end &lt;span class='o'>=&lt;/span> &lt;span class='m'>1.75&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='nv'>pi&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guides.html'>guides&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> theta &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_axis_theta.html'>guide_axis_theta&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>angle &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> r &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_axis.html'>guide_axis&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>angle &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/axis_angles-1.png" alt="Boxplot of the 'mpg' dataset displayed in partial polar coordinates. The theta labels are placed tangential to the circle. The radius labels line up with the tick mark direction." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>The theme elements to style these axes have the &lt;code>theta&lt;/code> or &lt;code>r&lt;/code> position indication, so to change the the axis line, you use the &lt;code>axis.line.theta&lt;/code> and &lt;code>axis.line.r&lt;/code> arguments. The theme settings can also be used to set the &lt;em>absolute&lt;/em> angle of text.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>class&lt;/span>, &lt;span class='nv'>displ&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_boxplot.html'>geom_boxplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/coord_polar.html'>coord_radial&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>start &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.25&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='nv'>pi&lt;/span>, end &lt;span class='o'>=&lt;/span> &lt;span class='m'>1.75&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='nv'>pi&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> axis.line.theta &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_line&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>"red"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> axis.text.theta &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>angle &lt;span class='o'>=&lt;/span> &lt;span class='m'>90&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> axis.text.r &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>"blue"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/axis_styling-1.png" alt="Boxplot of the 'mpg' dataset displayed in partial polar coordinates. The theta labels are placed vertically and a red line traces the outer circle. The radius labels are displayed in blue." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Lastly, there can also be secondary axes. We anticipate that this is practically never needed, as grid lines follow the primary axes and without them, it is very hard to read from axes in polar coordinates. However, if there is some reason for using secondary axes on polar coordinates, you can use the &lt;code>theta.sec&lt;/code> and &lt;code>r.sec&lt;/code> names in the
+&lt;a href="https://ggplot2.tidyverse.org/reference/guides.html" target="_blank" rel="noopener">&lt;code>guides()&lt;/code>&lt;/a> function to control the guides. Please note that a secondary theta axis is entirely useless when &lt;code>inner.radius = 0&lt;/code> (the default). There are no separate theme options for secondary r/theta axes, but to style them separately from the primary axes, you can use the &lt;code>theme&lt;/code> argument in the guide instead.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>pressure&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>temperature&lt;/span>, &lt;span class='nv'>pressure&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>"blue"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_number.html'>label_number&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>suffix &lt;span class='o'>=&lt;/span> &lt;span class='s'>"°C"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> sec.axis &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/sec_axis.html'>sec_axis&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>~&lt;/span> &lt;span class='nv'>.x&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='m'>9&lt;/span>&lt;span class='o'>/&lt;/span>&lt;span class='m'>5&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='m'>35&lt;/span>, labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_number.html'>label_number&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>suffix &lt;span class='o'>=&lt;/span> &lt;span class='s'>"°F"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_y_continuous&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_number.html'>label_number&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>suffix &lt;span class='o'>=&lt;/span> &lt;span class='s'>" mmHg"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> sec.axis &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/sec_axis.html'>sec_axis&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>~&lt;/span> &lt;span class='nv'>.x&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='m'>0.133322&lt;/span>, labels &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/label_number.html'>label_number&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>suffix &lt;span class='o'>=&lt;/span> &lt;span class='s'>" kPa"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guides.html'>guides&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> theta.sec &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_axis_theta.html'>guide_axis_theta&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>theme &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>axis.line.theta &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_line&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> r.sec &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_axis.html'>guide_axis&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>theme &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>axis.text.r &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>"red"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/coord_polar.html'>coord_radial&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> start &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.25&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='nv'>pi&lt;/span>, end &lt;span class='o'>=&lt;/span> &lt;span class='m'>1.75&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='nv'>pi&lt;/span>,&lt;/span>
+&lt;span> inner.radius &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.3&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/secondary_axes-1.png" alt="A lineplot of the 'pressure' dataset in partial polar coordinates that is shaped like a donut with a bite taken out on top. The primary, outer theta axis displays temperature in degrees Celcius. The secondary, inner theta axis displays temperature in degrees Fahrenheit and has an axis line. The primary radius axis on the right displays pressure in millimetres of mercury. The secondary radius axis on the left displays pressure in kilo-Pascals in red text." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div></description></item><item><title>ggplot2 3.5.0: Axes</title><link>https://www.tidyverse.org/blog/2024/02/ggplot2-3-5-0-axes/</link><pubDate>Wed, 28 Feb 2024 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2024/02/ggplot2-3-5-0-axes/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We are pleased to release
+&lt;a href="https://ggplot2.tidyverse.org" target="_blank" rel="noopener">ggplot2&lt;/a> 3.5.0. This release is a large one, so we have split the updates into multiple posts. This posts outlines changes to axes; see the
+&lt;a href="https://www.tidyverse.org/blog/2024/02/ggplot2-3-5-0/">main release post&lt;/a> to learn about other changes.&lt;/p>
+&lt;p>Axes, alongside
+&lt;a href="https://www.tidyverse.org/blog/2024/02/ggplot2-3-5-0-legends/">legends&lt;/a>, are visual representations of scales and allow observers to read values off of a plot. The innards of axes, like other guides, underwent a major overhaul with the guide system rewrite. Axes specifically are guides for positions and classically display labelled tick marks. In Cartesian coordinates, these are the x- and y-positions, but in non-Cartesian systems may reflect a theta, radius, longitude or latitude. In ggplot2, an axis is usually represented by the
+&lt;a href="https://ggplot2.tidyverse.org/reference/guide_axis.html" target="_blank" rel="noopener">&lt;code>guide_axis()&lt;/code>&lt;/a> function. We outline the following changes to axes:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="#minor-ticks">Minor ticks&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="#capping">Capping the axis line&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="#logarithmic-axes">Logartihmic axes&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="#stacked-axes">Stacking axes&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="#display-in-facets">Display in facets&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">
+&lt;/div>
+&lt;h2 id="minor-ticks">Minor ticks
+&lt;a href="#minor-ticks">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A much requested expansion of axis capabilities is the ability to draw minor ticks. To draw minor ticks, you can use the &lt;code>minor.ticks&lt;/code> argument of
+&lt;a href="https://ggplot2.tidyverse.org/reference/guide_axis.html" target="_blank" rel="noopener">&lt;code>guide_axis()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://ggplot2.tidyverse.org'>ggplot2&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guides.html'>guides&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_axis.html'>guide_axis&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>minor.ticks &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_axis.html'>guide_axis&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>minor.ticks &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>p&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/minor_ticks-1.png" alt="Scatterplot of engine displacement versus highway miles per gallon. Both the x and y axes have smaller ticks in between normal ticks." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>The minor ticks are unlabelled ticks and follow the &lt;code>minor_breaks&lt;/code> provided to the scale. Their length is determined by the &lt;code>axis.minor.ticks.length&lt;/code> and their positional children. The rest of their appearance is inherited from the major ticks, as can be seen in the plot below where the minor ticks on the y-axis are also blue. To tweak their style separately from the major ticks, the &lt;code>axis.minor.ticks.{x.bottom/x.top/y.left/y.right}&lt;/code> setting can be used. Please note that there is &lt;em>no&lt;/em> &lt;code>axis.minor.ticks&lt;/code> setting without the position suffixes, as they inherit from the major ticks.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>minor_breaks &lt;span class='o'>=&lt;/span> &lt;span class='nf'>scales&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/breaks_width.html'>breaks_width&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.2&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> axis.ticks.length &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/unit.html'>unit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>5&lt;/span>, &lt;span class='s'>"pt"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> axis.minor.ticks.length &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>rel&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.5&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> axis.minor.ticks.x.bottom &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_line&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>'red'&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> axis.ticks.y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_line&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>"blue"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/minor_ticks_theming-1.png" alt="Scatterplot of engine displacement versus highway miles per gallon. The y-axis has blue larger and smaller tick marks, whereas the x-axis has the larger ticks in black and the smaller ticks in red. The x-axis has 4 smaller ticks in between large ones and the smaller ticks are half the size of larger ticks." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="capping">Capping
+&lt;a href="#capping">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Axes can now also be &amp;lsquo;capped&amp;rsquo; at the upper and lower end. We hesitate to call this improvement &amp;lsquo;new&amp;rsquo;, as it has been a part of base R plotting since time immemorial. When axes are capped, the axis line will not be drawn up to the panel edge, but up to the first and last breaks. Unsurprisingly, this only affects plots where the axis line is not blank.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guides.html'>guides&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_axis.html'>guide_axis&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>cap &lt;span class='o'>=&lt;/span> &lt;span class='s'>"both"&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='c'># Cap both ends&lt;/span>&lt;/span>
+&lt;span> y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_axis.html'>guide_axis&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>cap &lt;span class='o'>=&lt;/span> &lt;span class='s'>"upper"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='c'># Cap the upper end&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>axis.line &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_line&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/capped_axes-1.png" alt="Scatterplot of engine displacement versus highway miles per gallon. The y-axis line starts at the bottom of the panel and continues to the top break. The x-axis line starts at the most left break and ends at the most right break." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="logarithmic-axes">Logarithmic axes
+&lt;a href="#logarithmic-axes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A new axis for displaying logarithmic (and related) scales has been added:
+&lt;a href="https://ggplot2.tidyverse.org/reference/guide_axis_logticks.html" target="_blank" rel="noopener">&lt;code>guide_axis_logticks()&lt;/code>&lt;/a>. This axis draws three types of tick marks at log10-spaced positions. The ticks positions are placed in the original, untransformed data-space, so the axis plays well with scale- and coord-transformations. To accommodate a series of logarithmic-like transformations, such as
+&lt;a href="https://scales.r-lib.org/reference/transform_log.html" target="_blank" rel="noopener">&lt;code>scales::transform_pseudo_log()&lt;/code>&lt;/a> or
+&lt;a href="https://scales.r-lib.org/reference/transform_asinh.html" target="_blank" rel="noopener">&lt;code>scales::transform_asinh()&lt;/code>&lt;/a>, scales that include 0 in their limits have the ticks mirrored around 0.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>r&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/seq.html'>seq&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.001&lt;/span>, &lt;span class='m'>0.999&lt;/span>, length.out &lt;span class='o'>=&lt;/span> &lt;span class='m'>100&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>df&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/data.frame.html'>data.frame&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/Cauchy.html'>qcauchy&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>r&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/Lognormal.html'>qlnorm&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>r&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>df&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>, &lt;span class='nv'>y&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/coord_trans.html'>coord_trans&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>y &lt;span class='o'>=&lt;/span> &lt;span class='s'>"reverse"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_y_continuous&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> transform &lt;span class='o'>=&lt;/span> &lt;span class='s'>"log10"&lt;/span>,&lt;/span>
+&lt;span> breaks &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.1&lt;/span>, &lt;span class='m'>1&lt;/span>, &lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> guide &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_axis_logticks.html'>guide_axis_logticks&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>long &lt;span class='o'>=&lt;/span> &lt;span class='m'>2&lt;/span>, mid &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>, short &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.5&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> transform &lt;span class='o'>=&lt;/span> &lt;span class='s'>"asinh"&lt;/span>,&lt;/span>
+&lt;span> breaks &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>-&lt;/span>&lt;span class='m'>100&lt;/span>, &lt;span class='o'>-&lt;/span>&lt;span class='m'>10&lt;/span>, &lt;span class='o'>-&lt;/span>&lt;span class='m'>1&lt;/span>, &lt;span class='m'>0&lt;/span>, &lt;span class='m'>1&lt;/span>, &lt;span class='m'>10&lt;/span>, &lt;span class='m'>100&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> guide &lt;span class='o'>=&lt;/span> &lt;span class='s'>"axis_logticks"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>p&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/log_axes-1.png" alt="A line plot showing a negatively sloped line with a reversed log10-transformation on the y-axis and inverse hyberbolic sine transformation on the x-axis. Large ticks appears at multiples of 10, medium ticks at multiples of 5 and small ticks at multiples of 1." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>The log-ticks axis supersedes the earlier
+&lt;a href="https://ggplot2.tidyverse.org/reference/annotation_logticks.html" target="_blank" rel="noopener">&lt;code>annotation_logticks()&lt;/code>&lt;/a> function. Because it is implemented as an axis, it has minimal fuss with the placement of labels and is immune to the clipping options in the coord. To mirror
+&lt;a href="https://ggplot2.tidyverse.org/reference/annotation_logticks.html" target="_blank" rel="noopener">&lt;code>annotation_logticks()&lt;/code>&lt;/a> more closely, you can set a negative tick length in the theme.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>axis.ticks.length &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/unit.html'>unit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>-&lt;/span>&lt;span class='m'>2.25&lt;/span>, &lt;span class='s'>"pt"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/log_ticks_inward-1.png" alt="The same plot as above, but the tick marks now point inwards." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="stacked-axes">Stacked axes
+&lt;a href="#stacked-axes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The last new axis is technically not an axis, but a way to combine axes.
+&lt;a href="https://ggplot2.tidyverse.org/reference/guide_axis_stack.html" target="_blank" rel="noopener">&lt;code>guide_axis_stack()&lt;/code>&lt;/a> can take multiple other axes and combine them by placing them next to one another. On its own, the usefulness of stacking axes is pretty limited. However, when extensions start defining custom position guides, it is an easy way to mix-and-match axes from different extensions. The first axis is placed next to the panel and subsequent axes are placed further away from the panel. Axes, like legends, have acquired a &lt;code>theme&lt;/code> argument that can be used to customise the display of individual axes. Currently, there is not a compelling case to use
+&lt;a href="https://ggplot2.tidyverse.org/reference/guide_axis_stack.html" target="_blank" rel="noopener">&lt;code>guide_axis_stack()&lt;/code>&lt;/a>, but it is an important building block for when axis extensions arrive.&lt;/p>
+&lt;h2 id="display-in-facets">Display in facets
+&lt;a href="#display-in-facets">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>More of an indirect improvement to axes, is the ability of facets to tweak the appearance of inner axes when scales are fixed. This facilitates requirements in some journals that every panel should have labelled axes.
+&lt;a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" target="_blank" rel="noopener">&lt;code>facet_wrap()&lt;/code>&lt;/a> and
+&lt;a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" target="_blank" rel="noopener">&lt;code>facet_grid()&lt;/code>&lt;/a> would previously only display axes in between panels when &lt;code>scales = &amp;quot;free&amp;quot;&lt;/code> was set. This is still the case, but there are more options available for
+&lt;a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" target="_blank" rel="noopener">&lt;code>facet_grid()&lt;/code>&lt;/a> and fixed scales. Using the &lt;code>axes = &amp;quot;all&amp;quot;&lt;/code> option, all axes are displayed, including those in between panels. When using &lt;code>axes = &amp;quot;all_x&amp;quot;&lt;/code> or &lt;code>axes = &amp;quot;all_y&amp;quot;&lt;/code>, you can narrow down which axes are displayed.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>facet_grid&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>year&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>drv&lt;/span>, axes &lt;span class='o'>=&lt;/span> &lt;span class='s'>"all_y"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/facet_axes_display-1.png" alt="A scatterplot facetted by the 'drv' and 'year' variables. The x-axes appear only at the bottom panels, whereas y-axes are displayed for every panel." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>In addition, you can choose to selectively suppress labels and only show ticks marks by using the &lt;code>axis.labels&lt;/code> argument.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/facet_grid.html'>facet_grid&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>year&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>drv&lt;/span>, axes &lt;span class='o'>=&lt;/span> &lt;span class='s'>"all"&lt;/span>, axis.labels &lt;span class='o'>=&lt;/span> &lt;span class='s'>"all_y"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/facet_axes_label_display-1.png" alt="A scatterplot facetted by the 'drv' and 'year' variables. The x-axes appear in full only at the bottom panels, and as tick marks in the first row of panels. The y-axes are displayed in full at every panel." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>That wraps up the visible changes to axes for this post. To read about general changes, see the
+&lt;a href="https://www.tidyverse.org/blog/2024/02/ggplot2-3-5-0/">main post&lt;/a>. The changes to legends are covered in a
+&lt;a href="https://www.tidyverse.org/blog/2024/02/ggplot2-3-5-0-legends/">separate post&lt;/a> and for the new polar coordinate system (and their axes) will be in a future post.&lt;/p></description></item><item><title>ggplot2 3.5.0: Legends</title><link>https://www.tidyverse.org/blog/2024/02/ggplot2-3-5-0-legends/</link><pubDate>Mon, 26 Feb 2024 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2024/02/ggplot2-3-5-0-legends/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We are pleased to release
+&lt;a href="https://ggplot2.tidyverse.org" target="_blank" rel="noopener">ggplot2&lt;/a> 3.5.0. This is one blogpost among several outlining changes to legend guides. Please find the
+&lt;a href="https://www.tidyverse.org/blog/2024/02/ggplot2-3-5-0/">main release post&lt;/a> to read about other changes.&lt;/p>
+&lt;p>Legends, alongside axes, are visual representations of scales and allow observes to translate graphical properties of a plot into information. To no surprise, legends in ggplot2 comprise the guides called
+&lt;a href="https://ggplot2.tidyverse.org/reference/guide_legend.html" target="_blank" rel="noopener">&lt;code>guide_legend()&lt;/code>&lt;/a>, but also
+&lt;a href="https://ggplot2.tidyverse.org/reference/guide_colourbar.html" target="_blank" rel="noopener">&lt;code>guide_colourbar()&lt;/code>&lt;/a>,
+&lt;a href="https://ggplot2.tidyverse.org/reference/guide_coloursteps.html" target="_blank" rel="noopener">&lt;code>guide_coloursteps()&lt;/code>&lt;/a> and
+&lt;a href="https://ggplot2.tidyverse.org/reference/guide_bins.html" target="_blank" rel="noopener">&lt;code>guide_bins()&lt;/code>&lt;/a>.&lt;/p>
+&lt;h2 id="styling">Styling
+&lt;a href="#styling">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>One of the more user-visible changes is that these guides no longer have styling options. Or at least, they have been soft-deprecated: they continue to work for now, but are scheduled for removal. Gone are the days where there were 4 possible ways to set the horizontal justification of legend text in 5 different functions. There is only one way to style guides now, and that is by using
+&lt;a href="https://ggplot2.tidyverse.org/reference/theme.html" target="_blank" rel="noopener">&lt;code>theme()&lt;/code>&lt;/a>. The
+&lt;a href="https://ggplot2.tidyverse.org/reference/theme.html" target="_blank" rel="noopener">&lt;code>theme()&lt;/code>&lt;/a> function has new arguments to control the appearance of legends, which makes it easier to globally control the appearance of legends. For example: &lt;code>theme(legend.frame)&lt;/code> replaces &lt;code>guide_colourbar(frame.colour, frame.linewidth, frame.linetype)&lt;/code> and &lt;code>theme(legend.axis.line)&lt;/code> replaces &lt;code>guide_bins(axis, axis.colour, axis.linewidth, axis.arrow)&lt;/code>. To allow for tweaking the style of any individual guide, the guide functions now have a &lt;code>theme&lt;/code> argument that can accept a theme specific to that guide.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://ggplot2.tidyverse.org'>ggplot2&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>, shape &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>cyl&lt;/span>&lt;span class='o'>)&lt;/span>, colour &lt;span class='o'>=&lt;/span> &lt;span class='nv'>cty&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='c'># Styling individual guides&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guides.html'>guides&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> shape &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_legend.html'>guide_legend&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>theme &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>legend.text &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>"red"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> colour &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_colourbar.html'>guide_colorbar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>theme &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>legend.frame &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_rect&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>"red"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='c'># Styling guides globally&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> legend.title.position &lt;span class='o'>=&lt;/span> &lt;span class='s'>"left"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='c'># Title justification is controlled by hjust/vjust in the element&lt;/span>&lt;/span>
+&lt;span> legend.title &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>angle &lt;span class='o'>=&lt;/span> &lt;span class='m'>90&lt;/span>, hjust &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.5&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/guide_theming-1.png" alt="Scatterplot of engine displacement versus highway miles per gallon. The legend indicating shapes for the number of cylinders has red text. The colour bar indicating city miles per gallon has a red rectangle around the bar. Both the legend and colour bar titles are rotated, centered and on the left of the guide." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>In the plot above, notice how the legend title settings affect both the colour bar and the legend, whereas the local options, like red legend text, only apply to a single guide.&lt;/p>
+&lt;h2 id="awareness">Awareness
+&lt;a href="#awareness">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Legends are now more aware what discrete variables should be placed in which keys. By default, they now only draw keys for the layer which contain the relevant value. This saves one having to hassle with the &lt;code>guide_legend(override.aes)&lt;/code> argument to get the keys to display just right. In the plot below, notice how the points and line have separate keys.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>scale_alpha_manual&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>values &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.5&lt;/span>, &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>"points"&lt;/span>, alpha &lt;span class='o'>=&lt;/span> &lt;span class='s'>"points"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>"line"&lt;/span>, alpha &lt;span class='o'>=&lt;/span> &lt;span class='s'>"line"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> stat &lt;span class='o'>=&lt;/span> &lt;span class='s'>"smooth"&lt;/span>, formula &lt;span class='o'>=&lt;/span> &lt;span class='nv'>y&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>x&lt;/span>, method &lt;span class='o'>=&lt;/span> &lt;span class='s'>"lm"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/legend_awareness-1.png" alt="A scatterplot with trendline showing engine displacement versus highway miles per gallon. There are two legends for colour and alpha. Both legends show points and lines separately." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>To revert back to the old behaviour, you can set the &lt;code>show.legend = TRUE&lt;/code> option in the layers. Like before, the &lt;code>show.legend&lt;/code> argument can still be set in an aesthetic-specific way. Setting it to &lt;code>TRUE&lt;/code> means &amp;lsquo;always show&amp;rsquo;, &lt;code>FALSE&lt;/code> means &amp;lsquo;never show&amp;rsquo; and &lt;code>NA&lt;/code> means &amp;lsquo;show if found&amp;rsquo;.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>"points"&lt;/span>, alpha &lt;span class='o'>=&lt;/span> &lt;span class='s'>"points"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> show.legend &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span> &lt;span class='c'># always show&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_path.html'>geom_line&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>"line"&lt;/span>, alpha &lt;span class='o'>=&lt;/span> &lt;span class='s'>"line"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> stat &lt;span class='o'>=&lt;/span> &lt;span class='s'>"smooth"&lt;/span>, formula &lt;span class='o'>=&lt;/span> &lt;span class='nv'>y&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>x&lt;/span>, method &lt;span class='o'>=&lt;/span> &lt;span class='s'>"lm"&lt;/span>,&lt;/span>
+&lt;span> show.legend &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='kc'>NA&lt;/span>, alpha &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='c'># always show in alpha&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/show_key_setting-1.png" alt="The same plot as before, but every legend keys displays points. Lines are shown in every 'alpha' legend key, but only one 'colour' key." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="placement">Placement
+&lt;a href="#placement">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Legend positions are no longer restricted to just a single side of the plot. By setting the &lt;code>position&lt;/code> argument of guides, you can tailor which guides appear where in the plot. Guides that do not have a position set, like the &amp;lsquo;drv&amp;rsquo; shape legend below, follow the global theme&amp;rsquo;s &lt;code>legend.position&lt;/code> setting. If we suspend our belief in good data visualisation practice, we can showcase this as follows:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>, shape &lt;span class='o'>=&lt;/span> &lt;span class='nv'>drv&lt;/span>, colour &lt;span class='o'>=&lt;/span> &lt;span class='nv'>cty&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='nv'>year&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>alpha &lt;span class='o'>=&lt;/span> &lt;span class='nv'>cyl&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guides.html'>guides&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> colour &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_colourbar.html'>guide_colourbar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>position &lt;span class='o'>=&lt;/span> &lt;span class='s'>"bottom"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> size &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_legend.html'>guide_legend&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>position &lt;span class='o'>=&lt;/span> &lt;span class='s'>"top"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> alpha &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_legend.html'>guide_legend&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>position &lt;span class='o'>=&lt;/span> &lt;span class='s'>"inside"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>legend.position &lt;span class='o'>=&lt;/span> &lt;span class='s'>"left"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>p&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/legend_positions-1.png" alt="A scatterplot showing engine displacement versus highway miles per gallon. It has four legend placed at the top, left, bottom of the panel and one inside the panel." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>In the plot above, the legend for the &amp;lsquo;cyl&amp;rsquo; variable is in the middle of the plot. In previous versions of ggplot2, you could set the &lt;code>legend.position&lt;/code> to a coordinate to control the placement. However, doing this would change the default legend position, which is not always desirable. To cover such cases, there is now a specialised &lt;code>legend.position.inside&lt;/code> argument that controls the positioning of legends with &lt;code>position = &amp;quot;inside&amp;quot;&lt;/code> regardless of whether the position was specified in the theme or in the guide.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>legend.position.inside &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.7&lt;/span>, &lt;span class='m'>0.7&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/legend_inside-1.png" alt="The same plot as before, but the legend for the 'cyl' variable is to the top-right of the centre." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>The justification of legends is controllable by using the &lt;code>legend.justification.{position}&lt;/code> theme setting. Moreover, the top and bottom guides can be aligned to the plot rather than the panel by setting the &lt;code>legend.location&lt;/code> argument. The main reason behind this is that you can then align the legends with the plot&amp;rsquo;s title. By default, when &lt;code>plot.title.position = &amp;quot;plot&amp;quot;&lt;/code>, left legends are already aligned. For this reason, the top and bottom guides are prioritised for the &lt;code>legend.location&lt;/code> setting. Moreover, it avoids overlapping of legends in the corners if the justifications would dictate it.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>title &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Plot-aligned title"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> legend.margin &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>margin&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0&lt;/span>, &lt;span class='m'>0&lt;/span>, &lt;span class='m'>0&lt;/span>, &lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='c'># turned off for alignment&lt;/span>&lt;/span>
+&lt;span> legend.justification.top &lt;span class='o'>=&lt;/span> &lt;span class='s'>"left"&lt;/span>,&lt;/span>
+&lt;span> legend.justification.left &lt;span class='o'>=&lt;/span> &lt;span class='s'>"top"&lt;/span>,&lt;/span>
+&lt;span> legend.justification.bottom &lt;span class='o'>=&lt;/span> &lt;span class='s'>"right"&lt;/span>,&lt;/span>
+&lt;span> legend.justification.inside &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>, &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> legend.location &lt;span class='o'>=&lt;/span> &lt;span class='s'>"plot"&lt;/span>,&lt;/span>
+&lt;span> plot.title.position &lt;span class='o'>=&lt;/span> &lt;span class='s'>"plot"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/legend_alignments-1.png" alt="The same plot as before, but with a plot-aligned title and different alignments of the legends. The left and top legends are left-aligned with the title." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="spacing-and-margins">Spacing and margins
+&lt;a href="#spacing-and-margins">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>In this release, the way spacing in legends work has been reworked.&lt;/p>
+&lt;ul>
+&lt;li>The &lt;code>legend.spacing{.x/.y}&lt;/code> theme setting is now used to space different guides apart. Previously, it was also used to space legend keys apart; that is no longer the case.&lt;/li>
+&lt;li>Spacing legend key-label pairs apart is now controlled by the &lt;code>legend.key.spacing{.x/.y}&lt;/code> theme setting.&lt;/li>
+&lt;li>Spacing the labels from the keys is now controlled by the label element&amp;rsquo;s &lt;code>margin&lt;/code> argument.&lt;/li>
+&lt;/ul>
+&lt;p>Because the legend spacing and margin options can be a bit bewildering, a small overview is added below. One setting not included in the overview is &lt;code>legend.spacing.x&lt;/code>, which only applies when &lt;code>legend.box = &amp;quot;horizontal&amp;quot;&lt;/code>. Which exact text margin is relevant for spacing apart keys and labels, or titles and the rest of the guide, depends on the &lt;code>legend.text.position&lt;/code> and &lt;code>legend.title.position&lt;/code> theme elements.&lt;/p>
+&lt;div class="highlight">
+&lt;p>&lt;img src="figs/spacing_overview-1.png" alt="Overview of legend spacing and margin options. Two abstract legends are placed above one another to the right of an area called 'plot'. Various arrows with labels point out different theme settings." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>When the titles and keys don&amp;rsquo;t have explicit margins, appropriate margins are added automatically depending on the text or title position. However, if you override the margins, they will be interpreted literally.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>, colour &lt;span class='o'>=&lt;/span> &lt;span class='nv'>class&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guides.html'>guides&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_legend.html'>guide_legend&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>ncol &lt;span class='o'>=&lt;/span> &lt;span class='m'>2&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> legend.key.spacing.x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/unit.html'>unit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>, &lt;span class='s'>"pt"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> legend.key.spacing.y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/unit.html'>unit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>20&lt;/span>, &lt;span class='s'>"pt"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> legend.text &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>margin &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>margin&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>l &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> legend.title &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>margin &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>margin&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>b &lt;span class='o'>=&lt;/span> &lt;span class='m'>20&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/legend_spacing-1.png" alt="A scatterplot showing engine displacement versus highway miles per gallon. The legend for the 'class' variable shows a key layout with two columns. Keys are widely spacing in the vertical direction and more narrowly in the horizontal direction. There is no space between the keys and their labels, but plenty of space between the legend and its title." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>For all intents and purposes, colour bar/step and bins guides are treated as legend guides with just a single key-label pair. While the &lt;code>legend.key.spacing&lt;/code> setting does not apply due to it being one single key, the other spacings and margins do apply equally.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>, colour &lt;span class='o'>=&lt;/span> &lt;span class='nv'>cty&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> legend.text &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>margin &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>margin&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>l &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> legend.title &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>margin &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>margin&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>b &lt;span class='o'>=&lt;/span> &lt;span class='m'>20&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/legend_spacing_bar-1.png" alt="The same plot as before, but with a colourbar indicating the 'cty' variable. Again, there is no space between the bar and the labels and ample space between the bar and the title." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="stretching">Stretching
+&lt;a href="#stretching">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Another experimental tweak to legends is that they can now have stretching keys (or bars). The option is still considered &amp;lsquo;experimental&amp;rsquo; because there are some things that may go wrong. By setting the &lt;code>legend.key{.height/.width}&lt;/code> theme argument as a &lt;code>&amp;quot;null&amp;quot;&lt;/code> unit, legends can now expand to fill the available space.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='nv'>cty&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='nv'>cyl&lt;/span>&lt;span class='o'>)&lt;/span>, shape &lt;span class='o'>=&lt;/span> &lt;span class='m'>21&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>legend.key.height &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/unit.html'>unit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>, &lt;span class='s'>"null"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>p&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/stretch_keys-1.png" alt="Scatterplot of engine displacement versus highway miles per gallon. There is a legend guide showing the point's size and a colour. Both the legend and the bar take up an approximately equal amount of space on the right-hand side of the panel." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>The term &amp;lsquo;available space&amp;rsquo; is a tricky one. For starters, other legends placed in the same position take up space, as can be seen in the plot above. If your legend is the only legend in a position, more space is available and it stretches more. As you can see in the plot below, the legends are not aligned with the panel even when stretched. This is because the titles, margins and various spacings all take up space that is &lt;em>not&lt;/em> available to stretch into.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guides.html'>guides&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_colourbar.html'>guide_colourbar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>position &lt;span class='o'>=&lt;/span> &lt;span class='s'>"left"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/isolated_stretch-1.png" alt="Same plot as before, but the colour bar is placed on the left. Both the colour bar and legend take up a lot of vertical space." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>On the other hand, if one position is packed with legends, the keys may shrink instead of stretch. The keys can become too small to show the aesthetics properly. You can see in the example below that the size legend becomes cut-off due to small keys and text is spaced too closely to comfortably read.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>fill &lt;span class='o'>=&lt;/span> &lt;span class='nv'>model&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/shrinking_keys-1.png" alt="Same plot as before, but all legends are on the right, including a new legend for the 'model' variable. All legends have keys that are too small to read the text comfortably, and the points indicating size are clipped." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Another issue that may come up is that the &amp;lsquo;available space&amp;rsquo; might be 0. Because the plot itself is also space-filling, setting null-heights for top/bottom positions or null-widths for left/right positions means there is no available space. This may result in the keys or bars becoming invisible. For the plot below, recall that we&amp;rsquo;ve set the &lt;code>legend.key.height&lt;/code> setting to a null unit.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>legend.position &lt;span class='o'>=&lt;/span> &lt;span class='s'>"top"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/disappearing_keys-1.png" alt="Still the same scatterplot but without the fill variable. Legends are placed at the top of the panel, but the bar and key backgrounds have disappeared. The text labels are still present." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="other-improvements">Other improvements
+&lt;a href="#other-improvements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We welcome a new type of legend:
+&lt;a href="https://ggplot2.tidyverse.org/reference/guide_custom.html" target="_blank" rel="noopener">&lt;code>guide_custom()&lt;/code>&lt;/a>. It can be used to add any graphical object (grob) to a plot, like
+&lt;a href="https://ggplot2.tidyverse.org/reference/annotation_custom.html" target="_blank" rel="noopener">&lt;code>annotation_custom()&lt;/code>&lt;/a>. There are a few differences though: it is positioned just like a legend and adds titles and margins. In some sense, this guide is &amp;lsquo;special&amp;rsquo;, as it is the only guide that does not directly reflect a scale. The downside is that it cannot read properties from the plot, but the upside is that it is very flexible. Be careful when your grob does not have an absolute size, you should set the &lt;code>width&lt;/code> and &lt;code>height&lt;/code> arguments.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>x&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.5&lt;/span>, &lt;span class='m'>1&lt;/span>, &lt;span class='m'>1.5&lt;/span>, &lt;span class='m'>1.2&lt;/span>, &lt;span class='m'>1.5&lt;/span>, &lt;span class='m'>1&lt;/span>, &lt;span class='m'>0.5&lt;/span>, &lt;span class='m'>0.8&lt;/span>, &lt;span class='m'>1&lt;/span>, &lt;span class='m'>1.15&lt;/span>, &lt;span class='m'>2&lt;/span>, &lt;span class='m'>1.15&lt;/span>, &lt;span class='m'>1&lt;/span>, &lt;span class='m'>0.85&lt;/span>, &lt;span class='m'>0&lt;/span>, &lt;span class='m'>0.85&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>y&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1.5&lt;/span>, &lt;span class='m'>1.2&lt;/span>, &lt;span class='m'>1.5&lt;/span>, &lt;span class='m'>1&lt;/span>, &lt;span class='m'>0.5&lt;/span>, &lt;span class='m'>0.8&lt;/span>, &lt;span class='m'>0.5&lt;/span>, &lt;span class='m'>1&lt;/span>, &lt;span class='m'>2&lt;/span>, &lt;span class='m'>1.15&lt;/span>, &lt;span class='m'>1&lt;/span>, &lt;span class='m'>0.85&lt;/span>, &lt;span class='m'>0&lt;/span>, &lt;span class='m'>0.85&lt;/span>, &lt;span class='m'>1&lt;/span>, &lt;span class='m'>1.15&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>compass_rose&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>grid&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/grid.polygon.html'>polygonGrob&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/unit.html'>unit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>, &lt;span class='s'>"cm"&lt;/span>&lt;span class='o'>)&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/unit.html'>unit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>y&lt;/span>, &lt;span class='s'>"cm"&lt;/span>&lt;span class='o'>)&lt;/span>, id.lengths &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>8&lt;/span>, &lt;span class='m'>8&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> gp &lt;span class='o'>=&lt;/span> &lt;span class='nf'>grid&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/gpar.html'>gpar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>fill &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"grey50"&lt;/span>, &lt;span class='s'>"grey25"&lt;/span>&lt;span class='o'>)&lt;/span>, col &lt;span class='o'>=&lt;/span> &lt;span class='kc'>NA&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>nc&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>sf&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://r-spatial.github.io/sf/reference/st_read.html'>st_read&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/system.file.html'>system.file&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"shape/nc.shp"&lt;/span>, package &lt;span class='o'>=&lt;/span> &lt;span class='s'>"sf"&lt;/span>&lt;span class='o'>)&lt;/span>, quiet &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>nc&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggsf.html'>geom_sf&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>fill &lt;span class='o'>=&lt;/span> &lt;span class='nv'>AREA&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guides.html'>guides&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>custom &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_custom.html'>guide_custom&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>compass_rose&lt;/span>, title &lt;span class='o'>=&lt;/span> &lt;span class='s'>"compass"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/custom_guide-1.png" alt="A map of the US state North Carolina, where fill colour indicates the area of counties. Underneath the colour bar for the fill, there is an eight-pointed star to the right of the panel with the title 'compass'." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>In previous version of ggplot2, when legend titles are wider than the legends, the guide-title alignment was always left aligned. Now, the justification setting of the legend text determines the alignment: 1 is right or top aligned and 0 is left or bottom aligned.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>, shape &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>cyl&lt;/span>&lt;span class='o'>)&lt;/span>, colour &lt;span class='o'>=&lt;/span> &lt;span class='nv'>drv&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guides.html'>guides&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> shape &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_legend.html'>guide_legend&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> title &lt;span class='o'>=&lt;/span> &lt;span class='s'>"A title that is pretty long"&lt;/span>,&lt;/span>
+&lt;span> theme &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>legend.title &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>hjust &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> order &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> colour &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/guide_legend.html'>guide_legend&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> title &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Another long title"&lt;/span>,&lt;/span>
+&lt;span> theme &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>legend.title &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>hjust &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/title_justification-1.png" alt="Scatterplot of engine displacement versus highway miles per gallon. The 'drv' variable has a legend that is left aligned, whereas the 'cyl' variable has a legend that is right-aligned." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div></description></item><item><title>ggplot2 3.5.0</title><link>https://www.tidyverse.org/blog/2024/02/ggplot2-3-5-0/</link><pubDate>Fri, 23 Feb 2024 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2024/02/ggplot2-3-5-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re tickled pink to announce the release of
+&lt;a href="https://ggplot2.tidyverse.org" target="_blank" rel="noopener">ggplot2&lt;/a> 3.5.0. ggplot2 is a system for declaratively creating graphics, based on The Grammar of Graphics. You provide the data, tell ggplot2 how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"ggplot2"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This blog post will cover a bunch of new features included in the latest release. In addition to rewriting the guide system, we made progress supporting newer R graphics capabilities, re-purposed the use of
+&lt;a href="https://rdrr.io/r/base/AsIs.html" target="_blank" rel="noopener">&lt;code>I()&lt;/code>&lt;/a>, and introduce an improved polar coordinate system, along with other improvements. As the release is quite large, we are making a
+&lt;a href="https://www.tidyverse.org/tags/ggplot2-3-5-0/" target="_blank" rel="noopener">series of blog posts&lt;/a> covering the major changes.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://ggplot2.tidyverse.org/news/index.html" target="_blank" rel="noopener">release notes&lt;/a>&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://ggplot2.tidyverse.org'>ggplot2&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://patchwork.data-imaginist.com'>patchwork&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>grid&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="guide-rewrite">Guide rewrite
+&lt;a href="#guide-rewrite">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Axes and legends, collectively called guides, are an important component to plots, as they allow the translation of visual information back to data qualities. The extension mechanism of ggplot2 allows others to develop their own layers, facets, coords and scales through the ggproto object-oriented system. Finally, after years of being the only major system in ggplot2 still clinging to the S3 system, guides have been rewritten to use ggproto. With this rewrite, guides officially become an extension point that let developers implement their own guides. We have added a section to the
+&lt;a href="https://ggplot2.tidyverse.org/articles/extending-ggplot2.html#creating-new-guides" target="_blank" rel="noopener">Extending ggplot2&lt;/a> vignette on how to develop a new guide.&lt;/p>
+&lt;p>Alongside the rewrite, we made a slew of improvements to guides along the way. As these are somewhat meaty and focused topics, we are going to cover them in separate blog posts about axes and legends.&lt;/p>
+&lt;h2 id="patterns-and-gradients">Patterns and gradients
+&lt;a href="#patterns-and-gradients">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Patterns and gradients are provided by the grid package, which ggplot2 builds on top of. They were first introduced in R 4.1.0 and were refined in R 4.2.0 to support multiple patterns and gradients. If your graphics device supported it, theme elements could already be set to patterns or gradients, even before this release.&lt;/p>
+&lt;blockquote>
+&lt;p>Note: On Windows machines, the default device in RStudio and in the knitr package is
+&lt;a href="https://rdrr.io/r/grDevices/png.html" target="_blank" rel="noopener">&lt;code>png()&lt;/code>&lt;/a>, which does not support patterns. In RStudio, you can go to &amp;lsquo;Tools &amp;gt; Global Options &amp;gt; General &amp;gt; Graphics&amp;rsquo; and choose the &amp;lsquo;ragg&amp;rsquo; or &amp;lsquo;Cairo PNG&amp;rsquo; device from the dropdown menu to display patterns.&lt;/p>
+&lt;/blockquote>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>gray_gradient&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/patterns.html'>linearGradient&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>scales&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/pal_grey.html'>pal_grey&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>panel.background &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_rect&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>fill &lt;span class='o'>=&lt;/span> &lt;span class='nv'>gray_gradient&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/theme_gradient-1.png" alt="Scatterplot of engine displacement versus highway miles per gallon. The panel background is a colour gradient starting from dark grey in the bottom-left corner ending at light grey in the upper-right corner." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>We are pleased to report that as of this release, patterns can be used as the &lt;code>fill&lt;/code> aesthetic in most layers. To use a pattern, first build a gradient using {grid}&amp;lsquo;s
+&lt;a href="https://rdrr.io/r/grid/patterns.html" target="_blank" rel="noopener">&lt;code>linearGradient()&lt;/code>&lt;/a>,
+&lt;a href="https://rdrr.io/r/grid/patterns.html" target="_blank" rel="noopener">&lt;code>radialGradient()&lt;/code>&lt;/a> functions, or a pattern using the
+&lt;a href="https://rdrr.io/r/grid/patterns.html" target="_blank" rel="noopener">&lt;code>pattern()&lt;/code>&lt;/a> function. Because handling patterns and gradients is very similar, we will treat gradients as if they were patterns: when we say &amp;lsquo;pattern&amp;rsquo; in the text below, please mind that we mean patterns and gradients alike. These patterns can be passed to a layer as the &lt;code>fill&lt;/code> aesthetic. Below, you can see two behaviours of the
+&lt;a href="https://rdrr.io/r/grid/patterns.html" target="_blank" rel="noopener">&lt;code>linearGradient()&lt;/code>&lt;/a> pattern, depending on its &lt;code>group&lt;/code> argument. The pattern with &lt;code>group = FALSE&lt;/code> will display the gradient in every rectangle and &lt;code>group = TRUE&lt;/code> will apply the gradient to all rectangles together.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>colours&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>scales&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://scales.r-lib.org/reference/pal_viridis.html'>viridis_pal&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>grad_ungroup&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/patterns.html'>linearGradient&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>colours&lt;/span>, group &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>grad_grouped&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/patterns.html'>linearGradient&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>colours&lt;/span>, group &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>ungroup&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>cyl&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>fill &lt;span class='o'>=&lt;/span> &lt;span class='nv'>grad_ungroup&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>title &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Ungrouped gradient"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>grouped&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>cyl&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>fill &lt;span class='o'>=&lt;/span> &lt;span class='nv'>grad_grouped&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/labs.html'>labs&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>title &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Grouped gradient"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>ungroup&lt;/span> &lt;span class='o'>|&lt;/span> &lt;span class='nv'>grouped&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/grouping_gradient-1.png" alt="Two barplots showing the counts of number of cylinders. The first plot is titled 'Ungrouped gradient' and shows individual gradients in the bars. The second is titled 'Grouped gradient' and shows a single gradient along all bars." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Besides passing a static pattern as the &lt;code>fill&lt;/code> aesthetic, it is also possible to map values to patterns using
+&lt;a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" target="_blank" rel="noopener">&lt;code>scale_fill_manual()&lt;/code>&lt;/a>. To map values to patterns, pass a list of patterns to the &lt;code>values&lt;/code> argument of the scale. When providing patterns as a list, the list can be a mix of patterns and plain colours, like &lt;code>&amp;quot;limegreen&amp;quot;&lt;/code> in the plot below. We are excited that people may come up with nice pattern palettes that can be used in similar fashion.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>patterns&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/list.html'>list&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/patterns.html'>linearGradient&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>colours&lt;/span>, group &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='s'>"limegreen"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/patterns.html'>radialGradient&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>colours&lt;/span>, group &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/patterns.html'>pattern&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/grid.rect.html'>rectGrob&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.25&lt;/span>, &lt;span class='m'>0.75&lt;/span>&lt;span class='o'>)&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.25&lt;/span>, &lt;span class='m'>0.75&lt;/span>&lt;span class='o'>)&lt;/span>, width &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.5&lt;/span>, height &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.5&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> width &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/unit.html'>unit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>5&lt;/span>, &lt;span class='s'>"mm"&lt;/span>&lt;span class='o'>)&lt;/span>, height &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/unit.html'>unit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>5&lt;/span>, &lt;span class='s'>"mm"&lt;/span>&lt;span class='o'>)&lt;/span>, extend &lt;span class='o'>=&lt;/span> &lt;span class='s'>"repeat"&lt;/span>,&lt;/span>
+&lt;span> gp &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/grid/gpar.html'>gpar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>fill &lt;span class='o'>=&lt;/span> &lt;span class='s'>"limegreen"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>cyl&lt;/span>&lt;span class='o'>)&lt;/span>, fill &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>cyl&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_bar.html'>geom_bar&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_manual.html'>scale_fill_manual&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>values &lt;span class='o'>=&lt;/span> &lt;span class='nv'>patterns&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/pattern_scale-1.png" alt="Barplot showing counts of number of cylinders with the bars filled by a linear gradient, a plain green colour, a radial gradient and a green checkerboard pattern." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>The largest obstacle we had to overcome to support gradients in ggplot2 was to apply the &lt;code>alpha&lt;/code> aesthetic consistently to the patterns. The regular
+&lt;a href="https://scales.r-lib.org/reference/alpha.html" target="_blank" rel="noopener">&lt;code>scales::alpha()&lt;/code>&lt;/a> function does not work with patterns, so we implemented a new
+&lt;a href="https://ggplot2.tidyverse.org/reference/fill_alpha.html" target="_blank" rel="noopener">&lt;code>fill_alpha()&lt;/code>&lt;/a> function that applies the &lt;code>alpha&lt;/code> aesthetic to the patterns. By switching out &lt;code>fill = alpha(fill, alpha)&lt;/code> with &lt;code>fill = fill_alpha(fill, alpha)&lt;/code> in the
+&lt;a href="https://rdrr.io/r/grid/gpar.html" target="_blank" rel="noopener">&lt;code>grid::gpar()&lt;/code>&lt;/a> function, extension developers can enable pattern fills in their own layer extensions.&lt;/p>
+&lt;p>The
+&lt;a href="https://ggplot2.tidyverse.org/reference/fill_alpha.html" target="_blank" rel="noopener">&lt;code>fill_alpha()&lt;/code>&lt;/a> function checks if the active device supports patterns and spits out a friendlier warning or error on demand. For extension developers that want to use newer graphics features, you can reuse the
+&lt;a href="https://ggplot2.tidyverse.org/reference/check_device.html" target="_blank" rel="noopener">&lt;code>check_device()&lt;/code>&lt;/a> function to check feature availability or throw messages in a similar fashion.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># The currently active device is the ragg::agg_png() device&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/check_device.html'>check_device&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>feature &lt;span class='o'>=&lt;/span> &lt;span class='s'>"patterns"&lt;/span>, action &lt;span class='o'>=&lt;/span> &lt;span class='s'>"test"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] TRUE&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/check_device.html'>check_device&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>feature &lt;span class='o'>=&lt;/span> &lt;span class='s'>"glyphs"&lt;/span>, action &lt;span class='o'>=&lt;/span> &lt;span class='s'>"abort"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00; font-weight: bold;'>Error&lt;/span>&lt;span style='font-weight: bold;'>:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>!&lt;/span> The &lt;span style='color: #00BB00;'>agg_png&lt;/span> device does not support &lt;span style='font-style: italic;'>typeset glyphs&lt;/span>.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="ignoring-scales">Ignoring scales
+&lt;a href="#ignoring-scales">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>In this release, ggplot2 has changed how the plots interact with variables created with
+&lt;a href="https://rdrr.io/r/base/AsIs.html" target="_blank" rel="noopener">&lt;code>I()&lt;/code>&lt;/a> (&amp;lsquo;AsIs&amp;rsquo; variables). The change is somewhat subtle, so it takes a bit of explaining.&lt;/p>
+&lt;p>It &lt;em>used to be&lt;/em> the case that &amp;lsquo;AsIs&amp;rsquo; variables automatically added an identity scale to the plot. Identity scales in ggplot2 preserve the original input, without mapping or transforming them. For example, iif you give literal colour names as the &lt;code>colour&lt;/code> aesthetic, the plot will use these exact colours.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>42&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>my_colours&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"red"&lt;/span>, &lt;span class='s'>"green"&lt;/span>, &lt;span class='s'>"blue"&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/nrow.html'>nrow&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>&lt;span class='o'>)&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='nv'>my_colours&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_identity.html'>scale_colour_identity&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/literal_colours-1.png" alt="Scatterplot of engine displacement versus highway miles per gallon with points in red, green and blue." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>However, because identity scales &lt;em>are&lt;/em> true scales, you cannot combine literal colours in one layer with mapped colours in the next. Trying to do so, will confront you with the &amp;lsquo;unknown colour name&amp;rsquo; error.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='nv'>drv&lt;/span>&lt;span class='o'>)&lt;/span>, shape &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='nv'>my_colours&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_identity.html'>scale_colour_identity&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00; font-weight: bold;'>Error&lt;/span>&lt;span style='font-weight: bold;'> in `geom_point()`:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>!&lt;/span> Problem while converting geom to grob.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> Error occurred in the 1st layer.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Caused by error:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>!&lt;/span> Unknown colour name: f&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>In order to prevent such clashes between identity scales that map nothing and regular scales, we have changed how &amp;lsquo;AsIs&amp;rsquo; variables interact with scales. Instead of adding an identity scale, &amp;lsquo;AsIs&amp;rsquo; variables are now altogether &lt;em>ignored&lt;/em> by the scale systems. On the surface, the new behaviour is very similar to the old one, in that for example literal colours are used. However, with &amp;lsquo;AsIs&amp;rsquo; variables ignored, you can now freely combine layers with &amp;lsquo;AsIs&amp;rsquo; input with layers that map input. If you need a legend for the literal variable, we recommend to use the identity scale mechanism instead.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='nv'>drv&lt;/span>&lt;span class='o'>)&lt;/span>, shape &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/AsIs.html'>I&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>my_colours&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>, show.legend &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/asis_aesthetic-1.png" alt="Scatterplot of engine displacement versus highway miles per gallon. Every point has two circles: a smaller one in red, green or blue and a larger one mapped to the 'drv' variable." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Perhaps more salient than avoid scale clashes, is that the same applies to the &lt;code>x&lt;/code> and &lt;code>y&lt;/code> position aesthetics. There has never been a &lt;code>scale_x_identity()&lt;/code> or &lt;code>scale_y_identity()&lt;/code> function, so what this means may be unexpected. Internally, scales transform every continuous variable to the 0-1 range before drawing the graphics. So too do &amp;lsquo;AsIs&amp;rsquo; position aesthetics work: you can use numbers between 0 and 1 to set the position. These positions are relative to the plot&amp;rsquo;s panel and this mechanism opens up a great way to add plot annotations that are independent of the data.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>t&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/seq.html'>seq&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0&lt;/span>, &lt;span class='m'>2&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='nv'>pi&lt;/span>, length.out &lt;span class='o'>=&lt;/span> &lt;span class='m'>100&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>displ&lt;/span>, &lt;span class='nv'>hwy&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>"grey50"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/annotate.html'>annotate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>"rect"&lt;/span>, &lt;/span>
+&lt;span> xmin &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/AsIs.html'>I&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.05&lt;/span>&lt;span class='o'>)&lt;/span>, xmax &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/AsIs.html'>I&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.95&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> ymin &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/AsIs.html'>I&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.05&lt;/span>&lt;span class='o'>)&lt;/span>, ymax &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/AsIs.html'>I&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.95&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> fill &lt;span class='o'>=&lt;/span> &lt;span class='kc'>NA&lt;/span>, colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>"red"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/annotate.html'>annotate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>"path"&lt;/span>,&lt;/span>
+&lt;span> x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/AsIs.html'>I&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Trig.html'>cos&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>t&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>/&lt;/span> &lt;span class='m'>2&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='m'>0.5&lt;/span>&lt;span class='o'>)&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/AsIs.html'>I&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Trig.html'>sin&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>t&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>/&lt;/span> &lt;span class='m'>2&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='m'>0.5&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> colour &lt;span class='o'>=&lt;/span> &lt;span class='s'>"blue"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/annotate.html'>annotate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>"text"&lt;/span>, &lt;/span>
+&lt;span> label &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Text in the middle"&lt;/span>,&lt;/span>
+&lt;span> x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/AsIs.html'>I&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.5&lt;/span>&lt;span class='o'>)&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/AsIs.html'>I&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0.5&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> size &lt;span class='o'>=&lt;/span> &lt;span class='m'>8&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/asis_annotation-1.png" alt="Scatterplot of engine displacement versus highway miles per gallon. The plot has a red rectangle slightly smaller than the panel, a blue circle touching the panel edges and text in the middle that reads: 'text in the middle'." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Please take note that discrete variables as &amp;lsquo;AsIs&amp;rsquo; position aesthetic have no interpretation and will likely result in errors.&lt;/p>
+&lt;h2 id="other-improvements">Other improvements
+&lt;a href="#other-improvements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Coordinating text sizes between the theme and
+&lt;a href="https://ggplot2.tidyverse.org/reference/geom_text.html" target="_blank" rel="noopener">&lt;code>geom_text()&lt;/code>&lt;/a>/
+&lt;a href="https://ggplot2.tidyverse.org/reference/geom_text.html" target="_blank" rel="noopener">&lt;code>geom_label()&lt;/code>&lt;/a> has been a hassle, since the theme uses text sizes in points (pt) and geoms use text size in millimetres. Now, one can control what the &lt;code>size&lt;/code> aesthetic means for text, by setting the &lt;code>size.unit&lt;/code> argument.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>wt&lt;/span>, &lt;span class='nv'>mpg&lt;/span>, label &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/colnames.html'>rownames&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>geom_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>size &lt;span class='o'>=&lt;/span> &lt;span class='m'>10&lt;/span>, size.unit &lt;span class='o'>=&lt;/span> &lt;span class='s'>"pt"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/theme.html'>theme&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>axis.text &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>element_text&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>size &lt;span class='o'>=&lt;/span> &lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/size_unit_arg-1.png" alt="A plot showing weight versus miles per gallon with individual cars labelled by text. The text in the plot has the same size as the text labelling the axes." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Two improvements have been made to
+&lt;a href="https://ggplot2.tidyverse.org/reference/geom_text.html" target="_blank" rel="noopener">&lt;code>geom_label()&lt;/code>&lt;/a>. The first is that it now obeys an &lt;code>angle&lt;/code> aesthetic.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>geom_label&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>angle &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/Uniform.html'>runif&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/nrow.html'>nrow&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mtcars&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='o'>-&lt;/span>&lt;span class='m'>45&lt;/span>, &lt;span class='m'>45&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/label_angle-1.png" alt="A plot showing weight versus miles per gallon with individual cars labelled by textboxes. The textboxes are displayed in different angles." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>In addition,
+&lt;a href="https://ggplot2.tidyverse.org/reference/geom_text.html" target="_blank" rel="noopener">&lt;code>geom_label()&lt;/code>&lt;/a>&amp;lsquo;s &lt;code>label.padding&lt;/code> argument can be controlled individually for every side of the text by using the
+&lt;a href="https://ggplot2.tidyverse.org/reference/element.html" target="_blank" rel="noopener">&lt;code>margin()&lt;/code>&lt;/a> function. The legend keys for labels has also changed to reflect the geom more accurately.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>p&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_text.html'>geom_label&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>colour &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/factor.html'>factor&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>cyl&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;/span>
+&lt;span> label.padding &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/element.html'>margin&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>t &lt;span class='o'>=&lt;/span> &lt;span class='m'>2&lt;/span>, r &lt;span class='o'>=&lt;/span> &lt;span class='m'>20&lt;/span>, b &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>, l &lt;span class='o'>=&lt;/span> &lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/label_padding-1.png" alt="A plot showing weight versus miles per gallon with individual cars labelled by textboxes. The textboxes have a large margin on the right." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>Like
+&lt;a href="https://ggplot2.tidyverse.org/reference/geom_density.html" target="_blank" rel="noopener">&lt;code>geom_density()&lt;/code>&lt;/a> before it,
+&lt;a href="https://ggplot2.tidyverse.org/reference/geom_violin.html" target="_blank" rel="noopener">&lt;code>geom_violin()&lt;/code>&lt;/a> now gains a &lt;code>bounds&lt;/code> argument to restrict the range wherein density is estimated.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>df&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/data.frame.html'>data.frame&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/Beta.html'>rbeta&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>100&lt;/span>, &lt;span class='m'>0.5&lt;/span>, &lt;span class='m'>0.5&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/Beta.html'>rbeta&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>100&lt;/span>, &lt;span class='m'>1&lt;/span>, &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/Beta.html'>rbeta&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>100&lt;/span>, &lt;span class='m'>2&lt;/span>, &lt;span class='m'>2&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> group &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/rep.html'>rep&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"A"&lt;/span>, &lt;span class='s'>"B"&lt;/span>, &lt;span class='s'>"C"&lt;/span>&lt;span class='o'>)&lt;/span>, each &lt;span class='o'>=&lt;/span> &lt;span class='m'>100&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>df&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>group&lt;/span>, &lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_violin.html'>geom_violin&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>bounds &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0&lt;/span>, &lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/violin_bounds-1.png" alt="Violin plot showing random numbers drawn from beta distributions with different parameters. The ends of the first two violins are flat at the top and bottom." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>The
+&lt;a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" target="_blank" rel="noopener">&lt;code>geom_boxplot()&lt;/code>&lt;/a> has acquired an option to remove (rather than hide) outliers. Setting &lt;code>outliers = FALSE&lt;/code> removes outliers so that the plot limits do not take these into account. For hiding (and not removing) outliers, you can still set &lt;code>outlier.shape = NA&lt;/code>. Also, it has gained a &lt;code>staplewidth&lt;/code> argument that can be used to draw staples: horizontal lines at the end of the boxplot whiskers. The default, &lt;code>staplewidth = 0&lt;/code>, will suppress the staples so your current box plots continue to look the same.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>diamonds&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>cut&lt;/span>, &lt;span class='nv'>price&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_boxplot.html'>geom_boxplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>outliers &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>, staplewidth &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.5&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/boxplot_outliers_staples-1.png" alt="Boxplot showing the price of diamonds per cut. The y-axis does not go much beyond the whiskers, and whiskers are decorated with a staple." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;p>The scales functions now do a better job at reporting &lt;em>which&lt;/em> scale has encountered an error.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_brewer.html'>scale_colour_brewer&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>breaks &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>5&lt;/span>, labels &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>4&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00; font-weight: bold;'>Error&lt;/span>&lt;span style='font-weight: bold;'> in `scale_colour_brewer()`:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>!&lt;/span> `breaks` and `labels` must have the same length.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>mpg&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>class&lt;/span>, &lt;span class='nv'>displ&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_boxplot.html'>geom_boxplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_continuous&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00; font-weight: bold;'>Error&lt;/span>&lt;span style='font-weight: bold;'> in `scale_x_continuous()`:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>!&lt;/span> Discrete values supplied to continuous scale.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> Example values: &lt;span style='color: #0000BB;'>"compact"&lt;/span>, &lt;span style='color: #0000BB;'>"compact"&lt;/span>, &lt;span style='color: #0000BB;'>"compact"&lt;/span>, &lt;span style='color: #0000BB;'>"compact"&lt;/span>, and &lt;span style='color: #0000BB;'>"compact"&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/ggplot.html'>ggplot&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>msleep&lt;/span>, &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/aes.html'>aes&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>bodywt&lt;/span> &lt;span class='o'>-&lt;/span> &lt;span class='m'>1&lt;/span>, &lt;span class='nv'>brainwt&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/geom_point.html'>geom_point&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>na.rm &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>+&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://ggplot2.tidyverse.org/reference/scale_continuous.html'>scale_x_log10&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Warning in transformation$transform(x): NaNs produced&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; Warning in scale_x_log10(): &lt;span style='color: #00BB00;'>log-10&lt;/span> transformation introduced infinite values.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;p>&lt;img src="figs/scale_messages-1.png" alt="Scatterplot showing body weight minus one versus brain weight of mammals. The x-axis is log-transformed." width="700px" style="display: block; margin: auto;" />&lt;/p>
+&lt;/div>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thank you to all people who have contributed issues, code and comments to this release:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/92amartins" target="_blank" rel="noopener">@92amartins&lt;/a>,
+&lt;a href="https://github.com/a-torgovitsky" target="_blank" rel="noopener">@a-torgovitsky&lt;/a>,
+&lt;a href="https://github.com/aarongraybill" target="_blank" rel="noopener">@aarongraybill&lt;/a>,
+&lt;a href="https://github.com/aavogt" target="_blank" rel="noopener">@aavogt&lt;/a>,
+&lt;a href="https://github.com/agila5" target="_blank" rel="noopener">@agila5&lt;/a>,
+&lt;a href="https://github.com/ahcyip" target="_blank" rel="noopener">@ahcyip&lt;/a>,
+&lt;a href="https://github.com/AlexanderCasper" target="_blank" rel="noopener">@AlexanderCasper&lt;/a>,
+&lt;a href="https://github.com/alexkrohn" target="_blank" rel="noopener">@alexkrohn&lt;/a>,
+&lt;a href="https://github.com/alofting" target="_blank" rel="noopener">@alofting&lt;/a>,
+&lt;a href="https://github.com/andrewgustar" target="_blank" rel="noopener">@andrewgustar&lt;/a>,
+&lt;a href="https://github.com/antagomir" target="_blank" rel="noopener">@antagomir&lt;/a>,
+&lt;a href="https://github.com/aphalo" target="_blank" rel="noopener">@aphalo&lt;/a>,
+&lt;a href="https://github.com/Ari04T" target="_blank" rel="noopener">@Ari04T&lt;/a>,
+&lt;a href="https://github.com/AroneyS" target="_blank" rel="noopener">@AroneyS&lt;/a>,
+&lt;a href="https://github.com/Asa12138" target="_blank" rel="noopener">@Asa12138&lt;/a>,
+&lt;a href="https://github.com/ashgreat" target="_blank" rel="noopener">@ashgreat&lt;/a>,
+&lt;a href="https://github.com/averissimo" target="_blank" rel="noopener">@averissimo&lt;/a>,
+&lt;a href="https://github.com/bakerwm" target="_blank" rel="noopener">@bakerwm&lt;/a>,
+&lt;a href="https://github.com/balling-dev" target="_blank" rel="noopener">@balling-dev&lt;/a>,
+&lt;a href="https://github.com/banbh" target="_blank" rel="noopener">@banbh&lt;/a>,
+&lt;a href="https://github.com/barracuda156" target="_blank" rel="noopener">@barracuda156&lt;/a>,
+&lt;a href="https://github.com/BartJanvanRossum" target="_blank" rel="noopener">@BartJanvanRossum&lt;/a>,
+&lt;a href="https://github.com/beansrowning" target="_blank" rel="noopener">@beansrowning&lt;/a>,
+&lt;a href="https://github.com/benimwolfspelz" target="_blank" rel="noopener">@benimwolfspelz&lt;/a>,
+&lt;a href="https://github.com/bfordAIMS" target="_blank" rel="noopener">@bfordAIMS&lt;/a>,
+&lt;a href="https://github.com/bguiastr" target="_blank" rel="noopener">@bguiastr&lt;/a>,
+&lt;a href="https://github.com/bnicenboim" target="_blank" rel="noopener">@bnicenboim&lt;/a>,
+&lt;a href="https://github.com/BrianDiggs" target="_blank" rel="noopener">@BrianDiggs&lt;/a>,
+&lt;a href="https://github.com/bsgerber" target="_blank" rel="noopener">@bsgerber&lt;/a>,
+&lt;a href="https://github.com/burrapreeti" target="_blank" rel="noopener">@burrapreeti&lt;/a>,
+&lt;a href="https://github.com/bwiernik" target="_blank" rel="noopener">@bwiernik&lt;/a>,
+&lt;a href="https://github.com/ccsarapas" target="_blank" rel="noopener">@ccsarapas&lt;/a>,
+&lt;a href="https://github.com/CGlemser" target="_blank" rel="noopener">@CGlemser&lt;/a>,
+&lt;a href="https://github.com/chiajungTung" target="_blank" rel="noopener">@chiajungTung&lt;/a>,
+&lt;a href="https://github.com/chipsin87" target="_blank" rel="noopener">@chipsin87&lt;/a>,
+&lt;a href="https://github.com/cjvanlissa" target="_blank" rel="noopener">@cjvanlissa&lt;/a>,
+&lt;a href="https://github.com/CorradoLanera" target="_blank" rel="noopener">@CorradoLanera&lt;/a>,
+&lt;a href="https://github.com/danielneilson" target="_blank" rel="noopener">@danielneilson&lt;/a>,
+&lt;a href="https://github.com/danli349" target="_blank" rel="noopener">@danli349&lt;/a>,
+&lt;a href="https://github.com/DasHammett" target="_blank" rel="noopener">@DasHammett&lt;/a>,
+&lt;a href="https://github.com/davidhodge931" target="_blank" rel="noopener">@davidhodge931&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dieghernan" target="_blank" rel="noopener">@dieghernan&lt;/a>,
+&lt;a href="https://github.com/Ductmonkey" target="_blank" rel="noopener">@Ductmonkey&lt;/a>,
+&lt;a href="https://github.com/edent" target="_blank" rel="noopener">@edent&lt;/a>,
+&lt;a href="https://github.com/Elham-adabi" target="_blank" rel="noopener">@Elham-adabi&lt;/a>,
+&lt;a href="https://github.com/ELICHOS" target="_blank" rel="noopener">@ELICHOS&lt;/a>,
+&lt;a href="https://github.com/eliocamp" target="_blank" rel="noopener">@eliocamp&lt;/a>,
+&lt;a href="https://github.com/ellisp" target="_blank" rel="noopener">@ellisp&lt;/a>,
+&lt;a href="https://github.com/emuise" target="_blank" rel="noopener">@emuise&lt;/a>,
+&lt;a href="https://github.com/erikdeluca" target="_blank" rel="noopener">@erikdeluca&lt;/a>,
+&lt;a href="https://github.com/f2il-kieranmace" target="_blank" rel="noopener">@f2il-kieranmace&lt;/a>,
+&lt;a href="https://github.com/FDylanT" target="_blank" rel="noopener">@FDylanT&lt;/a>,
+&lt;a href="https://github.com/fkohrt" target="_blank" rel="noopener">@fkohrt&lt;/a>,
+&lt;a href="https://github.com/francisbarton" target="_blank" rel="noopener">@francisbarton&lt;/a>,
+&lt;a href="https://github.com/fredcallaway" target="_blank" rel="noopener">@fredcallaway&lt;/a>,
+&lt;a href="https://github.com/frezza-metabolomics" target="_blank" rel="noopener">@frezza-metabolomics&lt;/a>,
+&lt;a href="https://github.com/GabrielHoffman" target="_blank" rel="noopener">@GabrielHoffman&lt;/a>,
+&lt;a href="https://github.com/gaospecial" target="_blank" rel="noopener">@gaospecial&lt;/a>,
+&lt;a href="https://github.com/garyzhubc" target="_blank" rel="noopener">@garyzhubc&lt;/a>,
+&lt;a href="https://github.com/gavinsimpson" target="_blank" rel="noopener">@gavinsimpson&lt;/a>,
+&lt;a href="https://github.com/Generalized" target="_blank" rel="noopener">@Generalized&lt;/a>,
+&lt;a href="https://github.com/ghost" target="_blank" rel="noopener">@ghost&lt;/a>,
+&lt;a href="https://github.com/giadasp" target="_blank" rel="noopener">@giadasp&lt;/a>,
+&lt;a href="https://github.com/GMSL1" target="_blank" rel="noopener">@GMSL1&lt;/a>,
+&lt;a href="https://github.com/grantmcdermott" target="_blank" rel="noopener">@grantmcdermott&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hlynurhallgrims" target="_blank" rel="noopener">@hlynurhallgrims&lt;/a>,
+&lt;a href="https://github.com/holgerbrandl" target="_blank" rel="noopener">@holgerbrandl&lt;/a>,
+&lt;a href="https://github.com/hpages" target="_blank" rel="noopener">@hpages&lt;/a>,
+&lt;a href="https://github.com/HRodenhizer" target="_blank" rel="noopener">@HRodenhizer&lt;/a>,
+&lt;a href="https://github.com/hub-shale" target="_blank" rel="noopener">@hub-shale&lt;/a>,
+&lt;a href="https://github.com/hughjonesd" target="_blank" rel="noopener">@hughjonesd&lt;/a>,
+&lt;a href="https://github.com/ibuiltthis" target="_blank" rel="noopener">@ibuiltthis&lt;/a>,
+&lt;a href="https://github.com/ingewortel" target="_blank" rel="noopener">@ingewortel&lt;/a>,
+&lt;a href="https://github.com/isaacvock" target="_blank" rel="noopener">@isaacvock&lt;/a>,
+&lt;a href="https://github.com/Istalan" target="_blank" rel="noopener">@Istalan&lt;/a>,
+&lt;a href="https://github.com/istvankleijn" target="_blank" rel="noopener">@istvankleijn&lt;/a>,
+&lt;a href="https://github.com/jacobkasper" target="_blank" rel="noopener">@jacobkasper&lt;/a>,
+&lt;a href="https://github.com/jammainen" target="_blank" rel="noopener">@jammainen&lt;/a>,
+&lt;a href="https://github.com/jan-glx" target="_blank" rel="noopener">@jan-glx&lt;/a>,
+&lt;a href="https://github.com/JaredAllen2" target="_blank" rel="noopener">@JaredAllen2&lt;/a>,
+&lt;a href="https://github.com/jashapiro" target="_blank" rel="noopener">@jashapiro&lt;/a>,
+&lt;a href="https://github.com/jimjam-slam" target="_blank" rel="noopener">@jimjam-slam&lt;/a>,
+&lt;a href="https://github.com/jmuhlenkamp" target="_blank" rel="noopener">@jmuhlenkamp&lt;/a>,
+&lt;a href="https://github.com/jonspring" target="_blank" rel="noopener">@jonspring&lt;/a>,
+&lt;a href="https://github.com/JorisChau" target="_blank" rel="noopener">@JorisChau&lt;/a>,
+&lt;a href="https://github.com/joshhwuu" target="_blank" rel="noopener">@joshhwuu&lt;/a>,
+&lt;a href="https://github.com/jpeasari" target="_blank" rel="noopener">@jpeasari&lt;/a>,
+&lt;a href="https://github.com/jromanowska" target="_blank" rel="noopener">@jromanowska&lt;/a>,
+&lt;a href="https://github.com/jsacerot" target="_blank" rel="noopener">@jsacerot&lt;/a>,
+&lt;a href="https://github.com/jtlandis" target="_blank" rel="noopener">@jtlandis&lt;/a>,
+&lt;a href="https://github.com/jtr13" target="_blank" rel="noopener">@jtr13&lt;/a>,
+&lt;a href="https://github.com/jttoivon" target="_blank" rel="noopener">@jttoivon&lt;/a>,
+&lt;a href="https://github.com/karchern" target="_blank" rel="noopener">@karchern&lt;/a>,
+&lt;a href="https://github.com/klin333" target="_blank" rel="noopener">@klin333&lt;/a>,
+&lt;a href="https://github.com/kmavrommatis" target="_blank" rel="noopener">@kmavrommatis&lt;/a>,
+&lt;a href="https://github.com/kramerrs" target="_blank" rel="noopener">@kramerrs&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/kylebutts" target="_blank" rel="noopener">@kylebutts&lt;/a>,
+&lt;a href="https://github.com/larmarange" target="_blank" rel="noopener">@larmarange&lt;/a>,
+&lt;a href="https://github.com/latot" target="_blank" rel="noopener">@latot&lt;/a>,
+&lt;a href="https://github.com/lhami" target="_blank" rel="noopener">@lhami&lt;/a>,
+&lt;a href="https://github.com/liang09255" target="_blank" rel="noopener">@liang09255&lt;/a>,
+&lt;a href="https://github.com/linzi-sg" target="_blank" rel="noopener">@linzi-sg&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/lnarwhale" target="_blank" rel="noopener">@lnarwhale&lt;/a>,
+&lt;a href="https://github.com/manjumc1975" target="_blank" rel="noopener">@manjumc1975&lt;/a>,
+&lt;a href="https://github.com/mariadelmarq" target="_blank" rel="noopener">@mariadelmarq&lt;/a>,
+&lt;a href="https://github.com/matanhakim" target="_blank" rel="noopener">@matanhakim&lt;/a>,
+&lt;a href="https://github.com/math-mcshane" target="_blank" rel="noopener">@math-mcshane&lt;/a>,
+&lt;a href="https://github.com/mattgalbraith" target="_blank" rel="noopener">@mattgalbraith&lt;/a>,
+&lt;a href="https://github.com/matthewjnield" target="_blank" rel="noopener">@matthewjnield&lt;/a>,
+&lt;a href="https://github.com/mcwayrm" target="_blank" rel="noopener">@mcwayrm&lt;/a>,
+&lt;a href="https://github.com/melissagwolf" target="_blank" rel="noopener">@melissagwolf&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/MikkoVihtakari" target="_blank" rel="noopener">@MikkoVihtakari&lt;/a>,
+&lt;a href="https://github.com/MjelleLab" target="_blank" rel="noopener">@MjelleLab&lt;/a>,
+&lt;a href="https://github.com/mjskay" target="_blank" rel="noopener">@mjskay&lt;/a>,
+&lt;a href="https://github.com/mkoohafkan" target="_blank" rel="noopener">@mkoohafkan&lt;/a>,
+&lt;a href="https://github.com/mmokrejs" target="_blank" rel="noopener">@mmokrejs&lt;/a>,
+&lt;a href="https://github.com/modmost" target="_blank" rel="noopener">@modmost&lt;/a>,
+&lt;a href="https://github.com/moodymudskipper" target="_blank" rel="noopener">@moodymudskipper&lt;/a>,
+&lt;a href="https://github.com/morrisseyj" target="_blank" rel="noopener">@morrisseyj&lt;/a>,
+&lt;a href="https://github.com/mps9506" target="_blank" rel="noopener">@mps9506&lt;/a>,
+&lt;a href="https://github.com/Nh-code" target="_blank" rel="noopener">@Nh-code&lt;/a>,
+&lt;a href="https://github.com/njtierney" target="_blank" rel="noopener">@njtierney&lt;/a>,
+&lt;a href="https://github.com/oliviercailloux" target="_blank" rel="noopener">@oliviercailloux&lt;/a>,
+&lt;a href="https://github.com/olivroy" target="_blank" rel="noopener">@olivroy&lt;/a>,
+&lt;a href="https://github.com/otaviolovison" target="_blank" rel="noopener">@otaviolovison&lt;/a>,
+&lt;a href="https://github.com/pablobernabeu" target="_blank" rel="noopener">@pablobernabeu&lt;/a>,
+&lt;a href="https://github.com/paulatn240" target="_blank" rel="noopener">@paulatn240&lt;/a>,
+&lt;a href="https://github.com/phauchamps" target="_blank" rel="noopener">@phauchamps&lt;/a>,
+&lt;a href="https://github.com/quantixed" target="_blank" rel="noopener">@quantixed&lt;/a>,
+&lt;a href="https://github.com/ralmond" target="_blank" rel="noopener">@ralmond&lt;/a>,
+&lt;a href="https://github.com/ramiromagno" target="_blank" rel="noopener">@ramiromagno&lt;/a>,
+&lt;a href="https://github.com/reallzg" target="_blank" rel="noopener">@reallzg&lt;/a>,
+&lt;a href="https://github.com/retodomax" target="_blank" rel="noopener">@retodomax&lt;/a>,
+&lt;a href="https://github.com/robbiebatley" target="_blank" rel="noopener">@robbiebatley&lt;/a>,
+&lt;a href="https://github.com/Rong-Zh" target="_blank" rel="noopener">@Rong-Zh&lt;/a>,
+&lt;a href="https://github.com/rossellhayes" target="_blank" rel="noopener">@rossellhayes&lt;/a>,
+&lt;a href="https://github.com/RoyalTS" target="_blank" rel="noopener">@RoyalTS&lt;/a>,
+&lt;a href="https://github.com/rvalieris" target="_blank" rel="noopener">@rvalieris&lt;/a>,
+&lt;a href="https://github.com/s-andrews" target="_blank" rel="noopener">@s-andrews&lt;/a>,
+&lt;a href="https://github.com/s-elsheikh" target="_blank" rel="noopener">@s-elsheikh&lt;/a>,
+&lt;a href="https://github.com/schloerke" target="_blank" rel="noopener">@schloerke&lt;/a>,
+&lt;a href="https://github.com/Sckende" target="_blank" rel="noopener">@Sckende&lt;/a>,
+&lt;a href="https://github.com/sdmason" target="_blank" rel="noopener">@sdmason&lt;/a>,
+&lt;a href="https://github.com/sirallen" target="_blank" rel="noopener">@sirallen&lt;/a>,
+&lt;a href="https://github.com/slowkow" target="_blank" rel="noopener">@slowkow&lt;/a>,
+&lt;a href="https://github.com/spaette" target="_blank" rel="noopener">@spaette&lt;/a>,
+&lt;a href="https://github.com/steveharoz" target="_blank" rel="noopener">@steveharoz&lt;/a>,
+&lt;a href="https://github.com/sunroofgod" target="_blank" rel="noopener">@sunroofgod&lt;/a>,
+&lt;a href="https://github.com/szimmer" target="_blank" rel="noopener">@szimmer&lt;/a>,
+&lt;a href="https://github.com/tbates" target="_blank" rel="noopener">@tbates&lt;/a>,
+&lt;a href="https://github.com/teunbrand" target="_blank" rel="noopener">@teunbrand&lt;/a>,
+&lt;a href="https://github.com/tfjaeger" target="_blank" rel="noopener">@tfjaeger&lt;/a>,
+&lt;a href="https://github.com/thomasp85" target="_blank" rel="noopener">@thomasp85&lt;/a>,
+&lt;a href="https://github.com/TimBMK" target="_blank" rel="noopener">@TimBMK&lt;/a>,
+&lt;a href="https://github.com/TimTaylor" target="_blank" rel="noopener">@TimTaylor&lt;/a>,
+&lt;a href="https://github.com/tjebo" target="_blank" rel="noopener">@tjebo&lt;/a>,
+&lt;a href="https://github.com/trekonom" target="_blank" rel="noopener">@trekonom&lt;/a>,
+&lt;a href="https://github.com/tungttnguyen" target="_blank" rel="noopener">@tungttnguyen&lt;/a>,
+&lt;a href="https://github.com/twest820" target="_blank" rel="noopener">@twest820&lt;/a>,
+&lt;a href="https://github.com/UliSchopp" target="_blank" rel="noopener">@UliSchopp&lt;/a>,
+&lt;a href="https://github.com/vnijs" target="_blank" rel="noopener">@vnijs&lt;/a>,
+&lt;a href="https://github.com/warnes" target="_blank" rel="noopener">@warnes&lt;/a>,
+&lt;a href="https://github.com/wbvguo" target="_blank" rel="noopener">@wbvguo&lt;/a>,
+&lt;a href="https://github.com/willgearty" target="_blank" rel="noopener">@willgearty&lt;/a>,
+&lt;a href="https://github.com/Yann-C-INN" target="_blank" rel="noopener">@Yann-C-INN&lt;/a>,
+&lt;a href="https://github.com/yannk-lm" target="_blank" rel="noopener">@yannk-lm&lt;/a>,
+&lt;a href="https://github.com/Yunuuuu" target="_blank" rel="noopener">@Yunuuuu&lt;/a>,
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>,
+&lt;a href="https://github.com/yuw444" target="_blank" rel="noopener">@yuw444&lt;/a>,
+&lt;a href="https://github.com/zekiakyol" target="_blank" rel="noopener">@zekiakyol&lt;/a>, and
+&lt;a href="https://github.com/zhenglukai" target="_blank" rel="noopener">@zhenglukai&lt;/a>.&lt;/p></description></item></channel></rss>

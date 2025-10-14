@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>processx | Tidyverse</title><link>https://www.tidyverse.org/tags/processx/</link><atom:link href="https://www.tidyverse.org/tags/processx/index.xml" rel="self" type="application/rss+xml"/><description>processx</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 06 Sep 2018 00:00:00 +0000</lastBuildDate><item><title>processx 3.2.0</title><link>https://www.tidyverse.org/blog/2018/09/processx-3.2.0/</link><pubDate>Thu, 06 Sep 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/09/processx-3.2.0/</guid><description>
+&lt;h2 id="introduction">Introduction
+&lt;a href="#introduction">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;re delighted to announce that
+&lt;a href="https://cran.r-project.org/package=processx" target="_blank" rel="noopener">processx&lt;/a> in now on CRAN.
+processx makes it easy to run external processes from R. It&amp;rsquo;s an extended
+version of &lt;code>system()&lt;/code> and &lt;code>system2()&lt;/code>, that gives you greater control,
+and more visibility into the running process.&lt;/p>
+&lt;p>It&amp;rsquo;s hard to make processx examples work across platforms because system
+utilities vary from OS to OS. To work around this problem, processx bundles
+a small program, &lt;code>px&lt;/code>, which can perform some basic tasks, like printing
+to the standard output and error, and waiting for a given amount of time.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">px&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">processx&lt;/span>&lt;span class="o">:::&lt;/span>&lt;span class="nf">get_tool&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;px&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">px&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;/Users/gaborcsardi/r_pkgs/processx/bin//px&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>processx deals with two kinds of external processes: foreground and
+background. Foreground processes are synchronous, R waits until they
+finish, and collects the output and the exit code of the process.
+Background processes are asynchronous, processx does not wait for them
+to finish, they run concurrently and can communicate with the R process.&lt;/p>
+&lt;h2 id="foreground-processes">Foreground processes
+&lt;a href="#foreground-processes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>&lt;code>processx::run()&lt;/code> runs a foreground external process. It is somewhat
+similar to the &lt;code>system2()&lt;/code> base R function. Its basic usage is:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">processx&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">run&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">command&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">args&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>command&lt;/code> is a string (length 1 character vector), and &lt;code>args&lt;/code> should be a
+character vector of arguments. &lt;code>command&lt;/code> can be an absolute file name, a
+relative file name, or a command name. For the latter, the current &lt;code>PATH&lt;/code>
+is used to find the command. For example these both work on Unix systems:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">run&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/bin/ls&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">run&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;ls&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Here is the output of &lt;code>px --help&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">pxhelp&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">run&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">px&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;--help&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">cat&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">pxhelp&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">stderr&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Usage: px [command arg] [command arg] ...&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; Commands:&lt;/span>
+&lt;span class="c1">#&amp;gt; sleep &amp;lt;seconds&amp;gt; -- sleep for a number os seconds&lt;/span>
+&lt;span class="c1">#&amp;gt; out &amp;lt;string&amp;gt; -- print string to stdout&lt;/span>
+&lt;span class="c1">#&amp;gt; err &amp;lt;string&amp;gt; -- print string to stderr&lt;/span>
+&lt;span class="c1">#&amp;gt; outln &amp;lt;string&amp;gt; -- print string to stdout, add newline&lt;/span>
+&lt;span class="c1">#&amp;gt; errln &amp;lt;string&amp;gt; -- print string to stderr, add newline&lt;/span>
+&lt;span class="c1">#&amp;gt; cat &amp;lt;filename&amp;gt; -- print file to stdout&lt;/span>
+&lt;span class="c1">#&amp;gt; return &amp;lt;exitcode&amp;gt; -- return with exitcode&lt;/span>
+&lt;span class="c1">#&amp;gt; write &amp;lt;fd&amp;gt; &amp;lt;string&amp;gt; -- write to file descriptor&lt;/span>
+&lt;span class="c1">#&amp;gt; echo &amp;lt;fd1&amp;gt; &amp;lt;fd2&amp;gt; &amp;lt;nbytes&amp;gt; -- echo from fd to another fd&lt;/span>
+&lt;span class="c1">#&amp;gt; getenv &amp;lt;var&amp;gt; -- environment variable to stdout&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="quoting">Quoting
+&lt;a href="#quoting">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>processx does not use a shell to start up the external process, so special
+characters in &lt;code>command&lt;/code> and &lt;code>args&lt;/code> need &lt;em>not&lt;/em> be shell quoted. This makes it
+much easier to support arbitrary file names (that may contain spaces or
+special characters) in calls to external programs.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">run&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">px&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;outln&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;arg - with spaces&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;outln&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;&amp;#39;arg with quote&amp;#39;&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; $status&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 0&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; $stdout&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;arg - with spaces\n&amp;#39;arg with quote&amp;#39;\n&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; $stderr&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; $timeout&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] FALSE&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="interruption">Interruption
+&lt;a href="#interruption">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Unlike &lt;code>system()&lt;/code> and &lt;code>system2()&lt;/code>, &lt;code>processx::run()&lt;/code> is always
+interruptible, you can use the usual interruption key, e.g. ESC in RStudio,
+or CTRL+C in a terminal. On interruption, the external process is
+terminated.&lt;/p>
+&lt;h3 id="spinner">Spinner
+&lt;a href="#spinner">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>&lt;code>run()&lt;/code> can show a friendly spinner while the external process is running.
+If the process takes longer then a few second, it is a good idea to use it.
+The spinner is automatically hidden if R is non-interactive:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">run&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">px&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;sleep&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;5&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">spinner&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="time-limit">Time limit
+&lt;a href="#time-limit">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>You can specify a time limit in &lt;code>run()&lt;/code>, in seconds, or as a &lt;code>difftime&lt;/code>
+object:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">run&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">px&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;sleep&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;5&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">timeout&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Error in run(px, c(&amp;#34;sleep&amp;#34;, &amp;#34;5&amp;#34;), timeout = 1): System command timeout&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>run()&lt;/code> throws an error of class &lt;code>system_command_timeout_error&lt;/code>, so you
+can easily catch timeouts using &lt;code>tryCatch()&lt;/code>, if you wish so. By default
+&lt;code>run()&lt;/code> also throws an error if the system command fails, as indicated by
+its exit status.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">run&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">px&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;return&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;10&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; Error in run(px, c(&amp;#34;return&amp;#34;, &amp;#34;10&amp;#34;)): System command error&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>error_on_status&lt;/code> argument can be set to &lt;code>FALSE&lt;/code> to avoid errors
+for non-zero exit statuses. This can be useful if you anticipate a failure
+and want to handle it without throwing an R error, or if a non-zero exit
+status does not indicate an error for the given program.&lt;/p>
+&lt;h3 id="standard-output-and-error">Standard output and error
+&lt;a href="#standard-output-and-error">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>By default, &lt;code>run()&lt;/code> collects all standard output and error of the process
+and retuns them in two strings. If desired, it can also echo them to
+the screen while the external process is running. (They are still collected
+and returned, so you can still compute on them.)&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">outp&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">run&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;ls&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;..&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">echo&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; _redirects&lt;/span>
+&lt;span class="c1">#&amp;gt; articles&lt;/span>
+&lt;span class="c1">#&amp;gt; contribute.md&lt;/span>
+&lt;span class="c1">#&amp;gt; help-is-on-the-way.jpg&lt;/span>
+&lt;span class="c1">#&amp;gt; help.md&lt;/span>
+&lt;span class="c1">#&amp;gt; learn.md&lt;/span>
+&lt;span class="c1">#&amp;gt; lifecycle.md&lt;/span>
+&lt;span class="c1">#&amp;gt; packages.md&lt;/span>
+&lt;span class="c1">#&amp;gt; reprex-addin.png&lt;/span>
+&lt;span class="c1">#&amp;gt; reprex-addins-menu.png&lt;/span>
+&lt;span class="c1">#&amp;gt; rstudio-logo.svg&lt;/span>
+&lt;span class="c1">#&amp;gt; test-ggplot2-1.png&lt;/span>
+&lt;span class="c1">#&amp;gt; test.md&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="setting-environment-variables">Setting environment variables
+&lt;a href="#setting-environment-variables">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>You can set environment variables for the external process via the &lt;code>env&lt;/code>
+argument. Usually you want to add these variables to those already set in
+the current process, otherwise the external process might fail if some
+essential environment variables (like &lt;code>PATH&lt;/code>) are not set:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">run&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">px&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;getenv&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;FOO&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">env&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">Sys.getenv&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="n">FOO&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;bar&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; $status&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 0&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; $stdout&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;bar\n&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; $stderr&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; $timeout&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] FALSE&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="advanced-usage-background-processes">Advanced usage: background processes
+&lt;a href="#advanced-usage-background-processes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>processx really shines when it comes to controlling background processes.
+To start a backgound process, you create an R6 object of class &lt;code>process&lt;/code>.
+The arguments of &lt;code>process$new()&lt;/code> mostly correspond to the arguments of
+&lt;code>run()&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">proc&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">process&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">new&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">px&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;sleep&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;10&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="n">proc&lt;/span>
+&lt;span class="c1">#&amp;gt; PROCESS &amp;#39;px&amp;#39;, running, pid 61100.&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>process&lt;/code> objects have methods to query process information and to
+manipulate the subprocess. See &lt;code>?process&lt;/code> for a complete list of methods.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">get_name&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;px&amp;#34;&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">get_cmdline&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;/Users/gaborcsardi/r_pkgs/processx/bin//px&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; [2] &amp;#34;sleep&amp;#34; &lt;/span>
+&lt;span class="c1">#&amp;gt; [3] &amp;#34;10&amp;#34;&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">get_exe&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;/Users/gaborcsardi/r_pkgs/processx/bin/px&amp;#34;&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">is_alive&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] TRUE&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">suspend&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; NULL&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">get_status&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;stopped&amp;#34;&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">resume&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; NULL&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">get_status&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;running&amp;#34;&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">kill&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] TRUE&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">is_alive&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] FALSE&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">get_exit_status&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] -9&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="output-and-polling">Output and polling
+&lt;a href="#output-and-polling">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The standard output and standard error of a background process are ignored
+by default. To write them to files, set the &lt;code>stdout&lt;/code> and/or &lt;code>stderr&lt;/code>
+arguments to the paths of the files. Alternatively, processx can create
+connections for standard output and error, and R can read from these
+connections or poll them. Polling a set of connections or processes means
+that R waits until data is available on any of the connections, or a
+timeout expires. This is useful if the R process is waiting on one or more
+processes.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">proc&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">process&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">new&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">px&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;sleep&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;1&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;outln&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;foo&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;sleep&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;1&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="s">&amp;#34;errln&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;bar&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;sleep&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;1&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">stdout&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;|&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;stderr&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;|&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">poll_io&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">-1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; output error process &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;#34;ready&amp;#34; &amp;#34;silent&amp;#34; &amp;#34;nopipe&amp;#34;&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">read_output_lines&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;foo&amp;#34;&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">poll_io&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">-1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; output error process &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;#34;silent&amp;#34; &amp;#34;ready&amp;#34; &amp;#34;nopipe&amp;#34;&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">read_error_lines&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;bar&amp;#34;&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">poll_io&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">-1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; output error process &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;#34;silent&amp;#34; &amp;#34;ready&amp;#34; &amp;#34;nopipe&amp;#34;&lt;/span>
+&lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">is_alive&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] FALSE&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>$poll_io()&lt;/code> also returns when the process terminates.&lt;/p>
+&lt;p>To poll multiple processes, the non-member &lt;code>poll()&lt;/code> function can be used,
+this takes a list of processes:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">proc1&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">process&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">new&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">px&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;sleep&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;0.5&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;outln&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;foo1&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;sleep&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;1&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">stdout&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;|&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;stderr&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;|&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">proc2&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">process&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">new&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">px&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;sleep&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;1&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;outln&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;foo2&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;sleep&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;1&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">stdout&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;|&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;stderr&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;|&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">poll&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">proc1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">proc2&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="m">-1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [[1]]&lt;/span>
+&lt;span class="c1">#&amp;gt; output error process &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;#34;ready&amp;#34; &amp;#34;silent&amp;#34; &amp;#34;nopipe&amp;#34; &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[2]]&lt;/span>
+&lt;span class="c1">#&amp;gt; output error process &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;#34;silent&amp;#34; &amp;#34;silent&amp;#34; &amp;#34;nopipe&amp;#34;&lt;/span>
+&lt;span class="n">proc1&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">read_output_lines&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;foo1&amp;#34;&lt;/span>
+&lt;span class="nf">poll&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">proc1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">proc2&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="m">-1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [[1]]&lt;/span>
+&lt;span class="c1">#&amp;gt; output error process &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;#34;silent&amp;#34; &amp;#34;silent&amp;#34; &amp;#34;nopipe&amp;#34; &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[2]]&lt;/span>
+&lt;span class="c1">#&amp;gt; output error process &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;#34;ready&amp;#34; &amp;#34;silent&amp;#34; &amp;#34;nopipe&amp;#34;&lt;/span>
+&lt;span class="n">proc2&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">read_output_lines&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;foo2&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="process-tree-cleanup">Process tree cleanup
+&lt;a href="#process-tree-cleanup">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>In addition to terminating the subprocess, processx supports terminating
+all child processes that were started by the subprocess, and the child
+processes of those, etc.&lt;/p>
+&lt;p>To request process tree cleanup, set the &lt;code>cleanup_tree&lt;/code> argument of &lt;code>run()&lt;/code>
+or the &lt;code>cleanup&lt;/code> argument of &lt;code>process$new()&lt;/code> to &lt;code>TRUE&lt;/code>. (It is the
+default for &lt;code>process$new()&lt;/code>.) To clean up manually, use the &lt;code>$kill_tree()&lt;/code>
+method.&lt;/p>
+&lt;h3 id="use-case-wait-for-an-external-process-to-be-ready">Use case: wait for an external process to be ready
+&lt;a href="#use-case-wait-for-an-external-process-to-be-ready">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>When starting up an external process, sometimes you need to wait until
+the process is ready to receive input. E.g. PhantomJS is a headless
+browser, used for testing web applications. The headless browser is
+queried and controlled via an HTTP socket. PhantomJS has some startup time,
+and to make sure that it is ready for input, you need need to wait until
+it logs an INFO line to its standard output:&lt;/p>
+&lt;pre>&lt;code>❯ phantomjs -w
+[INFO - 2018-08-21T19:57:53.957Z] GhostDriver - Main - running on port 8910
+^C
+&lt;/code>&lt;/pre>&lt;p>So processx must capture the standard output and wait until the message
+is printed. If the message is not printed within a timeout we throw an
+error. On success the function returns the PhantomJS &lt;code>process&lt;/code> object:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">start_program&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">command&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">args&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">message&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">timeout&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">...&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">timeout&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">as.difftime&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">timeout&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">units&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;secs&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">deadline&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">Sys.time&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">timeout&lt;/span>
+&lt;span class="n">px&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">process&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">new&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">command&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">args&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">stdout&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;|&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">...&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">while &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">px&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">is_alive&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">now&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">Sys.time&lt;/span>&lt;span class="p">())&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">deadline&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">poll_time&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">as.double&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">deadline&lt;/span> &lt;span class="o">-&lt;/span> &lt;span class="n">now&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">units&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;secs&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="m">1000&lt;/span>
+&lt;span class="n">px&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">poll_io&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">as.integer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">poll_time&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="n">lines&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">px&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">read_output_lines&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="nf">if &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">any&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">grepl&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">message&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">lines&lt;/span>&lt;span class="p">)))&lt;/span> &lt;span class="nf">return&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">px&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="n">px&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">kill&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="nf">stop&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Cannot start &amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">command&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Use &lt;code>start_program&lt;/code> like this:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">start_program&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;phantomjs&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;-w&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;running on port&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Some comments about &lt;code>start_program()&lt;/code>:&lt;/p>
+&lt;ul>
+&lt;li>It waits for &lt;code>message&lt;/code> to show up in the standard output of the process.&lt;/li>
+&lt;li>If this does not happen within 5 seconds, it throws an error.&lt;/li>
+&lt;li>On success, it returns the process object.&lt;/li>
+&lt;li>The returned process object still has a connection to the standard output
+of the process. This needs to be read out regularly, otherwise its buffer
+fills up, and the subprocess stops, until the buffer it freed.
+Alternatively, one can close it with &lt;code>close(px$get_output_connection())&lt;/code>.&lt;/li>
+&lt;li>If an error happens, the subprocess is terminated when the process object,
+referred to by &lt;code>px&lt;/code> within the function, is garbage collected.&lt;/li>
+&lt;/ul>
+&lt;h2 id="related-tools">Related tools
+&lt;a href="#related-tools">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="the-ps-package">The ps package
+&lt;a href="#the-ps-package">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The
+&lt;a href="https://ps.r-lib.org" target="_blank" rel="noopener">ps&lt;/a> package deals with system processes in
+general. processx and ps methods overlap, in fact processx uses ps to
+implement some of its methods. It is also possible to create a &lt;code>ps_handle&lt;/code>
+object from a processx object, with the &lt;code>$as_ps_handle()&lt;/code> method.
+This can then be used with the ps functions directly:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">proc&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">process&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">new&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">px&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;sleep&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;3&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="n">ps&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">proc&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">as_ps_handle&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="n">ps&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">ps_memory_info&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ps&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; rss vms pfaults pageins &lt;/span>
+&lt;span class="c1">#&amp;gt; 663552 2491170816 323 0&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The ps package includes a testthat reporter that can be used to check
+that testthat test cases clean up all their child processes and close
+their connections and open files. See &lt;code>?ps::CleanupReporter&lt;/code> for details.&lt;/p>
+&lt;p>Here is a simple example on how to use it. In the &lt;code>testthat.R&lt;/code> file of your
+package, update the &lt;code>test_check()&lt;/code> call to use &lt;code>CleanupReporter&lt;/code>. Since
+ps is not supported on all platforms (only Windows, macOS and Linux
+currently), we also need to check for ps support:&lt;/p>
+&lt;pre>&lt;code>if (ps::ps_is_supported()) {
+reporter &amp;lt;- ps::CleanupReporter(testthat::SummaryReporter)$new()
+} else {
+## ps does not support this platform
+reporter &amp;lt;- &amp;quot;progress&amp;quot;
+}
+test_check(&amp;quot;&amp;lt;package-name&amp;gt;&amp;quot;, reporter = reporter)
+&lt;/code>&lt;/pre>&lt;p>&lt;code>CleanupReporter&lt;/code> will check for leftover child processes, R connections
+and open files at the end of each &lt;code>test_that()&lt;/code> block. If a check fails,
+it generates a regular testthat test failure.&lt;/p>
+&lt;h3 id="the-callr-package">The callr package
+&lt;a href="#the-callr-package">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The callr package uses processx to start another R process, and run R
+code in it. It can start R processes synchonously or asynchronously,
+and the R processes can be either state-less or stateful. See &lt;code>?callr::r&lt;/code>,
+&lt;code>?callr::r_process&lt;/code> and &lt;code>?callr::r_session&lt;/code> for details.&lt;/p>
+&lt;h2 id="links">Links:
+&lt;a href="#links">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>
+&lt;a href="https://github.com/r-lib/processx" target="_blank" rel="noopener">processx on GitHub&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://processx.r-lib.org" target="_blank" rel="noopener">processx documentation&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://cran.r-project.org/package=ps" target="_blank" rel="noopener">ps on CRAN&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://cran.r-project.org/package=callr" target="_blank" rel="noopener">callr on CRAN&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We’re grateful to the 8 people who contributed issues, code and comments
+since the last processx release:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/breichholf" target="_blank" rel="noopener">＠breichholf&lt;/a>,
+&lt;a href="https://github.com/dchiu911" target="_blank" rel="noopener">＠dchiu911&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">＠gaborcsardi&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">＠hadley&lt;/a>,
+&lt;a href="https://github.com/joelnitta" target="_blank" rel="noopener">＠joelnitta&lt;/a>,
+&lt;a href="https://github.com/matthijsvanderloos" target="_blank" rel="noopener">＠matthijsvanderloos&lt;/a>,
+&lt;a href="https://github.com/maxheld83" target="_blank" rel="noopener">＠maxheld83&lt;/a>, and
+&lt;a href="https://github.com/wlandau" target="_blank" rel="noopener">＠wlandau&lt;/a>&lt;/p></description></item></channel></rss>

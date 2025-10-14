@@ -1,0 +1,217 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>workflowsets 0.0.1</title><meta property="og:title" content="workflowsets 0.0.1"><meta property="og:description" content="A new package for evaluating many models at once is now on CRAN, along with  a corresponding update to the tidyposterior package."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2021/03/workflowsets-0-0-1/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="workflowsets 0.0.1 - Tidyverse"><meta property="description" content="A new package for evaluating many models at once is now on CRAN, along with  a corresponding update to the tidyposterior package."><meta property="og:description" content="A new package for evaluating many models at once is now on CRAN, along with  a corresponding update to the tidyposterior package."><meta property="og:image" content="https://www.tidyverse.org/blog/2021/03/workflowsets-0-0-1/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2021/03/workflowsets-0-0-1/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/%20/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>workflowsets 0.0.1</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2021/03/workflowsets-0-0-1/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/a-DiiL0leKk>Martin Longin</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2021/03/30</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/tidymodels/>tidymodels</a>,
+<a href=/tags/workflows/>workflows</a>,
+<a href=/tags/workflowsets/>workflowsets</a>,
+<a href=/tags/bayesian-analysis/>Bayesian analysis</a>,
+<a href=/tags/tidyposterior/>tidyposterior</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Max Kuhn</p><div class=article-content><p>We&rsquo;re well pleased to announce the first release of
+<a href=https://workflowsets.tidymodels.org target=_blank rel=noopener>workflowsets</a>. workflowsets creates a collection of model/preprocessor combinations at once. This enables users to quickly screen a wide variety of methodologies for their data sets.</p><p>You can install it from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>install.packages</span><span class=p>(</span><span class=s>&#34;workflowsets&#34;</span><span class=p>)</span>
+</code></pre></div><p>In this blog post, we&rsquo;ll demonstrate the utility of the package using a dimensionality reduction example. A new version of the tidyposterior package is paired with workflowsets so we&rsquo;ll show how they can work together.</p><p>The examples below will use a few of the tidymodels packages. If these are unfamiliar, take a look at
+<a href=https://www.tidymodels.org/ target=_blank rel=noopener><code>tidymodels.org</code></a> or the <em>Tidy Models with R</em>
+<a href=https://www.tmwr.org target=_blank rel=noopener>website</a>. The latest version of <em>Tidy Models with R</em> now contains an additional chapter about
+<a href=https://www.tmwr.org/workflow-sets.html target=_blank rel=noopener>workflow sets</a>.</p><h2 id=a-dimensionality-reduction-example>A Dimensionality Reduction Example
+<a href=#a-dimensionality-reduction-example><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>When a data set is very wide (i.e., many columns), a dimensionality reduction procedure may be able to represent the data with a smaller number of new, artificial variables. The most common method for dimensionality reduction is principal component analysis (PCA) but there are many others.
+<a href=https://bookdown.org/max/FES/numeric-many-to-many.html#linear-projection-methods target=_blank rel=noopener>Kuhn and Johnson (2018)</a> give an overview of several other techniques that will be used below.</p><p>There are at least two practical uses of dimensionality reduction:</p><ul><li><p>When assessing the quality of the data, it can be difficult to visualize high-dimensional data. Reducing the number of columns to a more manageable set helps the user explore and understand the data, and perhaps identify problematic data points.</p></li><li><p>Some models are less effective with a large number of predictors (relative to the number of data points). This is especially true when the predictors have a high degree of correlation with one another (e.g., multicolinearity).</p></li></ul><p>As an example, the
+<a href=https://modeldata.tidymodels.org/reference/meats.html target=_blank rel=noopener>Tecator data</a> set uses spectrography to predict the percentage of fat, protein, and water in meat samples. They measured 100 channels of the spectum for 215 samples. The <em>average</em> correlation between predictors is 98.6%. These data might greatly benefit from dimension reduction. We&rsquo;ll evaluate a few different approaches to find a smaller representation of the predictors when the <em>percentage of water</em> is being predicted.</p><p>We&rsquo;ll load the packages and data, then define a resampling scheme that is used to evaluate the models.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>tidymodels</span><span class=p>)</span>
+<span class=nf>library</span><span class=p>(</span><span class=n>workflowsets</span><span class=p>)</span>
+<span class=nf>library</span><span class=p>(</span><span class=n>tidyposterior</span><span class=p>)</span>
+
+<span class=nf>data</span><span class=p>(</span><span class=n>meats</span><span class=p>,</span> <span class=n>package</span><span class=o>=</span> <span class=s>&#34;modeldata&#34;</span><span class=p>)</span>
+
+<span class=c1># Keep only the water outcome</span>
+<span class=n>meats</span> <span class=o>&lt;-</span> <span class=nf>select</span><span class=p>(</span><span class=n>meats</span><span class=p>,</span> <span class=o>-</span><span class=n>fat</span><span class=p>,</span> <span class=o>-</span><span class=n>protein</span><span class=p>)</span>
+
+<span class=nf>set.seed</span><span class=p>(</span><span class=m>1</span><span class=p>)</span>
+<span class=n>meat_split</span> <span class=o>&lt;-</span> <span class=nf>initial_split</span><span class=p>(</span><span class=n>meats</span><span class=p>)</span>
+<span class=n>meat_train</span> <span class=o>&lt;-</span> <span class=nf>training</span><span class=p>(</span><span class=n>meat_split</span><span class=p>)</span>
+<span class=n>meat_test</span> <span class=o>&lt;-</span> <span class=nf>testing</span><span class=p>(</span><span class=n>meat_split</span><span class=p>)</span>
+
+<span class=nf>set.seed</span><span class=p>(</span><span class=m>2</span><span class=p>)</span>
+<span class=n>meat_folds</span> <span class=o>&lt;-</span> <span class=nf>vfold_cv</span><span class=p>(</span><span class=n>meat_train</span><span class=p>,</span> <span class=n>repeats</span> <span class=o>=</span> <span class=m>3</span><span class=p>)</span>
+</code></pre></div><p>Workflow sets take a set of <strong>preprocessors</strong> and <strong>models</strong> and combinatorially combine them into a series of workflow objects. The package has some nice convenience functions to tune and/or evaluate each workflow.</p><p>What is a &ldquo;preprocessor&rdquo;? That can be one of three things:</p><ol><li>A traditional R model formula.</li><li>A recipe.</li><li>A specification of column names (using
+<a href=https://workflows.tidymodels.org//reference/add_variables.html target=_blank rel=noopener><code>workflows::workflow_variables()</code></a>).</li></ol><p>As an example, we&rsquo;ll create a set of recipes for dimension reduction for preprocessing the data along with a simple formula.</p><p>The dimension reduction methods that we&rsquo;ll try are a few different flavors of PCA, partial least squares (PLS), independent component analysis (ICA), and multi-dimensional scaling (MDS). With the exception of PLS, these are unsupervised procedures since they do not take into account the outcome data.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>base_recipe</span> <span class=o>&lt;-</span> 
+  <span class=nf>recipe</span><span class=p>(</span><span class=n>water</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>meat_train</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>step_zv</span><span class=p>(</span><span class=nf>all_predictors</span><span class=p>())</span> <span class=o>%&gt;%</span> 
+  <span class=nf>step_YeoJohnson</span><span class=p>(</span><span class=nf>all_predictors</span><span class=p>())</span> <span class=o>%&gt;%</span> 
+  <span class=nf>step_normalize</span><span class=p>(</span><span class=nf>all_predictors</span><span class=p>())</span>
+
+<span class=n>pca_recipe</span> <span class=o>&lt;-</span> 
+  <span class=n>base_recipe</span> <span class=o>%&gt;%</span> 
+  <span class=nf>step_pca</span><span class=p>(</span><span class=nf>all_predictors</span><span class=p>(),</span> <span class=n>num_comp</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>())</span>
+
+<span class=n>pca_kernel_recipe</span> <span class=o>&lt;-</span> 
+  <span class=n>base_recipe</span> <span class=o>%&gt;%</span> 
+  <span class=nf>step_kpca_rbf</span><span class=p>(</span><span class=nf>all_predictors</span><span class=p>(),</span> <span class=n>num_comp</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>(),</span> <span class=n>sigma</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>())</span>
+
+<span class=n>pls_recipe</span> <span class=o>&lt;-</span> 
+  <span class=n>base_recipe</span> <span class=o>%&gt;%</span> 
+  <span class=nf>step_pls</span><span class=p>(</span><span class=nf>all_predictors</span><span class=p>(),</span> <span class=n>outcome</span> <span class=o>=</span> <span class=nf>vars</span><span class=p>(</span><span class=n>water</span><span class=p>),</span> <span class=n>num_comp</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>())</span>
+
+<span class=n>ica_recipe</span> <span class=o>&lt;-</span> 
+  <span class=n>base_recipe</span> <span class=o>%&gt;%</span> 
+  <span class=nf>step_ica</span><span class=p>(</span><span class=nf>all_predictors</span><span class=p>(),</span> <span class=n>num_comp</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>())</span>
+
+<span class=n>mds_recipe</span> <span class=o>&lt;-</span>
+  <span class=n>base_recipe</span> <span class=o>%&gt;%</span>
+  <span class=nf>step_isomap</span><span class=p>(</span>
+    <span class=nf>all_predictors</span><span class=p>(),</span>
+    <span class=n>num_terms</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>(),</span>
+    <span class=n>neighbors</span> <span class=o>=</span> <span class=nf>tune</span><span class=p>()</span>
+  <span class=p>)</span>
+</code></pre></div><p>Note that several methods have tuning parameters that need to be optimized. For our application, we&rsquo;ll feed the new features into a model and use the root mean squared error (RMSE) as the metric to determine good values of these parameters.</p><p>The input into a workflow set is a named list of preprocessors and parsnip model specifications. We&rsquo;ll could the
+<a href=https://parsnip.tidymodels.org/reference/parsnip_addin.html target=_blank rel=noopener>parsnip RStudio add-in</a> to write out the model code. Linear regression and multivariate adaptive regression spline (MARS) models will be combined with the different preprocessors.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>lm_spec</span> <span class=o>&lt;-</span> <span class=nf>linear_reg</span><span class=p>()</span> <span class=o>%&gt;%</span> <span class=nf>set_engine</span><span class=p>(</span><span class=s>&#34;lm&#34;</span><span class=p>)</span>
+<span class=n>mars_spec</span> <span class=o>&lt;-</span> <span class=nf>mars</span><span class=p>()</span> <span class=o>%&gt;%</span> <span class=nf>set_engine</span><span class=p>(</span><span class=s>&#34;earth&#34;</span><span class=p>)</span> <span class=o>%&gt;%</span> <span class=nf>set_mode</span><span class=p>(</span><span class=s>&#34;regression&#34;</span><span class=p>)</span>
+</code></pre></div><p>Finally, to make the workflow set, named lists are created and given as inputs into
+<a href=https://workflowsets.tidymodels.org/reference/workflow_set.html target=_blank rel=noopener><code>workflow_set()</code></a>. Note that we added the original data as-is using a &ldquo;plain&rdquo; R formula.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>preprocessors</span> <span class=o>&lt;-</span>
+  <span class=nf>list</span><span class=p>(</span>
+    <span class=n>plain</span> <span class=o>=</span> <span class=n>water</span> <span class=o>~</span> <span class=n>.,</span>
+    <span class=n>pca</span> <span class=o>=</span> <span class=n>pca_recipe</span><span class=p>,</span>
+    <span class=n>pca_rbf</span> <span class=o>=</span> <span class=n>pca_kernel_recipe</span><span class=p>,</span>
+    <span class=n>pls</span> <span class=o>=</span> <span class=n>pls_recipe</span><span class=p>,</span>
+    <span class=n>ica</span> <span class=o>=</span> <span class=n>ica_recipe</span><span class=p>,</span>
+    <span class=n>mds</span> <span class=o>=</span> <span class=n>mds_recipe</span>
+  <span class=p>)</span>
+
+<span class=n>models</span> <span class=o>&lt;-</span> <span class=nf>list</span><span class=p>(</span><span class=n>lm</span> <span class=o>=</span> <span class=n>lm_spec</span><span class=p>,</span> <span class=n>mars</span> <span class=o>=</span> <span class=n>mars_spec</span><span class=p>)</span>
+
+<span class=n>meat_wflow_set</span> <span class=o>&lt;-</span> <span class=nf>workflow_set</span><span class=p>(</span><span class=n>preprocessors</span><span class=p>,</span> <span class=n>models</span><span class=p>,</span> <span class=n>cross</span> <span class=o>=</span> <span class=kc>TRUE</span><span class=p>)</span>
+<span class=n>meat_wflow_set</span>
+</code></pre></div><pre><code>## # A workflow set/tibble: 12 x 4
+##    wflow_id     info                 option    result    
+##    &lt;chr&gt;        &lt;list&gt;               &lt;list&gt;    &lt;list&gt;    
+##  1 plain_lm     &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+##  2 plain_mars   &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+##  3 pca_lm       &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+##  4 pca_mars     &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+##  5 pca_rbf_lm   &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+##  6 pca_rbf_mars &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+##  7 pls_lm       &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+##  8 pls_mars     &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+##  9 ica_lm       &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+## 10 ica_mars     &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+## 11 mds_lm       &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+## 12 mds_mars     &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+</code></pre><p>The 12 rows are the different combinations of preprocessors and models. As will be shown below, we can evaluate them via resampling using the
+<a href=https://workflowsets.tidymodels.org/reference/workflow_map.html target=_blank rel=noopener><code>workflow_map()</code></a> function.</p><p>However, a few of these recipes have tuning parameters that are somewhat difficult to optimize. We might want to have specific tuning parameter ranges for the kernel PCA and MDS recipes. We can accomplish that in the usual way (via <code>parameters()</code> and <code>update()</code>) then update the workflow set with these options so that they are used later.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>mds_param</span> <span class=o>&lt;-</span> 
+  <span class=n>mds_recipe</span> <span class=o>%&gt;%</span> 
+  <span class=nf>parameters</span><span class=p>()</span> <span class=o>%&gt;%</span>
+  <span class=c1># Look at a larger neighbor size than the default range. </span>
+  <span class=nf>update</span><span class=p>(</span><span class=n>neighbors</span> <span class=o>=</span> <span class=nf>neighbors</span><span class=p>(</span><span class=nf>c</span><span class=p>(</span><span class=m>20</span><span class=p>,</span> <span class=m>70</span><span class=p>)))</span>
+
+<span class=n>rbf_param</span> <span class=o>&lt;-</span> 
+  <span class=n>pca_kernel_recipe</span> <span class=o>%&gt;%</span> 
+  <span class=nf>parameters</span><span class=p>()</span> <span class=o>%&gt;%</span>
+  <span class=c1># A smaller range than the default.</span>
+  <span class=nf>update</span><span class=p>(</span><span class=n>sigma</span> <span class=o>=</span> <span class=nf>rbf_sigma</span><span class=p>(</span><span class=nf>c</span><span class=p>(</span><span class=m>-5</span><span class=p>,</span> <span class=m>0</span><span class=p>)))</span>
+</code></pre></div><p>The
+<a href=https://workflowsets.tidymodels.org/reference/option_add.html target=_blank rel=noopener><code>option_add()</code></a> function can add these to the <code>option</code> column in the workflow set for the appropriate workflows:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>meat_wflow_set</span> <span class=o>&lt;-</span> 
+  <span class=n>meat_wflow_set</span> <span class=o>%&gt;%</span> 
+  <span class=nf>option_add</span><span class=p>(</span><span class=n>param_info</span> <span class=o>=</span> <span class=n>rbf_param</span><span class=p>,</span> <span class=n>id</span> <span class=o>=</span> <span class=s>&#34;pca_rbf_lm&#34;</span><span class=p>)</span>  <span class=o>%&gt;%</span> 
+  <span class=nf>option_add</span><span class=p>(</span><span class=n>param_info</span> <span class=o>=</span> <span class=n>rbf_param</span><span class=p>,</span> <span class=n>id</span> <span class=o>=</span> <span class=s>&#34;pca_rbf_mars&#34;</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>option_add</span><span class=p>(</span><span class=n>param_info</span> <span class=o>=</span> <span class=n>mds_param</span><span class=p>,</span> <span class=n>id</span> <span class=o>=</span> <span class=s>&#34;mds_lm&#34;</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>option_add</span><span class=p>(</span><span class=n>param_info</span> <span class=o>=</span> <span class=n>mds_param</span><span class=p>,</span> <span class=n>id</span> <span class=o>=</span> <span class=s>&#34;mds_mars&#34;</span><span class=p>)</span>
+<span class=n>meat_wflow_set</span>
+</code></pre></div><pre><code>## # A workflow set/tibble: 12 x 4
+##    wflow_id     info                 option    result    
+##    &lt;chr&gt;        &lt;list&gt;               &lt;list&gt;    &lt;list&gt;    
+##  1 plain_lm     &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+##  2 plain_mars   &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+##  3 pca_lm       &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+##  4 pca_mars     &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+##  5 pca_rbf_lm   &lt;tibble[,4] [1 × 4]&gt; &lt;opts[1]&gt; &lt;list [0]&gt;
+##  6 pca_rbf_mars &lt;tibble[,4] [1 × 4]&gt; &lt;opts[1]&gt; &lt;list [0]&gt;
+##  7 pls_lm       &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+##  8 pls_mars     &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+##  9 ica_lm       &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+## 10 ica_mars     &lt;tibble[,4] [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+## 11 mds_lm       &lt;tibble[,4] [1 × 4]&gt; &lt;opts[1]&gt; &lt;list [0]&gt;
+## 12 mds_mars     &lt;tibble[,4] [1 × 4]&gt; &lt;opts[1]&gt; &lt;list [0]&gt;
+</code></pre><p>Note that some of the entries in the <code>option</code> column have changed to <code>&lt;opts[1]></code>.</p><p>We can finally tune these models using <code>workflow_map()</code>. By default, it uses a basic grid search but any evaluation function from the <code>tune</code> and <code>finetune</code> packages can be used. We&rsquo;ll also pass more global options here for the resamples, grid points, and performance metric. The <code>seed</code> option resets the random number seed for each pass through the workflow set so that the results are reproducible.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>meat_wflow_set</span> <span class=o>&lt;-</span>
+  <span class=n>meat_wflow_set</span> <span class=o>%&gt;%</span>
+  <span class=nf>workflow_map</span><span class=p>(</span>
+    <span class=c1># Options to `tune_grid()`</span>
+    <span class=n>resamples</span> <span class=o>=</span> <span class=n>meat_folds</span><span class=p>,</span>
+    <span class=n>grid</span> <span class=o>=</span> <span class=m>20</span><span class=p>,</span>
+    <span class=n>metrics</span> <span class=o>=</span> <span class=nf>metric_set</span><span class=p>(</span><span class=n>rmse</span><span class=p>),</span>
+    <span class=c1># Options to `workflow_map()`</span>
+    <span class=n>seed</span> <span class=o>=</span> <span class=m>3</span><span class=p>,</span>
+    <span class=n>verbose</span> <span class=o>=</span> <span class=kc>TRUE</span>
+  <span class=p>)</span>
+<span class=n>meat_wflow_set</span>
+</code></pre></div><pre><code>i	No tuning parameters. `fit_resamples()` will be attempted
+i  1 of 12 resampling: plain_lm
+✓  1 of 12 resampling: plain_lm (2.3s)
+i	No tuning parameters. `fit_resamples()` will be attempted
+i  2 of 12 resampling: plain_mars
+✓  2 of 12 resampling: plain_mars (2.6s)
+i  3 of 12 tuning:     pca_lm
+✓  3 of 12 tuning:     pca_lm (8.1s)
+i  4 of 12 tuning:     pca_mars
+✓  4 of 12 tuning:     pca_mars (8.4s)
+i  5 of 12 tuning:     pca_rbf_lm
+✓  5 of 12 tuning:     pca_rbf_lm (36.9s)
+i  6 of 12 tuning:     pca_rbf_mars
+✓  6 of 12 tuning:     pca_rbf_mars (34.1s)
+i  7 of 12 tuning:     pls_lm
+✓  7 of 12 tuning:     pls_lm (8.6s)
+i  8 of 12 tuning:     pls_mars
+✓  8 of 12 tuning:     pls_mars (8.6s)
+i  9 of 12 tuning:     ica_lm
+✓  9 of 12 tuning:     ica_lm (8.4s)
+i 10 of 12 tuning:     ica_mars
+✓ 10 of 12 tuning:     ica_mars (8.4s)
+i 11 of 12 tuning:     mds_lm
+✓ 11 of 12 tuning:     mds_lm (39.3s)
+i 12 of 12 tuning:     mds_mars
+✓ 12 of 12 tuning:     mds_mars (40s)
+</code></pre><p>The <code>result</code> column contains the results of <code>tune_grid()</code> (or <code>fit_resamples()</code> for the &ldquo;plain&rdquo; models).</p><p>There are a few convenience functions for ranking the results. To get the rankings of the models (and their tuning parameter sub-models) as a data frame:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>rank_results</span><span class=p>(</span><span class=n>meat_wflow_set</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=c1># To fit on the page:</span>
+  <span class=nf>select</span><span class=p>(</span><span class=m>-.</span><span class=n>metric</span><span class=p>,</span> <span class=o>-</span><span class=n>std_err</span><span class=p>,</span> <span class=o>-</span><span class=n>n</span><span class=p>)</span> <span class=o>%&gt;%</span> 
+  <span class=nf>relocate</span><span class=p>(</span><span class=n>rank</span><span class=p>,</span> <span class=n>mean</span><span class=p>)</span>
+</code></pre></div><pre><code>## # A tibble: 102 x 6
+##     rank  mean wflow_id   .config              preprocessor model     
+##    &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;                &lt;chr&gt;        &lt;chr&gt;     
+##  1     1  2.48 plain_mars Preprocessor1_Model1 formula      mars      
+##  2     2  2.68 pls_mars   Preprocessor3_Model1 recipe       mars      
+##  3     3  3.00 plain_lm   Preprocessor1_Model1 formula      linear_reg
+##  4     4  3.07 ica_mars   Preprocessor3_Model1 recipe       mars      
+##  5     5  3.19 pca_mars   Preprocessor3_Model1 recipe       mars      
+##  6     6  3.31 pls_lm     Preprocessor3_Model1 recipe       linear_reg
+##  7     7  3.49 ica_lm     Preprocessor3_Model1 recipe       linear_reg
+##  8     8  3.49 pca_lm     Preprocessor3_Model1 recipe       linear_reg
+##  9     9  3.72 pls_mars   Preprocessor1_Model1 recipe       mars      
+## 10    10  3.89 pls_lm     Preprocessor1_Model1 recipe       linear_reg
+## # … with 92 more rows
+</code></pre><p>or as a plot:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>autoplot</span><span class=p>(</span><span class=n>meat_wflow_set</span><span class=p>)</span>
+</code></pre></div><p><img src=figure/plot-rank-1.svg title="plot of chunk plot-rank" alt="plot of chunk plot-rank" width=100%></p><p>This shows the results for all tuning parameter combinations for each model. To get the best results <em>per model</em>:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>autoplot</span><span class=p>(</span><span class=n>meat_wflow_set</span><span class=p>,</span> <span class=n>select_best</span> <span class=o>=</span> <span class=kc>TRUE</span><span class=p>)</span>
+</code></pre></div><p><img src=figure/plot-best-rank-1.svg title="plot of chunk plot-best-rank" alt="plot of chunk plot-best-rank" width=100%></p><p>It seems like the MARS model is doing slightly better than ordinary linear regression. The original predictors do well in terms of the mean RMSE. However, the correlation between predictors can cause instability in the results and this is reflected in the larger error bars for those models; reducing the dimensions may still be a good idea.</p><p>Once you decide on a model to keep, you can pull the workflow (or the tuning results) using
+<a href=https://workflowsets.tidymodels.org/reference/pull_workflow_set_result.html target=_blank rel=noopener><code>pull_workflow()</code></a> (or <code>pull_workflow_set_result()</code>). This can be
+<a href=https://www.tmwr.org/grid-search.html#finalizing-the-model target=_blank rel=noopener>finalized and fit on the training set as one normally would</a>.</p><h2 id=contrasting-models-using-bayesian-analysis>Contrasting Models Using Bayesian Analysis
+<a href=#contrasting-models-using-bayesian-analysis><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Is there really a difference between the <code>plain_mars</code> and <code>pls_mars</code> models? The
+<a href=https://www.tmwr.org/compare.html target=_blank rel=noopener>tidyposterior package can help answer this question</a>. We can fit a meta-model for the RMSE results for the best configuration within each model using the <code>perf_mod()</code> function:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>rmse_mod</span> <span class=o>&lt;-</span>
+  <span class=nf>perf_mod</span><span class=p>(</span>
+    <span class=n>meat_wflow_set</span><span class=p>,</span>
+    <span class=c1># Model different variability per workflow:</span>
+    <span class=n>hetero_var</span> <span class=o>=</span> <span class=kc>TRUE</span><span class=p>,</span>
+    <span class=c1># Options to `rstanarm::stan_glm()`</span>
+    <span class=n>seed</span> <span class=o>=</span> <span class=m>4</span><span class=p>,</span>
+    <span class=n>iter</span> <span class=o>=</span> <span class=m>5000</span><span class=p>,</span>
+    <span class=n>refresh</span> <span class=o>=</span> <span class=m>0</span>
+  <span class=p>)</span>
+</code></pre></div><p>The <code>autoplot()</code> method for these results displays a <strong>model-based</strong> version of the previous <code>autoplot()</code> results for the workflow set:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>autoplot</span><span class=p>(</span><span class=n>rmse_mod</span><span class=p>)</span>
+</code></pre></div><p><img src=figure/plot-bayes-1.svg title="plot of chunk plot-bayes" alt="plot of chunk plot-bayes" width=100%></p><p>The tidyposterior package uses the concept of <em>practical significance</em>, incorporating an effect size that is important to the user. We usually set this value prior to the analysis (based on domain knowledge or subjective concerns), and it reflects the size of an RMSE change between models that is a realistic important difference. We can compute the probability that each model is <em>practically significant</em> when compared to the numerically best model. Recalling that the outcome is in units of percent water, let&rsquo;s use a 0.5% difference as an effect size:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>autoplot</span><span class=p>(</span><span class=n>rmse_mod</span><span class=p>,</span> <span class=n>size</span> <span class=o>=</span> <span class=m>0.5</span><span class=p>,</span> <span class=n>type</span> <span class=o>=</span> <span class=s>&#34;ROPE&#34;</span><span class=p>)</span>
+</code></pre></div><p><img src=figure/plot-rope-1.svg title="plot of chunk plot-rope" alt="plot of chunk plot-rope" width=100%></p><p>The top two models are pretty close to practically equivalent, while the others are less likely to be the same.</p><h2 id=acknowledgements>Acknowledgements
+<a href=#acknowledgements><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Thanks to the contributors to workflowsets:</p><p><a href=https://github.com/DavisVaughan target=_blank rel=noopener>@DavisVaughan</a>,
+<a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/hnagaty target=_blank rel=noopener>@hnagaty</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a></p><p>as well as the latest release of tidyposterior:</p><p><a href=https://github.com/hfrick target=_blank rel=noopener>@hfrick</a>,
+<a href=https://github.com/juliasilge target=_blank rel=noopener>@juliasilge</a>,
+<a href=https://github.com/robyjos target=_blank rel=noopener>@robyjos</a>, and
+<a href=https://github.com/topepo target=_blank rel=noopener>@topepo</a></p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#a-dimensionality-reduction-example>A Dimensionality Reduction Example</a></li><li><a href=#contrasting-models-using-bayesian-analysis>Contrasting Models Using Bayesian Analysis</a></li><li><a href=#acknowledgements>Acknowledgements</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>

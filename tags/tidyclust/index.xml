@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>tidyclust | Tidyverse</title><link>https://www.tidyverse.org/tags/tidyclust/</link><atom:link href="https://www.tidyverse.org/tags/tidyclust/index.xml" rel="self" type="application/rss+xml"/><description>tidyclust</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 05 Oct 2023 00:00:00 +0000</lastBuildDate><item><title>Q3 2023 tidymodels digest</title><link>https://www.tidyverse.org/blog/2023/10/tidymodels-2023-q3/</link><pubDate>Thu, 05 Oct 2023 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2023/10/tidymodels-2023-q3/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>The
+&lt;a href="https://www.tidymodels.org/" target="_blank" rel="noopener">tidymodels&lt;/a> framework is a collection of R packages for modeling and machine learning using tidyverse principles.&lt;/p>
+&lt;p>Since the beginning of 2021, we have been publishing
+&lt;a href="https://www.tidyverse.org/categories/roundup/" target="_blank" rel="noopener">quarterly updates&lt;/a> here on the tidyverse blog summarizing what&amp;rsquo;s new in the tidymodels ecosystem. The purpose of these regular posts is to share useful new features and any updates you may have missed. You can check out the
+&lt;a href="https://www.tidyverse.org/tags/tidymodels/" target="_blank" rel="noopener">&lt;code>tidymodels&lt;/code> tag&lt;/a> to find all tidymodels blog posts here, including our roundup posts as well as those that are more focused, like this post from the past couple of months:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://www.tidyverse.org/blog/2023/08/validation-split-as-3-way-split/" target="_blank" rel="noopener">New interface to validation splits&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>Since
+&lt;a href="https://www.tidyverse.org/blog/2022/12/tidymodels-2022-q4/" target="_blank" rel="noopener">our last roundup post&lt;/a>, there have been CRAN releases of 11 tidymodels packages. Here are links to their NEWS files:&lt;/p>
+&lt;div class="highlight">
+&lt;ul>
+&lt;li>butcher
+&lt;a href="https://butcher.tidymodels.org/news/index.html" target="_blank" rel="noopener">(0.3.3)&lt;/a>&lt;/li>
+&lt;li>embed
+&lt;a href="https://embed.tidymodels.org/news/index.html" target="_blank" rel="noopener">(1.1.2)&lt;/a>&lt;/li>
+&lt;li>modeldata
+&lt;a href="https://modeldata.tidymodels.org/news/index.html" target="_blank" rel="noopener">(1.2.0)&lt;/a>&lt;/li>
+&lt;li>parsnip
+&lt;a href="https://parsnip.tidymodels.org/news/index.html" target="_blank" rel="noopener">(1.1.1)&lt;/a>&lt;/li>
+&lt;li>recipes
+&lt;a href="https://recipes.tidymodels.org/news/index.html" target="_blank" rel="noopener">(1.0.8)&lt;/a>&lt;/li>
+&lt;li>rsample
+&lt;a href="https://rsample.tidymodels.org/news/index.html" target="_blank" rel="noopener">(1.2.0)&lt;/a>&lt;/li>
+&lt;li>textrecipes
+&lt;a href="https://textrecipes.tidymodels.org/news/index.html" target="_blank" rel="noopener">(1.0.4)&lt;/a>&lt;/li>
+&lt;li>themis
+&lt;a href="https://themis.tidymodels.org/news/index.html" target="_blank" rel="noopener">(1.0.2)&lt;/a>&lt;/li>
+&lt;li>tidyclust
+&lt;a href="https://tidyclust.tidymodels.org/news/index.html" target="_blank" rel="noopener">(0.2.0)&lt;/a>&lt;/li>
+&lt;li>tidymodels
+&lt;a href="https://tidymodels.tidymodels.org/news/index.html" target="_blank" rel="noopener">(1.1.1)&lt;/a>&lt;/li>
+&lt;li>tune
+&lt;a href="https://tune.tidymodels.org/news/index.html" target="_blank" rel="noopener">(1.1.2)&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;/div>
+&lt;p>We&amp;rsquo;ll highlight a few especially notable changes below: Updated workshop material, new K-means engines and quality of life improvements in rsample. First, loading the collection of packages:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://tidymodels.tidymodels.org'>tidymodels&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://github.com/tidymodels/tidyclust'>tidyclust&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/data.html'>data&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"ames"&lt;/span>, package &lt;span class='o'>=&lt;/span> &lt;span class='s'>"modeldata"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="workshops">Workshops
+&lt;a href="#workshops">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>One of the biggest areas of work for our team this quarter was getting ready for this year&amp;rsquo;s
+&lt;a href="https://posit.co/conference/" target="_blank" rel="noopener">posit::conf&lt;/a>. This year, two 1-day workshops were available: &amp;ldquo;Introduction to tidymodels&amp;rdquo; and &amp;ldquo;Advanced tidymodels&amp;rdquo;. All the material can be found on our workshop website
+&lt;a href="https://workshops.tidymodels.org/" target="_blank" rel="noopener">workshops.tidymodels.org&lt;/a>, with these workshops being archived as
+&lt;a href="https://workshops.tidymodels.org/archive/2023-09-posit-conf/" target="_blank" rel="noopener">posit::conf 2023 workshops&lt;/a>.&lt;/p>
+&lt;p>Unless otherwise noted (i.e. not an original creation and reused from another source), these educational materials are licensed under Creative Commons Attribution
+&lt;a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0&lt;/a>.&lt;/p>
+&lt;h2 id="tidyclust-update">Tidyclust update
+&lt;a href="#tidyclust-update">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The latest release of tidyclust featured a round of bug fixes, documentation improvements and quality-of-life improvements.&lt;/p>
+&lt;p>This release adds 2 new engines to the
+&lt;a href="https://tidyclust.tidymodels.org/reference/k_means.html" target="_blank" rel="noopener">&lt;code>k_means()&lt;/code>&lt;/a> model.
+&lt;a href="https://tidyclust.tidymodels.org/reference/details_k_means_klaR.html" target="_blank" rel="noopener">klaR&lt;/a> to run K-Modes models and
+&lt;a href="https://tidyclust.tidymodels.org/reference/details_k_means_clustMixType.html" target="_blank" rel="noopener">clustMixType&lt;/a> to run K-prototypes. K-Modes is the categorical analog to K-means, meaning that it is intended to be used on only categorical data, and K-prototypes is the more general method that works with categorical and numeric data at the same time.&lt;/p>
+&lt;p>If we were to fit a K-means model to a mixed-type data set such as &lt;code>ames&lt;/code>, it would work, but under the hood, the model would apply a dummy transformation on the categorical predictors.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>kmeans_spec&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://tidyclust.tidymodels.org/reference/k_means.html'>k_means&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>num_clusters &lt;span class='o'>=&lt;/span> &lt;span class='m'>3&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_engine.html'>set_engine&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"stats"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>kmeans_fit&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>kmeans_spec&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://generics.r-lib.org/reference/fit.html'>fit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>, data &lt;span class='o'>=&lt;/span> &lt;span class='nv'>ames&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>When extracting the cluster means, we see that the dummy variables were used when calculating the means, which can make it harder to interpret the output.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>kmeans_fit&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://tidyclust.tidymodels.org/reference/extract_centroids.html'>extract_centroids&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>select&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>101&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>112&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>glimpse&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Rows: 3&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Columns: 12&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Overall_CondGood &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 0.09009009, 0.17594787, 0.01234568&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Overall_CondVery_Good &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 0.02702703, 0.06694313, 0.01646091&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Overall_CondExcellent &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 0.01201201, 0.01303318, 0.02880658&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Overall_CondVery_Excellent &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 0, 0, 0&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Year_Built &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 1989.645, 1956.471, 1999.572&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Year_Remod_Add &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 1996.090, 1974.518, 2003.379&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Roof_StyleGable &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 0.8238238, 0.8234597, 0.4444444&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Roof_StyleGambrel &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 0.005005005, 0.010071090, 0.000000000&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Roof_StyleHip &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 0.1531532, 0.1558057, 0.5555556&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Roof_StyleMansard &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 0.005005005, 0.003554502, 0.000000000&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Roof_StyleShed &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 0.003003003, 0.001184834, 0.000000000&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Roof_MatlCompShg &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 0.9759760, 0.9905213, 0.9876543&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Fitting a K-prototype model is done by setting the engine in
+&lt;a href="https://tidyclust.tidymodels.org/reference/k_means.html" target="_blank" rel="noopener">&lt;code>k_means()&lt;/code>&lt;/a> to &lt;code>&amp;quot;clustMixType&amp;quot;&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>kproto_spec&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://tidyclust.tidymodels.org/reference/k_means.html'>k_means&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>num_clusters &lt;span class='o'>=&lt;/span> &lt;span class='m'>3&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_engine.html'>set_engine&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"clustMixType"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>kproto_fit&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>kproto_spec&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://generics.r-lib.org/reference/fit.html'>fit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>, data &lt;span class='o'>=&lt;/span> &lt;span class='nv'>ames&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The clusters can now be extracted on the original data format as categorical predictors are supported.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>kproto_fit&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://tidyclust.tidymodels.org/reference/extract_centroids.html'>extract_centroids&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>select&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>11&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>20&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>glimpse&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Rows: 3&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Columns: 10&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Lot_Config &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> Inside, Inside, Inside&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Land_Slope &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> Gtl, Gtl, Gtl&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Neighborhood &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> College_Creek, North_Ames, Northridge_Heights&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Condition_1 &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> Norm, Norm, Norm&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Condition_2 &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> Norm, Norm, Norm&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Bldg_Type &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> OneFam, OneFam, OneFam&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ House_Style &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> Two_Story, One_Story, One_Story&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Overall_Cond &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> Average, Average, Average&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Year_Built &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 1989.977, 1953.793, 1998.765&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ Year_Remod_Add &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> 1995.934, 1972.973, 2003.035&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="stricter-rsample-functions">Stricter rsample functions
+&lt;a href="#stricter-rsample-functions">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Before version 1.2.0 of rsample, misspelled and wrongly used arguments would be swallowed silently by the functions. This could be a big source of confusion as it is easy to slip between the cracks. We have made changes to all rsample functions such that whenever possible they alert the user when something is wrong.&lt;/p>
+&lt;p>Before 1.2.0 when you, for example, misspelled &lt;code>strata&lt;/code> as &lt;code>stata&lt;/code>, everything would go on like normal, with no indication that &lt;code>stata&lt;/code> was ignored.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">initial_split&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ames&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">prop&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.75&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">stata&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Neighborhood&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;Training/Testing/Total&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;2197/733/2930&amp;gt;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The same code will now error and point to the problematic arguments.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>initial_split&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>ames&lt;/span>, prop &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.75&lt;/span>, stata &lt;span class='o'>=&lt;/span> &lt;span class='nv'>Neighborhood&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00; font-weight: bold;'>Error&lt;/span>&lt;span style='font-weight: bold;'> in `initial_split()`:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>!&lt;/span> `...` must be empty.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> Problematic argument:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>•&lt;/span> stata = Neighborhood&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank those in the community that contributed to tidymodels in the last quarter:&lt;/p>
+&lt;div class="highlight">
+&lt;ul>
+&lt;li>butcher:
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>, and
+&lt;a href="https://github.com/juliasilge" target="_blank" rel="noopener">@juliasilge&lt;/a>.&lt;/li>
+&lt;li>embed:
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>, and
+&lt;a href="https://github.com/wbuchanan" target="_blank" rel="noopener">@wbuchanan&lt;/a>.&lt;/li>
+&lt;li>modeldata:
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/li>
+&lt;li>parsnip:
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/gmcmacran" target="_blank" rel="noopener">@gmcmacran&lt;/a>,
+&lt;a href="https://github.com/SHo-JANG" target="_blank" rel="noopener">@SHo-JANG&lt;/a>,
+&lt;a href="https://github.com/simonpcouch" target="_blank" rel="noopener">@simonpcouch&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>, and
+&lt;a href="https://github.com/vidarsumo" target="_blank" rel="noopener">@vidarsumo&lt;/a>.&lt;/li>
+&lt;li>recipes:
+&lt;a href="https://github.com/abichat" target="_blank" rel="noopener">@abichat&lt;/a>,
+&lt;a href="https://github.com/andreranza" target="_blank" rel="noopener">@andreranza&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/jkennel" target="_blank" rel="noopener">@jkennel&lt;/a>,
+&lt;a href="https://github.com/millermc38" target="_blank" rel="noopener">@millermc38&lt;/a>,
+&lt;a href="https://github.com/nikosGeography" target="_blank" rel="noopener">@nikosGeography&lt;/a>,
+&lt;a href="https://github.com/pgg1309" target="_blank" rel="noopener">@pgg1309&lt;/a>,
+&lt;a href="https://github.com/rdavis120" target="_blank" rel="noopener">@rdavis120&lt;/a>,
+&lt;a href="https://github.com/Sade154" target="_blank" rel="noopener">@Sade154&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>, and
+&lt;a href="https://github.com/walrossker" target="_blank" rel="noopener">@walrossker&lt;/a>.&lt;/li>
+&lt;li>rsample:
+&lt;a href="https://github.com/godscloset" target="_blank" rel="noopener">@godscloset&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/MasterLuke84" target="_blank" rel="noopener">@MasterLuke84&lt;/a>,
+&lt;a href="https://github.com/mikemahoney218" target="_blank" rel="noopener">@mikemahoney218&lt;/a>,
+&lt;a href="https://github.com/PathosEthosLogos" target="_blank" rel="noopener">@PathosEthosLogos&lt;/a>,
+&lt;a href="https://github.com/simonpcouch" target="_blank" rel="noopener">@simonpcouch&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/li>
+&lt;li>textrecipes:
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>, and
+&lt;a href="https://github.com/gaohuachuan" target="_blank" rel="noopener">@gaohuachuan&lt;/a>.&lt;/li>
+&lt;li>themis:
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>.&lt;/li>
+&lt;li>tidyclust:
+&lt;a href="https://github.com/coforfe" target="_blank" rel="noopener">@coforfe&lt;/a>,
+&lt;a href="https://github.com/cphaarmeyer" target="_blank" rel="noopener">@cphaarmeyer&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/michaelgrund" target="_blank" rel="noopener">@michaelgrund&lt;/a>,
+&lt;a href="https://github.com/PathosEthosLogos" target="_blank" rel="noopener">@PathosEthosLogos&lt;/a>, and
+&lt;a href="https://github.com/trevorcampbell" target="_blank" rel="noopener">@trevorcampbell&lt;/a>.&lt;/li>
+&lt;li>tidymodels:
+&lt;a href="https://github.com/nikosGeography" target="_blank" rel="noopener">@nikosGeography&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/li>
+&lt;li>tune:
+&lt;a href="https://github.com/dramanica" target="_blank" rel="noopener">@dramanica&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/forecastingEDs" target="_blank" rel="noopener">@forecastingEDs&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/kbodwin" target="_blank" rel="noopener">@kbodwin&lt;/a>,
+&lt;a href="https://github.com/KJT-Habitat" target="_blank" rel="noopener">@KJT-Habitat&lt;/a>,
+&lt;a href="https://github.com/MasterLuke84" target="_blank" rel="noopener">@MasterLuke84&lt;/a>,
+&lt;a href="https://github.com/simonpcouch" target="_blank" rel="noopener">@simonpcouch&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/li>
+&lt;/ul>
+&lt;/div>
+&lt;p>We&amp;rsquo;re grateful for all of the tidymodels community, from observers to users to contributors. Happy modeling!&lt;/p></description></item><item><title>tidyclust is on CRAN</title><link>https://www.tidyverse.org/blog/2022/12/tidyclust-0-1-0/</link><pubDate>Tue, 06 Dec 2022 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2022/12/tidyclust-0-1-0/</guid><description>&lt;!--
+TODO:
+* [X] Look over / edit the post's title in the yaml
+* [X] Edit (or delete) the description; note this appears in the Twitter card
+* [X] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [X] Find photo &amp; update yaml metadata
+* [X] Create `thumbnail-sq.jpg`; height and width should be equal
+* [X] Create `thumbnail-wd.jpg`; width should be >5x height
+* [X] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [X] Add intro sentence, e.g. the standard tagline for the package
+* [X] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re very pleased to announce the release of
+&lt;a href="https://tidyclust.tidymodels.org/" target="_blank" rel="noopener">tidyclust&lt;/a> 0.1.0. tidyclust is the tidymodels extension for working with clustering models. This package wouldn&amp;rsquo;t have been possible without the great work of
+&lt;a href="https://twitter.com/KellyBodwin" target="_blank" rel="noopener">Kelly Bodwin&lt;/a>.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"tidyclust"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This blog post will introduce tidyclust, how to use it with the rest of tidymodels, and how we can interact and evaluate the fitted clustering models.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://tidymodels.tidymodels.org'>tidymodels&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span> &lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ── &lt;span style='font-weight: bold;'>Attaching packages&lt;/span> ────────────────────────────────────── tidymodels 1.0.0 ──&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>broom &lt;/span> 1.0.1 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>recipes &lt;/span> 1.0.3 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>dials &lt;/span> 1.1.0 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>rsample &lt;/span> 1.1.0 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>dplyr &lt;/span> 1.0.10 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>tibble &lt;/span> 3.1.8 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>ggplot2 &lt;/span> 3.4.0 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>tidyr &lt;/span> 1.2.1 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>infer &lt;/span> 1.0.4 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>tune &lt;/span> 1.0.1 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>modeldata &lt;/span> 1.0.1 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>workflows &lt;/span> 1.1.2 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>parsnip &lt;/span> 1.0.3 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>workflowsets&lt;/span> 1.0.0 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>purrr &lt;/span> 0.3.5 &lt;span style='color: #00BB00;'>✔&lt;/span> &lt;span style='color: #0000BB;'>yardstick &lt;/span> 1.1.0&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; ── &lt;span style='font-weight: bold;'>Conflicts&lt;/span> ───────────────────────────────────────── tidymodels_conflicts() ──&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> &lt;span style='color: #0000BB;'>purrr&lt;/span>::&lt;span style='color: #00BB00;'>discard()&lt;/span> masks &lt;span style='color: #0000BB;'>scales&lt;/span>::discard()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> &lt;span style='color: #0000BB;'>dplyr&lt;/span>::&lt;span style='color: #00BB00;'>filter()&lt;/span> masks &lt;span style='color: #0000BB;'>stats&lt;/span>::filter()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> &lt;span style='color: #0000BB;'>dplyr&lt;/span>::&lt;span style='color: #00BB00;'>lag()&lt;/span> masks &lt;span style='color: #0000BB;'>stats&lt;/span>::lag()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> &lt;span style='color: #0000BB;'>recipes&lt;/span>::&lt;span style='color: #00BB00;'>step()&lt;/span> masks &lt;span style='color: #0000BB;'>stats&lt;/span>::step()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #0000BB;'>•&lt;/span> Use suppressPackageStartupMessages() to eliminate package startup messages&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://github.com/tidymodels/tidyclust'>tidyclust&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="specifying-clustering-models">Specifying clustering models
+&lt;a href="#specifying-clustering-models">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The first thing we need to do is decide on the type of clustering model we want to fit. The pkgdown site provides a
+&lt;a href="https://tidyclust.tidymodels.org/reference/index.html#specifications" target="_blank" rel="noopener">list of all clustering specifications&lt;/a> provided by tidyclust. We are slowly adding more types of models&amp;mdash;
+&lt;a href="https://github.com/tidymodels/tidyclust/issues" target="_blank" rel="noopener">suggestions in issues&lt;/a> are highly welcome!&lt;/p>
+&lt;p>We will use a K-Means model for these examples using
+&lt;a href="https://rdrr.io/pkg/tidyclust/man/k_means.html" target="_blank" rel="noopener">&lt;code>k_means()&lt;/code>&lt;/a> to create a specification. As with other packages in the tidymodels, tidyclust tries to make use of informative names for functions and arguments; as such, the argument denoting the number of clusters is &lt;code>num_clusters&lt;/code> rather than &lt;code>k&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>kmeans_spec&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/pkg/tidyclust/man/k_means.html'>k_means&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>num_clusters &lt;span class='o'>=&lt;/span> &lt;span class='m'>4&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_engine.html'>set_engine&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"ClusterR"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>kmeans_spec&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; K Means Cluster Specification (partition)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Main Arguments:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; num_clusters = 4&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Computational engine: ClusterR&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>We can use the
+&lt;a href="https://parsnip.tidymodels.org/reference/set_engine.html" target="_blank" rel="noopener">&lt;code>set_engine()&lt;/code>&lt;/a>,
+&lt;a href="https://parsnip.tidymodels.org/reference/set_args.html" target="_blank" rel="noopener">&lt;code>set_mode()&lt;/code>&lt;/a>, and
+&lt;a href="https://parsnip.tidymodels.org/reference/set_args.html" target="_blank" rel="noopener">&lt;code>set_args()&lt;/code>&lt;/a> functions we are familiar with from parsnip. The specification itself isn&amp;rsquo;t worth much if we don&amp;rsquo;t apply it to some data. We will use the ames data set from the modeldata package.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/data.html'>data&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"ames"&lt;/span>, package &lt;span class='o'>=&lt;/span> &lt;span class='s'>"modeldata"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This data set contains a number of categorical variables that unaltered can&amp;rsquo;t be used with a K-Means model. Some light preprocessing can be done using the recipes package.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>rec_spec&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>recipe&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>, data &lt;span class='o'>=&lt;/span> &lt;span class='nv'>ames&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>step_dummy&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>all_nominal_predictors&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>step_zv&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>all_predictors&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>step_normalize&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>all_numeric_predictors&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>step_pca&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>all_numeric_predictors&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, threshold &lt;span class='o'>=&lt;/span> &lt;span class='m'>0.8&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This recipe normalizes all of the numeric variables before applying PCA to create a more minimal set of uncorrelated features. Notice how we didn&amp;rsquo;t specify an outcome as clustering models are unsupervised, meaning that we don&amp;rsquo;t have outcomes.&lt;/p>
+&lt;p>These two specifications can be combined in a &lt;code>workflow()&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>kmeans_wf&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>workflow&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>rec_spec&lt;/span>, &lt;span class='nv'>kmeans_spec&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This workflow can then be fit to the &lt;code>ames&lt;/code> data set.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>kmeans_fit&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://generics.r-lib.org/reference/fit.html'>fit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>kmeans_wf&lt;/span>, data &lt;span class='o'>=&lt;/span> &lt;span class='nv'>ames&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>kmeans_fit&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ══ Workflow [trained] ══════════════════════════════════════════════════════════&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-style: italic;'>Preprocessor:&lt;/span> Recipe&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-style: italic;'>Model:&lt;/span> k_means()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ── Preprocessor ────────────────────────────────────────────────────────────────&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 4 Recipe Steps&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • step_dummy()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • step_zv()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • step_normalize()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • step_pca()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ── Model ───────────────────────────────────────────────────────────────────────&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; KMeans Cluster&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Call: ClusterR::KMeans_rcpp(data = data, clusters = clusters) &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Data cols: 121 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Centroids: 4 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; BSS/SS: 0.1003306 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; SS: 646321.6 = 581475.8 (WSS) + 64845.81 (BSS)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>We have arbitrarily set the number of clusters to 4 above. If we wanted to figure out what values would be &amp;ldquo;optimal,&amp;rdquo; we would have to fit multiple models. We can do this with
+&lt;a href="https://rdrr.io/pkg/tidyclust/man/tune_cluster.html" target="_blank" rel="noopener">&lt;code>tune_cluster()&lt;/code>&lt;/a>; to make use of this function, though, we first need to use
+&lt;a href="https://hardhat.tidymodels.org/reference/tune.html" target="_blank" rel="noopener">&lt;code>tune()&lt;/code>&lt;/a> to specify that &lt;code>num_clusters&lt;/code> is the argument we want to try with multiple values.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>kmeans_spec&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>kmeans_spec&lt;/span> &lt;span class='o'>&lt;a href='https://magrittr.tidyverse.org/reference/pipe.html'>%&amp;gt;%&lt;/a>&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/set_args.html'>set_args&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>num_clusters &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://hardhat.tidymodels.org/reference/tune.html'>tune&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>kmeans_wf&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>workflow&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>rec_spec&lt;/span>, &lt;span class='nv'>kmeans_spec&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>kmeans_wf&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ══ Workflow ════════════════════════════════════════════════════════════════════&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-style: italic;'>Preprocessor:&lt;/span> Recipe&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-style: italic;'>Model:&lt;/span> k_means()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ── Preprocessor ────────────────────────────────────────────────────────────────&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; 4 Recipe Steps&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • step_dummy()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • step_zv()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • step_normalize()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; • step_pca()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ── Model ───────────────────────────────────────────────────────────────────────&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; K Means Cluster Specification (partition)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Main Arguments:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; num_clusters = tune()&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Computational engine: ClusterR&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>We can use
+&lt;a href="https://rdrr.io/pkg/tidyclust/man/tune_cluster.html" target="_blank" rel="noopener">&lt;code>tune_cluster()&lt;/code>&lt;/a> in the same way we use &lt;code>tune_grid()&lt;/code>, using bootstraps to fit multiple models for each value of &lt;code>num_clusters&lt;/code>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1234&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>boots&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>bootstraps&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>ames&lt;/span>, times &lt;span class='o'>=&lt;/span> &lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>tune_res&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/pkg/tidyclust/man/tune_cluster.html'>tune_cluster&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>kmeans_wf&lt;/span>,&lt;/span>
+&lt;span> resamples &lt;span class='o'>=&lt;/span> &lt;span class='nv'>boots&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The different
+&lt;a href="https://tune.tidymodels.org/reference/collect_predictions.html" target="_blank" rel="noopener">collect functions&lt;/a> such as &lt;code>collect_metrics()&lt;/code> works as they would do with tune output.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>collect_metrics&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>tune_res&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 18 × 7&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; num_clusters .metric .estimator mean n std_err .config &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> 6 sse_total standard &lt;span style='text-decoration: underline;'>624&lt;/span>435. 10 &lt;span style='text-decoration: underline;'>1&lt;/span>675. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> 6 sse_within_total standard &lt;span style='text-decoration: underline;'>557&lt;/span>147. 10 &lt;span style='text-decoration: underline;'>2&lt;/span>579. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> 1 sse_total standard &lt;span style='text-decoration: underline;'>624&lt;/span>435. 10 &lt;span style='text-decoration: underline;'>1&lt;/span>675. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> 1 sse_within_total standard &lt;span style='text-decoration: underline;'>624&lt;/span>435. 10 &lt;span style='text-decoration: underline;'>1&lt;/span>675. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> 3 sse_total standard &lt;span style='text-decoration: underline;'>624&lt;/span>435. 10 &lt;span style='text-decoration: underline;'>1&lt;/span>675. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> 3 sse_within_total standard &lt;span style='text-decoration: underline;'>588&lt;/span>001. 10 &lt;span style='text-decoration: underline;'>5&lt;/span>703. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> 5 sse_total standard &lt;span style='text-decoration: underline;'>624&lt;/span>435. 10 &lt;span style='text-decoration: underline;'>1&lt;/span>675. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> 5 sse_within_total standard &lt;span style='text-decoration: underline;'>568&lt;/span>085. 10 &lt;span style='text-decoration: underline;'>3&lt;/span>821. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> 9 sse_total standard &lt;span style='text-decoration: underline;'>624&lt;/span>435. 10 &lt;span style='text-decoration: underline;'>1&lt;/span>675. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> 9 sse_within_total standard &lt;span style='text-decoration: underline;'>535&lt;/span>120. 10 &lt;span style='text-decoration: underline;'>2&lt;/span>262. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>11&lt;/span> 2 sse_total standard &lt;span style='text-decoration: underline;'>624&lt;/span>435. 10 &lt;span style='text-decoration: underline;'>1&lt;/span>675. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>12&lt;/span> 2 sse_within_total standard &lt;span style='text-decoration: underline;'>599&lt;/span>762. 10 &lt;span style='text-decoration: underline;'>4&lt;/span>306. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>13&lt;/span> 8 sse_total standard &lt;span style='text-decoration: underline;'>624&lt;/span>435. 10 &lt;span style='text-decoration: underline;'>1&lt;/span>675. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>14&lt;/span> 8 sse_within_total standard &lt;span style='text-decoration: underline;'>541&lt;/span>813. 10 &lt;span style='text-decoration: underline;'>2&lt;/span>506. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>15&lt;/span> 4 sse_total standard &lt;span style='text-decoration: underline;'>624&lt;/span>435. 10 &lt;span style='text-decoration: underline;'>1&lt;/span>675. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>16&lt;/span> 4 sse_within_total standard &lt;span style='text-decoration: underline;'>583&lt;/span>604. 10 &lt;span style='text-decoration: underline;'>5&lt;/span>523. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>17&lt;/span> 7 sse_total standard &lt;span style='text-decoration: underline;'>624&lt;/span>435. 10 &lt;span style='text-decoration: underline;'>1&lt;/span>675. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>18&lt;/span> 7 sse_within_total standard &lt;span style='text-decoration: underline;'>548&lt;/span>299. 10 &lt;span style='text-decoration: underline;'>2&lt;/span>907. Preprocessor1…&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="extraction">Extraction
+&lt;a href="#extraction">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Going back to the first model we fit, tidyclust provides three main tools for interfacing with a fitted cluster model:&lt;/p>
+&lt;ul>
+&lt;li>extract cluster assignments&lt;/li>
+&lt;li>extract centroid locations&lt;/li>
+&lt;li>prediction with new data&lt;/li>
+&lt;/ul>
+&lt;p>Each of these tasks has a function associated with them. First, we have
+&lt;a href="https://rdrr.io/pkg/tidyclust/man/extract_cluster_assignment.html" target="_blank" rel="noopener">&lt;code>extract_cluster_assignment()&lt;/code>&lt;/a>, which can be used on fitted tidyclust objects, alone or as a part of a workflow, and it returns the cluster assignment as a factor named &lt;code>.cluster&lt;/code> in a tibble.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/pkg/tidyclust/man/extract_cluster_assignment.html'>extract_cluster_assignment&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>kmeans_fit&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 2,930 × 1&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .cluster &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> Cluster_1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> Cluster_1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> Cluster_1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> Cluster_1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> Cluster_2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> Cluster_2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> Cluster_2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> Cluster_2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> Cluster_2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> Cluster_2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># … with 2,920 more rows&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The location of the clusters can be found using
+&lt;a href="https://rdrr.io/pkg/tidyclust/man/extract_centroids.html" target="_blank" rel="noopener">&lt;code>extract_centroids()&lt;/code>&lt;/a> which again returns a tibble, with &lt;code>.cluster&lt;/code> being a factor with the same levels as what we got from
+&lt;a href="https://rdrr.io/pkg/tidyclust/man/extract_cluster_assignment.html" target="_blank" rel="noopener">&lt;code>extract_cluster_assignment()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/pkg/tidyclust/man/extract_centroids.html'>extract_centroids&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>kmeans_fit&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 4 × 122&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .cluster PC001 PC002 PC003 PC004 PC005 PC006 PC007 PC008 PC009&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> Cluster_1 -&lt;span style='color: #BB0000;'>5.76&lt;/span> 0.713 11.9 2.80 4.09 3.44 1.26 -&lt;span style='color: #BB0000;'>0.280&lt;/span> -&lt;span style='color: #BB0000;'>0.486&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> Cluster_2 3.98 -&lt;span style='color: #BB0000;'>1.18&lt;/span> 0.126 0.718 0.150 0.055&lt;span style='text-decoration: underline;'>4&lt;/span> -&lt;span style='color: #BB0000;'>0.046&lt;/span>&lt;span style='color: #BB0000; text-decoration: underline;'>0&lt;/span> -&lt;span style='color: #BB0000;'>0.346&lt;/span> 0.059&lt;span style='text-decoration: underline;'>9&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> Cluster_3 -&lt;span style='color: #BB0000;'>0.970&lt;/span> 2.45 -&lt;span style='color: #BB0000;'>0.604&lt;/span> -&lt;span style='color: #BB0000;'>0.523&lt;/span> 0.302 -&lt;span style='color: #BB0000;'>0.298&lt;/span> -&lt;span style='color: #BB0000;'>0.174&lt;/span> 0.507 -&lt;span style='color: #BB0000;'>0.153&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> Cluster_4 -&lt;span style='color: #BB0000;'>4.40&lt;/span> -&lt;span style='color: #BB0000;'>2.30&lt;/span> -&lt;span style='color: #BB0000;'>0.658&lt;/span> -&lt;span style='color: #BB0000;'>0.671&lt;/span> -&lt;span style='color: #BB0000;'>1.29&lt;/span> -&lt;span style='color: #BB0000;'>0.007&lt;/span>&lt;span style='color: #BB0000; text-decoration: underline;'>51&lt;/span> 0.222 -&lt;span style='color: #BB0000;'>0.250&lt;/span> 0.223 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># … with 112 more variables: PC010 &amp;lt;dbl&amp;gt;, PC011 &amp;lt;dbl&amp;gt;, PC012 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># PC013 &amp;lt;dbl&amp;gt;, PC014 &amp;lt;dbl&amp;gt;, PC015 &amp;lt;dbl&amp;gt;, PC016 &amp;lt;dbl&amp;gt;, PC017 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># PC018 &amp;lt;dbl&amp;gt;, PC019 &amp;lt;dbl&amp;gt;, PC020 &amp;lt;dbl&amp;gt;, PC021 &amp;lt;dbl&amp;gt;, PC022 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># PC023 &amp;lt;dbl&amp;gt;, PC024 &amp;lt;dbl&amp;gt;, PC025 &amp;lt;dbl&amp;gt;, PC026 &amp;lt;dbl&amp;gt;, PC027 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># PC028 &amp;lt;dbl&amp;gt;, PC029 &amp;lt;dbl&amp;gt;, PC030 &amp;lt;dbl&amp;gt;, PC031 &amp;lt;dbl&amp;gt;, PC032 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># PC033 &amp;lt;dbl&amp;gt;, PC034 &amp;lt;dbl&amp;gt;, PC035 &amp;lt;dbl&amp;gt;, PC036 &amp;lt;dbl&amp;gt;, PC037 &amp;lt;dbl&amp;gt;,&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># PC038 &amp;lt;dbl&amp;gt;, PC039 &amp;lt;dbl&amp;gt;, PC040 &amp;lt;dbl&amp;gt;, PC041 &amp;lt;dbl&amp;gt;, PC042 &amp;lt;dbl&amp;gt;, …&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Lastly, if the model has a notion that translates to &amp;ldquo;prediction,&amp;rdquo; then
+&lt;a href="https://rdrr.io/r/stats/predict.html" target="_blank" rel="noopener">&lt;code>predict()&lt;/code>&lt;/a> will give you those results as well. In the case of K-Means, this is being interpreted as &amp;ldquo;which centroid is this observation closest to.&amp;rdquo;&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/stats/predict.html'>predict&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>kmeans_fit&lt;/span>, new_data &lt;span class='o'>=&lt;/span> &lt;span class='nf'>slice_sample&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>ames&lt;/span>, n &lt;span class='o'>=&lt;/span> &lt;span class='m'>10&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 10 × 1&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; .pred_cluster&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;fct&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 1&lt;/span> Cluster_4 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 2&lt;/span> Cluster_2 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 3&lt;/span> Cluster_4 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 4&lt;/span> Cluster_3 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 5&lt;/span> Cluster_1 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 6&lt;/span> Cluster_4 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 7&lt;/span> Cluster_2 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 8&lt;/span> Cluster_2 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'> 9&lt;/span> Cluster_1 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>10&lt;/span> Cluster_4&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Please check the
+&lt;a href="https://tidyclust.tidymodels.org/" target="_blank" rel="noopener">pkgdown site&lt;/a> for more in-depth articles. We couldn&amp;rsquo;t be happier to have this package on CRAN and we encouraging you to check it out.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to all the contributors:
+&lt;a href="https://github.com/aephidayatuloh" target="_blank" rel="noopener">@aephidayatuloh&lt;/a>,
+&lt;a href="https://github.com/avishaitsur" target="_blank" rel="noopener">@avishaitsur&lt;/a>,
+&lt;a href="https://github.com/bryanosborne" target="_blank" rel="noopener">@bryanosborne&lt;/a>,
+&lt;a href="https://github.com/cgoo4" target="_blank" rel="noopener">@cgoo4&lt;/a>,
+&lt;a href="https://github.com/coforfe" target="_blank" rel="noopener">@coforfe&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/JauntyJJS" target="_blank" rel="noopener">@JauntyJJS&lt;/a>,
+&lt;a href="https://github.com/kbodwin" target="_blank" rel="noopener">@kbodwin&lt;/a>,
+&lt;a href="https://github.com/malcolmbarrett" target="_blank" rel="noopener">@malcolmbarrett&lt;/a>,
+&lt;a href="https://github.com/mattwarkentin" target="_blank" rel="noopener">@mattwarkentin&lt;/a>,
+&lt;a href="https://github.com/ninohardt" target="_blank" rel="noopener">@ninohardt&lt;/a>,
+&lt;a href="https://github.com/nipnipj" target="_blank" rel="noopener">@nipnipj&lt;/a>, and
+&lt;a href="https://github.com/tomazweiss" target="_blank" rel="noopener">@tomazweiss&lt;/a>.&lt;/p></description></item></channel></rss>

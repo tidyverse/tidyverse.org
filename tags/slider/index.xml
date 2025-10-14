@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>slider | Tidyverse</title><link>https://www.tidyverse.org/tags/slider/</link><atom:link href="https://www.tidyverse.org/tags/slider/index.xml" rel="self" type="application/rss+xml"/><description>slider</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 10 Feb 2020 00:00:00 +0000</lastBuildDate><item><title>slider 0.1.0</title><link>https://www.tidyverse.org/blog/2020/02/slider-0-1-0/</link><pubDate>Mon, 10 Feb 2020 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2020/02/slider-0-1-0/</guid><description>&lt;p>I&amp;rsquo;m thrilled to announce that the first version of
+&lt;a href="https://davisvaughan.github.io/slider/" target="_blank" rel="noopener">slider&lt;/a> is now available on CRAN!&lt;/p>
+&lt;p>slider provides a family of general purpose sliding window functions, which can be used to compute moving averages, cumulatives sums, rolling regressions, and any other sliding operation.&lt;/p>
+&lt;p>This package is a combination of ideas from a variety of sources, including:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://purrr.tidyverse.org/" target="_blank" rel="noopener">purrr&lt;/a> for the overall package API&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://www.postgresql.org/docs/9.1/sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS" target="_blank" rel="noopener">SQL&amp;rsquo;s window functions&lt;/a> for the argument API&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://github.com/tidyverts/tsibble" target="_blank" rel="noopener">Earo Wang&amp;rsquo;s &lt;code>tsibble::slide()&lt;/code>&lt;/a> for the function names&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://rdatatable.gitlab.io/data.table/" target="_blank" rel="noopener">data.table&amp;rsquo;s non-equi joins&lt;/a> for inspiration on how &lt;code>slide_index()&lt;/code> should work&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Install slider with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;slider&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This blog post summarizes the three key functions in slider: &lt;code>slide()&lt;/code>, &lt;code>slide_index()&lt;/code>, and &lt;code>slide_period()&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">slider&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tibble&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">purrr&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">lubridate&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">warn.conflicts&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">FALSE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dplyr&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">warn.conflicts&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">FALSE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="sliding">Sliding
+&lt;a href="#sliding">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>&lt;code>purrr::map()&lt;/code> allows you to iterate over a vector one element at a time and apply a function to each element. &lt;code>slide()&lt;/code> takes that concept and generalizes it so that you can iterate over &lt;em>sliding windows&lt;/em> of a vector, applying any function that you want to each window. To start exploring this idea, note that the defaults of &lt;code>slide()&lt;/code> are essentially identical to &lt;code>map()&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># A vector of sales data for our business&lt;/span>
+&lt;span class="n">sales_vec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">slide&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sales_vec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">~&lt;/span>&lt;span class="n">.x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [[1]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 2&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[2]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 4&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[3]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 3&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[4]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 5&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Things get more interesting when you consider the additional arguments to &lt;code>slide()&lt;/code>:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>.before&lt;/code>: How many elements &lt;em>before&lt;/em> the current one should be included in the window?&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>.after&lt;/code>: How many elements &lt;em>after&lt;/em> the current one should be included in the window?&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>.complete&lt;/code>: Should &lt;code>.f&lt;/code> only be evaluated when there is enough data to make a complete window?&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>.step&lt;/code>: The number of elements to shift forward between calls to &lt;code>.f&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>By setting &lt;code>.before = 1&lt;/code> we can construct moving windows along &lt;code>.x&lt;/code>, adding the current element and the one before it into the window.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">slide&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sales_vec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">~&lt;/span>&lt;span class="n">.x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.before&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [[1]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 2&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[2]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 2 4&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[3]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 4 3&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[4]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 3 5&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Notice how in the first result our slice just has one element. This is an &lt;em>incomplete&lt;/em> window because it isn&amp;rsquo;t possible to look one element before the first element. By default, &lt;code>slide()&lt;/code> computes &lt;code>.f&lt;/code> on incomplete windows, but you can force it to only be computed on complete windows with &lt;code>.complete&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">slide&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sales_vec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">~&lt;/span>&lt;span class="n">.x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.before&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.complete&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [[1]]&lt;/span>
+&lt;span class="c1">#&amp;gt; NULL&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[2]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 2 4&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[3]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 4 3&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[4]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 3 5&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The API of slider is intentionally very similar to purrr. &lt;code>slide()&lt;/code> always returns a list (like &lt;code>map()&lt;/code>), and the size of the result is always the same size as the input. As you might have guessed, there are also suffixed versions available to return more specific output. Say we want to compute a 2-value moving average from our sales. We might use:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">slide_dbl&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sales_vec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">mean&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.before&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 2.0 3.0 3.5 4.0&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>There is also a new suffix, &lt;code>*_vec()&lt;/code>, which attempts to automatically simplify the results using the type rules provided by
+&lt;a href="https://vctrs.r-lib.org/" target="_blank" rel="noopener">vctrs&lt;/a>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">slide_vec&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sales_vec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">mean&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.before&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 2.0 3.0 3.5 4.0&lt;/span>
+&lt;span class="nf">slide_vec&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sales_vec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">~&lt;/span>&lt;span class="nf">mean&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">.x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.before&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] FALSE FALSE TRUE TRUE&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Lastly, the one big difference between how &lt;code>slide()&lt;/code> and &lt;code>map()&lt;/code> iterate over vectors is how they treat data frames. To &lt;code>map()&lt;/code>, a data frame is a vector of columns, to &lt;code>slide()&lt;/code> it is a
+&lt;a href="https://blog.davisvaughan.com/2019/10/16/data-frames-as-vectors-of-rows/" target="_blank" rel="noopener">vector of rows&lt;/a>. In a way, this makes &lt;code>slide()&lt;/code> a generic row-wise iterator over data frames.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">index_vec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">as.Date&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;2019-08-29&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">6&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">wday_vec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">as.character&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">wday&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">index_vec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">label&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="n">company&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">sales&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">sales_vec&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">index&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">index_vec&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">wday&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">wday_vec&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="n">company&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 4 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; sales index wday &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;date&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 2 2019-08-29 Thu &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 4 2019-08-30 Fri &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 3 2019-09-03 Tue &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 5 2019-09-04 Wed&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Over columns:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">company&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">~&lt;/span>&lt;span class="n">.x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; $sales&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] 2 4 3 5&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; $index&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;2019-08-29&amp;#34; &amp;#34;2019-08-30&amp;#34; &amp;#34;2019-09-03&amp;#34; &amp;#34;2019-09-04&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; $wday&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;Thu&amp;#34; &amp;#34;Fri&amp;#34; &amp;#34;Tue&amp;#34; &amp;#34;Wed&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Over rows:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">slide&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">company&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">~&lt;/span>&lt;span class="n">.x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [[1]]&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; sales index wday &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;date&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 2 2019-08-29 Thu &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[2]]&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; sales index wday &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;date&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 4 2019-08-30 Fri &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[3]]&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; sales index wday &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;date&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 3 2019-09-03 Tue &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[4]]&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; sales index wday &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;date&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 5 2019-09-04 Wed&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can also still use the additional arguments to construct sliding windows along your data frame.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">slide&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">company&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">~&lt;/span>&lt;span class="n">.x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.before&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [[1]]&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; sales index wday &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;date&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 2 2019-08-29 Thu &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[2]]&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 2 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; sales index wday &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;date&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 2 2019-08-29 Thu &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 4 2019-08-30 Fri &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[3]]&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 3 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; sales index wday &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;date&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 2 2019-08-29 Thu &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 4 2019-08-30 Fri &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 3 2019-09-03 Tue &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[4]]&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 3 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; sales index wday &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;date&amp;gt; &amp;lt;chr&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 4 2019-08-30 Fri &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 3 2019-09-03 Tue &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 5 2019-09-04 Wed&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="index-sliding">Index sliding
+&lt;a href="#index-sliding">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Throughout R&amp;rsquo;s history, a few of the features of &lt;code>slide()&lt;/code> have been available in other packages. You could accomplish some of the same things with &lt;code>zoo::rollapply()&lt;/code>, &lt;code>tsibble::slide()&lt;/code>, and even with my original attempt at this, &lt;code>tibbletime::rollify()&lt;/code>.&lt;/p>
+&lt;p>But none of these methods ever solved a problem that is incredibly common in business-oriented data analysis. What happens when you have a date index attached to when the sales happened, and you want to compute a moving average over &lt;em>two days&lt;/em>? &lt;code>slide()&lt;/code> doesn&amp;rsquo;t solve this problem either, because you might have date gaps in your vector that it doesn&amp;rsquo;t know about. To demonstrate this, let&amp;rsquo;s assume that you are interested in computing those two day windows. To visualize them, we&amp;rsquo;ll print out the week day that would be associated with these naive windows if we used &lt;code>slide()&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">wday_vec&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;Thu&amp;#34; &amp;#34;Fri&amp;#34; &amp;#34;Tue&amp;#34; &amp;#34;Wed&amp;#34;&lt;/span>
+&lt;span class="nf">slide&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">wday_vec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">~&lt;/span>&lt;span class="n">.x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.before&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [[1]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;Thu&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[2]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;Thu&amp;#34; &amp;#34;Fri&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[3]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;Fri&amp;#34; &amp;#34;Tue&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[4]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;Tue&amp;#34; &amp;#34;Wed&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Notice the third window! We started on Tuesday, which means the window should only include &lt;code>[Mon, Tue]&lt;/code>, but Friday is also included here. This happens because &lt;code>slide()&lt;/code> looks back a number of &lt;em>values&lt;/em>, and knows nothing about how to compute this &lt;code>[Mon, Tue]&lt;/code> &lt;em>range&lt;/em> to slide between. This differentiation between values and ranges comes from SQL, and is further explained in a bit more detail by
+&lt;a href="https://www.vertica.com/docs/9.2.x/HTML/Content/Authoring/SQLReferenceManual/Functions/Analytic/window_frame_clause.htm?origin_team=T02V9CHFH#ROWSversusRANGE" target="_blank" rel="noopener">Vertica&amp;rsquo;s window function documentation&lt;/a>.&lt;/p>
+&lt;p>To solve this specific problem of sliding with respect to an index, we&amp;rsquo;ll need a new function, &lt;code>slide_index()&lt;/code>. It&amp;rsquo;s similar to &lt;code>slide()&lt;/code>, and has all of the same suffixed versions, but allows you to pass in a secondary index to slide relative to. Ranges to slide between are computed as &lt;code>.i - .before&lt;/code> and &lt;code>.i + .after&lt;/code>, meaning that you can use more interesting objects for &lt;code>.before&lt;/code>, like &lt;code>lubridate::days()&lt;/code>! It just has to implement &lt;code>-&lt;/code> and &lt;code>+&lt;/code> methods when combined with your index.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">wday_vec&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;Thu&amp;#34; &amp;#34;Fri&amp;#34; &amp;#34;Tue&amp;#34; &amp;#34;Wed&amp;#34;&lt;/span>
+&lt;span class="n">index_vec&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;2019-08-29&amp;#34; &amp;#34;2019-08-30&amp;#34; &amp;#34;2019-09-03&amp;#34; &amp;#34;2019-09-04&amp;#34;&lt;/span>
+&lt;span class="nf">slide_index&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">.x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">wday_vec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.i&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">index_vec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">~&lt;/span>&lt;span class="n">.x&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.before&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">days&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; [[1]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;Thu&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[2]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;Thu&amp;#34; &amp;#34;Fri&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[3]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;Tue&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[4]]&lt;/span>
+&lt;span class="c1">#&amp;gt; [1] &amp;#34;Tue&amp;#34; &amp;#34;Wed&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This correctly buckets Tuesday in its own group, since there is no data point for the Monday before it. We can compare the difference between a two-value vs a two-day moving average like so:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">company&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">two_value&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">slide_dbl&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sales&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">mean&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.before&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">two_day&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">slide_index_dbl&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sales&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">index&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">mean&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.before&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">days&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">)),&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 4 x 5&lt;/span>
+&lt;span class="c1">#&amp;gt; sales index wday two_value two_day&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;date&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 2 2019-08-29 Thu 2 2&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 4 2019-08-30 Fri 3 3&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 3 2019-09-03 Tue 3.5 3&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 5 2019-09-04 Wed 4 4&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="period-sliding">Period sliding
+&lt;a href="#period-sliding">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>While &lt;code>slide()&lt;/code> and &lt;code>slide_index()&lt;/code> are great because they are size-stable, sometimes you&amp;rsquo;ll want to take data that has a daily index, break it into monthly chunks, and return results at the monthly level. This implies returning an output that has a different size from your input. To power these ideas, you can use &lt;code>slide_period()&lt;/code>, which takes an index and a period to chunk by, and then iterates over &lt;code>.x&lt;/code> relative to those period chunks.&lt;/p>
+&lt;p>Say we want to take &lt;code>big_company&lt;/code> below, break it into monthly chunks, and compute and return just the monthly totals.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">big_index_vec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="nf">as.Date&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;2019-08-30&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">4&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="nf">as.Date&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;2019-11-30&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">4&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="n">big_sales_vec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">6&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">8&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">10&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">9&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">big_company&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">sales&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">big_sales_vec&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">index&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">big_index_vec&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="n">big_company&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 10 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; sales index &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;date&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 2 2019-08-30&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 4 2019-08-31&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 6 2019-09-01&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 2 2019-09-02&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 8 2019-09-03&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 10 2019-11-30&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 9 2019-12-01&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 3 2019-12-02&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 5 2019-12-03&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 2 2019-12-04&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>slide_period()&lt;/code> allows you to iterate over your data frame in these monthly chunks, applying whatever function you want to each one.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">slide_period&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">big_company&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">big_company&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">index&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;month&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">~&lt;/span>&lt;span class="n">.x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; [[1]]&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 2 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; sales index &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;date&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 2 2019-08-30&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 4 2019-08-31&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[2]]&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 3 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; sales index &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;date&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 6 2019-09-01&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 2 2019-09-02&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 8 2019-09-03&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[3]]&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 1 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; sales index &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;date&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 10 2019-11-30&lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[4]]&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 4 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; sales index &lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;date&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 9 2019-12-01&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 3 2019-12-02&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 5 2019-12-03&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 2 2019-12-04&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>I find it easiest to wrap up what you want to do into a function, and then apply that to each slice.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">monthly_summary&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nf">summarise&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">start&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">min&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">index&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">end&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">max&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">index&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">total_sales&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">sum&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sales&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="nf">slide_period_dfr&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">big_company&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">big_company&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">index&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="s">&amp;#34;month&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">monthly_summary&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 4 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; start end total_sales&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;date&amp;gt; &amp;lt;date&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 2019-08-30 2019-08-31 6&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 2019-09-01 2019-09-03 16&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 2019-11-30 2019-11-30 10&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 2019-12-01 2019-12-04 19&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Now, you might recognize that you can do this with dplyr:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">big_company&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">monthly&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">floor_date&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">index&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;month&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">monthly&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">summarise&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sales&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">sum&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sales&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 4 x 2&lt;/span>
+&lt;span class="c1">#&amp;gt; monthly sales&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;date&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 2019-08-01 6&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 2019-09-01 16&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 2019-11-01 10&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 2019-12-01 19&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>But what you can&amp;rsquo;t easily do is slide over multiple monthly chunks at once, effectively creating a rolling monthly total, from daily data. With &lt;code>slide_period()&lt;/code>, &lt;code>.before&lt;/code> works at the period level, so you get to control how many monthly periods are included in your sliding window. Notice how the start dates below go back into the previous month (but only if there was data for it).&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">slide_period_dfr&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">big_company&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">big_company&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">index&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="s">&amp;#34;month&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">monthly_summary&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">.before&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 4 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; start end total_sales&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;date&amp;gt; &amp;lt;date&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 2019-08-30 2019-08-31 6&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 2019-08-30 2019-09-03 22&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 2019-11-30 2019-11-30 10&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 2019-11-30 2019-12-04 29&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thanks to some of the early adopters of slider!&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/AlanFeder" target="_blank" rel="noopener">@AlanFeder&lt;/a>,
+&lt;a href="https://github.com/AlunHewinson" target="_blank" rel="noopener">@AlunHewinson&lt;/a>,
+&lt;a href="https://github.com/echasnovski" target="_blank" rel="noopener">@echasnovski&lt;/a>,
+&lt;a href="https://github.com/mik3y64" target="_blank" rel="noopener">@mik3y64&lt;/a>,
+&lt;a href="https://github.com/perlatex" target="_blank" rel="noopener">@perlatex&lt;/a>, and
+&lt;a href="https://github.com/RobertMyles" target="_blank" rel="noopener">@RobertMyles&lt;/a>.&lt;/p></description></item></channel></rss>

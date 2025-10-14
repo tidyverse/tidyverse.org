@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>glue | Tidyverse</title><link>https://www.tidyverse.org/tags/glue/</link><atom:link href="https://www.tidyverse.org/tags/glue/index.xml" rel="self" type="application/rss+xml"/><description>glue</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 31 Oct 2017 00:00:00 +0000</lastBuildDate><item><title>glue 1.2.0</title><link>https://www.tidyverse.org/blog/2017/10/glue-1.2.0/</link><pubDate>Tue, 31 Oct 2017 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2017/10/glue-1.2.0/</guid><description>
+&lt;p>&lt;a href="http://glue.tidyverse.org">glue 1.2.0&lt;/a> is now available on CRAN! &lt;a href="http://glue.tidyverse.org">glue&lt;/a> is designed to make it easy to interpolate (“glue”) your data into strings. Compared to equivalents like &lt;code>paste()&lt;/code> and &lt;code>sprintf()&lt;/code> it is easier to write and less time consuming to maintain. It also has no non-base dependencies so is easy to include in packages.&lt;/p>
+&lt;p>Install the latest version with:&lt;/p>
+&lt;pre class="r">&lt;code>install.packages(&amp;quot;glue&amp;quot;)&lt;/code>&lt;/pre>
+&lt;p>glue has three primary functions, &lt;code>glue()&lt;/code>, &lt;code>glue_data()&lt;/code> and &lt;code>collapse()&lt;/code>. &lt;code>glue()&lt;/code> works in a similar way to double quotes &lt;code>&amp;quot;&lt;/code> in a shell or python’s &lt;a href="https://www.python.org/dev/peps/pep-0498/">String Interpolation&lt;/a>. You surround the code you want evaluated by &lt;code>{}&lt;/code> and the value of the expression is inserted into the string.&lt;/p>
+&lt;pre class="r">&lt;code>name &amp;lt;- &amp;quot;Fred&amp;quot;
+age &amp;lt;- 50
+anniversary &amp;lt;- as.Date(&amp;quot;1991-10-12&amp;quot;)
+glue(&amp;#39;
+My name is {name}
+my age next year is {age + 1}
+my anniversary is {format(anniversary, &amp;quot;%A, %B %d, %Y&amp;quot;)}
+&amp;#39;)
+#&amp;gt; My name is Fred
+#&amp;gt; my age next year is 51
+#&amp;gt; my anniversary is Saturday, October 12, 1991&lt;/code>&lt;/pre>
+&lt;p>glue is also vectorized over its inputs.&lt;/p>
+&lt;pre class="r">&lt;code>glue(&amp;#39;
+{month.abb} is short for {month.name}
+&amp;#39;)
+#&amp;gt; Jan is short for January
+#&amp;gt; Feb is short for February
+#&amp;gt; Mar is short for March
+#&amp;gt; Apr is short for April
+#&amp;gt; May is short for May
+#&amp;gt; Jun is short for June
+#&amp;gt; Jul is short for July
+#&amp;gt; Aug is short for August
+#&amp;gt; Sep is short for September
+#&amp;gt; Oct is short for October
+#&amp;gt; Nov is short for November
+#&amp;gt; Dec is short for December&lt;/code>&lt;/pre>
+&lt;p>&lt;code>glue_data()&lt;/code> works like &lt;code>glue()&lt;/code>, but instead of looking up its variables from the calling environment it looks them up from the first argument (usually a data frame or tibble). This makes &lt;code>glue_data()&lt;/code> very useful within pipe chains.&lt;/p>
+&lt;pre class="r">&lt;code>library(magrittr)
+mtcars$model &amp;lt;- rownames(mtcars)
+mtcars %&amp;gt;%
+head %&amp;gt;%
+glue_data(&amp;quot;The {model} has {gear} gears, {cyl} cylinders, and {hp} horsepower.&amp;quot;)
+#&amp;gt; The Mazda RX4 has 4 gears, 6 cylinders, and 110 horsepower.
+#&amp;gt; The Mazda RX4 Wag has 4 gears, 6 cylinders, and 110 horsepower.
+#&amp;gt; The Datsun 710 has 4 gears, 4 cylinders, and 93 horsepower.
+#&amp;gt; The Hornet 4 Drive has 3 gears, 6 cylinders, and 110 horsepower.
+#&amp;gt; The Hornet Sportabout has 3 gears, 8 cylinders, and 175 horsepower.
+#&amp;gt; The Valiant has 3 gears, 6 cylinders, and 105 horsepower.&lt;/code>&lt;/pre>
+&lt;p>&lt;code>collapse()&lt;/code> is used to combine multiple values into one. The &lt;code>last&lt;/code> argument is used to change the separator for the last value.&lt;/p>
+&lt;pre class="r">&lt;code>collapse(1:5, &amp;quot;, &amp;quot;, last = &amp;quot;, and &amp;quot;)
+#&amp;gt; 1, 2, 3, 4, and 5&lt;/code>&lt;/pre>
+&lt;div id="glue-transformers" class="section level2">
+&lt;h2>glue transformers&lt;/h2>
+&lt;p>New to glue 1.2.0 are transformer functions, which allow you to define custom behavior for glue functions. For example a &lt;code>collapse_transformer()&lt;/code> which automatically collapses any blocks which end with &lt;code>*&lt;/code>.&lt;/p>
+&lt;pre class="r">&lt;code>collapse_transformer &amp;lt;- function(regex = &amp;quot;[*]$&amp;quot;, ...) {
+function(code, envir) {
+if (grepl(regex, code)) {
+code &amp;lt;- sub(regex, &amp;quot;&amp;quot;, code)
+}
+res &amp;lt;- evaluate(code, envir)
+collapse(res, ...)
+}
+}
+glue(&amp;quot;
+{1:5*}
+{letters[1:5]*}&amp;quot;,
+.transformer = collapse_transformer(sep = &amp;quot;, &amp;quot;, last = &amp;quot;, and &amp;quot;))
+#&amp;gt; 1, 2, 3, 4, and 5
+#&amp;gt; a, b, c, d, and e&lt;/code>&lt;/pre>
+&lt;p>Or an sprintf transformer which lets you use sprintf style numeric formatting with glue.&lt;/p>
+&lt;pre class="r">&lt;code>sprintf_transformer &amp;lt;- function(code, envir) {
+m &amp;lt;- regexpr(&amp;quot;%.+$&amp;quot;, code)
+if (m != -1) {
+format &amp;lt;- regmatches(code, m)
+regmatches(code, m) &amp;lt;- &amp;quot;&amp;quot;
+res &amp;lt;- evaluate(code, envir)
+do.call(sprintf, list(format, res))
+} else {
+evaluate(code, envir)
+}
+}
+glue_fmt &amp;lt;- function(..., .envir = parent.frame()) {
+glue(..., .transformer = sprintf_transformer, .envir = .envir)
+}
+glue_fmt(&amp;quot;π = {pi%.5f}&amp;quot;)
+#&amp;gt; π = 3.14159&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="glue_sql" class="section level2">
+&lt;h2>glue_sql()&lt;/h2>
+&lt;p>Also new to glue 1.2.0 is &lt;code>glue_sql()&lt;/code> and &lt;code>glue_sql_data()&lt;/code>, which are helper functions defined with glue transformers to make it easy and safe to construct SQL statements.&lt;/p>
+&lt;p>Using &lt;code>glue_sql()&lt;/code> values are automatically quoted appropriately and variables can be quoted with backticks.&lt;/p>
+&lt;pre class="r">&lt;code>con &amp;lt;- DBI::dbConnect(RSQLite::SQLite(), &amp;quot;:memory:&amp;quot;)
+colnames(iris) &amp;lt;- gsub(&amp;quot;[.]&amp;quot;, &amp;quot;_&amp;quot;, tolower(colnames(iris)))
+DBI::dbWriteTable(con, &amp;quot;iris&amp;quot;, iris)
+var &amp;lt;- &amp;quot;sepal_width&amp;quot;
+tbl &amp;lt;- &amp;quot;iris&amp;quot;
+num &amp;lt;- 2
+val &amp;lt;- &amp;quot;setosa&amp;quot;
+glue_sql(&amp;quot;
+SELECT {`var`}
+FROM {`tbl`}
+WHERE {`tbl`}.sepal_length &amp;gt; {num}
+AND {`tbl`}.species = {val}
+&amp;quot;, .con = con)
+#&amp;gt; &amp;lt;SQL&amp;gt; SELECT `sepal_width`
+#&amp;gt; FROM `iris`
+#&amp;gt; WHERE `iris`.sepal_length &amp;gt; 2
+#&amp;gt; AND `iris`.species = &amp;#39;setosa&amp;#39;&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div id="other-changes" class="section level2">
+&lt;h2>Other changes&lt;/h2>
+&lt;p>There are many other bug fixes and other minor improvements. You can see a complete list in the &lt;a href="https://github.com/tidyverse/glue/releases/tag/v1.2.0">release notes&lt;/a>.&lt;/p>
+&lt;p>A big thanks goes to all the community members who contributed code and opened issues since the last release! (&lt;a href="https://github.com/artemklevtsov">@artemklevtsov&lt;/a>, &lt;a href="https://github.com/daroczig">@daroczig&lt;/a>, &lt;a href="https://github.com/DarwinAwardWinner">@DarwinAwardWinner&lt;/a>, &lt;a href="https://github.com/edarague">@edarague&lt;/a>, &lt;a href="https://github.com/hadley">@hadley&lt;/a>, &lt;a href="https://github.com/hughjonesd">@hughjonesd&lt;/a>, &lt;a href="https://github.com/jennybc">@jennybc&lt;/a>, &lt;a href="https://github.com/jimhester">@jimhester&lt;/a>, &lt;a href="https://github.com/jjchern">@jjchern&lt;/a>, &lt;a href="https://github.com/klmr">@klmr&lt;/a>, &lt;a href="https://github.com/krlmlr">@krlmlr&lt;/a>, &lt;a href="https://github.com/lionel-">@lionel-&lt;/a>, &lt;a href="https://github.com/mgirlich">@mgirlich&lt;/a>, &lt;a href="https://github.com/mmuurr">@mmuurr&lt;/a>, &lt;a href="https://github.com/npjc">@npjc&lt;/a>, &lt;a href="https://github.com/pssguy">@pssguy&lt;/a>, and &lt;a href="https://github.com/robinsones">@robinsones&lt;/a>)&lt;/p>
+&lt;/div></description></item></channel></rss>

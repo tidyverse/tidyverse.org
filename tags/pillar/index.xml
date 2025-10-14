@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>pillar | Tidyverse</title><link>https://www.tidyverse.org/tags/pillar/</link><atom:link href="https://www.tidyverse.org/tags/pillar/index.xml" rel="self" type="application/rss+xml"/><description>pillar</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 30 Apr 2018 00:00:00 +0000</lastBuildDate><item><title>pillar 1.2.2</title><link>https://www.tidyverse.org/blog/2018/04/pillar-1-2-2/</link><pubDate>Mon, 30 Apr 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/04/pillar-1-2-2/</guid><description>
+&lt;p>Announcing version 1.2.2 of the &lt;em>pillar&lt;/em> package which prints &lt;a href="http://tibble.tidyverse.org/">tibbles&lt;/a> to the terminal. This is yet another small release that addresses user feedback. Numbers are printed more consicely and accurately. We show how to enable the original data frame printing for tibbles, and an outlook on upcoming formatting improvement for list columns.&lt;/p>
+&lt;p>Please see the &lt;a href="https://github.com/r-lib/pillar/releases/v1.2.2">release notes&lt;/a> for the full list of changes. Examples in this blog post are shown using the &lt;em>tibble&lt;/em> package, which uses &lt;em>pillar&lt;/em> under the hood.&lt;/p>
+&lt;div id="improved-output" class="section level2">
+&lt;h2>Improved output&lt;/h2>
+&lt;p>The decimal dot that was always printed since &lt;em>pillar&lt;/em> 1.2.1 seems to have contributed to more confusion, not less. It’s gone now, whole numbers don’t have the dot anymore. Unless.&lt;/p>
+&lt;p>Unless it’s a whole number a tiny number has been added to or subtracted from. In other words, &lt;code>1&lt;/code> is shown as &lt;code>1&lt;/code>, but &lt;code>1 + 1e-6&lt;/code> is shown as &lt;code>1.00&lt;/code>, and &lt;code>123 + 1e-6&lt;/code> is shown as &lt;code>123.&lt;/code>. This is a hint that there’s more than can be shown with the requested number of significant digits (which is 3 by default and can be changed by setting the &lt;code>pillar.sigfig&lt;/code> option).&lt;/p>
+&lt;p>Likewise, decimal numbers that don’t use the requested number of significant digits are shortened. The number &lt;code>0.1&lt;/code> is no longer shown as &lt;code>0.100&lt;/code>. Because most finite decimal representations don’t have an accurate representation in the underlying floating-point format, &lt;em>pillar&lt;/em> uses a heuristic: if the number multiplied by a power of 10 is a whole number within a small tolerance of about &lt;code>1e-8&lt;/code> (on most systems), it can be shortened. This is the same tolerance that the &lt;code>all.equal()&lt;/code> function uses for comparing numeric values.&lt;/p>
+&lt;pre class="r">&lt;code>tibble(numbers = c(1, 0.1, 0.01, c(1, 12, 123, 1234, 0.1, 0.01) + 1e-6))&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 9 x 1&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> numbers
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> 0.1
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 0.01
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">4&lt;/span> 1.00
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">5&lt;/span> 12.0
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">6&lt;/span> 123.
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">7&lt;/span> &lt;span style="text-decoration:underline">1&lt;/span>234.
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">8&lt;/span> 0.100
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">9&lt;/span> 0.010&lt;span style="text-decoration:underline">0&lt;/span>
+&lt;/pre>
+&lt;/div>
+&lt;div id="dont-like-the-printing" class="section level2">
+&lt;h2>Don’t like the printing?&lt;/h2>
+&lt;p>Just like with the absence of row names or the default &lt;code>drop = FALSE&lt;/code>, tibbles are opinionated in how they print. We’re working on providing a sensible default that suits most use cases, but some users have expressed the desire to revert to the good old data frame output.&lt;/p>
+&lt;p>This is possible already by overriding the &lt;code>print.tbl_df&lt;/code> method, which is called when a tibble is printed (either explicitly via &lt;code>print()&lt;/code> or implicitly from the console). On the downside, this also loses the second header row with the data types and the restriction in the number of rows and columns shown.&lt;/p>
+&lt;pre class="r">&lt;code>tibble(a = 1:3)&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 3 x 1&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> a
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;int&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> 2
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 3
+&lt;/pre>
+&lt;pre class="r">&lt;code>print.tbl_df &amp;lt;- function(x, ...) {
+print.data.frame(x, ...)
+invisible(x)
+}
+tibble(a = 1:3)&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> a
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> 1 1
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> 2 2
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> 3 3
+&lt;/pre>
+&lt;/div>
+&lt;div id="outlook-formatting-list-columns" class="section level2">
+&lt;h2>Outlook: formatting list columns&lt;/h2>
+&lt;p>List columns (and the special case of nested data frames) are a very powerful idiom. In R, a list is just a special case of a vector that can hold arbitrary complex objects; it can be added to a data frame if it has the same lengths as the other columns:&lt;/p>
+&lt;pre class="r">&lt;code>tibble(a = 1:3, b = list(4, 5:6, letters[7:9]))&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 3 x 2&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> a b
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;int&amp;gt;&lt;/span>&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;list&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1 &lt;span style="color:#8a8a8a">&amp;lt;dbl [1]&amp;gt;&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> 2 &lt;span style="color:#8a8a8a">&amp;lt;int [2]&amp;gt;&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 3 &lt;span style="color:#8a8a8a">&amp;lt;chr [3]&amp;gt;&lt;/span>
+&lt;/pre>
+&lt;p>Often, all objects in a list column have the same data type. A different formatting for such homogeneous lists would help focus on the relevant parts (e.g. the dimensions of the objects in that list) and save space too. This feature isn’t ready for prime time yet, but the screenshot below shows how this could look like. Feel free to comment on the &lt;a href="https://github.com/r-lib/pillar/pull/109">relevant pull request&lt;/a> on GitHub.&lt;/p>
+&lt;div class="figure">
+&lt;img src="https://www.tidyverse.org/images/pillar-1-2-2/colored-list-col.png" />
+&lt;/div>
+&lt;/div>
+&lt;div id="acknowledgments" class="section level2">
+&lt;h2>Acknowledgments&lt;/h2>
+&lt;p>We’d like to use the opportunity to thank all recent contributors to &lt;em>pillar&lt;/em> and &lt;em>tibble&lt;/em>. Thanks to everyone, your contributions help improve the tidyverse:&lt;/p>
+&lt;p>&lt;a href="https://github.com/adsaxon">@adsaxon&lt;/a>, &lt;a href="https://github.com/aegerton">@aegerton&lt;/a>, &lt;a href="https://github.com/alaindanet">@alaindanet&lt;/a>, &lt;a href="https://github.com/alexwhan">@alexwhan&lt;/a>, &lt;a href="https://github.com/alistaire47">@alistaire47&lt;/a>, &lt;a href="https://github.com/anhqle">@anhqle&lt;/a>, &lt;a href="https://github.com/batpigandme">@batpigandme&lt;/a>, &lt;a href="https://github.com/bgreenwell">@bgreenwell&lt;/a>, &lt;a href="https://github.com/blueprint-ade">@blueprint-ade&lt;/a>, &lt;a href="https://github.com/brodieG">@brodieG&lt;/a>, &lt;a href="https://github.com/BruceZhaoR">@BruceZhaoR&lt;/a>, &lt;a href="https://github.com/cboettig">@cboettig&lt;/a>, &lt;a href="https://github.com/chasemc">@chasemc&lt;/a>, &lt;a href="https://github.com/cimentadaj">@cimentadaj&lt;/a>, &lt;a href="https://github.com/czeildi">@czeildi&lt;/a>, &lt;a href="https://github.com/DavisVaughan">@DavisVaughan&lt;/a>, &lt;a href="https://github.com/digital-dharma">@digital-dharma&lt;/a>, &lt;a href="https://github.com/dpeterson71">@dpeterson71&lt;/a>, &lt;a href="https://github.com/drewgendreau">@drewgendreau&lt;/a>, &lt;a href="https://github.com/echasnovski">@echasnovski&lt;/a>, &lt;a href="https://github.com/EdwardJRoss">@EdwardJRoss&lt;/a>, &lt;a href="https://github.com/edzer">@edzer&lt;/a>, &lt;a href="https://github.com/Eluvias">@Eluvias&lt;/a>, &lt;a href="https://github.com/flying-sheep">@flying-sheep&lt;/a>, &lt;a href="https://github.com/gregorp">@gregorp&lt;/a>, &lt;a href="https://github.com/holstius">@holstius&lt;/a>, &lt;a href="https://github.com/hplieninger">@hplieninger&lt;/a>, &lt;a href="https://github.com/ijlyttle">@ijlyttle&lt;/a>, &lt;a href="https://github.com/iron0012">@iron0012&lt;/a>, &lt;a href="https://github.com/javierluraschi">@javierluraschi&lt;/a>, &lt;a href="https://github.com/jcpetkovich">@jcpetkovich&lt;/a>, &lt;a href="https://github.com/jennybc">@jennybc&lt;/a>, &lt;a href="https://github.com/JLYJabc">@JLYJabc&lt;/a>, &lt;a href="https://github.com/jonathan-g">@jonathan-g&lt;/a>, &lt;a href="https://github.com/jtelleriar">@jtelleriar&lt;/a>, &lt;a href="https://github.com/kendonB">@kendonB&lt;/a>, &lt;a href="https://github.com/kevinushey">@kevinushey&lt;/a>, &lt;a href="https://github.com/kevinykuo">@kevinykuo&lt;/a>, &lt;a href="https://github.com/khughitt">@khughitt&lt;/a>, &lt;a href="https://github.com/kovla">@kovla&lt;/a>, &lt;a href="https://github.com/lbusett">@lbusett&lt;/a>, &lt;a href="https://github.com/lionel-">@lionel-&lt;/a>, &lt;a href="https://github.com/lorenzwalthert">@lorenzwalthert&lt;/a>, &lt;a href="https://github.com/lpmarco">@lpmarco&lt;/a>, &lt;a href="https://github.com/lwiklendt">@lwiklendt&lt;/a>, &lt;a href="https://github.com/martinjhnhadley">@martinjhnhadley&lt;/a>, &lt;a href="https://github.com/martj42">@martj42&lt;/a>, &lt;a href="https://github.com/mattfidler">@mattfidler&lt;/a>, &lt;a href="https://github.com/mmuurr">@mmuurr&lt;/a>, &lt;a href="https://github.com/momeara">@momeara&lt;/a>, &lt;a href="https://github.com/mubeenarasack">@mubeenarasack&lt;/a>, &lt;a href="https://github.com/mundl">@mundl&lt;/a>, &lt;a href="https://github.com/nathancday">@nathancday&lt;/a>, &lt;a href="https://github.com/p0bs">@p0bs&lt;/a>, &lt;a href="https://github.com/PalaceChan">@PalaceChan&lt;/a>, &lt;a href="https://github.com/patperry">@patperry&lt;/a>, &lt;a href="https://github.com/plantarum">@plantarum&lt;/a>, &lt;a href="https://github.com/PMassicotte">@PMassicotte&lt;/a>, &lt;a href="https://github.com/randomgambit">@randomgambit&lt;/a>, &lt;a href="https://github.com/rkahne">@rkahne&lt;/a>, &lt;a href="https://github.com/slonik-az">@slonik-az&lt;/a>, &lt;a href="https://github.com/strengejacke">@strengejacke&lt;/a>, &lt;a href="https://github.com/sumtxt">@sumtxt&lt;/a>, &lt;a href="https://github.com/t-kalinowski">@t-kalinowski&lt;/a>, &lt;a href="https://github.com/Tazinho">@Tazinho&lt;/a>, &lt;a href="https://github.com/tjmahr">@tjmahr&lt;/a>, &lt;a href="https://github.com/tmelconian">@tmelconian&lt;/a>, &lt;a href="https://github.com/tomroh">@tomroh&lt;/a>, &lt;a href="https://github.com/trinker">@trinker&lt;/a>, &lt;a href="https://github.com/vnijs">@vnijs&lt;/a>, &lt;a href="https://github.com/vspinu">@vspinu&lt;/a>, &lt;a href="https://github.com/WB-Student">@WB-Student&lt;/a>, &lt;a href="https://github.com/wch">@wch&lt;/a>, &lt;a href="https://github.com/wibeasley">@wibeasley&lt;/a>, &lt;a href="https://github.com/wpetry">@wpetry&lt;/a>, &lt;a href="https://github.com/yutannihilation">@yutannihilation&lt;/a>, and &lt;a href="https://github.com/Zedseayou">@Zedseayou&lt;/a>.&lt;/p>
+&lt;/div></description></item><item><title>pillar 1.2.1</title><link>https://www.tidyverse.org/blog/2018/03/pillar-1-2-1/</link><pubDate>Fri, 02 Mar 2018 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2018/03/pillar-1-2-1/</guid><description>
+&lt;p>We’re excited to present version 1.2.1 of the &lt;em>pillar&lt;/em> package, the package that is responsible for printing &lt;a href="http://tibble.tidyverse.org/">tibbles&lt;/a> to the terminal. This small release addresses feedback concerning the output of tibbles. In particular, groups of three digits are now highlighted to give a better idea about the order of magnitude of decimal numbers. In addition, a few minor bugs were fixed, such as the output for S3 classes extending &lt;code>numeric&lt;/code> (like durations from &lt;em>lubridate&lt;/em>) and the output very small numbers.&lt;/p>
+&lt;p>Please see the &lt;a href="https://github.com/r-lib/pillar/releases/v1.2.1">release notes&lt;/a> for the full list of improvements and bug fixes. Because the changes in this package mostly affect the output for tibbles, examples in this blog post are shown using the &lt;em>tibble&lt;/em> package.&lt;/p>
+&lt;div id="improved-output" class="section level2">
+&lt;h2>Improved output&lt;/h2>
+&lt;p>In response to use feedback, the following changes were made to the output:&lt;/p>
+&lt;ul>
+&lt;li>Previous versions of &lt;em>pillar&lt;/em> showed all but the three “significant” digits in a subtle color. This highlights the wrong digits in some common use cases and is now turned off by default.&lt;br />
+&lt;/li>
+&lt;li>The negation sign is printed next to the number again. Aligning all negation signs turned out to be confusing in some cases.&lt;/li>
+&lt;li>Groups of three digits are now underlined, starting with the fourth before/after the decimal point. This gives a better idea of the order of magnitude of the numbers.&lt;/li>
+&lt;/ul>
+&lt;pre class="r">&lt;code>x &amp;lt;- -123456789 * (10 ^ c(-2, -5, -6, NA, -8, -10)) * c(-1, 1)
+x&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> [1] 1.234568e+06 -1.234568e+03 1.234568e+02 NA 1.234568e+00
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> [6] -1.234568e-02
+&lt;/pre>
+&lt;pre class="r">&lt;code>tibble(x)&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 6 x 1&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> x
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1&lt;span style="text-decoration:underline">2&lt;/span>&lt;span style="text-decoration:underline">3&lt;/span>&lt;span style="text-decoration:underline">4&lt;/span>568.
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> -&lt;span style="color:#cc0000">&lt;span style="text-decoration:underline">1&lt;/span>23&lt;/span>&lt;span style="color:#cc0000">5&lt;/span>&lt;span style="color:#cc0000">.&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 123.
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">4&lt;/span> &lt;span style="color:#cc0000">NA&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">5&lt;/span> 1.23
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">6&lt;/span> -&lt;span style="color:#cc0000">0&lt;/span>&lt;span style="color:#cc0000">.&lt;/span>&lt;span style="color:#cc0000">0&lt;/span>&lt;span style="color:#cc0000">12&lt;span style="text-decoration:underline">3&lt;/span>&lt;/span>
+&lt;/pre>
+&lt;ul>
+&lt;li>Scientific notation uses regular digits again for exponents, to improve legibility and because in some common fonts the superscript digits aren’t aligned correctly.&lt;/li>
+&lt;/ul>
+&lt;pre class="r">&lt;code>print(tibble(x), width = 15)&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt; &lt;span style="color:#8a8a8a"># A tibble: 6
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span>&lt;/span> # x 1
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> x
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1.23&lt;span style="color:#8a8a8a">e&lt;/span>+6
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> -&lt;span style="color:#cc0000">1&lt;/span>&lt;span style="color:#cc0000">.&lt;/span>&lt;span style="color:#cc0000">23&lt;/span>&lt;span style="color:#8a8a8a">e&lt;/span>+3
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 1.23&lt;span style="color:#8a8a8a">e&lt;/span>+2
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">4&lt;/span> &lt;span style="color:#cc0000">NA&lt;/span> &lt;span style="color:#8a8a8a"> &lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">5&lt;/span> 1.23&lt;span style="color:#8a8a8a">e&lt;/span>+0
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">6&lt;/span> -&lt;span style="color:#cc0000">1&lt;/span>&lt;span style="color:#cc0000">.&lt;/span>&lt;span style="color:#cc0000">23&lt;/span>&lt;span style="color:#8a8a8a">e&lt;/span>&lt;span style="color:#cc0000">-2&lt;/span>
+&lt;/span>&lt;/pre>
+&lt;p>To avoid confusion, the decimal dot is now always printed for numbers of type &lt;code>numeric&lt;/code>, but trailing zeros are no longer shown if all displayed numbers are whole numbers. Compare the following outputs:&lt;/p>
+&lt;pre class="r">&lt;code>whole &amp;lt;- c(1, 3, 5)
+tibble(whole)&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 3 x 1&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> whole
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1.
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> 3.
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 5.
+&lt;/pre>
+&lt;pre class="r">&lt;code>tibble(wholeish = whole + 0.00000001)&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 3 x 1&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> wholeish
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1.00
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> 3.00
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 5.00
+&lt;/pre>
+&lt;/div>
+&lt;div id="bug-fixes" class="section level2">
+&lt;h2>Bug fixes&lt;/h2>
+&lt;p>Are you a &lt;em>lubridate&lt;/em> user? Durations and other objects are displayed again:&lt;/p>
+&lt;pre class="r">&lt;code>tibble(duration = lubridate::as.duration(1:3))&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 3 x 1&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> duration
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;S4: Duration&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1s
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> 2s
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 3s
+&lt;/pre>
+&lt;p>(This also works for other data types that extend &lt;code>numeric&lt;/code> but don’t implement a &lt;code>pillar_shaft()&lt;/code> method. See the &lt;a href="http://tibble.tidyverse.org/articles/extending.html">“Extending tibble” vignette&lt;/a> for details on providing better support for printing your data type in a tibble.)&lt;/p>
+&lt;p>Very small numbers are now printed correctly.&lt;/p>
+&lt;pre class="r">&lt;code>tiny &amp;lt;- c(1e-310, 1e-320, 1e-330)
+tiny&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> [1] 1.000000e-310 9.999889e-321 0.000000e+00
+&lt;/pre>
+&lt;pre class="r">&lt;code>tibble(tiny)&lt;/code>&lt;/pre>
+&lt;pre class="knitr r">&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#8a8a8a"># A tibble: 3 x 1&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> tiny
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="font-style:italic">&lt;span style="color:#8a8a8a">&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">1&lt;/span> 1.00&lt;span style="color:#8a8a8a">e&lt;/span>&lt;span style="color:#cc0000">-310&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">2&lt;/span> 10.00&lt;span style="color:#8a8a8a">e&lt;/span>&lt;span style="color:#cc0000">-321&lt;/span>
+&lt;span style="color:#8a8a8a">#&amp;gt;&lt;/span> &lt;span style="color:#b2b2b2">3&lt;/span> 0. &lt;span style="color:#8a8a8a"> &lt;/span>
+&lt;/pre>
+&lt;/div>
+&lt;div id="tibble-or-pillar" class="section level2">
+&lt;h2>Tibble or pillar?&lt;/h2>
+&lt;p>Now that &lt;em>pillar&lt;/em> is responsible for generating the output for tibbles, what is the best place to discuss problems or suggest ideas?&lt;/p>
+&lt;p>As usual, if you’re not sure if a particular behavior is intended, &lt;a href="https://stackoverflow.com/">StackOverflow&lt;/a> is a good place to ask, use the &lt;code>[r]&lt;/code> and &lt;code>[tibble]&lt;/code> tags and perhaps the &lt;code>[tidyverse]&lt;/code> tag. Include a reproducible example, perhaps using the &lt;a href="http://reprex.tidyverse.org/">&lt;em>reprex&lt;/em>&lt;/a> package with a &lt;code>reprex::reprex(venue = &amp;quot;so&amp;quot;)&lt;/code> call.&lt;/p>
+&lt;p>To submit bugs or suggest ideas for the output of tibbles, use the &lt;a href="https://github.com/tidyverse/tibble/issues">&lt;em>tibble&lt;/em> issue tracker&lt;/a>, your contributions are always welcome. Add a reprex with &lt;code>reprex::reprex()&lt;/code>. Unfortunately, the &lt;em>reprex&lt;/em> package doesn’t support rendering color and font effects yet, please include a screenshot if these details matter for your example.&lt;/p>
+&lt;p>If you are developing a package that uses &lt;em>pillar&lt;/em>, or if you are sure that you have found a problem in this package, you can also use the &lt;a href="https://github.com/r-lib/pillar/issues">&lt;em>pillar&lt;/em> issue tracker&lt;/a>. Please restrict your reprex to the &lt;em>pillar&lt;/em> package in these situations.&lt;/p>
+&lt;/div>
+&lt;div id="acknowledgments" class="section level2">
+&lt;h2>Acknowledgments&lt;/h2>
+&lt;p>We’d like to use the opportunity to thank all contributors to &lt;em>pillar&lt;/em> since its inception. Thanks to everyone, your feedback is very valuable to us: &lt;a href="https://github.com/adsaxon">@adsaxon&lt;/a>, &lt;a href="https://github.com/benmarwick">@benmarwick&lt;/a>, &lt;a href="https://github.com/brodieG">@brodieG&lt;/a>, &lt;a href="https://github.com/cboettig">@cboettig&lt;/a>, &lt;a href="https://github.com/DavisVaughan">@DavisVaughan&lt;/a>, &lt;a href="https://github.com/dpeterson71">@dpeterson71&lt;/a>, &lt;a href="https://github.com/echasnovski">@echasnovski&lt;/a>, &lt;a href="https://github.com/edzer">@edzer&lt;/a>, &lt;a href="https://github.com/ijlyttle">@ijlyttle&lt;/a>, &lt;a href="https://github.com/jennybc">@jennybc&lt;/a>, &lt;a href="https://github.com/leondutoit">@leondutoit&lt;/a>, &lt;a href="https://github.com/lionel-">@lionel-&lt;/a>, &lt;a href="https://github.com/martinjhnhadley">@martinjhnhadley&lt;/a>, &lt;a href="https://github.com/PMassicotte">@PMassicotte&lt;/a>, &lt;a href="https://github.com/randomgambit">@randomgambit&lt;/a>, &lt;a href="https://github.com/rkahne">@rkahne&lt;/a>, &lt;a href="https://github.com/strengejacke">@strengejacke&lt;/a>, &lt;a href="https://github.com/tmelconian">@tmelconian&lt;/a>, and &lt;a href="https://github.com/wibeasley">@wibeasley&lt;/a>.&lt;/p>
+&lt;/div></description></item></channel></rss>
