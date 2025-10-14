@@ -10,8 +10,8 @@ description: >
     This can be omitted if it would just recapitulate the title.
 
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/black-car-stereo-turned-on-at-7-qHbg3DKB1Y0
+  author: Stephen Andrews
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
@@ -31,27 +31,79 @@ TODO:
 * [ ] `usethis::use_tidy_thanks()`
 -->
 
-We're very chuffed to announce the release of [tune]({ home }) 1.3.0.9006. tune is ... 
+We're very chuffed to announce the release of [tune](https://tune.tidymodels.org) **2.0.0**. tune is a package the can be used to resample models and/or optimize their tuning parameters 
 
 You can install it from CRAN with:
 
 
 ``` r
-install.packages("{package}")
+install.packages("tune")
 ```
 
 This blog post will ...
 
-You can see a full list of changes in the [release notes]({ github_release })
+You can see a full list of changes in the [release notes](https://tune.tidymodels.org/news/index.html#tune-200)
 
 
 ``` r
 library(tune)
 ```
 
-## Topic 1
+There are two big improvements to the package: postprocessing and new parallel processing features. 
 
-## Topic 2
+## Tuning your postprocessor
+
+A postprocessor is an operation that modifies model predictions.  For example, if your classifier can separate classes but its probability estimates are not accurate enough, you can add a _calibrator_ operation that can attempt to adjust those values. Another good example is, for binary classifiers, to change the default threshold for calling a prediction an event based on its corresponding probability estimate. 
+
+Currently, we've enabled postprocessing using the [tailor package](https://www.tidyverse.org/blog/2024/10/postprocessing-preview/). The available operations are: 
+
+
+If the operations have arguments, these can be tuned in the same way as the preprocessors (e.g., a recipe) or the supervised model. For example, let's tune the probability threshold for a binary classifier: 
+
+
+
+We've taken great pains to avoid redundant calculations. For example, the recipe/model combinations are fit once for each value of the postprocessing tuning parameters. 
+
+For this classification example, recent updates to the [desirability2](https://desirability2.tidymodels.org/#using-with-the-tune-package) package can enable you to jointly find the best sensitivity/specificity trade off using the threshold parameter _and_ model calibration/separation using other parameters. 
+
+After posit::conf(2025), we'll add more examples and tutorials to tidymodels.org to show off what we can do with postprocessing. 
+
+## future and mirai for parallel processing
+
+[Historically](https://www.tidyverse.org/blog/2024/04/tune-1-2-0/#modernized-support-for-parallel-processing), we've used the foreach package to run calculations in parallel. Sadly, that package is no longer under active development, so we've removed support for it and added functionality for the [future](https://future.futureverse.org/) and [mirai](https://mirai.r-lib.org/) packages. 
+
+Previously, you would load a foreach parallel backend package, such as doParallel, doMC, or doFuture, and then register it. For  example:
+
+```
+library(doParallel)
+cl <- makePSOCKcluster()
+registerDoParallel(cl)
+```
+
+Instead, you can use the future package via:
+
+```
+library(future)
+plan("multisession")
+```
+
+or the mirai package by using
+
+```
+library(mirai)
+daemons(num_cores)
+```
+
+Each of these is configurable to run in a variety of ways, such as on remote servers. 
+
+## What's next
+
+This has been a race towards posit::conf(2025). Our focus had to be on the two big features for this release (since we are teaching a workshop that uses them). There are a few other relatively minor issues to catch up on as the year closes. 
+
+One is to swap the package that we currently use for Gaussian Processes in Bayesian optimization from the GPfit package to the [GauPro](https://github.com/CollinErickson/GauPro) package. The former is not actively supported, and the latter has a few features that we'd love to have. Specifically, better kernel methods for non-numeric tuning parameters (e.g., the type of activation function used in neural networks). Hopefully, we'll have another planned release before the end of the year. 
 
 ## Acknowledgements
+
+We'd like to thanks everyone who contributed since the previous version: [&#x0040;3styleJam](https://github.com/3styleJam), [&#x0040;Diyar0D](https://github.com/Diyar0D), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;MatthieuStigler](https://github.com/MatthieuStigler), [&#x0040;MattJEM](https://github.com/MattJEM), [&#x0040;mthulin](https://github.com/mthulin), [&#x0040;tjburch](https://github.com/tjburch), and [&#x0040;topepo](https://github.com/topepo).
+
 
