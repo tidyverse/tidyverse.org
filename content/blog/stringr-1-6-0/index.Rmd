@@ -1,0 +1,108 @@
+---
+output: hugodown::hugo_document
+
+slug: stringr-1-6-0
+title: stringr 1.6.0
+date: 2025-10-27
+author: Hadley Wickham
+description: >
+  This release deprecates `str_like(ignore_case)` and changes the behaviour of
+  `str_replace_all()` for function replacements. It also introduces `str_ilike()` 
+  for case-insensitive SQL-like pattern matching, three new case conversion 
+  functions (`str_to_camel()`, `str_to_snake()`, and `str_to_kebab()`), and 
+  presrves names in all relevant functions.
+photo:
+  url: https://unsplash.com/photos/n6vS3xlnsCc
+  author: Kelley Bozarth
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [stringr]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo & update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+We're delighted to announce the release of stringr 1.6.0! stringr provides a cohesive set of functions designed to make working with strings as easy as possible. You can install it from CRAN with:
+
+```{r}
+#| eval: false
+install.packages("stringr")
+```
+
+This release includes some lifecycle changes, improvements to SQL-like pattern matching functions, and a handful of other useful features. You can see a full list of changes in the [release notes](https://github.com/tidyverse/stringr/releases/tag/v1.6.0).
+
+```{r}
+library(stringr)
+```
+
+## Lifecycle changes
+
+This release includes two breaking changes that may affect existing code.
+
+First, the `ignore_case` argument to `str_like()` is now deprecated. Previously, it defaulted to `ignore_case = TRUE`. This was a mistake because it doesn't align with the conventions of the SQL `LIKE` operator, which is always case sensitive. Going forward, `str_like()` will always be case sensitive and if you need case-insensitive matching, you can use the new `str_ilike()` function.
+
+Second, if you use `str_replace_all()` with a function for the `replacement` argument, that function now receives all values in a single character vector instead of being called once per string. This change dramatically improves performance, so I decided this change was worth it despite its impact on existing code. I don't think this should affect too much existing code, since it's only affected 9 of the 2,381 packages that use stringr (which I supplied PRs to fix). If your replacement function was designed to work on individual strings, you'll need to vectorise it.
+
+If you haven't used this functionality before, it's pretty cool, because it allows you to supply a function that can transform matches in any way you can imagine. For example, this code that color names with their corresponding hex values:
+
+```{r}
+colours <- str_c("\\b", colors(), "\\b", collapse = "|")
+col2hex <- function(col) {
+  rgb <- col2rgb(col)
+  rgb(rgb["red", ], rgb["green", ], rgb["blue", ], maxColorValue = 255)
+}
+
+# by Claude Code
+poem <- "Azure skies meet honeydew light,
+While coral blooms kiss morning's face.
+Gold spills across the wheat-field bright,
+As lavender shadows lose their place.
+Turquoise waters catch the sun,
+Where salmon leap through chartreuse streams.
+Orchid petals, one by one,
+Fall like plum-soft summer dreams.
+"
+cat(str_replace_all(poem, regex(colours, ignore_case = TRUE), col2hex))
+```
+
+Which version do you think is catchier? 🤣
+
+## Other improvements
+
+This release includes several other useful enhancements:
+
+*   Three new functions make it easy to convert between different programming case conventions:
+
+    ```{r}
+    x <- "quick brown fox"
+
+    str_to_camel(x)
+    str_to_camel(x, first_upper = TRUE)
+    str_to_snake(x)
+    str_to_kebab(x)
+    ```
+
+*   All relevant stringr functions now preserve names. This means if your input vector has names, those names will be preserved in the output:
+
+    ```{r}
+    x <- c(first = "apple", second = "banana")
+    str_to_upper(x)
+    str_detect(x, "b")
+    ```
+
+*   A new `vignette("locale-sensitive")` provides detailed information about locale-sensitive functions in stringr, helping you understand how different locales affect string operations like sorting and case conversion.
+
+## Acknowledgements
+
+A big thank you to everyone who contributed to this release!
