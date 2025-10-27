@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [purrr]
-rmd_hash: 1d42f12319edfe50
+rmd_hash: 4b1c2c7913f9377d
 
 ---
 
@@ -95,5 +95,5 @@ Apart from all the breaking changes, there were a couple of small improvements:
 
 ## Acknowledgements
 
-We'd like to thank everyone who contributed to this release by filing issues and submitting pull requests. Your feedback and contributions help make purrr better for everyone!
+We'd like to thank everyone who contributed to this release by filing issues and submitting pull requests. Your feedback and contributions help make purrr better for everyone! [@feinleib](https://github.com/feinleib), [@filipemsc](https://github.com/filipemsc), [@fwimp](https://github.com/fwimp), [@hadley](https://github.com/hadley), [@its-gazza](https://github.com/its-gazza), [@jcolt45](https://github.com/jcolt45), [@jeroenjanssens](https://github.com/jeroenjanssens), [@jrwinget](https://github.com/jrwinget), [@khusmann](https://github.com/khusmann), [@luisDVA](https://github.com/luisDVA), [@MarkPaulin](https://github.com/MarkPaulin), [@Meghansaha](https://github.com/Meghansaha), [@mtcarsalot](https://github.com/mtcarsalot), [@og2293](https://github.com/og2293), [@padpadpadpad](https://github.com/padpadpadpad), [@PMassicotte](https://github.com/PMassicotte), [@shikokuchuo](https://github.com/shikokuchuo), [@steffen-stell](https://github.com/steffen-stell), and [@wahalulu](https://github.com/wahalulu).
 
