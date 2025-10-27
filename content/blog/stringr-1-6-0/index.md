@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [stringr]
-rmd_hash: 826311440652cd07
+rmd_hash: 81cf0410d365c6cb
 
 ---
 
@@ -27,11 +27,11 @@ TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
 * [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
-* [ ] Find photo & update yaml metadata
+* [x] Find photo & update yaml metadata
 * [x] Create `thumbnail-sq.jpg`; height and width should be equal
 * [x] Create `thumbnail-wd.jpg`; width should be >5x height
 * [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
-* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [x] Add intro sentence, e.g. the standard tagline for the package
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
@@ -135,5 +135,5 @@ This release includes several other useful enhancements:
 
 ## Acknowledgements
 
-A big thank you to everyone who contributed to this release!
+A big thank you to everyone who contributed to this release! [@alexanderbeatson](https://github.com/alexanderbeatson), [@allenbaron](https://github.com/allenbaron), [@Anaherasm](https://github.com/Anaherasm), [@arnaudgallou](https://github.com/arnaudgallou), [@AustinFournierKL](https://github.com/AustinFournierKL), [@brownj31](https://github.com/brownj31), [@ChristelSwift](https://github.com/ChristelSwift), [@DanChaltiel](https://github.com/DanChaltiel), [@davidciani](https://github.com/davidciani), [@davidhodge931](https://github.com/davidhodge931), [@Edgar-Zamora](https://github.com/Edgar-Zamora), [@edward-burn](https://github.com/edward-burn), [@gaborcsardi](https://github.com/gaborcsardi), [@hadley](https://github.com/hadley), [@jack-davison](https://github.com/jack-davison), [@jdonland](https://github.com/jdonland), [@jeroenjanssens](https://github.com/jeroenjanssens), [@JFormoso](https://github.com/JFormoso), [@jonovik](https://github.com/jonovik), [@KimLopezGuell](https://github.com/KimLopezGuell), [@krlmlr](https://github.com/krlmlr), [@kylieainslie](https://github.com/kylieainslie), [@librill](https://github.com/librill), [@Longfei2](https://github.com/Longfei2), [@LouisMPenrod](https://github.com/LouisMPenrod), [@mararva](https://github.com/mararva), [@mgacc0](https://github.com/mgacc0), [@MiguelCos](https://github.com/MiguelCos), [@nash-delcamp-slp](https://github.com/nash-delcamp-slp), [@ning-y](https://github.com/ning-y), [@Rekyt](https://github.com/Rekyt), [@salim-b](https://github.com/salim-b), [@shaggycamel](https://github.com/shaggycamel), [@SoyAndrea](https://github.com/SoyAndrea), [@tamimart](https://github.com/tamimart), [@tvedebrink](https://github.com/tvedebrink), [@VisruthSK](https://github.com/VisruthSK), [@warnes](https://github.com/warnes), and [@wright13](https://github.com/wright13).
 
