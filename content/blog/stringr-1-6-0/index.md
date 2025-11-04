@@ -3,14 +3,14 @@ output: hugodown::hugo_document
 
 slug: stringr-1-6-0
 title: stringr 1.6.0
-date: 2025-10-27
+date: 2025-11-04
 author: Hadley Wickham
 description: >
   This release deprecates `str_like(ignore_case)` and changes the behaviour of
   `str_replace_all()` for function replacements. It also introduces `str_ilike()` 
   for case-insensitive SQL-like pattern matching, three new case conversion 
   functions (`str_to_camel()`, `str_to_snake()`, and `str_to_kebab()`), and 
-  presrves names in all relevant functions.
+  preserves names in all relevant functions.
 photo:
   url: https://unsplash.com/photos/white-yarn-on-white-surface-iYMSv8sf1uA
   author: Adam Valstar
@@ -18,7 +18,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [stringr]
-rmd_hash: 81cf0410d365c6cb
+rmd_hash: 6488a7ab2a08b1d0
 
 ---
 
@@ -43,7 +43,7 @@ We're delighted to announce the release of stringr 1.6.0! stringr provides a coh
 
 </div>
 
-This release includes some lifecycle changes, improvements to SQL-like pattern matching functions, and a handful of other useful features. You can see a full list of changes in the [release notes](https://github.com/tidyverse/stringr/releases/tag/v1.6.0).
+This release includes some lifecycle changes, improvements to `sql_like()`/`sql_ilike()`, and a handful of other useful features. You can see a full list of changes in the [release notes](https://github.com/tidyverse/stringr/releases/tag/v1.6.0).
 
 <div class="highlight">
 
@@ -53,13 +53,11 @@ This release includes some lifecycle changes, improvements to SQL-like pattern m
 
 ## Lifecycle changes
 
-This release includes two breaking changes that may affect existing code.
+This release includes two lifecycle changes that may affect existing code.
 
-First, the `ignore_case` argument to [`str_like()`](https://stringr.tidyverse.org/reference/str_like.html) is now deprecated. Previously, it defaulted to `ignore_case = TRUE`. This was a mistake because it doesn't align with the conventions of the SQL `LIKE` operator, which is always case sensitive. Going forward, [`str_like()`](https://stringr.tidyverse.org/reference/str_like.html) will always be case sensitive and if you need case-insensitive matching, you can use the new [`str_ilike()`](https://stringr.tidyverse.org/reference/str_like.html) function.
+First, the `ignore_case` argument to [`str_like()`](https://stringr.tidyverse.org/reference/str_like.html) is now deprecated. Previously, it defaulted to `ignore_case = TRUE`. This was a mistake because it doesn't align with the conventions of the SQL `LIKE` operator, which is always case sensitive. Going forward, [`str_like()`](https://stringr.tidyverse.org/reference/str_like.html) will always be case sensitive, so if you need case-insensitive matching, use the new [`str_ilike()`](https://stringr.tidyverse.org/reference/str_like.html) function.
 
-Second, if you use [`str_replace_all()`](https://stringr.tidyverse.org/reference/str_replace.html) with a function for the `replacement` argument, that function now receives all values in a single character vector instead of being called once per string. This change dramatically improves performance, so I decided this change was worth it despite its impact on existing code. I don't think this should affect too much existing code, since it's only affected 9 of the 2,381 packages that use stringr (which I supplied PRs to fix). If your replacement function was designed to work on individual strings, you'll need to vectorise it.
-
-If you haven't used this functionality before, it's pretty cool, because it allows you to supply a function that can transform matches in any way you can imagine. For example, this code that color names with their corresponding hex values:
+Second, if you use [`str_replace_all()`](https://stringr.tidyverse.org/reference/str_replace.html) with a function for the `replacement` argument, that function now receives all values in a single character vector instead of being called once for each individual string. This change dramatically improves performance, so I decided it was worth it despite its impact on existing code. It shouldn't affect too much existing code in the wild, and it only broke 11 of the 2,381 CRAN packages that use stringr (which I fixed via PR). If you haven't used this functionality before, it's pretty cool, because it allows you to supply a function that can transform matches in any way you can imagine. For example, this code replaces color names with their corresponding hex values:
 
 <div class="highlight">
 
