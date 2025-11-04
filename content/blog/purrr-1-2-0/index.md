@@ -19,7 +19,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [purrr]
-rmd_hash: e34b387ec8db53a8
+rmd_hash: a2f46f5b87a03e7e
 
 ---
 
@@ -56,55 +56,55 @@ Overall, this is a pretty unexciting release since it primarily focusses on remo
 
 ## Lifecycle changes
 
-- All functions and arguments that were deprecated in purrr 0.3.0 have now been removed after being deprecated for over 5 years. These include:
+-   All functions and arguments that were deprecated in purrr 0.3.0 have now been removed after being deprecated for over 5 years. These include:
 
-  - `%@%`
-  - `accumulate_right()`
-  - `at_depth()`
-  - `cross_d()`
-  - `cross_n()`
-  - `reduce2_right()`
-  - `reduce_right()`
+    -   `%@%`
+    -   `accumulate_right()`
+    -   `at_depth()`
+    -   `cross_d()`
+    -   `cross_n()`
+    -   `reduce2_right()`
+    -   `reduce_right()`
 
-- All functions that were soft-deprecated in purrr 1.0.0 are now fully deprecated. They will continue to work but will generate a deprecation warning, and will be removed in a future release. This includes:
+-   All functions that were soft-deprecated in purrr 1.0.0 are now fully deprecated. They will continue to work but will generate a deprecation warning, and will be removed in a future release. This includes:
 
-  - `invoke_*()` functions
-  - `lift_*()` functions  
-  - `cross*()` functions (use [`tidyr::expand_grid()`](https://tidyr.tidyverse.org/reference/expand_grid.html) instead)
-  - [`prepend()`](https://purrr.tidyverse.org/reference/prepend.html)
-  - `splice()`
-  - [`rbernoulli()`](https://purrr.tidyverse.org/reference/rbernoulli.html)
-  - [`rdunif()`](https://purrr.tidyverse.org/reference/rdunif.html)
-  - [`when()`](https://purrr.tidyverse.org/reference/when.html)
-  - [`update_list()`](https://purrr.tidyverse.org/reference/update_list.html)
-  - `*_raw()` functions
-  - [`vec_depth()`](https://purrr.tidyverse.org/reference/pluck_depth.html)
+    -   `invoke_*()` functions
+    -   `lift_*()` functions  
+    -   `cross*()` functions (use [`tidyr::expand_grid()`](https://tidyr.tidyverse.org/reference/expand_grid.html) instead)
+    -   [`prepend()`](https://purrr.tidyverse.org/reference/prepend.html)
+    -   `splice()`
+    -   [`rbernoulli()`](https://purrr.tidyverse.org/reference/rbernoulli.html)
+    -   [`rdunif()`](https://purrr.tidyverse.org/reference/rdunif.html)
+    -   [`when()`](https://purrr.tidyverse.org/reference/when.html)
+    -   [`update_list()`](https://purrr.tidyverse.org/reference/update_list.html)
+    -   `*_raw()` functions
+    -   [`vec_depth()`](https://purrr.tidyverse.org/reference/pluck_depth.html)
 
-  These deprecations help keep purrr focused on its core purpose: facilitating functional programming in R.
+    These deprecations help keep purrr focused on its core purpose: facilitating functional programming in R.
 
-- [`map_chr()`](https://purrr.tidyverse.org/reference/map.html) no longer automatically coerces logical, integer, or double values to strings. Previously, this coercion happened silently, which could mask bugs in your code. Of the four CRAN packages that required fixes due to this change, two of them (50%) were bugs.
+-   [`map_chr()`](https://purrr.tidyverse.org/reference/map.html) no longer automatically coerces logical, integer, or double values to strings. Previously, this coercion happened silently, which could mask bugs in your code. Of the four CRAN packages that required fixes due to this change, two of them (50%) were bugs.
 
-- The predicate functions [`every()`](https://purrr.tidyverse.org/reference/every.html), [`some()`](https://purrr.tidyverse.org/reference/every.html), and [`none()`](https://purrr.tidyverse.org/reference/every.html) now require that the predicate function `.p` returns a logical scalar: `TRUE`, `FALSE`, or `NA`. Previously, `NA` values of other types (like `NA_integer_` or `NA_character_`) were allowed.
+-   The predicate functions [`every()`](https://purrr.tidyverse.org/reference/every.html), [`some()`](https://purrr.tidyverse.org/reference/every.html), and [`none()`](https://purrr.tidyverse.org/reference/every.html) now require that the predicate function `.p` returns a logical scalar: `TRUE`, `FALSE`, or `NA`. Previously, `NA` values of other types (like `NA_integer_` or `NA_character_`) were allowed.
 
 ## Minor improvements
 
 Apart from all the breaking changes, there were a couple of small improvements:
 
-- [`every()`](https://purrr.tidyverse.org/reference/every.html), [`some()`](https://purrr.tidyverse.org/reference/every.html), and [`none()`](https://purrr.tidyverse.org/reference/every.html) have been optimized and are now significantly faster. They're now as fast as or faster than the equivalent `any(map_lgl())` or `all(map_lgl())` calls, making them the preferred choice for checking predicates across lists.
+-   [`every()`](https://purrr.tidyverse.org/reference/every.html), [`some()`](https://purrr.tidyverse.org/reference/every.html), and [`none()`](https://purrr.tidyverse.org/reference/every.html) have been optimized and are now significantly faster. They're now as fast as or faster than the equivalent `any(map_lgl())` or `all(map_lgl())` calls, making them the preferred choice for checking predicates across lists.
 
-- purrr (finally) has a "getting started" vignette at `vignette("purrr")`.
+-   purrr (finally) has a "getting started" vignette at `vignette("purrr")`.
 
 ## Easier `in_parallel()`
 
-We introduced [`in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html) in purrr 1.1.0, and we're extremely grateful for the community's feedback to date. It was clear that we'd not made it easy enough to include helper functions or other variables required by your map functions. We've updated this behaviour in carrier 0.3.0, which is now the required package version.
+In purrr 1.1.0, we introduced [`in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html) for [parallel processing](https://tidyverse.org/blog/2025/07/purrr-1-1-0-parallel/) and we've had great feedback from the community so far. But it was clear that we hadn't made it easy enough to include helper functions or other variables required by your map functions. We've updated this behaviour in carrier 0.3.0, which is now required by purrr. Now the following (in your global environment) will work as you expect:
 
-Simply, the following (in your global environment) now works as you would expect:
+<div class="highlight">
 
-``` r
-fn <- function(x) helper_fn(x) * 2
-helper_fn <- function(x) x + 1
-1:5 |> map(in_parallel(\(x) fn(x), fn = fn, helper_fn = helper_fn))
-```
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>fn</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='nf'>helper_fn</span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='o'>*</span> <span class='m'>2</span></span>
+<span><span class='nv'>helper_fn</span> <span class='o'>&lt;-</span> <span class='kr'>function</span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='nv'>x</span> <span class='o'>+</span> <span class='m'>1</span></span>
+<span><span class='m'>1</span><span class='o'>:</span><span class='m'>5</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://purrr.tidyverse.org/reference/map.html'>map</a></span><span class='o'>(</span><span class='nf'><a href='https://purrr.tidyverse.org/reference/in_parallel.html'>in_parallel</a></span><span class='o'>(</span>\<span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='nf'>fn</span><span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span>, fn <span class='o'>=</span> <span class='nv'>fn</span>, helper_fn <span class='o'>=</span> <span class='nv'>helper_fn</span><span class='o'>)</span><span class='o'>)</span></span></code></pre>
+
+</div>
 
 Whereas previously, `fn()` would have been unable to find `helper_fn()`, this is solved by all functions passed to [`in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html) now sharing the same environment.
 
