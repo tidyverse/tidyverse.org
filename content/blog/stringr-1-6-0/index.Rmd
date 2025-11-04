@@ -1,0 +1,106 @@
+---
+output: hugodown::hugo_document
+
+slug: stringr-1-6-0
+title: stringr 1.6.0
+date: 2025-11-04
+author: Hadley Wickham
+description: >
+  This release deprecates `str_like(ignore_case)` and changes the behaviour of
+  `str_replace_all()` for function replacements. It also introduces `str_ilike()` 
+  for case-insensitive SQL-like pattern matching, three new case conversion 
+  functions (`str_to_camel()`, `str_to_snake()`, and `str_to_kebab()`), and 
+  preserves names in all relevant functions.
+photo:
+  url: https://unsplash.com/photos/white-yarn-on-white-surface-iYMSv8sf1uA
+  author: Adam Valstar
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [stringr]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+We're delighted to announce the release of stringr 1.6.0! stringr provides a cohesive set of functions designed to make working with strings as easy as possible. You can install it from CRAN with:
+
+```{r}
+#| eval: false
+install.packages("stringr")
+```
+
+This release includes some lifecycle changes, improvements to `sql_like()`/`sql_ilike()`, and a handful of other useful features. You can see a full list of changes in the [release notes](https://github.com/tidyverse/stringr/releases/tag/v1.6.0).
+
+```{r}
+library(stringr)
+```
+
+## Lifecycle changes
+
+This release includes two lifecycle changes that may affect existing code.
+
+First, the `ignore_case` argument to `str_like()` is now deprecated. Previously, it defaulted to `ignore_case = TRUE`. This was a mistake because it doesn't align with the conventions of the SQL `LIKE` operator, which is always case sensitive. Going forward, `str_like()` will always be case sensitive, so if you need case-insensitive matching, use the new `str_ilike()` function.
+
+Second, if you use `str_replace_all()` with a function for the `replacement` argument, that function now receives all values in a single character vector instead of being called once for each individual string. This change dramatically improves performance, so I decided it was worth it despite its impact on existing code. It shouldn't affect too much existing code in the wild, and it only broke 11 of the 2,381 CRAN packages that use stringr (which I fixed via PR). If you haven't used this functionality before, it's pretty cool, because it allows you to supply a function that can transform matches in any way you can imagine. For example, this code replaces color names with their corresponding hex values:
+
+```{r}
+colours <- str_c("\\b", colors(), "\\b", collapse = "|")
+col2hex <- function(col) {
+  rgb <- col2rgb(col)
+  rgb(rgb["red", ], rgb["green", ], rgb["blue", ], maxColorValue = 255)
+}
+
+# by Claude Code
+poem <- "Azure skies meet honeydew light,
+While coral blooms kiss morning's face.
+Gold spills across the wheat-field bright,
+As lavender shadows lose their place.
+Turquoise waters catch the sun,
+Where salmon leap through chartreuse streams.
+Orchid petals, one by one,
+Fall like plum-soft summer dreams.
+"
+cat(str_replace_all(poem, regex(colours, ignore_case = TRUE), col2hex))
+```
+
+Which version do you think is catchier? 🤣
+
+## Other improvements
+
+This release includes several other useful enhancements:
+
+*   Three new functions make it easy to convert between different programming case conventions:
+
+    ```{r}
+    x <- "quick brown fox"
+
+    str_to_camel(x)
+    str_to_camel(x, first_upper = TRUE)
+    str_to_snake(x)
+    str_to_kebab(x)
+    ```
+
+*   All relevant stringr functions now preserve names. This means if your input vector has names, those names will be preserved in the output:
+
+    ```{r}
+    x <- c(first = "apple", second = "banana")
+    str_to_upper(x)
+    str_detect(x, "b")
+    ```
+
+*   A new `vignette("locale-sensitive")` provides detailed information about locale-sensitive functions in stringr, helping you understand how different locales affect string operations like sorting and case conversion.
+
+## Acknowledgements
+
+A big thank you to everyone who contributed to this release! [&#x0040;alexanderbeatson](https://github.com/alexanderbeatson), [&#x0040;allenbaron](https://github.com/allenbaron), [&#x0040;Anaherasm](https://github.com/Anaherasm), [&#x0040;arnaudgallou](https://github.com/arnaudgallou), [&#x0040;AustinFournierKL](https://github.com/AustinFournierKL), [&#x0040;brownj31](https://github.com/brownj31), [&#x0040;ChristelSwift](https://github.com/ChristelSwift), [&#x0040;DanChaltiel](https://github.com/DanChaltiel), [&#x0040;davidciani](https://github.com/davidciani), [&#x0040;davidhodge931](https://github.com/davidhodge931), [&#x0040;Edgar-Zamora](https://github.com/Edgar-Zamora), [&#x0040;edward-burn](https://github.com/edward-burn), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;hadley](https://github.com/hadley), [&#x0040;jack-davison](https://github.com/jack-davison), [&#x0040;jdonland](https://github.com/jdonland), [&#x0040;jeroenjanssens](https://github.com/jeroenjanssens), [&#x0040;JFormoso](https://github.com/JFormoso), [&#x0040;jonovik](https://github.com/jonovik), [&#x0040;KimLopezGuell](https://github.com/KimLopezGuell), [&#x0040;krlmlr](https://github.com/krlmlr), [&#x0040;kylieainslie](https://github.com/kylieainslie), [&#x0040;librill](https://github.com/librill), [&#x0040;Longfei2](https://github.com/Longfei2), [&#x0040;LouisMPenrod](https://github.com/LouisMPenrod), [&#x0040;mararva](https://github.com/mararva), [&#x0040;mgacc0](https://github.com/mgacc0), [&#x0040;MiguelCos](https://github.com/MiguelCos), [&#x0040;nash-delcamp-slp](https://github.com/nash-delcamp-slp), [&#x0040;ning-y](https://github.com/ning-y), [&#x0040;Rekyt](https://github.com/Rekyt), [&#x0040;salim-b](https://github.com/salim-b), [&#x0040;shaggycamel](https://github.com/shaggycamel), [&#x0040;SoyAndrea](https://github.com/SoyAndrea), [&#x0040;tamimart](https://github.com/tamimart), [&#x0040;tvedebrink](https://github.com/tvedebrink), [&#x0040;VisruthSK](https://github.com/VisruthSK), [&#x0040;warnes](https://github.com/warnes), and [&#x0040;wright13](https://github.com/wright13).
