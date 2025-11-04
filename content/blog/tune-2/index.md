@@ -35,7 +35,7 @@ Those two big improvements to the package: new parallel processing features and 
 
 ## Using future or mirai for parallel processing
 
-[Historically](https://www.tidyverse.org/blog/2024/04/tune-1-2-0/#modernized-support-for-parallel-processing), we've used the foreach package to run calculations in parallel. Sadly, that package is no longer under active development, so we've removed support for it and added functionality for the [future](https://future.futureverse.org/) and [mirai](https://mirai.r-lib.org/) packages. 
+[Historically](https://www.tidyverse.org/blog/2024/04/tune-1-2-0/#modernized-support-for-parallel-processing), we've used the foreach package to run calculations in parallel. Sadly, that package is no longer under active development. We've been [progressively moving away](https://tidyverse.org/blog/2024/04/tune-1-2-0/#modernized-support-for-parallel-processing) from it, and as of this version, it is deprecated. In its place, we've added functionality for the [future](https://future.futureverse.org/) and [mirai](https://mirai.r-lib.org/) packages. 
 
 Previously, you would load a foreach parallel backend package, such as doParallel, doMC, or doFuture, and then register it. For  example:
 
@@ -61,6 +61,8 @@ daemons(num_cores)
 
 Each of these is configurable to run in various ways, such as on remote servers. 
 
+[tidymodels.org](https://tune.tidymodels.org/articles/extras/optimizations.html#foreach-legacy) and the tune [pkgdown site](https://tune.tidymodels.org/reference/parallelism.html) have more information to help users switch away from foreach.
+
 ## Tuning your postprocessor
 
 A postprocessor is an operation that modifies model predictions.  For example, if your classifier can separate classes but its probability estimates are not accurate enough, you can add a _calibrator_ operation that can attempt to adjust those values. Another good example is for binary classifiers, where the default threshold for classifying a prediction as an event can be adjusted based on its corresponding probability estimate. 
@@ -69,11 +71,11 @@ Currently, we've enabled postprocessing using the [tailor package](https://www.t
 
  - `adjust_numeric_calibration()`: Estimate and apply a calibration model for regression problems. 
  - `adjust_numeric_range()`: Truncate the range of predictions.
- - `adjust_predictions_custom()`: A general `mutate()`-like adjustment. 
  - `adjust_probability_calibration()`: Estimate and apply a calibration model for classification problems. 
  - `adjust_probability_threshold()`: Covert binary class probabilities to hard class predictions using different thresholds. 
  - `adjust_equivocal_zone()`: _Decline_ to predict a sample if its strongest class probability is low. 
- 
+ - `adjust_predictions_custom()`: A general `mutate()`-like adjustment. 
+
 If the operations have arguments, these can be tuned in the same way as the preprocessors (e.g., a recipe) or the supervised model. For example, let's tune the probability threshold for a random forest classifier. 
 
 We'll simulate some data with a class imbalance: 
@@ -192,7 +194,7 @@ We've taken great pains to avoid redundant calculations. In this example, for ea
 
 For this classification example, recent updates to the [desirability2](https://desirability2.tidymodels.org/#using-with-the-tune-package) package can enable you to jointly find the best sensitivity/specificity trade-off using the threshold parameter _and_ model calibration/separation using other parameters. 
 
-After posit::conf (2025), we'll add more examples and tutorials to tidymodels.org to showcase what we can do with postprocessing. 
+We'll add more examples and tutorials to tidymodels.org to showcase what we can do with postprocessing. 
 
 ## What's next
 
