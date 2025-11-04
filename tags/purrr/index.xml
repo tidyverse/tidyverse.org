@@ -1,4 +1,144 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>purrr | Tidyverse</title><link>https://www.tidyverse.org/tags/purrr/</link><atom:link href="https://www.tidyverse.org/tags/purrr/index.xml" rel="self" type="application/rss+xml"/><description>purrr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 10 Jul 2025 00:00:00 +0000</lastBuildDate><item><title>Parallel processing in purrr 1.1.0</title><link>https://www.tidyverse.org/blog/2025/07/purrr-1-1-0-parallel/</link><pubDate>Thu, 10 Jul 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/07/purrr-1-1-0-parallel/</guid><description>&lt;!--
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>purrr | Tidyverse</title><link>https://www.tidyverse.org/tags/purrr/</link><atom:link href="https://www.tidyverse.org/tags/purrr/index.xml" rel="self" type="application/rss+xml"/><description>purrr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 04 Nov 2025 00:00:00 +0000</lastBuildDate><item><title>purrr 1.2.0</title><link>https://www.tidyverse.org/blog/2025/11/purrr-1-2-0/</link><pubDate>Tue, 04 Nov 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/11/purrr-1-2-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re thrilled to announce the release of purrr 1.2.0! purrr enhances R&amp;rsquo;s functional programming toolkit with a complete and consistent set of tools for working with functions and vectors.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"purrr"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Overall, this is a pretty unexciting release since it primarily focuses on removing long-deprecated functions. It does, however, include a couple of small performance improvements to predicate functions and a brand new getting started vignette. We also require a newer version of the carrier package for
+&lt;a href="https://purrr.tidyverse.org/reference/in_parallel.html" target="_blank" rel="noopener">&lt;code>in_parallel()&lt;/code>&lt;/a> so that it&amp;rsquo;s easier to use. You can see a full list of changes in the
+&lt;a href="https://github.com/tidyverse/purrr/releases/tag/v1.2.0" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://purrr.tidyverse.org/'>purrr&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="lifecycle-changes">Lifecycle changes
+&lt;a href="#lifecycle-changes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>
+&lt;p>All functions and arguments that were deprecated in purrr 0.3.0 have now been removed after being deprecated for over 5 years. These include:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>%@%&lt;/code>&lt;/li>
+&lt;li>&lt;code>accumulate_right()&lt;/code>&lt;/li>
+&lt;li>&lt;code>at_depth()&lt;/code>&lt;/li>
+&lt;li>&lt;code>cross_d()&lt;/code>&lt;/li>
+&lt;li>&lt;code>cross_n()&lt;/code>&lt;/li>
+&lt;li>&lt;code>reduce2_right()&lt;/code>&lt;/li>
+&lt;li>&lt;code>reduce_right()&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>All functions that were soft-deprecated in purrr 1.0.0 are now fully deprecated. They will continue to work but will generate a deprecation warning, and will be removed in a future release. This includes:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>invoke_*()&lt;/code> functions&lt;/li>
+&lt;li>&lt;code>lift_*()&lt;/code> functions&lt;/li>
+&lt;li>&lt;code>cross*()&lt;/code> functions (use
+&lt;a href="https://tidyr.tidyverse.org/reference/expand_grid.html" target="_blank" rel="noopener">&lt;code>tidyr::expand_grid()&lt;/code>&lt;/a> instead)&lt;/li>
+&lt;li>
+&lt;a href="https://purrr.tidyverse.org/reference/prepend.html" target="_blank" rel="noopener">&lt;code>prepend()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>&lt;code>splice()&lt;/code>&lt;/li>
+&lt;li>
+&lt;a href="https://purrr.tidyverse.org/reference/rbernoulli.html" target="_blank" rel="noopener">&lt;code>rbernoulli()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://purrr.tidyverse.org/reference/rdunif.html" target="_blank" rel="noopener">&lt;code>rdunif()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://purrr.tidyverse.org/reference/when.html" target="_blank" rel="noopener">&lt;code>when()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://purrr.tidyverse.org/reference/update_list.html" target="_blank" rel="noopener">&lt;code>update_list()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>&lt;code>*_raw()&lt;/code> functions&lt;/li>
+&lt;li>
+&lt;a href="https://purrr.tidyverse.org/reference/pluck_depth.html" target="_blank" rel="noopener">&lt;code>vec_depth()&lt;/code>&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>These deprecations help keep purrr focused on its core purpose: facilitating functional programming in R.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">&lt;code>map_chr()&lt;/code>&lt;/a> no longer automatically coerces logical, integer, or double values to strings. Previously, this coercion happened silently, which could mask bugs in your code. Of the four CRAN packages that required fixes due to this change, two of them (50%) were bugs.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The predicate functions
+&lt;a href="https://purrr.tidyverse.org/reference/every.html" target="_blank" rel="noopener">&lt;code>every()&lt;/code>&lt;/a>,
+&lt;a href="https://purrr.tidyverse.org/reference/every.html" target="_blank" rel="noopener">&lt;code>some()&lt;/code>&lt;/a>, and
+&lt;a href="https://purrr.tidyverse.org/reference/every.html" target="_blank" rel="noopener">&lt;code>none()&lt;/code>&lt;/a> now require that the predicate function &lt;code>.p&lt;/code> returns a logical scalar: &lt;code>TRUE&lt;/code>, &lt;code>FALSE&lt;/code>, or &lt;code>NA&lt;/code>. Previously, &lt;code>NA&lt;/code> values of other types (like &lt;code>NA_integer_&lt;/code> or &lt;code>NA_character_&lt;/code>) were allowed.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="minor-improvements">Minor improvements
+&lt;a href="#minor-improvements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Apart from all the breaking changes, there were a couple of small improvements:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://purrr.tidyverse.org/reference/every.html" target="_blank" rel="noopener">&lt;code>every()&lt;/code>&lt;/a>,
+&lt;a href="https://purrr.tidyverse.org/reference/every.html" target="_blank" rel="noopener">&lt;code>some()&lt;/code>&lt;/a>, and
+&lt;a href="https://purrr.tidyverse.org/reference/every.html" target="_blank" rel="noopener">&lt;code>none()&lt;/code>&lt;/a> have been optimized and are now significantly faster. They&amp;rsquo;re now as fast as or faster than the equivalent &lt;code>any(map_lgl())&lt;/code> or &lt;code>all(map_lgl())&lt;/code> calls, making them the preferred choice for checking predicates across lists.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>purrr (finally) has a &amp;ldquo;getting started&amp;rdquo; vignette at &lt;code>vignette(&amp;quot;purrr&amp;quot;)&lt;/code>.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="easier-in_parallel">Easier &lt;code>in_parallel()&lt;/code>
+&lt;a href="#easier-in_parallel">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>In purrr 1.1.0, we introduced
+&lt;a href="https://purrr.tidyverse.org/reference/in_parallel.html" target="_blank" rel="noopener">&lt;code>in_parallel()&lt;/code>&lt;/a> for
+&lt;a href="https://tidyverse.org/blog/2025/07/purrr-1-1-0-parallel" target="_blank" rel="noopener">parallel processing&lt;/a> and we&amp;rsquo;ve had great feedback from the community so far. But it was clear that we hadn&amp;rsquo;t made it easy enough to include helper functions or other variables required by your map functions. We&amp;rsquo;ve updated this behaviour in carrier 0.3.0, which is now required by purrr. Now the following (in your global environment) will work as you expect:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>fn&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nf'>helper_fn&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>*&lt;/span> &lt;span class='m'>2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>helper_fn&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nv'>x&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='m'>1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>5&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://purrr.tidyverse.org/reference/map.html'>map&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://purrr.tidyverse.org/reference/in_parallel.html'>in_parallel&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>\&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nf'>fn&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span>, fn &lt;span class='o'>=&lt;/span> &lt;span class='nv'>fn&lt;/span>, helper_fn &lt;span class='o'>=&lt;/span> &lt;span class='nv'>helper_fn&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Whereas previously, &lt;code>fn()&lt;/code> would have been unable to find &lt;code>helper_fn()&lt;/code>, this is solved by all functions passed to
+&lt;a href="https://purrr.tidyverse.org/reference/in_parallel.html" target="_blank" rel="noopener">&lt;code>in_parallel()&lt;/code>&lt;/a> now sharing the same environment.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank everyone who contributed to this release by filing issues and submitting pull requests. Your feedback and contributions help make purrr better for everyone!
+&lt;a href="https://github.com/feinleib" target="_blank" rel="noopener">@feinleib&lt;/a>,
+&lt;a href="https://github.com/filipemsc" target="_blank" rel="noopener">@filipemsc&lt;/a>,
+&lt;a href="https://github.com/fwimp" target="_blank" rel="noopener">@fwimp&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/its-gazza" target="_blank" rel="noopener">@its-gazza&lt;/a>,
+&lt;a href="https://github.com/jcolt45" target="_blank" rel="noopener">@jcolt45&lt;/a>,
+&lt;a href="https://github.com/jeroenjanssens" target="_blank" rel="noopener">@jeroenjanssens&lt;/a>,
+&lt;a href="https://github.com/jrwinget" target="_blank" rel="noopener">@jrwinget&lt;/a>,
+&lt;a href="https://github.com/khusmann" target="_blank" rel="noopener">@khusmann&lt;/a>,
+&lt;a href="https://github.com/luisDVA" target="_blank" rel="noopener">@luisDVA&lt;/a>,
+&lt;a href="https://github.com/MarkPaulin" target="_blank" rel="noopener">@MarkPaulin&lt;/a>,
+&lt;a href="https://github.com/Meghansaha" target="_blank" rel="noopener">@Meghansaha&lt;/a>,
+&lt;a href="https://github.com/mtcarsalot" target="_blank" rel="noopener">@mtcarsalot&lt;/a>,
+&lt;a href="https://github.com/og2293" target="_blank" rel="noopener">@og2293&lt;/a>,
+&lt;a href="https://github.com/padpadpadpad" target="_blank" rel="noopener">@padpadpadpad&lt;/a>,
+&lt;a href="https://github.com/PMassicotte" target="_blank" rel="noopener">@PMassicotte&lt;/a>,
+&lt;a href="https://github.com/shikokuchuo" target="_blank" rel="noopener">@shikokuchuo&lt;/a>,
+&lt;a href="https://github.com/steffen-stell" target="_blank" rel="noopener">@steffen-stell&lt;/a>, and
+&lt;a href="https://github.com/wahalulu" target="_blank" rel="noopener">@wahalulu&lt;/a>.&lt;/p></description></item><item><title>Parallel processing in purrr 1.1.0</title><link>https://www.tidyverse.org/blog/2025/07/purrr-1-1-0-parallel/</link><pubDate>Thu, 10 Jul 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/07/purrr-1-1-0-parallel/</guid><description>&lt;!--
 TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
