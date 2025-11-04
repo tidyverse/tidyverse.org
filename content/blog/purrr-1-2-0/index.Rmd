@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: purrr-1-2-0
 title: purrr 1.2.0
-date: 2025-10-27
+date: 2025-11-04
 author: Hadley Wickham
 description: >
     This release tightens up the package by removing long-deprecated functions, 
@@ -21,6 +21,7 @@ categories: [package]
 tags: [purrr]
 ---
 
+```{=html}
 <!--
 TODO:
 * [x] Look over / edit the post's title in the yaml
@@ -33,6 +34,7 @@ TODO:
 * [x] Add intro sentence, e.g. the standard tagline for the package
 * [ ] `usethis::use_tidy_thanks()`
 -->
+```
 
 We're thrilled to announce the release of purrr 1.2.0! purrr enhances R's functional programming toolkit with a complete and consistent set of tools for working with functions and vectors.
 
@@ -43,10 +45,7 @@ You can install it from CRAN with:
 install.packages("purrr")
 ```
 
-Overall, this is a pretty unexciting release since it primarily focusses on removing long-deprecated functions.
-It does, however, include a couple of small performance improvements to predicate functions and a brand new getting started vignette.
-We also require a newer version of the carrier package for `in_parallel()` so that it's easier to use.
-You can see a full list of changes in the [release notes](https://github.com/tidyverse/purrr/releases/tag/v1.2.0).
+Overall, this is a pretty unexciting release since it primarily focuses on removing long-deprecated functions. It does, however, include a couple of small performance improvements to predicate functions and a brand new getting started vignette. We also require a newer version of the carrier package for `in_parallel()` so that it's easier to use. You can see a full list of changes in the [release notes](https://github.com/tidyverse/purrr/releases/tag/v1.2.0).
 
 ```{r}
 library(purrr)
@@ -54,50 +53,47 @@ library(purrr)
 
 ## Lifecycle changes
 
-* All functions and arguments that were deprecated in purrr 0.3.0 have now been removed after being deprecated for over 5 years. These include:
+-   All functions and arguments that were deprecated in purrr 0.3.0 have now been removed after being deprecated for over 5 years. These include:
 
-  - `%@%`
-  - `accumulate_right()`
-  - `at_depth()`
-  - `cross_d()`
-  - `cross_n()`
-  - `reduce2_right()`
-  - `reduce_right()`
+    -   `%@%`
+    -   `accumulate_right()`
+    -   `at_depth()`
+    -   `cross_d()`
+    -   `cross_n()`
+    -   `reduce2_right()`
+    -   `reduce_right()`
 
-* All functions that were soft-deprecated in purrr 1.0.0 are now fully deprecated. They will continue to work but will generate a deprecation warning, and will be removed in a future release. This includes:
+-   All functions that were soft-deprecated in purrr 1.0.0 are now fully deprecated. They will continue to work but will generate a deprecation warning, and will be removed in a future release. This includes:
 
-  - `invoke_*()` functions
-  - `lift_*()` functions  
-  - `cross*()` functions (use `tidyr::expand_grid()` instead)
-  - `prepend()`
-  - `splice()`
-  - `rbernoulli()`
-  - `rdunif()`
-  - `when()`
-  - `update_list()`
-  - `*_raw()` functions
-  - `vec_depth()`
+    -   `invoke_*()` functions
+    -   `lift_*()` functions\
+    -   `cross*()` functions (use `tidyr::expand_grid()` instead)
+    -   `prepend()`
+    -   `splice()`
+    -   `rbernoulli()`
+    -   `rdunif()`
+    -   `when()`
+    -   `update_list()`
+    -   `*_raw()` functions
+    -   `vec_depth()`
 
-  These deprecations help keep purrr focused on its core purpose: facilitating functional programming in R.
+    These deprecations help keep purrr focused on its core purpose: facilitating functional programming in R.
 
-* `map_chr()` no longer automatically coerces logical, integer, or double values to strings. Previously, this coercion happened silently, which could mask bugs in your code. Of the four CRAN packages that required fixes due to this change, two of them (50%) were bugs.
+-   `map_chr()` no longer automatically coerces logical, integer, or double values to strings. Previously, this coercion happened silently, which could mask bugs in your code. Of the four CRAN packages that required fixes due to this change, two of them (50%) were bugs.
 
-*  The predicate functions `every()`, `some()`, and `none()` now require that the predicate function `.p` returns a logical scalar: `TRUE`, `FALSE`, or `NA`. Previously, `NA` values of other types (like `NA_integer_` or `NA_character_`) were allowed.
+-   The predicate functions `every()`, `some()`, and `none()` now require that the predicate function `.p` returns a logical scalar: `TRUE`, `FALSE`, or `NA`. Previously, `NA` values of other types (like `NA_integer_` or `NA_character_`) were allowed.
 
 ## Minor improvements
 
 Apart from all the breaking changes, there were a couple of small improvements:
 
-* `every()`, `some()`, and `none()` have been optimized and are now significantly faster. They're now as fast as or faster than the equivalent `any(map_lgl())` or `all(map_lgl())` calls, making them the preferred choice for checking predicates across lists.
+-   `every()`, `some()`, and `none()` have been optimized and are now significantly faster. They're now as fast as or faster than the equivalent `any(map_lgl())` or `all(map_lgl())` calls, making them the preferred choice for checking predicates across lists.
 
-* purrr (finally) has a "getting started" vignette at `vignette("purrr")`.
+-   purrr (finally) has a "getting started" vignette at `vignette("purrr")`.
 
 ## Easier `in_parallel()`
 
-In purrr 1.1.0, we introduced `in_parallel()` for [parallel processing](https://tidyverse.org/blog/2025/07/purrr-1-1-0-parallel/) and we've had great feedback from the community so far.
-But it was clear that we hadn't made it easy enough to include helper functions or other variables required by your map functions.
-We've updated this behaviour in carrier 0.3.0, which is now required by purrr. 
-Now the following (in your global environment) will work as you expect:
+In purrr 1.1.0, we introduced `in_parallel()` for [parallel processing](https://tidyverse.org/blog/2025/07/purrr-1-1-0-parallel) and we've had great feedback from the community so far. But it was clear that we hadn't made it easy enough to include helper functions or other variables required by your map functions. We've updated this behaviour in carrier 0.3.0, which is now required by purrr. Now the following (in your global environment) will work as you expect:
 
 ```{r}
 #| eval: false
@@ -111,4 +107,4 @@ Whereas previously, `fn()` would have been unable to find `helper_fn()`, this is
 
 ## Acknowledgements
 
-We'd like to thank everyone who contributed to this release by filing issues and submitting pull requests. Your feedback and contributions help make purrr better for everyone! [&#x0040;feinleib](https://github.com/feinleib), [&#x0040;filipemsc](https://github.com/filipemsc), [&#x0040;fwimp](https://github.com/fwimp), [&#x0040;hadley](https://github.com/hadley), [&#x0040;its-gazza](https://github.com/its-gazza), [&#x0040;jcolt45](https://github.com/jcolt45), [&#x0040;jeroenjanssens](https://github.com/jeroenjanssens), [&#x0040;jrwinget](https://github.com/jrwinget), [&#x0040;khusmann](https://github.com/khusmann), [&#x0040;luisDVA](https://github.com/luisDVA), [&#x0040;MarkPaulin](https://github.com/MarkPaulin), [&#x0040;Meghansaha](https://github.com/Meghansaha), [&#x0040;mtcarsalot](https://github.com/mtcarsalot), [&#x0040;og2293](https://github.com/og2293), [&#x0040;padpadpadpad](https://github.com/padpadpadpad), [&#x0040;PMassicotte](https://github.com/PMassicotte), [&#x0040;shikokuchuo](https://github.com/shikokuchuo), [&#x0040;steffen-stell](https://github.com/steffen-stell), and [&#x0040;wahalulu](https://github.com/wahalulu).
+We'd like to thank everyone who contributed to this release by filing issues and submitting pull requests. Your feedback and contributions help make purrr better for everyone! [\@feinleib](https://github.com/feinleib), [\@filipemsc](https://github.com/filipemsc), [\@fwimp](https://github.com/fwimp), [\@hadley](https://github.com/hadley), [\@its-gazza](https://github.com/its-gazza), [\@jcolt45](https://github.com/jcolt45), [\@jeroenjanssens](https://github.com/jeroenjanssens), [\@jrwinget](https://github.com/jrwinget), [\@khusmann](https://github.com/khusmann), [\@luisDVA](https://github.com/luisDVA), [\@MarkPaulin](https://github.com/MarkPaulin), [\@Meghansaha](https://github.com/Meghansaha), [\@mtcarsalot](https://github.com/mtcarsalot), [\@og2293](https://github.com/og2293), [\@padpadpadpad](https://github.com/padpadpadpad), [\@PMassicotte](https://github.com/PMassicotte), [\@shikokuchuo](https://github.com/shikokuchuo), [\@steffen-stell](https://github.com/steffen-stell), and [\@wahalulu](https://github.com/wahalulu).

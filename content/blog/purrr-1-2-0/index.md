@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: purrr-1-2-0
 title: purrr 1.2.0
-date: 2025-10-27
+date: 2025-11-04
 author: Hadley Wickham
 description: >
     This release tightens up the package by removing long-deprecated functions, 
@@ -19,7 +19,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [purrr]
-rmd_hash: a2f46f5b87a03e7e
+rmd_hash: ecf77d48597600ce
 
 ---
 
@@ -46,7 +46,7 @@ You can install it from CRAN with:
 
 </div>
 
-Overall, this is a pretty unexciting release since it primarily focusses on removing long-deprecated functions. It does, however, include a couple of small performance improvements to predicate functions and a brand new getting started vignette. We also require a newer version of the carrier package for [`in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html) so that it's easier to use. You can see a full list of changes in the [release notes](https://github.com/tidyverse/purrr/releases/tag/v1.2.0).
+Overall, this is a pretty unexciting release since it primarily focuses on removing long-deprecated functions. It does, however, include a couple of small performance improvements to predicate functions and a brand new getting started vignette. We also require a newer version of the carrier package for [`in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html) so that it's easier to use. You can see a full list of changes in the [release notes](https://github.com/tidyverse/purrr/releases/tag/v1.2.0).
 
 <div class="highlight">
 
@@ -96,7 +96,7 @@ Apart from all the breaking changes, there were a couple of small improvements:
 
 ## Easier `in_parallel()`
 
-In purrr 1.1.0, we introduced [`in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html) for [parallel processing](https://tidyverse.org/blog/2025/07/purrr-1-1-0-parallel/) and we've had great feedback from the community so far. But it was clear that we hadn't made it easy enough to include helper functions or other variables required by your map functions. We've updated this behaviour in carrier 0.3.0, which is now required by purrr. Now the following (in your global environment) will work as you expect:
+In purrr 1.1.0, we introduced [`in_parallel()`](https://purrr.tidyverse.org/reference/in_parallel.html) for [parallel processing](https://tidyverse.org/blog/2025/07/purrr-1-1-0-parallel) and we've had great feedback from the community so far. But it was clear that we hadn't made it easy enough to include helper functions or other variables required by your map functions. We've updated this behaviour in carrier 0.3.0, which is now required by purrr. Now the following (in your global environment) will work as you expect:
 
 <div class="highlight">
 
