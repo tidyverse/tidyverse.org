@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>parallel processing | Tidyverse</title><link>https://www.tidyverse.org/tags/parallel-processing/</link><atom:link href="https://www.tidyverse.org/tags/parallel-processing/index.xml" rel="self" type="application/rss+xml"/><description>parallel processing</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 05 Nov 2025 00:00:00 +0000</lastBuildDate><item><title>tune version 2.0.0</title><link>https://www.tidyverse.org/blog/2025/11/tune-2/</link><pubDate>Wed, 05 Nov 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/11/tune-2/</guid><description>&lt;p>We&amp;rsquo;re very chuffed to announce the release of
+&lt;a href="https://tune.tidymodels.org" target="_blank" rel="noopener">tune&lt;/a> &lt;strong>2.0.0&lt;/strong>. tune is a package that can be used to resample models and/or optimize their tuning parameters&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;tune&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This blog post will describe the two major updates to the package. You can see a full list of changes in the
+&lt;a href="https://tune.tidymodels.org/news/index.html#tune-200" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;p>Those two big improvements to the package: new parallel processing features and postprocessing.&lt;/p>
+&lt;h2 id="using-future-or-mirai-for-parallel-processing">Using future or mirai for parallel processing
+&lt;a href="#using-future-or-mirai-for-parallel-processing">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://www.tidyverse.org/blog/2024/04/tune-1-2-0/#modernized-support-for-parallel-processing" target="_blank" rel="noopener">Historically&lt;/a>, we&amp;rsquo;ve used the foreach package to run calculations in parallel. Sadly, that package is no longer under active development. We&amp;rsquo;ve been
+&lt;a href="https://tidyverse.org/blog/2024/04/tune-1-2-0/#modernized-support-for-parallel-processing" target="_blank" rel="noopener">progressively moving away&lt;/a> from it, and as of this version, it is deprecated. In its place, we&amp;rsquo;ve added functionality for the
+&lt;a href="https://future.futureverse.org/" target="_blank" rel="noopener">future&lt;/a> and
+&lt;a href="https://mirai.r-lib.org/" target="_blank" rel="noopener">mirai&lt;/a> packages.&lt;/p>
+&lt;p>Previously, you would load a foreach parallel backend package, such as doParallel, doMC, or doFuture, and then register it. For example:&lt;/p>
+&lt;pre>&lt;code>library(doParallel)
+cl &amp;lt;- makePSOCKcluster()
+registerDoParallel(cl)
+&lt;/code>&lt;/pre>&lt;p>Instead, you can use the future package via:&lt;/p>
+&lt;pre>&lt;code>library(future)
+plan(&amp;quot;multisession&amp;quot;)
+&lt;/code>&lt;/pre>&lt;p>or the mirai package by using&lt;/p>
+&lt;pre>&lt;code>library(mirai)
+daemons(num_cores)
+&lt;/code>&lt;/pre>&lt;p>Each of these is configurable to run in various ways, such as on remote servers.&lt;/p>
+&lt;p>
+&lt;a href="https://tune.tidymodels.org/articles/extras/optimizations.html#foreach-legacy" target="_blank" rel="noopener">tidymodels.org&lt;/a> and the tune
+&lt;a href="https://tune.tidymodels.org/reference/parallelism.html" target="_blank" rel="noopener">pkgdown site&lt;/a> have more information to help users switch away from foreach.&lt;/p>
+&lt;h2 id="tuning-your-postprocessor">Tuning your postprocessor
+&lt;a href="#tuning-your-postprocessor">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A postprocessor is an operation that modifies model predictions. For example, if your classifier can separate classes but its probability estimates are not accurate enough, you can add a &lt;em>calibrator&lt;/em> operation that can attempt to adjust those probability estimates. Another good example is for binary classifiers, where the default threshold for classifying a prediction as an event can be adjusted based on its corresponding probability estimate.&lt;/p>
+&lt;p>Currently, we&amp;rsquo;ve enabled postprocessing using the
+&lt;a href="https://www.tidyverse.org/blog/2024/10/postprocessing-preview/" target="_blank" rel="noopener">tailor package&lt;/a>. The operations that are currently available:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>adjust_numeric_calibration()&lt;/code>: Estimate and apply a calibration model for regression problems.&lt;/li>
+&lt;li>&lt;code>adjust_numeric_range()&lt;/code>: Truncate the range of predictions.&lt;/li>
+&lt;li>&lt;code>adjust_probability_calibration()&lt;/code>: Estimate and apply a calibration model for classification problems.&lt;/li>
+&lt;li>&lt;code>adjust_probability_threshold()&lt;/code>: Covert binary class probabilities to hard class predictions using different thresholds.&lt;/li>
+&lt;li>&lt;code>adjust_equivocal_zone()&lt;/code>: &lt;em>Decline&lt;/em> to predict a sample if its strongest class probability is low.&lt;/li>
+&lt;li>&lt;code>adjust_predictions_custom()&lt;/code>: A general &lt;code>mutate()&lt;/code>-like adjustment.&lt;/li>
+&lt;/ul>
+&lt;p>If the operations have arguments, these can be tuned in the same way as the preprocessors (e.g., a recipe) or the supervised model. For example, let&amp;rsquo;s tune the probability threshold for a random forest classifier.&lt;/p>
+&lt;p>We&amp;rsquo;ll simulate some data with a class imbalance:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidymodels&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">296&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">sim_data&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">sim_classification&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">2000&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">intercept&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">-12&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">sim_data&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span> &lt;span class="nf">count&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">class&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 2 × 2
+## class n
+## &amp;lt;fct&amp;gt; &amp;lt;int&amp;gt;
+## 1 class_1 234
+## 2 class_2 1766
+&lt;/code>&lt;/pre>&lt;p>We&amp;rsquo;ll resampling them via 10-fold cross-validation:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">sim_rs&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">vfold_cv&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sim_data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">strata&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">class&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>We define a tailor object that tags the class probability threshold for optimization:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">tlr_spec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">tailor&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span>
+&lt;span class="nf">adjust_probability_threshold&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">threshold&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">tune&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>We also specify a random forest that uses its default tuning parameters:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">rf_spec&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">rand_forest&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mode&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;classification&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">rf_thrsh_wflow&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">workflow&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">class&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">rf_spec&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">tlr_spec&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">rf_thrsh_wflow&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## ══ Workflow ════════════════════════════════════════════════════════════
+## Preprocessor: Formula
+## Model: rand_forest()
+## Postprocessor: tailor
+##
+## ── Preprocessor ────────────────────────────────────────────────────────
+## class ~ .
+##
+## ── Model ───────────────────────────────────────────────────────────────
+## Random Forest Model Specification (classification)
+##
+## Computational engine: ranger
+##
+##
+## ── Postprocessor ───────────────────────────────────────────────────────
+&lt;/code>&lt;/pre>&lt;pre>&lt;code>##
+&lt;/code>&lt;/pre>&lt;pre>&lt;code>## ── tailor ──────────────────────────────────────────────────────────────
+&lt;/code>&lt;/pre>&lt;pre>&lt;code>## A binary postprocessor with 1 adjustment:
+&lt;/code>&lt;/pre>&lt;pre>&lt;code>##
+&lt;/code>&lt;/pre>&lt;pre>&lt;code>## • Adjust probability threshold to optimized value.
+&lt;/code>&lt;/pre>&lt;pre>&lt;code>## NA
+## NA
+## NA
+&lt;/code>&lt;/pre>&lt;p>With a class imbalance, the default 50% threshold yields high specificity but low sensitivity. When we alter the threshold, those numbers will change, and we can select the best trade-off for our application. Let&amp;rsquo;s tune the workflow:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">cls_mtr&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">metric_set&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">roc_auc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">sensitivity&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">specificity&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># To run all resamples in parallel:&lt;/span>
+&lt;span class="n">mirai&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">10&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">985&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">rf_thrsh_res&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="n">rf_thrsh_wflow&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span>
+&lt;span class="nf">tune_grid&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">resamples&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">sim_rs&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">grid&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">tibble&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">threshold&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">seq&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">0.6&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">by&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0.01&lt;/span>&lt;span class="p">)),&lt;/span>
+&lt;span class="n">metrics&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">cls_mtr&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Let&amp;rsquo;s visualize the results:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">autoplot&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">rf_thrsh_res&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="nf">lims&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">y&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figure/autoplot-1.png" alt="plot of chunk autoplot">&lt;/p>
+&lt;p>We can see that we can improve sensitivity by &lt;em>reducing&lt;/em> the threshold. The rate of decay in specificity is slow compared to the gain in sensitivity until thresholds less than 10% are used. The Brier score is constant over the threshold since it only uses the estimated class probabilities, which are unaffected by the threshold.&lt;/p>
+&lt;p>We&amp;rsquo;ve taken great pains to avoid redundant calculations. In this example, for each resample, a single random forest model is trained, and then the postprocessing grid is evaluated. This &lt;em>conditional execution&lt;/em> strategy is used to fit the fewest possible preprocessors, models, and postprocessors.&lt;/p>
+&lt;p>For this classification example, recent updates to the
+&lt;a href="https://desirability2.tidymodels.org/#using-with-the-tune-package" target="_blank" rel="noopener">desirability2&lt;/a> package can enable you to jointly find the best sensitivity/specificity trade-off using the threshold parameter &lt;em>and&lt;/em> model calibration/separation using other parameters.&lt;/p>
+&lt;p>We&amp;rsquo;ll add more examples and tutorials to tidymodels.org to showcase what we can do with postprocessing.&lt;/p>
+&lt;h2 id="whats-next">What&amp;rsquo;s next
+&lt;a href="#whats-next">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This had been a race towards posit::conf(2025). Our focus had to be on the two big features for this release (since we taught workshops that use them). There are a few other relatively minor issues to address as the year closes.&lt;/p>
+&lt;p>One is to swap the package that we currently use for Gaussian Processes in Bayesian optimization from the GPfit package to the
+&lt;a href="https://github.com/CollinErickson/GauPro" target="_blank" rel="noopener">GauPro&lt;/a> package. The former is not actively supported, and the latter has a few features that we&amp;rsquo;d love to have. Specifically, better kernel methods for non-numeric tuning parameters (e.g., the type of activation function used in neural networks). Hopefully, we&amp;rsquo;ll have another planned release before the end of the year.&lt;/p>
+&lt;p>Another near-future development goal is to have comprehensive integration for quantile regression models. We&amp;rsquo;ve added a few parsnip engines already and will expand the support in yardstick and tune.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thanks everyone who contributed since the previous version:
+&lt;a href="https://github.com/3styleJam" target="_blank" rel="noopener">@3styleJam&lt;/a>,
+&lt;a href="https://github.com/Diyar0D" target="_blank" rel="noopener">@Diyar0D&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/MatthieuStigler" target="_blank" rel="noopener">@MatthieuStigler&lt;/a>,
+&lt;a href="https://github.com/MattJEM" target="_blank" rel="noopener">@MattJEM&lt;/a>,
+&lt;a href="https://github.com/mthulin" target="_blank" rel="noopener">@mthulin&lt;/a>,
+&lt;a href="https://github.com/tjburch" target="_blank" rel="noopener">@tjburch&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/p></description></item></channel></rss>
