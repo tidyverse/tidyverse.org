@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tune-2
 title: "tune version 2.0.0"
-date: 2025-08-29
+date: 2025-11-05
 author: Max Kuhn, Simon Couch, Emil Hvitfeldt, Hannah Frick
 description: >
     A new version of tune brings significant updates for model tuning and 
@@ -29,7 +29,7 @@ You can install it from CRAN with:
 install.packages("tune")
 ```
 
-This blog post will describe the two major updates to the package. You can see a full list of changes in the [release notes](https://tune.tidymodels.org/news/index.html#tune-200)
+This blog post will describe the two major updates to the package. You can see a full list of changes in the [release notes](https://tune.tidymodels.org/news/index.html#tune-200).
 
 Those two big improvements to the package: new parallel processing features and postprocessing. 
 
@@ -65,7 +65,7 @@ Each of these is configurable to run in various ways, such as on remote servers.
 
 ## Tuning your postprocessor
 
-A postprocessor is an operation that modifies model predictions.  For example, if your classifier can separate classes but its probability estimates are not accurate enough, you can add a _calibrator_ operation that can attempt to adjust those values. Another good example is for binary classifiers, where the default threshold for classifying a prediction as an event can be adjusted based on its corresponding probability estimate. 
+A postprocessor is an operation that modifies model predictions.  For example, if your classifier can separate classes but its probability estimates are not accurate enough, you can add a _calibrator_ operation that can attempt to adjust those probability estimates. Another good example is for binary classifiers, where the default threshold for classifying a prediction as an event can be adjusted based on its corresponding probability estimate. 
 
 Currently, we've enabled postprocessing using the [tailor package](https://www.tidyverse.org/blog/2024/10/postprocessing-preview/). The operations that are currently available: 
 
@@ -97,8 +97,10 @@ sim_data |> count(class)
 ## 2 class_2  1766
 ```
 
+We'll resampling them via 10-fold cross-validation:
+
+
 ``` r
-# We'll resampling them via 10-fold cross-validation:
 sim_rs <- vfold_cv(sim_data, strata = class)
 ```
 
@@ -111,7 +113,7 @@ tlr_spec <-
   adjust_probability_threshold(threshold = tune())
 ```
 
-and also specify a random forest that uses its default tuning parameters: 
+We also specify a random forest that uses its default tuning parameters: 
 
 
 ``` r
@@ -158,7 +160,12 @@ rf_thrsh_wflow
 ## • Adjust probability threshold to optimized value.
 ```
 
-We can see that we can improve sensitivity by _reducing_ the threshold. The rate of decay in specificity is slow compared to the gain in sensitivity until thresholds less than 10% are used. The Brier score is constant over the threshold since it only uses the estimated class probabilities, which are unaffected by the threshold. 
+```
+## NA
+## NA
+## NA
+```
+
 
 With a class imbalance, the default 50% threshold yields high specificity but low sensitivity. When we alter the threshold, those numbers will change, and we can select the best trade-off for our application. Let's tune the workflow: 
 
@@ -190,7 +197,7 @@ autoplot(rf_thrsh_res) + lims(y = 0:1)
 
 We can see that we can improve sensitivity by _reducing_ the threshold. The rate of decay in specificity is slow compared to the gain in sensitivity until thresholds less than 10% are used. The Brier score is constant over the threshold since it only uses the estimated class probabilities, which are unaffected by the threshold. 
 
-We've taken great pains to avoid redundant calculations. In this example, for each resample, a single random forest model is trained, and then the postprocessing grid is evaluated. This _conditional execution_ strategy is already used to fit the fewest possible preprocessors, models, and postprocessors. 
+We've taken great pains to avoid redundant calculations. In this example, for each resample, a single random forest model is trained, and then the postprocessing grid is evaluated. This _conditional execution_ strategy is used to fit the fewest possible preprocessors, models, and postprocessors. 
 
 For this classification example, recent updates to the [desirability2](https://desirability2.tidymodels.org/#using-with-the-tune-package) package can enable you to jointly find the best sensitivity/specificity trade-off using the threshold parameter _and_ model calibration/separation using other parameters. 
 
