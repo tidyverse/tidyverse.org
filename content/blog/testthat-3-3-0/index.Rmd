@@ -31,7 +31,7 @@ You can install it from CRAN with:
 install.packages("testthat")
 ```
 
-This blog post highlights the most important changes in this release, including lifecycle changes that removed long-deprecated mocking functions, improvements to expectations and their error messages, and a variety of new features that make testing easier and more robust. You can see a full list of changes in the [release notes](https://github.com/r-lib/testthat/releases/tag/v3.3.0)
+This blog post highlights the most important changes in this release, including lifecycle changes that removed long-deprecated mocking functions, improvements to expectations and their error messages, and a variety of new features that make testing easier and more robust. You can see a full list of changes in the [release notes](https://github.com/r-lib/testthat/releases/tag/v3.3.0).
 
 ```{r setup}
 library(testthat)
@@ -41,23 +41,23 @@ library(testthat)
 
 I also used this release as an opportunity to learn [Claude Code](https://www.claude.com/product/claude-code), making it the first project where I've really used AI to support the development of many features.
 
-Overall it was a successful experiment. It helped me close over 100 issues in what felt like less time than usual. I don't have any hard numbers, but my gut feeling is that it was maybe a 10-20% improvement to my development philosophy. This is still significant, especially since I'm an experienced R programmer and my workflow has been pretty stable for the last few years. I mostly used Claude for smaller, well-defined tasks where I had a good sense of what was needed. I found it particularly useful for refactoring, where it was easy to say precisely what I wanted, but executing the changes required a bunch of fiddly edits across many files.
+Overall it was a successful experiment. It helped me close over 100 issues in what felt like less time than usual. I don't have any hard numbers, but my gut feeling is that it was maybe a 10-20% improvement to my development velocity. This is still significant, especially since I'm an experienced R programmer and my workflow has been pretty stable for the last few years. I mostly used Claude for smaller, well-defined tasks where I had a good sense of what was needed. I found it particularly useful for refactoring, where it was easy to say precisely what I wanted, but executing the changes required a bunch of fiddly edits across many files.
 
 I also found it generally useful for getting over the "activation energy hump": there were a few issues that had been stagnating for years because they felt like they were going to be hard to do and with relatively limited payoff. I let Claude Code loose on a few of these and found it super useful. It only produced code I was really happy with a couple of times, but every time it gave me something to react to (often with strong negative feelings!) and that got me started actually engaging with the problem.
 
-If you're interested in using Claude Code yourself, there are a couple of files you might find useful. My [`CLAUDE.md`](https://github.com/r-lib/testthat/blob/main/.claude/CLAUDE.md) tells Claude how to execute a devtools based workflow, along with a few pointers to resolve common issues. My [`settings.json`](https://github.com/r-lib/testthat/blob/main/.claude/settings.json) allows Claude to run longer with out human intervention, doing things that should mostly be safe. One note of caution: these settings do allow Claude to run R code, which does allow it to do practically anything. In my experience, Claude only used R to run tests or documentation.
+If you're interested in using Claude Code yourself, there are a couple of files you might find useful. My [`CLAUDE.md`](https://github.com/r-lib/testthat/blob/main/.claude/CLAUDE.md) tells Claude how to execute a devtools based workflow, along with a few pointers to resolve common issues. My [`settings.json`](https://github.com/r-lib/testthat/blob/main/.claude/settings.json) allows Claude to run longer without human intervention, doing things that should mostly be safe. One note of caution: these settings do allow Claude to run R code, which does allow it to do practically anything. In my experience, Claude only used R to run tests or documentation.
 
 I also experimented with using Claude Code to review PRs. It was just barely useful enough that I kept it turned on for my own PRs, but I didn't bother trying to get it to work for contributed PRs. Most of the time it either gave a thumbs up or bad advice, but every now and then it would pick up a small error.
 
-(I've also used claude code to proofread this blog post!)
+(I've also used Claude Code to proofread this blog post!)
 
 ## Lifecycle changes
 
-The biggest change in this release is that `local_mock()` and `with_mock()` are defunct. They were deprecated in 3.0.0 (2020-10-31) because it was becoming  clear that the technique that made them work would be disallowed in a future verson of R. This has now happened in R 4.5.0, so the functions have been removed. Removing `local_mock()` and `with_mock()` was a fairly disruptive change, affecting ~100 CRAN packages, but it had to be done, and I've been working on notifying package developers since January so everyone had plenty of time to update. Fortunately, the needed changes are generally small, since the newer `local_mocked_bindings()` and `with_mocked_binding()` can solve most additional needs. (If you haven't heard of mocking before you can read the new `vignette("mocking")` to learn what it is and why you might want to use it..)
+The biggest change in this release is that `local_mock()` and `with_mock()` are defunct. They were deprecated in 3.0.0 (2020-10-31) because it was becoming clear that the technique that made them work would be disallowed in a future version of R. This has now happened in R 4.5.0, so the functions have been removed. Removing `local_mock()` and `with_mock()` was a fairly disruptive change, affecting ~100 CRAN packages, but it had to be done, and I've been working on notifying package developers since January so everyone had plenty of time to update. Fortunately, the needed changes are generally small, since the newer `local_mocked_bindings()` and `with_mocked_binding()` can solve most additional needs. (If you haven't heard of mocking before you can read the new `vignette("mocking")` to learn what it is and why you might want to use it.)
 
 Other lifecycle changes:
 
-* testthat now requires R 4.1. This follows [our supported version policy](https://tidyverse.org/blog/2019/04/r-version-support/), which documents our commitment to support five versions of R (the current version and four previous version). We're excited to be able to finally take advantage of the base pipe and compact anonymous functions (i.e. `\(x) x + 1`)!
+* testthat now requires R 4.1. This follows [our supported version policy](https://tidyverse.org/blog/2019/04/r-version-support/), which documents our commitment to support five versions of R (the current version and four previous versions). We're excited to be able to finally take advantage of the base pipe and compact anonymous functions (i.e. `\(x) x + 1`)!
 
 * `is_null()`/`matches()`, deprecated in 2.0.0 (2017-12-19), and `is_true()`/`is_false()`, deprecated in 2.1.0 (2019-04-23), have been removed. These conflicted with other tidyverse functions so we pushed their deprecation through, even though we have generally left the old `test_that()` API untouched.
 
@@ -65,11 +65,11 @@ Other lifecycle changes:
 
 * There were a few other changes that broke existing packages. The most impactful change was to start checking the inputs to `expect()` which, despite the name, is actually an internal helper. That revealed a surprising number of packages were accidentally using `expect()` instead of `expect_true()` or `expect_equal()`. We don't technically consider this a breaking change because it revealed off-label function usage: the function API hasn't changed; you just now learn when you're using it incorrectly.
 
-If you're interested in the proces we use to manage the release of a package that breaks its reverse dependencies, you might like to read [the issue](https://github.com/r-lib/testthat/issues/2021) where I track all the problems and prepare PRs to fix them.
+If you're interested in the process we use to manage the release of a package that breaks its reverse dependencies, you might like to read [the issue](https://github.com/r-lib/testthat/issues/2021) where I track all the problems and prepare PRs to fix them.
 
 ## Expectations and the interactive testing experience
 
-A lot of work in this release was prompted by an overhaul of `vignette("custom-expectations")`, which describes how to create your own expectations that work just like testthat's. This is a long time coming, and as I was working on it, I realized that I didn't really know how to write new expectations, which had lead to a lot of variation in the existing implementations. This kicked off a bunch of experimentation and iterating, leading to a swath of improvements:
+A lot of work in this release was prompted by an overhaul of `vignette("custom-expectations")`, which describes how to create your own expectations that work just like testthat's. This is a long time coming, and as I was working on it, I realized that I didn't really know how to write new expectations, which had led to a lot of variation in the existing implementations. This kicked off a bunch of experimentation and iterating, leading to a swath of improvements:
 
 * All expectations have new failure messages: they now state what was expected, what was actually received, and, if possible, they clearly illustrate the difference.
 
@@ -148,18 +148,18 @@ As you can see from the examples above, when you run a single test interactively
     ```{r}
     #| eval: false
 
-    flaky_function <- function(i) {
+    flaky_function <- function() {
       if (runif(1) < 0.1) 0 else 1
     }
     test_that("my flaky test is ok", {
       # 10% chance of failure:
-      expect_equal(usually_return_1(), 1)
+      expect_equal(flaky_function(), 1)
 
       # 1% chance of failure:
-      try_again(1, expect_equal(usually_return_1(), 1))
+      try_again(1, expect_equal(flaky_function(), 1))
 
       # 0.1% chance of failure:
-      try_again(2, expect_equal(usually_return_1(), 1))
+      try_again(2, expect_equal(flaky_function(), 1))
     })
     ```
 
