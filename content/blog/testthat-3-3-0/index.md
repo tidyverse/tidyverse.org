@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [testthat, devtools]
-rmd_hash: 0ef3010e84b47ab3
+rmd_hash: cafc41a1570ad7aa
 
 ---
 
@@ -103,7 +103,7 @@ This new framework helped us write six new expectations:
     <span>  <span class='nv'>x</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>0.408</span>, <span class='m'>0.961</span>, <span class='m'>0.883</span>, <span class='m'>0.46</span>, <span class='m'>0.537</span>, <span class='m'>0.961</span>, <span class='m'>0.851</span>, <span class='m'>0.887</span>, <span class='m'>0.023</span><span class='o'>)</span></span>
     <span>  <span class='nf'><a href='https://testthat.r-lib.org/reference/expect_all_equal.html'>expect_all_true</a></span><span class='o'>(</span><span class='nv'>x</span> <span class='o'>&lt;</span> <span class='m'>0.95</span><span class='o'>)</span></span>
     <span><span class='o'>&#125;</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; ── <span style='color: #BBBB00; font-weight: bold;'>Failure</span><span style='font-weight: bold;'>: some test</span> ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
+    <span><span class='c'>#&gt; ── <span style='color: #BBBB00; font-weight: bold;'>Failure</span><span style='font-weight: bold;'>: some test</span> ────────────────────────────────────────────────</span></span>
     <span><span class='c'>#&gt; Expected every element of `x &lt; 0.95` to equal TRUE.</span></span>
     <span><span class='c'>#&gt; Differences:</span></span>
     <span><span class='c'>#&gt; `actual`:   <span style='color: #555555;'>TRUE</span> <span style='color: #00BB00;'>FALSE</span> <span style='color: #555555;'>TRUE</span> <span style='color: #555555;'>TRUE</span> <span style='color: #555555;'>TRUE</span> <span style='color: #00BB00;'>FALSE</span> <span style='color: #555555;'>TRUE</span> <span style='color: #555555;'>TRUE</span> <span style='color: #555555;'>TRUE</span></span></span>
@@ -121,7 +121,7 @@ This new framework helped us write six new expectations:
     <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://testthat.r-lib.org/reference/test_that.html'>test_that</a></span><span class='o'>(</span><span class='s'>""</span>, <span class='o'>&#123;</span></span>
     <span>  <span class='nf'><a href='https://testthat.r-lib.org/reference/expect_setequal.html'>expect_disjoint</a></span><span class='o'>(</span><span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"a"</span>, <span class='s'>"b"</span>, <span class='s'>"c"</span><span class='o'>)</span>, <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"c"</span>, <span class='s'>"d"</span>, <span class='s'>"e"</span><span class='o'>)</span><span class='o'>)</span></span>
     <span><span class='o'>&#125;</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; ── <span style='color: #BBBB00; font-weight: bold;'>Failure</span><span style='font-weight: bold;'>: </span> ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
+    <span><span class='c'>#&gt; ── <span style='color: #BBBB00; font-weight: bold;'>Failure</span><span style='font-weight: bold;'>: </span> ─────────────────────────────────────────────────────────</span></span>
     <span><span class='c'>#&gt; Expected `c("a", "b", "c")` to be disjoint from `c("c", "d", "e")`.</span></span>
     <span><span class='c'>#&gt; Actual: "a", "b", "c"</span></span>
     <span><span class='c'>#&gt; Expected: None of "c", "d", "e"</span></span>
@@ -143,10 +143,10 @@ This new framework helped us write six new expectations:
     <span>  <span class='nv'>x</span> <span class='o'>&lt;-</span> <span class='nf'>R6</span><span class='nf'>::</span><span class='kr'><a href='https://r6.r-lib.org/reference/R6Class.html'>R6Class</a></span><span class='o'>(</span><span class='s'>"bar"</span><span class='o'>)</span><span class='o'>$</span><span class='nf'>new</span><span class='o'>(</span><span class='o'>)</span></span>
     <span>  <span class='nf'><a href='https://testthat.r-lib.org/reference/inheritance-expectations.html'>expect_r6_class</a></span><span class='o'>(</span><span class='nv'>x</span>, <span class='s'>"foo"</span><span class='o'>)</span></span>
     <span><span class='o'>&#125;</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; ── <span style='color: #BBBB00; font-weight: bold;'>Failure</span><span style='font-weight: bold;'>: </span> ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
+    <span><span class='c'>#&gt; ── <span style='color: #BBBB00; font-weight: bold;'>Failure</span><span style='font-weight: bold;'>: </span> ─────────────────────────────────────────────────────────</span></span>
     <span><span class='c'>#&gt; Expected `x` to be an R6 object.</span></span>
     <span><span class='c'>#&gt; Actual OO type: none.</span></span>
-    <span><span class='c'>#&gt; ── <span style='color: #BBBB00; font-weight: bold;'>Failure</span><span style='font-weight: bold;'>: </span> ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
+    <span><span class='c'>#&gt; ── <span style='color: #BBBB00; font-weight: bold;'>Failure</span><span style='font-weight: bold;'>: </span> ─────────────────────────────────────────────────────────</span></span>
     <span><span class='c'>#&gt; Expected `x` to inherit from "foo".</span></span>
     <span><span class='c'>#&gt; Actual class: "bar"/"R6".</span></span>
     <span></span><span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'>:</span></span></span>
@@ -165,13 +165,13 @@ This new framework helped us write six new expectations:
     <span>  <span class='nf'><a href='https://testthat.r-lib.org/reference/expect_length.html'>expect_shape</a></span><span class='o'>(</span><span class='nv'>x</span>, dim <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>3</span>, <span class='m'>3</span>, <span class='m'>3</span><span class='o'>)</span><span class='o'>)</span></span>
     <span>  <span class='nf'><a href='https://testthat.r-lib.org/reference/expect_length.html'>expect_shape</a></span><span class='o'>(</span><span class='nv'>x</span>, dim <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='m'>3</span>, <span class='m'>4</span><span class='o'>)</span><span class='o'>)</span></span>
     <span><span class='o'>&#125;</span><span class='o'>)</span></span>
-    <span><span class='c'>#&gt; ── <span style='color: #BBBB00; font-weight: bold;'>Failure</span><span style='font-weight: bold;'>: show off expect_shape() failure messages</span> ──────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
+    <span><span class='c'>#&gt; ── <span style='color: #BBBB00; font-weight: bold;'>Failure</span><span style='font-weight: bold;'>: show off expect_shape() failure messages</span> ─────────────────</span></span>
     <span><span class='c'>#&gt; Expected `x` to have 4 rows.</span></span>
     <span><span class='c'>#&gt; Actual rows: 3.</span></span>
-    <span><span class='c'>#&gt; ── <span style='color: #BBBB00; font-weight: bold;'>Failure</span><span style='font-weight: bold;'>: show off expect_shape() failure messages</span> ──────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
+    <span><span class='c'>#&gt; ── <span style='color: #BBBB00; font-weight: bold;'>Failure</span><span style='font-weight: bold;'>: show off expect_shape() failure messages</span> ─────────────────</span></span>
     <span><span class='c'>#&gt; Expected `x` to have 3 dimensions.</span></span>
     <span><span class='c'>#&gt; Actual dimensions: 2.</span></span>
-    <span><span class='c'>#&gt; ── <span style='color: #BBBB00; font-weight: bold;'>Failure</span><span style='font-weight: bold;'>: show off expect_shape() failure messages</span> ──────────────────────────────────────────────────────────────────────────────────────────────────────</span></span>
+    <span><span class='c'>#&gt; ── <span style='color: #BBBB00; font-weight: bold;'>Failure</span><span style='font-weight: bold;'>: show off expect_shape() failure messages</span> ─────────────────</span></span>
     <span><span class='c'>#&gt; Expected `x` to have dim (3, 4).</span></span>
     <span><span class='c'>#&gt; Actual dim: (3, 3).</span></span>
     <span></span><span><span class='c'>#&gt; <span style='color: #BBBB00; font-weight: bold;'>Error</span><span style='font-weight: bold;'>:</span></span></span>
