@@ -7,18 +7,31 @@ date: 2025-11-05
 author: Hadley Wickham
 description: >
     testthat 3.3.0 brings improved expectations with better error messages,
-    new expectations for common testing patterns, and lifecycle changes including the removal of `local_mock()` and `with_mock()`.
-
+    new expectations for common testing patterns, and lifecycle changes including the removal of `local_mock()` and `with_mock()`. It also includes
+    a write-up of my experience doing package development with Claude Code.
 photo:
-  url: https://unsplash.com/photos/n6vS3xlnsCc
-  author: Kelley Bozarth
+  url: https://unsplash.com/photos/a-rack-filled-with-lots-of-yellow-hard-hats-wp81DxKUd1Ez
+  author: Pop & Zebra
 
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
-tags: []
-rmd_hash: a016ade71001134a
+tags: [testthat, devtools]
+rmd_hash: 0ef3010e84b47ab3
 
 ---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
 
 We're chuffed to announce the release of [testthat](https://testthat.r-lib.org) 3.3.0. testthat is a testing framework for R that makes it easy to turn your existing informal tests into formal, automated tests that you can rerun quickly and easily.
 
@@ -218,4 +231,6 @@ As you can see from the examples above, when you run a single test interactively
 -   New `vignette("challenging-functions")` provides an index to other documentation organized by various challenges.
 
 ## Acknowledgements
+
+A big thank you to all the folks who helped make this release happen: [@3styleJam](https://github.com/3styleJam), [@afinez](https://github.com/afinez), [@andybeet](https://github.com/andybeet), [@atheriel](https://github.com/atheriel), [@averissimo](https://github.com/averissimo), [@d-morrison](https://github.com/d-morrison), [@DanChaltiel](https://github.com/DanChaltiel), [@DanielHermosilla](https://github.com/DanielHermosilla), [@eitsupi](https://github.com/eitsupi), [@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [@emstruong](https://github.com/emstruong), [@gaborcsardi](https://github.com/gaborcsardi), [@gael-millot](https://github.com/gael-millot), [@hadley](https://github.com/hadley), [@hoeflerb](https://github.com/hoeflerb), [@jamesfowkes](https://github.com/jamesfowkes), [@jan-swissre](https://github.com/jan-swissre), [@jdblischak](https://github.com/jdblischak), [@jennybc](https://github.com/jennybc), [@jeroenjanssens](https://github.com/jeroenjanssens), [@kevinushey](https://github.com/kevinushey), [@krivit](https://github.com/krivit), [@kubajal](https://github.com/kubajal), [@lawalter](https://github.com/lawalter), [@m-muecke](https://github.com/m-muecke), [@maelle](https://github.com/maelle), [@math-mcshane](https://github.com/math-mcshane), [@mcol](https://github.com/mcol), [@metanoid](https://github.com/metanoid), [@MichaelChirico](https://github.com/MichaelChirico), [@moodymudskipper](https://github.com/moodymudskipper), [@njtierney](https://github.com/njtierney), [@nunotexbsd](https://github.com/nunotexbsd), [@pabangan](https://github.com/pabangan), [@pachadotdev](https://github.com/pachadotdev), [@plietar](https://github.com/plietar), [@schloerke](https://github.com/schloerke), [@schuemie](https://github.com/schuemie), [@sebkopf](https://github.com/sebkopf), [@shikokuchuo](https://github.com/shikokuchuo), [@snystrom](https://github.com/snystrom), [@stibu81](https://github.com/stibu81), [@TimTaylor](https://github.com/TimTaylor), and [@tylermorganwall](https://github.com/tylermorganwall).
 
