@@ -39,13 +39,13 @@ library(testthat)
 
 ## Claude Code experiences
 
-I also used this release as an opportunity to learn [Claude Code](https://www.claude.com/product/claude-code), making it the first project where I've really used AI to support the development of many features.
+Before we dive into the changes, I wanted to talk a little bit about some changes to my development process, as I used this release as an opportunity to learn [Claude Code](https://www.claude.com/product/claude-code). This is the first package where I've really used AI to support the development of many features and I thought it might be useful to share my experience.
 
 Overall it was a successful experiment. It helped me close over 100 issues in what felt like less time than usual. I don't have any hard numbers, but my gut feeling is that it was maybe a 10-20% improvement to my development velocity. This is still significant, especially since I'm an experienced R programmer and my workflow has been pretty stable for the last few years. I mostly used Claude for smaller, well-defined tasks where I had a good sense of what was needed. I found it particularly useful for refactoring, where it was easy to say precisely what I wanted, but executing the changes required a bunch of fiddly edits across many files.
 
 I also found it generally useful for getting over the "activation energy hump": there were a few issues that had been stagnating for years because they felt like they were going to be hard to do and with relatively limited payoff. I let Claude Code loose on a few of these and found it super useful. It only produced code I was really happy with a couple of times, but every time it gave me something to react to (often with strong negative feelings!) and that got me started actually engaging with the problem.
 
-If you're interested in using Claude Code yourself, there are a couple of files you might find useful. My [`CLAUDE.md`](https://github.com/r-lib/testthat/blob/main/.claude/CLAUDE.md) tells Claude how to execute a devtools based workflow, along with a few pointers to resolve common issues. My [`settings.json`](https://github.com/r-lib/testthat/blob/main/.claude/settings.json) allows Claude to run longer without human intervention, doing things that should mostly be safe. One note of caution: these settings do allow Claude to run R code, which does allow it to do practically anything. In my experience, Claude only used R to run tests or documentation.
+If you're interested in using Claude Code yourself, there are a couple of files you might find useful. My [`CLAUDE.md`](https://github.com/r-lib/testthat/blob/main/.claude/CLAUDE.md) tells Claude how to execute a devtools-based workflow, along with a few pointers to resolve common issues. My [`settings.json`](https://github.com/r-lib/testthat/blob/main/.claude/settings.json) allows Claude to run longer without human intervention, doing things that should mostly be safe. One note of caution: these settings do allow Claude to run R code, which does allow it to do practically anything. In my experience, Claude only used R to run tests or documentation.
 
 I also experimented with using Claude Code to review PRs. It was just barely useful enough that I kept it turned on for my own PRs, but I didn't bother trying to get it to work for contributed PRs. Most of the time it either gave a thumbs up or bad advice, but every now and then it would pick up a small error.
 
@@ -53,7 +53,7 @@ I also experimented with using Claude Code to review PRs. It was just barely use
 
 ## Lifecycle changes
 
-The biggest change in this release is that `local_mock()` and `with_mock()` are defunct. They were deprecated in 3.0.0 (2020-10-31) because it was becoming clear that the technique that made them work would be disallowed in a future version of R. This has now happened in R 4.5.0, so the functions have been removed. Removing `local_mock()` and `with_mock()` was a fairly disruptive change, affecting ~100 CRAN packages, but it had to be done, and I've been working on notifying package developers since January so everyone had plenty of time to update. Fortunately, the needed changes are generally small, since the newer `local_mocked_bindings()` and `with_mocked_binding()` can solve most additional needs. (If you haven't heard of mocking before you can read the new `vignette("mocking")` to learn what it is and why you might want to use it.)
+The biggest change in this release is that `local_mock()` and `with_mock()` are defunct. They were deprecated in 3.0.0 (2020-10-31) because it was becoming clear that the technique that made them work would be disallowed in a future version of R. This has now happened in R 4.5.0, so the functions have been removed. Removing `local_mock()` and `with_mock()` was a fairly disruptive change, affecting ~100 CRAN packages, but it had to be done, and I've been working on notifying package developers since January so everyone had plenty of time to update. Fortunately, the needed changes are generally small, since the newer `local_mocked_bindings()` and `with_mocked_bindings()` can solve most additional needs. (If you haven't heard of mocking before, you can read the new `vignette("mocking")` to learn what it is and why you might want to use it.)
 
 Other lifecycle changes:
 
@@ -73,7 +73,7 @@ A lot of work in this release was prompted by an overhaul of `vignette("custom-e
 
 * All expectations have new failure messages: they now state what was expected, what was actually received, and, if possible, they clearly illustrate the difference.
 
-* Expectations now consistently return the value of the first argument, regardless of whether the expectation succeeds or fails (the only exception is `expect_error()` and friends which return the captured condition). This is a relatively subtle change that won't affect tests that already pass, but it does improve failures when you pipe together multiple expectations.
+* Expectations now consistently return the value of the first argument, regardless of whether the expectation succeeds or fails (the only exception is `expect_error()` and friends which return the captured condition so that you can perform additional checks on the condition object). This is a relatively subtle change that won't affect tests that already pass, but it does improve failures when you pipe together multiple expectations.
 
 * A new `pass()` function makes it clear how to signal when an expectation succeeds. All existing expectations were rewritten to use `pass()` and (the existing) `fail()` instead of `expect()`, which I think makes the flow of logic easier to understand.
 
@@ -151,17 +151,27 @@ As you can see from the examples above, when you run a single test interactively
     flaky_function <- function() {
       if (runif(1) < 0.1) 0 else 1
     }
+
+    # 10% chance of failure:
     test_that("my flaky test is ok", {
-      # 10% chance of failure:
+      skip_on_cran()
       expect_equal(flaky_function(), 1)
+    })
 
-      # 1% chance of failure:
+    # 1% chance of failure:
+    test_that("my flaky test is ok", {
+      skip_on_cran()
       try_again(1, expect_equal(flaky_function(), 1))
+    })
 
-      # 0.1% chance of failure:
+    # 0.1% chance of failure:
+    test_that("my flaky test is ok", {
+      skip_on_cran()
       try_again(2, expect_equal(flaky_function(), 1))
     })
     ```
+
+    Note that it's still good practice to skip such tests on CRAN.
 
 * New `skip_unless_r()` skips tests on unsuitable versions of R. It has a convenient syntax so you can use, e.g., `skip_unless_r(">= 4.1.0")` to skip tests that require `...names()`.
 
