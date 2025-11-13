@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: testthat-3-3-0
 title: testthat 3.3.0
-date: 2025-11-05
+date: 2025-11-13
 author: Hadley Wickham
 description: >
     testthat 3.3.0 brings improved expectations with better error messages,
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [testthat, devtools]
-rmd_hash: cafc41a1570ad7aa
+rmd_hash: 3729c6b45efe12d3
 
 ---
 
