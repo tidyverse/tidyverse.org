@@ -1,4 +1,164 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>tidymodels | Tidyverse</title><link>https://www.tidyverse.org/tags/tidymodels/</link><atom:link href="https://www.tidyverse.org/tags/tidymodels/index.xml" rel="self" type="application/rss+xml"/><description>tidymodels</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 05 Nov 2025 00:00:00 +0000</lastBuildDate><item><title>tune version 2.0.0</title><link>https://www.tidyverse.org/blog/2025/11/tune-2/</link><pubDate>Wed, 05 Nov 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/11/tune-2/</guid><description>&lt;p>We&amp;rsquo;re very chuffed to announce the release of
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>tidymodels | Tidyverse</title><link>https://www.tidyverse.org/tags/tidymodels/</link><atom:link href="https://www.tidyverse.org/tags/tidymodels/index.xml" rel="self" type="application/rss+xml"/><description>tidymodels</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 18 Nov 2025 00:00:00 +0000</lastBuildDate><item><title>Q3 2025 tidymodels digest</title><link>https://www.tidyverse.org/blog/2025/11/tidymodels-2025-q3/</link><pubDate>Tue, 18 Nov 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/11/tidymodels-2025-q3/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>The tidymodels framework is a collection of R packages for modeling and machine learning using tidyverse principles.&lt;/p>
+&lt;p>Since the beginning of 2021, we have been publishing quarterly updates here on the tidyverse blog summarizing what&amp;rsquo;s new in the tidymodels ecosystem. The purpose of these regular posts is to share useful new features and any updates you may have missed. You can check out the tidymodels tag to find all tidymodels blog posts here, including our roundup posts as well as those that are more focused.&lt;/p>
+&lt;p>Since our last update we have had some larger releases that you can read about in these posts.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://tidyverse.org/blog/2025/11/tune-2/" target="_blank" rel="noopener">tune 2.0.0&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://tidyverse.org/blog/2025/04/recipes-1-3-0/" target="_blank" rel="noopener">recipes 1.3.0&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://tidyverse.org/blog/2025/04/rsample-1-3-0/" target="_blank" rel="noopener">rsample 1.3.0&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://tidyverse.org/blog/2025/03/tidymodels-sparsity/" target="_blank" rel="noopener">improved sparsity support in tidymodels&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>The post will update, you on which packages have changed and the improvements you should know about that haven&amp;rsquo;t been covered in the above posts.&lt;/p>
+&lt;p>Here&amp;rsquo;s a list of the packages and their News sections:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://dials.tidymodels.org/news/index.html" target="_blank" rel="noopener">dials&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://parsnip.tidymodels.org/news/index.html" target="_blank" rel="noopener">parsnip&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://rsample.tidymodels.org/news/index.html" target="_blank" rel="noopener">rsample&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://recipes.tidymodels.org/news/index.html" target="_blank" rel="noopener">recipes&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://probably.tidymodels.org/news/index.html" target="_blank" rel="noopener">probably&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://brulee.tidymodels.org/news/index.html" target="_blank" rel="noopener">brulee&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>Let&amp;rsquo;s look at a few specific updates.&lt;/p>
+&lt;h2 id="quiet-linear-svm-models">Quiet linear svm models
+&lt;a href="#quiet-linear-svm-models">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>When you used to fit a linear SVM model, you would get a message that you were not able to avoid.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">parsnip&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">modeldata&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">res&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">svm_linear&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mode&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;classification&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">engine&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;kernlab&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span>
+&lt;span class="nf">fit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Class&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">two_class_dat&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Setting default kernel parameters&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This message by itself was not that useful and was unable to turn off in a reasonable way. We have silenced this message to hopefully alleviate some of the noise that came from using this method.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://github.com/tidymodels/parsnip'>parsnip&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://modeldata.tidymodels.org'>modeldata&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Attaching package: 'modeldata'&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='c'>#&amp;gt; The following object is masked from 'package:datasets':&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; penguins&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>res&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://parsnip.tidymodels.org/reference/svm_linear.html'>svm_linear&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>mode &lt;span class='o'>=&lt;/span> &lt;span class='s'>"classification"&lt;/span>, engine &lt;span class='o'>=&lt;/span> &lt;span class='s'>"kernlab"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://generics.r-lib.org/reference/fit.html'>fit&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>Class&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>.&lt;/span>, data &lt;span class='o'>=&lt;/span> &lt;span class='nv'>two_class_dat&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>res&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; parsnip model object&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Support Vector Machine object of class "ksvm" &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; SV type: C-svc (classification) &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; parameter : cost C = 1 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Linear (vanilla) kernel function. &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Number of Support Vectors : 361 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Objective Function Value : -357.1487 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Training error : 0.178255 &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Probability model included.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="fewer-numeric-overflow-issues-in-brulee">Fewer numeric overflow issues in brulee
+&lt;a href="#fewer-numeric-overflow-issues-in-brulee">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The brulee package has been improved to try to help avoid numeric overflow in the loss functions. The following things have been done to help deal with this type of issue.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Starting values were transitioned to using Gaussian distribution (instead of uniform) with a smaller standard deviation.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The results always contain the initial results to use as a fallback if there is overflow during the first epoch.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>brulee_mlp()&lt;/code> has two additional parameters, &lt;code>grad_value_clip&lt;/code> and &lt;code>grad_value_clip&lt;/code>, that prevent issues.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The warning was changed to &amp;ldquo;Early stopping occurred at epoch {X} due to numerical overflow of the loss function.&amp;rdquo;&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="additional-torch-optimizers-in-brulee">Additional torch optimizers in brulee
+&lt;a href="#additional-torch-optimizers-in-brulee">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Several additional optimizers have been added: &lt;code>&amp;quot;ADAMw&amp;quot;&lt;/code>, &lt;code>&amp;quot;Adadelta&amp;quot;&lt;/code>, &lt;code>&amp;quot;Adagrad&amp;quot;&lt;/code>, and &lt;code>&amp;quot;RMSprop&amp;quot;&lt;/code>. Previously, the options were &lt;code>&amp;quot;SGD&amp;quot;&lt;/code> and &lt;code>LBFGS&amp;quot;&lt;/code>. ## Acknowledgements&lt;/p>
+&lt;p>We want to sincerely thank everyone who contributed to these packages since their previous versions:&lt;/p>
+&lt;ul>
+&lt;li>dials:
+&lt;a href="https://github.com/brendad8" target="_blank" rel="noopener">@brendad8&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>, and
+&lt;a href="https://github.com/Wander03" target="_blank" rel="noopener">@Wander03&lt;/a>.&lt;/li>
+&lt;li>parsnip:
+&lt;a href="https://github.com/chillerb" target="_blank" rel="noopener">@chillerb&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/jmgirard" target="_blank" rel="noopener">@jmgirard&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>, and
+&lt;a href="https://github.com/ZWael" target="_blank" rel="noopener">@ZWael&lt;/a>.&lt;/li>
+&lt;li>rsample:
+&lt;a href="https://github.com/abichat" target="_blank" rel="noopener">@abichat&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/mkiang" target="_blank" rel="noopener">@mkiang&lt;/a>, and
+&lt;a href="https://github.com/vincentarelbundock" target="_blank" rel="noopener">@vincentarelbundock&lt;/a>.&lt;/li>
+&lt;li>recipes:
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/SimonDedman" target="_blank" rel="noopener">@SimonDedman&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/li>
+&lt;li>probably:
+&lt;a href="https://github.com/abichat" target="_blank" rel="noopener">@abichat&lt;/a>,
+&lt;a href="https://github.com/ayueme" target="_blank" rel="noopener">@ayueme&lt;/a>,
+&lt;a href="https://github.com/dchiu911" target="_blank" rel="noopener">@dchiu911&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/frankiethull" target="_blank" rel="noopener">@frankiethull&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">@gaborcsardi&lt;/a>,
+&lt;a href="https://github.com/hfrick" target="_blank" rel="noopener">@hfrick&lt;/a>,
+&lt;a href="https://github.com/Jeffrothschild" target="_blank" rel="noopener">@Jeffrothschild&lt;/a>,
+&lt;a href="https://github.com/jgaeb" target="_blank" rel="noopener">@jgaeb&lt;/a>,
+&lt;a href="https://github.com/jrwinget" target="_blank" rel="noopener">@jrwinget&lt;/a>,
+&lt;a href="https://github.com/mark-burdon" target="_blank" rel="noopener">@mark-burdon&lt;/a>,
+&lt;a href="https://github.com/martinhulin" target="_blank" rel="noopener">@martinhulin&lt;/a>,
+&lt;a href="https://github.com/simonpcouch" target="_blank" rel="noopener">@simonpcouch&lt;/a>,
+&lt;a href="https://github.com/teunbrand" target="_blank" rel="noopener">@teunbrand&lt;/a>,
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>,
+&lt;a href="https://github.com/wjakethompson" target="_blank" rel="noopener">@wjakethompson&lt;/a>, and
+&lt;a href="https://github.com/yellowbridge" target="_blank" rel="noopener">@yellowbridge&lt;/a>.&lt;/li>
+&lt;li>brulee:
+&lt;a href="https://github.com/genec1" target="_blank" rel="noopener">@genec1&lt;/a>,
+&lt;a href="https://github.com/talegari" target="_blank" rel="noopener">@talegari&lt;/a>, and
+&lt;a href="https://github.com/topepo" target="_blank" rel="noopener">@topepo&lt;/a>.&lt;/li>
+&lt;/ul></description></item><item><title>tune version 2.0.0</title><link>https://www.tidyverse.org/blog/2025/11/tune-2/</link><pubDate>Wed, 05 Nov 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/11/tune-2/</guid><description>&lt;p>We&amp;rsquo;re very chuffed to announce the release of
 &lt;a href="https://tune.tidymodels.org" target="_blank" rel="noopener">tune&lt;/a> &lt;strong>2.0.0&lt;/strong>. tune is a package that can be used to resample models and/or optimize their tuning parameters&lt;/p>
 &lt;p>You can install it from CRAN with:&lt;/p>
 &lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;tune&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
