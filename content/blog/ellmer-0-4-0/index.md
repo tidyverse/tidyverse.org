@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: ellmer-0-4-0
 title: ellmer 0.4.0
-date: 2025-11-13
+date: 2025-11-18
 author: Hadley Wickham
 description: >
     ellmer 0.4.0 includes important lifecycle updates, new Claude features
@@ -16,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [ellmer]
-rmd_hash: 13488b994df05dc2
+rmd_hash: 1c7835a3eedd7777
 
 ---
 
@@ -33,7 +33,7 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're very happy to announce the release of [ellmer](https://ellmer.tidyverse.org) 0.4.0. ellmer makes it easy to chat with a large language model directly from R. ellmer is an R package designed to make it easy to use large language models (LLMs) from R. It supports a wide variety of providers (including OpenAI, Anthropic, Azure, Google, Snowflake, Databricks and many more), makes it easy to [extract structured data](https://ellmer.tidyverse.org/articles/structured-data.html), and to give the LLM the ability to call R functions via [tool calling](https://ellmer.tidyverse.org/articles/tool-calling.html).
+We're very happy to announce the release of [ellmer](https://ellmer.tidyverse.org) 0.4.0. ellmer makes it easy to chat with a large language model directly from R. It supports a wide variety of providers (including OpenAI, Anthropic, Azure, Google, Snowflake, Databricks and many more), makes it easy to [extract structured data](https://ellmer.tidyverse.org/articles/structured-data.html), and to give the LLM the ability to call R functions via [tool calling](https://ellmer.tidyverse.org/articles/tool-calling.html).
 
 You can install it from CRAN with:
 
@@ -55,35 +55,35 @@ You can see a full list of changes in the [release notes](https://github.com/tid
 
 ## Lifecycle
 
--   [`parallel_chat()`](https://ellmer.tidyverse.org/reference/parallel_chat.html) and [`batch_chat()`](https://ellmer.tidyverse.org/reference/batch_chat.html) are no longer experimental. Based on user feedback, both [`parallel_chat()`](https://ellmer.tidyverse.org/reference/parallel_chat.html) and [`batch_chat()`](https://ellmer.tidyverse.org/reference/batch_chat.html) do a much better job of handling errors, and I'm confident that they're around to stay.
+[`parallel_chat()`](https://ellmer.tidyverse.org/reference/parallel_chat.html) and [`batch_chat()`](https://ellmer.tidyverse.org/reference/batch_chat.html) are no longer experimental. Based on user feedback, both [`parallel_chat()`](https://ellmer.tidyverse.org/reference/parallel_chat.html) and [`batch_chat()`](https://ellmer.tidyverse.org/reference/batch_chat.html) do a much better job of handling errors, and I'm confident that they're around to stay.
 
--   Reflecting Anthropic's recent rebranding of developer tools under the Claude name, [`chat_claude()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html) is no longer deprecated and is an alias for [`chat_anthropic()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html). New [`models_claude()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html) is now an alias for [`models_anthropic()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html).
+Reflecting Anthropic's recent rebranding of developer tools under the Claude name, [`chat_claude()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html) is no longer deprecated and is an alias for [`chat_anthropic()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html). New [`models_claude()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html) is now an alias for [`models_anthropic()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html).
 
--   The following deprecated functions/arguments/methods have been removed:
+The following deprecated functions/arguments/methods have been removed:
 
-    -   `Chat$extract_data()` -\> `chat$chat_structured()` (0.2.0)
-    -   `Chat$extract_data_async()` -\> `chat$chat_structured_async()` (0.2.0)
-    -   `chat_anthropic(max_tokens)` -\> `chat_anthropic(params)` (0.2.0)
-    -   `chat_azure()` -\> [`chat_azure_openai()`](https://ellmer.tidyverse.org/reference/chat_azure_openai.html) (0.2.0)
-    -   `chat_azure_openai(token)` (0.1.1)
-    -   `chat_bedrock()` -\> [`chat_aws_bedrock()`](https://ellmer.tidyverse.org/reference/chat_aws_bedrock.html) (0.2.0)
-    -   [`chat_claude()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html) -\> [`chat_anthropic()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html) (0.2.0)
-    -   `chat_cortex()` -\> [`chat_snowflake()`](https://ellmer.tidyverse.org/reference/chat_snowflake.html) (0.2.0)
-    -   `chat_gemini()` -\> [`chat_google_gemini()`](https://ellmer.tidyverse.org/reference/chat_google_gemini.html) (0.2.0)
-    -   `chat_openai(seed)` -\> `chat_openai(params)` (0.2.0)
-    -   `create_tool_def(model)` -\> `create_tool_def(chat)` (0.2.0)
+-   `Chat$extract_data()` -\> `chat$chat_structured()` (0.2.0)
+-   `Chat$extract_data_async()` -\> `chat$chat_structured_async()` (0.2.0)
+-   `chat_anthropic(max_tokens)` -\> `chat_anthropic(params)` (0.2.0)
+-   `chat_azure()` -\> [`chat_azure_openai()`](https://ellmer.tidyverse.org/reference/chat_azure_openai.html) (0.2.0)
+-   `chat_azure_openai(token)` (0.1.1)
+-   `chat_bedrock()` -\> [`chat_aws_bedrock()`](https://ellmer.tidyverse.org/reference/chat_aws_bedrock.html) (0.2.0)
+-   [`chat_claude()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html) -\> [`chat_anthropic()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html) (0.2.0)
+-   `chat_cortex()` -\> [`chat_snowflake()`](https://ellmer.tidyverse.org/reference/chat_snowflake.html) (0.2.0)
+-   `chat_gemini()` -\> [`chat_google_gemini()`](https://ellmer.tidyverse.org/reference/chat_google_gemini.html) (0.2.0)
+-   `chat_openai(seed)` -\> `chat_openai(params)` (0.2.0)
+-   `create_tool_def(model)` -\> `create_tool_def(chat)` (0.2.0)
 
 ## `chat_claude()`
 
-[`chat_claude()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html) gains a new `cache` parameter to control caching. By default it is set to "5m". Claude's caching model is rather difficult to understand, but I'm reasonably confident that this will reduce your costs overall. [`?chat_anthropic`](https://ellmer.tidyverse.org/reference/chat_anthropic.html) goes into the details of why I think this will save you money.
+[`chat_claude()`](https://ellmer.tidyverse.org/reference/chat_anthropic.html) gains a new `cache` parameter to control caching. By default it is set to "5m". Claude's caching model is rather difficult to understand, but I'm reasonably confident that this will reduce your costs overall. [`?chat_claude`](https://ellmer.tidyverse.org/reference/chat_anthropic.html) goes into the details of why I think this will save you money.
 
 With help from @dcomputing, ellmer has gained a suite of file management helpers such as [`claude_file_upload()`](https://ellmer.tidyverse.org/reference/claude_file_upload.html), [`claude_file_list()`](https://ellmer.tidyverse.org/reference/claude_file_upload.html), [`claude_file_delete()`](https://ellmer.tidyverse.org/reference/claude_file_upload.html), and so on. These allow you to upload [a variety of file types](https://docs.claude.com/en/docs/build-with-claude/files#file-types-and-content-blocks) for investigation.
 
-You can now take advantage of Claude's built-in [web search](https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool) and [web fetch](https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-fetch-tool) with `claude_tool_web_search()` and `claude_tool_web_fetch()`. These empower Claude to perform web searches and read web pages on your behalf.
+You can now take advantage of Claude's built-in [web search](https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool) and [web fetch](https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-fetch-tool) with [`claude_tool_web_search()`](https://ellmer.tidyverse.org/reference/claude_tool_web_search.html) and [`claude_tool_web_fetch()`](https://ellmer.tidyverse.org/reference/claude_tool_web_fetch.html). These empower Claude to perform web searches and read web pages on your behalf.
 
 ## `chat_openai()` and `chat_openai_compatible()`
 
-[`chat_openai()`](https://ellmer.tidyverse.org/reference/chat_openai.html) now uses OpenAI's more modern "responses API". This is their now-recommended API, and unlocks the ability to use the built-in tools, such as web search with `openai_tool_web_search()`. It also gains a `service_tier` argument which allows you to request slower/cheaper or faster/more expensive results.
+[`chat_openai()`](https://ellmer.tidyverse.org/reference/chat_openai.html) now uses OpenAI's more modern "responses API". This is their now-recommended API, and unlocks the ability to use the built-in tools, such as web search with [`openai_tool_web_search()`](https://ellmer.tidyverse.org/reference/openai_tool_web_search.html). It also gains a `service_tier` argument which allows you to request slower/cheaper or faster/more expensive results.
 
 If you want to talk to a model provider that is OpenAI API compatible (i.e. uses the older "chat completions" API), you'll need to use [`chat_openai_compatible()`](https://ellmer.tidyverse.org/reference/chat_openai_compatible.html).
 
