@@ -1,0 +1,108 @@
+---
+output: hugodown::hugo_document
+
+slug: tidymodels-2025-q3
+title: Q3 2025 tidymodels digest
+date: 2025-11-18
+author: Emil Hvitfeldt
+description: >
+    A summary of what has been going on for the tidymodels group in the mid 2025.
+
+photo:
+  url: https://unsplash.com/photos/autumn-trees-with-colorful-leaves-in-a-park-Qx6Ojv9WPo8
+  author: Anurag Jamwal
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [roundup] 
+tags: [tidymodels]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+The tidymodels framework is a collection of R packages for modeling and machine learning using tidyverse principles.
+
+Since the beginning of 2021, we have been publishing quarterly updates here on the tidyverse blog summarizing what’s new in the tidymodels ecosystem. The purpose of these regular posts is to share useful new features and any updates you may have missed. You can check out the tidymodels tag to find all tidymodels blog posts here, including our roundup posts as well as those that are more focused.
+
+Since our last update we have had some larger releases that you can read about in these posts.
+
+- [tune 2.0.0](https://tidyverse.org/blog/2025/11/tune-2/)
+- [recipes 1.3.0](https://tidyverse.org/blog/2025/04/recipes-1-3-0/)
+- [rsample 1.3.0](https://tidyverse.org/blog/2025/04/rsample-1-3-0/)
+- [improved sparsity support in tidymodels](https://tidyverse.org/blog/2025/03/tidymodels-sparsity/)
+
+The post will update, you on which packages have changed and the improvements you should know about that haven't been covered in the above posts.
+
+Here's a list of the packages and their News sections: 
+
+- [dials](https://dials.tidymodels.org/news/index.html)
+- [parsnip](https://parsnip.tidymodels.org/news/index.html)
+- [rsample](https://rsample.tidymodels.org/news/index.html)
+- [recipes](https://recipes.tidymodels.org/news/index.html)
+- [probably](https://probably.tidymodels.org/news/index.html)
+- [brulee](https://brulee.tidymodels.org/news/index.html)
+
+Let's look at a few specific updates.
+
+## Quiet linear svm models
+
+When you used to fit a linear SVM model, you would get a message that you were not able to avoid.
+
+```r
+library(parsnip)
+library(modeldata)
+
+res <- 
+  svm_linear(mode = "classification", engine = "kernlab") |> 
+  fit(Class ~ ., data = two_class_dat)
+#>  Setting default kernel parameters
+```
+
+This message by itself was not that useful and was unable to turn off in a reasonable way.
+We have silenced this message to hopefully alleviate some of the noise that came from using this method.
+
+```{r}
+library(parsnip)
+library(modeldata)
+
+res <- 
+  svm_linear(mode = "classification", engine = "kernlab") |> 
+  fit(Class ~ ., data = two_class_dat)
+res
+```
+
+## Fewer numeric overflow issues in brulee
+
+The brulee package has been improved to try to help avoid numeric overflow in the loss functions. The following things have been done to help deal with this type of issue.
+
+* Starting values were transitioned to using Gaussian distribution (instead of uniform) with a smaller standard deviation. 
+  
+* The results always contain the initial results to use as a fallback if there is overflow during the first epoch.
+
+* `brulee_mlp()` has two additional parameters, `grad_value_clip` and `grad_value_clip`, that prevent issues. 
+  
+* The warning was changed to "Early stopping occurred at epoch {X} due to numerical overflow of the loss function."
+
+## Additional torch optimizers in brulee
+
+Several additional optimizers have been added: `"ADAMw"`, `"Adadelta"`, `"Adagrad"`, and `"RMSprop"`. Previously, the options were `"SGD"` and `LBFGS"`. 
+## Acknowledgements
+
+We want to sincerely thank everyone who contributed to these packages since their previous versions: 
+
+- dials: [&#x0040;brendad8](https://github.com/brendad8), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;topepo](https://github.com/topepo), and [&#x0040;Wander03](https://github.com/Wander03).
+- parsnip: [&#x0040;chillerb](https://github.com/chillerb), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;jmgirard](https://github.com/jmgirard), [&#x0040;topepo](https://github.com/topepo), and [&#x0040;ZWael](https://github.com/ZWael).
+- rsample: [&#x0040;abichat](https://github.com/abichat), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;mkiang](https://github.com/mkiang), and [&#x0040;vincentarelbundock](https://github.com/vincentarelbundock).
+- recipes: [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;SimonDedman](https://github.com/SimonDedman), and [&#x0040;topepo](https://github.com/topepo).
+- probably: [&#x0040;abichat](https://github.com/abichat), [&#x0040;ayueme](https://github.com/ayueme), [&#x0040;dchiu911](https://github.com/dchiu911), [&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;frankiethull](https://github.com/frankiethull), [&#x0040;gaborcsardi](https://github.com/gaborcsardi), [&#x0040;hfrick](https://github.com/hfrick), [&#x0040;Jeffrothschild](https://github.com/Jeffrothschild), [&#x0040;jgaeb](https://github.com/jgaeb), [&#x0040;jrwinget](https://github.com/jrwinget), [&#x0040;mark-burdon](https://github.com/mark-burdon), [&#x0040;martinhulin](https://github.com/martinhulin), [&#x0040;simonpcouch](https://github.com/simonpcouch), [&#x0040;teunbrand](https://github.com/teunbrand), [&#x0040;topepo](https://github.com/topepo), [&#x0040;wjakethompson](https://github.com/wjakethompson), and [&#x0040;yellowbridge](https://github.com/yellowbridge).
+- brulee: [&#x0040;genec1](https://github.com/genec1), [&#x0040;talegari](https://github.com/talegari), and [&#x0040;topepo](https://github.com/topepo).
