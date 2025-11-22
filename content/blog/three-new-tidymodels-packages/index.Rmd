@@ -1,9 +1,9 @@
 ---
 output: hugodown::hugo_document
 
-slug: three-new-tidymodels-packages
+slug: two-new-tidymodels-packages
 title: "Two New tidymodels Packages"
-date: 2025-11-23
+date: 2025-11-22
 author: Frances Lin, Max Kuhn
 description: >
     Two new tidymodels packages focus on supervised feature selection. 
@@ -46,7 +46,7 @@ Feature selection is an important step in building machine learning models that 
 
 [filtro](https://filtro.tidymodels.org/) is a low-level tidy tools designed for filter-based supervised feature selection. filtro makes it easy to score, rank, and select features using a wide range of statistical and model-based metrics. The scoring metrics include: p-values, correlation, random forest feature importance, information gain, and more. 
 
-With filtro, we can quickly rank the variables and select either the top proportion or the top number of features that best contribute to our model. It also supports multi-parameter optimization via desirability functions. filtro is a standalone tool, but it integrates with other packages, allowing it to be used within the tidymodels workflows.
+With filtro, we can quickly rank the variables and select either the top proportion or the top number of features that best contribute to our model. It also supports [multi-parameter optimization](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22multi-parameter+optimization%22&btnG=) via [desirability functions](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22desirability+functions%22&btnG=). filtro is a standalone tool, but it integrates with other packages, allowing it to be used within the tidymodels workflows.
 
 Currently, filtro implements a total of six filters. Like other elements of the framework, also filtro is extensible if you want to use a score we haven't implemented yet. You can read more on how to do this on [tidymodels.org](https://www.tidymodels.org/learn/develop/filtro/).
 
@@ -76,7 +76,7 @@ yield_test <- testing(yield_split)
 
 We’d like to estimate the strength of the relationship between these `r ncol(modeldata::chem_proc_yield)-1` predictors and the process yield. We’ll quantify that in two ways. First is the old-fashioned [Spearman rank correlation](https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient) statistic. We can estimate these values and rank them by the absolute value of the correlations. We can also measure their value using a random forest variable importance. One quality of the predictors is that their values are correlated, so there may be some value in using an _oblique_ random forest model. This creates a collection of tree-based models with splits that are linear combinations of the selected predictors. 
 
-With filtro, we use the pre-made score objects for these measures along with the `fit()` method: 
+To estimate the scores, we use the score objects contained in the package along with the `fit()` method: 
 
 ```{r}
 #| label: fit-cor
@@ -128,6 +128,8 @@ class_score_list |>
 
 Using the `scale = 2` option puts more weight on the random forest results. 
 
+It is unlikely that users will work with filtro directly; it is much better to incorporate these feature selection tools inside a model workflow (as we will see below). 
+
 Now that we've looked at filtro, next up is the important package (yes, this is what we named it). 
 
 ## important
@@ -163,7 +165,9 @@ yield_rec <-
   )
 yield_rec
 ```
-Next up is the important package (yes, this is what we named it). When combined with a specific model, we can tune the number of neighbors as well as the proportion of predictors retained (10% above). 
+
+
+When combined with a specific model, we can tune the number of neighbors as well as the proportion of predictors retained (10% above). 
 
 `prep()` will do the appropriate estimation steps: 
 
@@ -184,5 +188,9 @@ scores |>
 # What percentage was removed?
 mean(scores$removed * 100)
 ```
+
+## Summary
+
+Both filtro and important satisfy a feature for tidymodels that has been highly ranked in our user surveys: supervised feature selection. filtro contains the underlying framework and important provides recipe steps that can be used in a workflow. 
 
 
