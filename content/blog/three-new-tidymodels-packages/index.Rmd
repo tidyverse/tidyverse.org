@@ -4,7 +4,7 @@ output: hugodown::hugo_document
 slug: three-new-tidymodels-packages
 title: "Two New tidymodels Packages"
 date: 2025-11-23
-author: Max Kuhn, Frances Lin
+author: Frances Lin, Max Kuhn
 description: >
     Two new tidymodels packages focus on supervised feature selection. 
 
@@ -30,7 +30,7 @@ TODO:
 * [ ] `usethis::use_tidy_thanks()`
 -->
 
-We're very chuffed to announce the release of _two_ new modeling packages: filtro and  important. 
+We're very chuffed to announce the release of _two_ new modeling packages: filtro and important. 
 
 You can install them from CRAN with:
 
@@ -38,17 +38,17 @@ You can install them from CRAN with:
 install.packages(c("filtro", "important"))
 ```
 
-This blog post will describe each. 
+This blog post will introduce both. 
 
 ## filtro
 
 Feature selection is an important step in building machine learning models that are robust and reliable. By keeping only the most relevant predictors, we can reduce overfitting, improve model performance, and speed up computation. 
 
-filtro is a low-level tidy tools designed for filter-based supervised feature selection. filtro makes it easy to score, rank, and select features using a wide range of statistical and model-based metrics. The scoring metrics include: p-values, correlation, random forest feature importance, information gain, and more. 
+[filtro](https://filtro.tidymodels.org/) is a low-level tidy tools designed for filter-based supervised feature selection. filtro makes it easy to score, rank, and select features using a wide range of statistical and model-based metrics. The scoring metrics include: p-values, correlation, random forest feature importance, information gain, and more. 
 
-With filtro, we can quickly rank the variables and select either the top proportion or the top number features that best contribute to our model. It also supports multi-parameter optimization via desirability functions. filtro is a standalone tool, but it integrates with other packages, allowing it to be used within the tidymodels workflows.
+With filtro, we can quickly rank the variables and select either the top proportion or the top number of features that best contribute to our model. It also supports multi-parameter optimization via desirability functions. filtro is a standalone tool, but it integrates with other packages, allowing it to be used within the tidymodels workflows.
 
-Currently, filtro implements a total of six filters, and the filters are written in S7 for usability and extensibility. 
+Currently, filtro implements a total of six filters. Like other elements of the framework, also filtro is extensible if you want to use a score we haven't implemented yet. You can read more on how to do this on [tidymodels.org](https://www.tidymodels.org/learn/develop/filtro/).
 
 The available score class objects are:
 
@@ -89,7 +89,7 @@ yield_rank_res@results |>
   arrange(desc(abs(score)))
 ``` 
 
-It is just as simple for the random forest model
+To score via a random forest model, we only need to switch out the score object:
 
 ```{r}
 #| label: fit-orf
@@ -106,11 +106,7 @@ We should probably combine the scores and do a joint ranking. To combine the two
 ```{r}
 #| label: bind
 
-class_score_list <-
-  list(
-    yield_rank_res,
-    yield_rf_res
-  ) |>
+class_score_list <- list(yield_rank_res, yield_rf_res) |>
   bind_scores()
 
 class_score_list
@@ -130,15 +126,15 @@ class_score_list |>
   select(-starts_with(".d_max_"))
 ```
 
-Using the `scale = 2` options puts more weight on the random forest results. 
+Using the `scale = 2` option puts more weight on the random forest results. 
 
 Now that we've looked at filtro, next up is the important package (yes, this is what we named it). 
 
 ## important
 
-The important package does two things. First, it provides yet another tool for calculating random forest-like permutation importance scores. We highly value other packages that perform these same calculations (such as [DALEX](https://modeloriented.github.io/DALEX/) and [vip](https://github.com/koalaverse/vip/)). Our rationale for creating another package for this is that we've developed interfaces for censored regression, including dynamic metrics such as Brier scores or ROC curves that evaluate models at a specific time point. These dynamic methods aren't available in other packages, and the peculiarities of these metrics make them difficult to incorporate into existing frameworks. 
+The [important](https://important.tidymodels.org/) package does two things. First, it provides yet another tool for calculating random forest-like permutation importance scores. We highly value other packages that perform these same calculations (such as [DALEX](https://modeloriented.github.io/DALEX/) and [vip](https://github.com/koalaverse/vip/)). Our rationale for creating another package for this is that we've developed interfaces for censored regression, including dynamic metrics such as Brier scores or ROC curves that evaluate models at a specific time point. These dynamic methods aren't available in other packages, and the peculiarities of these metrics make them difficult to incorporate into existing frameworks. 
 
-Other niceties about importance scores are that any metric from the yardstick methods can be used, and we have optimized parallel processing for the underlying computations. For the latter feature, we support the future and mirai packages for parallel processing. 
+Other niceties about importance scores are that any metric from the yardstick package can be used, and we have optimized parallel processing for the underlying computations. For the latter feature, we support the future and mirai packages for parallel processing. 
 
 important also has three recipe steps for supervised feature selection (similar to what Steven Pawley did with his [colino package](https://stevenpawley.github.io/colino/)). The steps are:
 
