@@ -1,0 +1,178 @@
+<!doctype html><html><head><!doctype html><html lang=en-us><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/main-site.css><link rel=stylesheet href=/css/fa5-all.css><style type=text/css>body{background-color:#fff;color:#1a1917}a{color:#38577f}a:hover{color:#42709b}a:focus{outline-color:#42709b}.column25-left .sectionTitle a:hover:not(.current),.column16-left .sectionTitle a:hover:not(.current){color:#1a1917}.icon-attribution,.icon-attribution a{color:#1a1917;opacity:75%}#homeContent .band.first{background-color:#fff}#homeContent .band.second{background-color:#fdeba4}#homeContent .band.third{background-color:#fff}#rStudioHeader{background-color:#1a162d;color:#fff}#rStudioHeader .productName{color:#fff}#rStudioHeader .productName:hover,#rStudioHeader .productName:focus{color:#fdeba4}#rStudioHeader #menu .menuItem.a{background-color:#75aadb;color:#fff}#rStudioHeader #menu .menuItem:hover{background-color:#484557;color:#fff}#rStudioHeader #menu .menuItem.current{background-color:#fff;color:#1a162d;text-decoration:none}#rStudioFooter.band{background-color:#767381}#rStudioFooter .bandContent #copyright{color:#e3eef8}table tbody tr:nth-child(even){background-color:#f7faff}table tbody tr:nth-child(odd){background-color:#fff}.latest{border-top:.5em solid <no value>}.event{-moz-box-shadow:0 0 0 0 rgba(0,0,0,.1);-webkit-box-shadow:0 0 0 0 rgba(0,0,0,.1);box-shadow:0 0 0 0 rgba(0,0,0,.1)}.section .event{background-color:#eab0c41a}.section .event{border-top:7pt solid #a19ea936}.section .event a{color:#1a162d}.section .event{color:#404040}</style><link rel=stylesheet href=/css/tidyverse.css><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=generator content="Hugo 0.71.1"><title>Two New tidymodels Packages</title><meta property="og:title" content="Two New tidymodels Packages"><meta property="og:description" content="Two new tidymodels packages focus on supervised feature selection."><meta property="og:type" content="article"><meta property="og:url" content="https://www.tidyverse.org/blog/2025/11/two-new-tidymodels-packages/"><meta property="twitter:card" content="summary_large_image"><meta property="og:title" content="Two New tidymodels Packages - Tidyverse"><meta property="description" content="Two new tidymodels packages focus on supervised feature selection."><meta property="og:description" content="Two new tidymodels packages focus on supervised feature selection."><meta property="og:image" content="https://www.tidyverse.org/blog/2025/11/two-new-tidymodels-packages/thumbnail-sq.jpg"><meta name=twitter:image content="https://www.tidyverse.org/blog/2025/11/two-new-tidymodels-packages/thumbnail-wd.jpg"><link rel=apple-touch-icon sizes=180x180 href=/images/favicons/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/images/favicons/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/images/favicons/favicon-16x16.png><link rel=manifest href=/images/favicons/site.webmanifest><link rel=mask-icon href=/images/favicons/safari-pinned-tab.svg><link rel="shortcut icon" href=/images/favicons/favicon.ico><meta name=msapplication-TileColor content="#da532c"><meta name=msapplication-config href=/images/favicons/browserconfig.xml><script type=text/javascript src=/js/jquery-3.5.1.min.js></script><script type=text/javascript src=/js/site.js></script><link rel=icon href=/images/favicon.ico><script type=text/javascript src=/js/clipboard.js></script><script src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin=anonymous></script><script src=https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin=anonymous></script><script defer data-domain=tidyverse.org,all.tidyverse.org src=https://plausible.io/js/plausible.js></script></head><body><div id=appTidyverseSite class="shrinkHeader alwaysShrinkHeader"><div id=main><div id=rStudioHeader><nav class=band><div class="innards bandContent"><div><a class=productName href=/>Tidyverse</a></div><div id=menu><div id=menuToggler></div><div id=menuItems><a class=menuItem href=/packages/>Packages</a>
+<a class="menuItem current" href=/blog/>Blog</a>
+<a class=menuItem href=/learn/>Learn</a>
+<a class=menuItem href=/help/>Help</a>
+<a class=menuItem href=/contribute/>Contribute</a></div></div></div></nav></div><main><div class="band padForHeader pushFooter"><div class=bandContent><div class="full splitColumns withMobileMargins"><div class=column75><h1 class=article-title>Two New tidymodels Packages</h1><div class=article-header aria-hidden=true><div class=photo><img src=/blog/2025/11/two-new-tidymodels-packages/thumbnail-wd.jpg></div><div class=photoCredit>Photo by <a href=https://unsplash.com/photos/three-french-macaroons-on-plate-71jYZb6Ag7M>Keila Hötzel</a></div></div><span class=article-date><i class="fas fa-calendar-day fa-fw"></i>&nbsp;&nbsp;2025/11/22</span><p style=margin-bottom:.5em;margin-top:.85em><i class="fas fa-tags"></i>&nbsp;
+<a href=/tags/feature-selection/>feature-selection</a>,
+<a href=/tags/tidymodels/>tidymodels</a></p><p style=margin-top:.5em><i class="fas fa-user-circle fa-fw"></i>&nbsp;
+Frances Lin, Max Kuhn</p><div class=article-content><p>We&rsquo;re very chuffed to announce the release of <em>two</em> new modeling packages: filtro and important.</p><p>You can install them from CRAN with:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>install.packages</span><span class=p>(</span><span class=nf>c</span><span class=p>(</span><span class=s>&#34;filtro&#34;</span><span class=p>,</span> <span class=s>&#34;important&#34;</span><span class=p>))</span>
+</code></pre></div><p>This blog post will introduce both.</p><h2 id=filtro>filtro
+<a href=#filtro><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Feature selection is an important step in building machine learning models that are robust and reliable. By keeping only the most relevant predictors, we can reduce overfitting, improve model performance, and speed up computation.</p><p><a href=https://filtro.tidymodels.org/ target=_blank rel=noopener>filtro</a> is a low-level tidy tools designed for filter-based supervised feature selection. filtro makes it easy to score, rank, and select features using a wide range of statistical and model-based metrics. The scoring metrics include: p-values, correlation, random forest feature importance, information gain, and more.</p><p>With filtro, we can quickly rank the variables and select either the top proportion or the top number of features that best contribute to our model. It also supports
+<a href="https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22multi-parameter+optimization%22&btnG=" target=_blank rel=noopener>multi-parameter optimization</a> via
+<a href="https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22desirability+functions%22&btnG=" target=_blank rel=noopener>desirability functions</a>. filtro is a standalone tool, but it integrates with other packages, allowing it to be used within the tidymodels workflows.</p><p>Currently, filtro implements a total of six filters. Like other elements of the framework, also filtro is extensible if you want to use a score we haven&rsquo;t implemented yet. You can read more on how to do this on
+<a href=https://www.tidymodels.org/learn/develop/filtro/ target=_blank rel=noopener>tidymodels.org</a>.</p><p>The available score class objects are:</p><pre><code>##  [1] &quot;score_aov_fstat&quot;          &quot;score_aov_pval&quot;          
+##  [3] &quot;score_cor_pearson&quot;        &quot;score_cor_spearman&quot;      
+##  [5] &quot;score_gain_ratio&quot;         &quot;score_imp_rf&quot;            
+##  [7] &quot;score_imp_rf_conditional&quot; &quot;score_imp_rf_oblique&quot;    
+##  [9] &quot;score_info_gain&quot;          &quot;score_roc_auc&quot;           
+## [11] &quot;score_sym_uncert&quot;         &quot;score_xtab_pval_chisq&quot;   
+## [13] &quot;score_xtab_pval_fisher&quot;
+</code></pre><p>Let&rsquo;s look at an example.
+<a href="https://www.google.com/search?q=Kuhn+and+Johnson+Applied+Predictive+Modeling+2013" target=_blank rel=noopener>Kuhn and Johnson (2013)</a> described a data set where 176 samples were collected from a chemical manufacturing process. The goal is to predict process yield. Predictors are continuous, count, and categorical; some are correlated, and some contain missing values.</p><p>Let’s create an initial split of the data (which are in the modeldata package):</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>tidymodels</span><span class=p>)</span>
+<span class=nf>library</span><span class=p>(</span><span class=n>filtro</span><span class=p>)</span>
+
+<span class=nf>set.seed</span><span class=p>(</span><span class=m>1</span><span class=p>)</span>
+<span class=n>yield_split</span> <span class=o>&lt;-</span> <span class=nf>initial_split</span><span class=p>(</span><span class=n>modeldata</span><span class=o>::</span><span class=n>chem_proc_yield</span><span class=p>)</span>
+<span class=n>yield_split</span>
+</code></pre></div><pre><code>## &lt;Training/Testing/Total&gt;
+## &lt;132/44/176&gt;
+</code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>yield_train</span> <span class=o>&lt;-</span> <span class=nf>training</span><span class=p>(</span><span class=n>yield_split</span><span class=p>)</span>
+<span class=n>yield_test</span> <span class=o>&lt;-</span> <span class=nf>testing</span><span class=p>(</span><span class=n>yield_split</span><span class=p>)</span>
+</code></pre></div><p>We’d like to estimate the strength of the relationship between these 57 predictors and the process yield. We’ll quantify that in two ways. First is the old-fashioned
+<a href=https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient target=_blank rel=noopener>Spearman rank correlation</a> statistic. We can estimate these values and rank them by the absolute value of the correlations. We can also measure their value using a random forest variable importance. One quality of the predictors is that their values are correlated, so there may be some value in using an <em>oblique</em> random forest model. This creates a collection of tree-based models with splits that are linear combinations of the selected predictors.</p><p>To estimate the scores, we use the score objects contained in the package along with the <code>fit()</code> method:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>yield_rank_res</span> <span class=o>&lt;-</span>
+  <span class=n>score_cor_spearman</span> <span class=o>|&gt;</span>
+  <span class=nf>fit</span><span class=p>(</span><span class=n>yield</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>yield_train</span><span class=p>)</span>
+
+<span class=c1># The object contains the statistics:</span>
+<span class=n>yield_rank_res</span><span class=o>@</span><span class=n>results</span> <span class=o>|&gt;</span> 
+  <span class=nf>arrange</span><span class=p>(</span><span class=nf>desc</span><span class=p>(</span><span class=nf>abs</span><span class=p>(</span><span class=n>score</span><span class=p>)))</span>
+</code></pre></div><pre><code>## # A tibble: 57 × 4
+##    name          score outcome predictor      
+##    &lt;chr&gt;         &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;          
+##  1 cor_spearman  0.655 yield   man_proc_32    
+##  2 cor_spearman -0.537 yield   man_proc_36    
+##  3 cor_spearman  0.519 yield   bio_material_03
+##  4 cor_spearman  0.502 yield   bio_material_06
+##  5 cor_spearman  0.491 yield   man_proc_09    
+##  6 cor_spearman  0.478 yield   bio_material_02
+##  7 cor_spearman  0.446 yield   man_proc_33    
+##  8 cor_spearman  0.421 yield   bio_material_12
+##  9 cor_spearman -0.420 yield   man_proc_13    
+## 10 cor_spearman  0.412 yield   bio_material_04
+## # ℹ 47 more rows
+</code></pre><p>To score via a random forest model, we only need to switch out the score object:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>yield_rf_res</span> <span class=o>&lt;-</span>
+  <span class=n>score_imp_rf_oblique</span> <span class=o>|&gt;</span>
+  <span class=nf>fit</span><span class=p>(</span><span class=n>yield</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>yield_train</span><span class=p>)</span>
+
+<span class=n>yield_rf_res</span><span class=o>@</span><span class=n>results</span> <span class=o>|&gt;</span> 
+  <span class=nf>arrange</span><span class=p>(</span><span class=nf>desc</span><span class=p>(</span><span class=nf>abs</span><span class=p>(</span><span class=n>score</span><span class=p>)))</span>
+</code></pre></div><pre><code>## # A tibble: 57 × 4
+##    name            score outcome predictor      
+##    &lt;chr&gt;           &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;          
+##  1 imp_rf_oblique 0.128  yield   man_proc_32    
+##  2 imp_rf_oblique 0.0697 yield   man_proc_36    
+##  3 imp_rf_oblique 0.0670 yield   man_proc_17    
+##  4 imp_rf_oblique 0.0644 yield   man_proc_09    
+##  5 imp_rf_oblique 0.0612 yield   man_proc_13    
+##  6 imp_rf_oblique 0.0446 yield   bio_material_03
+##  7 imp_rf_oblique 0.0315 yield   man_proc_33    
+##  8 imp_rf_oblique 0.0263 yield   man_proc_11    
+##  9 imp_rf_oblique 0.0263 yield   bio_material_04
+## 10 imp_rf_oblique 0.0262 yield   bio_material_06
+## # ℹ 47 more rows
+</code></pre><p>We should probably combine the scores and do a joint ranking. To combine the two sets of statistics:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>class_score_list</span> <span class=o>&lt;-</span> <span class=nf>list</span><span class=p>(</span><span class=n>yield_rank_res</span><span class=p>,</span> <span class=n>yield_rf_res</span><span class=p>)</span> <span class=o>|&gt;</span>
+  <span class=nf>bind_scores</span><span class=p>()</span>
+
+<span class=n>class_score_list</span>
+</code></pre></div><pre><code>## # A tibble: 57 × 4
+##    outcome predictor       cor_spearman imp_rf_oblique
+##    &lt;chr&gt;   &lt;chr&gt;                  &lt;dbl&gt;          &lt;dbl&gt;
+##  1 yield   bio_material_01        0.404        0.0178 
+##  2 yield   bio_material_02        0.478        0.0190 
+##  3 yield   bio_material_03        0.519        0.0446 
+##  4 yield   bio_material_04        0.412        0.0263 
+##  5 yield   bio_material_05        0.116        0.00639
+##  6 yield   bio_material_06        0.502        0.0262 
+##  7 yield   bio_material_07       -0.101        0.00151
+##  8 yield   bio_material_08        0.369        0.00714
+##  9 yield   bio_material_09        0.109        0.0122 
+## 10 yield   bio_material_10        0.214        0.00998
+## # ℹ 47 more rows
+</code></pre><p>We can accomplish a joint ranking via desirability functions. Here, we set goals for each score (i.e., maximize, minimize, etc.). The algorithm rescales their values and uses a geometric mean for an overall ranking. The desirability2 package has some nice tools for this. Here&rsquo;s how we do it:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>desirability2</span><span class=p>)</span>
+<span class=n>class_score_list</span> <span class=o>|&gt;</span>
+  <span class=nf>show_best_desirability_prop</span><span class=p>(</span>
+    <span class=nf>maximize</span><span class=p>(</span><span class=n>cor_spearman</span><span class=p>,</span> <span class=n>low</span> <span class=o>=</span> <span class=m>0.25</span><span class=p>,</span> <span class=n>high</span> <span class=o>=</span> <span class=m>1</span><span class=p>),</span>
+    <span class=nf>maximize</span><span class=p>(</span><span class=n>imp_rf_oblique</span><span class=p>,</span> <span class=n>scale</span> <span class=o>=</span> <span class=m>2</span><span class=p>)</span>
+  <span class=p>)</span> <span class=o>|&gt;</span> 
+  <span class=nf>arrange</span><span class=p>(</span><span class=nf>desc</span><span class=p>(</span><span class=n>.d_overall</span><span class=p>))</span> <span class=o>|&gt;</span> 
+  <span class=nf>select</span><span class=p>(</span><span class=o>-</span><span class=nf>starts_with</span><span class=p>(</span><span class=s>&#34;.d_max_&#34;</span><span class=p>))</span>
+</code></pre></div><pre><code>## # A tibble: 57 × 5
+##    outcome predictor       cor_spearman imp_rf_oblique .d_overall
+##    &lt;chr&gt;   &lt;chr&gt;                  &lt;dbl&gt;          &lt;dbl&gt;      &lt;dbl&gt;
+##  1 yield   man_proc_32            0.655         0.128      0.735 
+##  2 yield   man_proc_09            0.491         0.0644     0.291 
+##  3 yield   bio_material_03        0.519         0.0446     0.217 
+##  4 yield   man_proc_33            0.446         0.0315     0.134 
+##  5 yield   bio_material_06        0.502         0.0262     0.129 
+##  6 yield   bio_material_04        0.412         0.0263     0.104 
+##  7 yield   bio_material_02        0.478         0.0190     0.0926
+##  8 yield   bio_material_01        0.404         0.0178     0.0719
+##  9 yield   bio_material_11        0.381         0.0194     0.0714
+## 10 yield   man_proc_12            0.391         0.0183     0.0705
+## # ℹ 47 more rows
+</code></pre><p>Using the <code>scale = 2</code> option puts more weight on the random forest results.</p><p>It is unlikely that users will work with filtro directly; it is much better to incorporate these feature selection tools inside a model workflow (as we will see below).</p><p>Now that we&rsquo;ve looked at filtro, next up is the important package (yes, this is what we named it).</p><h2 id=important>important
+<a href=#important><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>The
+<a href=https://important.tidymodels.org/ target=_blank rel=noopener>important</a> package does two things. First, it provides yet another tool for calculating random forest-like permutation importance scores. We highly value other packages that perform these same calculations (such as
+<a href=https://modeloriented.github.io/DALEX/ target=_blank rel=noopener>DALEX</a> and
+<a href=https://github.com/koalaverse/vip/ target=_blank rel=noopener>vip</a>). Our rationale for creating another package for this is that we&rsquo;ve developed interfaces for censored regression, including dynamic metrics such as Brier scores or ROC curves that evaluate models at a specific time point. These dynamic methods aren&rsquo;t available in other packages, and the peculiarities of these metrics make them difficult to incorporate into existing frameworks.</p><p>Other niceties about importance scores are that any metric from the yardstick package can be used, and we have optimized parallel processing for the underlying computations. For the latter feature, we support the future and mirai packages for parallel processing.</p><p>important also has three recipe steps for supervised feature selection (similar to what Steven Pawley did with his
+<a href=https://stevenpawley.github.io/colino/ target=_blank rel=noopener>colino package</a>). The steps are:</p><ul><li><a href=https://important.tidymodels.org/reference/step_predictor_best.html target=_blank rel=noopener><code>step_predictors_best()</code></a></li><li><a href=https://important.tidymodels.org/reference/step_predictor_retain.html target=_blank rel=noopener><code>step_predictors_retain()</code></a></li><li><a href=https://important.tidymodels.org/reference/step_predictor_desirability.html target=_blank rel=noopener><code>step_predictors_desirability()</code></a></li></ul><p>Let&rsquo;s look at the last one, which mirrors our analysis above.</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=nf>library</span><span class=p>(</span><span class=n>important</span><span class=p>)</span>
+<span class=n>goals</span> <span class=o>&lt;-</span>
+  <span class=nf>desirability</span><span class=p>(</span>
+    <span class=nf>maximize</span><span class=p>(</span><span class=n>cor_spearman</span><span class=p>,</span> <span class=n>low</span> <span class=o>=</span> <span class=m>0.25</span><span class=p>,</span> <span class=n>high</span> <span class=o>=</span> <span class=m>1</span><span class=p>),</span>
+    <span class=nf>maximize</span><span class=p>(</span><span class=n>imp_rf_oblique</span><span class=p>,</span> <span class=n>scale</span> <span class=o>=</span> <span class=m>2</span><span class=p>)</span>
+  <span class=p>)</span>
+
+<span class=n>yield_rec</span> <span class=o>&lt;-</span>
+  <span class=nf>recipe</span><span class=p>(</span><span class=n>yield</span> <span class=o>~</span> <span class=n>.,</span> <span class=n>data</span> <span class=o>=</span> <span class=n>yield_train</span><span class=p>)</span> <span class=o>|&gt;</span>
+  <span class=nf>step_impute_knn</span><span class=p>(</span><span class=nf>all_predictors</span><span class=p>(),</span> <span class=n>neighbors</span> <span class=o>=</span> <span class=m>10</span><span class=p>)</span> <span class=o>|&gt;</span>
+  <span class=nf>step_predictor_desirability</span><span class=p>(</span>
+    <span class=nf>all_predictors</span><span class=p>(),</span>
+    <span class=n>score</span> <span class=o>=</span> <span class=n>goals</span><span class=p>,</span>
+    <span class=n>prop_terms</span> <span class=o>=</span> <span class=m>1</span> <span class=o>/</span> <span class=m>10</span>
+  <span class=p>)</span>
+<span class=n>yield_rec</span>
+</code></pre></div><pre><code>## 
+</code></pre><pre><code>## ── Recipe ───────────────────────────────────────────────────────
+</code></pre><pre><code>## 
+</code></pre><pre><code>## ── Inputs
+</code></pre><pre><code>## Number of variables by role
+</code></pre><pre><code>## outcome:    1
+## predictor: 57
+</code></pre><pre><code>## 
+</code></pre><pre><code>## ── Operations
+</code></pre><pre><code>## • K-nearest neighbor imputation for: all_predictors()
+</code></pre><pre><code>## • Feature selection via desirability functions (`cor_spearman`
+##   and `imp_rf_oblique`) on: all_predictors()
+</code></pre><p>When combined with a specific model, we can tune the number of neighbors as well as the proportion of predictors retained (10% above).</p><p><code>prep()</code> will do the appropriate estimation steps:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>trained_rec</span> <span class=o>&lt;-</span> <span class=nf>prep</span><span class=p>(</span><span class=n>yield_rec</span><span class=p>)</span>
+</code></pre></div><p>Which 10% of the predictors were retained? The <code>tidy()</code> method can list the scores and their rankings:</p><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=n>scores</span> <span class=o>&lt;-</span> <span class=nf>tidy</span><span class=p>(</span><span class=n>trained_rec</span><span class=p>,</span> <span class=n>number</span> <span class=o>=</span> <span class=m>2</span><span class=p>)</span>
+<span class=n>scores</span> <span class=o>|&gt;</span>
+  <span class=nf>arrange</span><span class=p>(</span><span class=nf>desc</span><span class=p>(</span><span class=n>.d_overall</span><span class=p>))</span> <span class=o>|&gt;</span>
+  <span class=nf>select</span><span class=p>(</span><span class=o>-</span><span class=nf>starts_with</span><span class=p>(</span><span class=s>&#34;.d_max_&#34;</span><span class=p>),</span> <span class=o>-</span><span class=n>id</span><span class=p>)</span>
+</code></pre></div><pre><code>## # A tibble: 57 × 5
+##    terms           removed cor_spearman imp_rf_oblique .d_overall
+##    &lt;chr&gt;           &lt;lgl&gt;          &lt;dbl&gt;          &lt;dbl&gt;      &lt;dbl&gt;
+##  1 man_proc_32     FALSE          0.655         0.128       0.735
+##  2 man_proc_36     FALSE         -0.530         0.0668      0.325
+##  3 man_proc_09     FALSE          0.491         0.0673      0.304
+##  4 man_proc_13     FALSE         -0.420         0.0725      0.275
+##  5 bio_material_03 FALSE          0.519         0.0517      0.249
+##  6 bio_material_06 TRUE           0.502         0.0445      0.210
+##  7 man_proc_17     TRUE          -0.303         0.0749      0.158
+##  8 man_proc_33     TRUE           0.443         0.0374      0.156
+##  9 bio_material_02 TRUE           0.478         0.0330      0.151
+## 10 bio_material_04 TRUE           0.412         0.0347      0.133
+## # ℹ 47 more rows
+</code></pre><div class=highlight><pre class=chroma><code class=language-r data-lang=r><span class=c1># What percentage was removed?</span>
+<span class=nf>mean</span><span class=p>(</span><span class=n>scores</span><span class=o>$</span><span class=n>removed</span> <span class=o>*</span> <span class=m>100</span><span class=p>)</span>
+</code></pre></div><pre><code>## [1] 91.22807
+</code></pre><h2 id=summary>Summary
+<a href=#summary><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="currentcolor"/><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"/></svg></a></h2><p>Both filtro and important satisfy a feature for tidymodels that has been highly ranked in our user surveys: supervised feature selection. filtro contains the underlying framework and important provides recipe steps that can be used in a workflow.</p></div></div><div class=column25><div class="section hideOnMobile"><div class=sectionTitle>Contents</div><nav id=TableOfContents><ul><li><a href=#filtro>filtro</a></li><li><a href=#important>important</a></li><li><a href=#summary>Summary</a></li></ul></nav></div><div class=section></div></div></div></div></div><div id=rStudioFooter class=band><div class=bandContent><div id=copyright>The tidyverse is proudly supported by <a class=rstudioLogo href=https://posit.co/ aria-label="Posit Homepage"></a></div><div id=logos><a href=https://www.tidyverse.org/google_privacy_policy>Privacy policy</a>
+<a href=https://github.com/tidyverse class="footerLogo gitHub" aria-label="Tidyverse GitHub organization"></a><a href=https://twitter.com/hashtag/rstats class="footerLogo twitter" aria-label="rstats hashtag on twitter.com"></a></div></div></div></div></div><script src=/js/math-code.js></script><script type=text/x-mathjax-config>
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    processEscapes: true
+  }
+});
+</script><script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script type=application/javascript>var dnt=(navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack);var doNotTrack=(dnt=="1"||dnt=="yes");if(!doNotTrack){(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');if(window.sessionStorage){var GA_SESSION_STORAGE_KEY='ga:clientId';ga('create','UA-115082821-1',{'storage':'none','clientId':sessionStorage.getItem(GA_SESSION_STORAGE_KEY)});ga(function(tracker){sessionStorage.setItem(GA_SESSION_STORAGE_KEY,tracker.get('clientId'));});}
+ga('set','anonymizeIp',true);ga('send','pageview');}</script></body></html></div></div></body></html>
