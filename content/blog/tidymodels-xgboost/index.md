@@ -1,0 +1,28 @@
+---
+output: hugodown::hugo_document
+
+slug: tidymodels-xgboost
+title: tidymodels & xgboost
+date: 2025-12-05
+author: Emil Hvitfeldt
+description: >
+    The tidymodels ecosystem is prepared for big xgboost CRAN release.
+
+photo:
+  url: https://unsplash.com/photos/person-in-green-jacket-and-black-pants-riding-black-snowboard-on-snow-covered-mountain-during-daytime-l6ZJR-7ZpQY
+  author: Markos Mant
+
+categories: [other] 
+tags: [tidymodels]
+rmd_hash: 366303f100631c01
+
+---
+
+The [xgboost](https://xgboost.readthedocs.io/en/stable/r_docs/R-package/docs/index.html) library has recently gotten a big CRAN release. Jumping from version 1.7.11.1 to 3.1.2.1. We at the tidymodels team have been following the development and have done our best to ensure that your experience is unaffected by this release.
+
+In addition to all the new features and improvements that are now available for users relying on CRAN versions of packages, there are also a few breaking changes. Specifically between version 1.x and 2.x of the xgboost library. The xgboost team has kindly provided a [migration guide](https://xgboost.readthedocs.io/en/stable/R-package/migration_guide.html) for how to update your code if you are upgrading from before version 2.x.
+
+If you are using xgboost purely through tidymodels via functions like [`parsnip::boost_tree()`](https://parsnip.tidymodels.org/reference/boost_tree.html) and [`embed::step_discretize_xgb()`](https://embed.tidymodels.org/reference/step_discretize_xgb.html), you should not need to change anything, as we have updated our packages to work with both the new and old versions of xgboost. If you are having any issues, please let us know by filing an issue for the affected package.
+
+We look forward to integrating parsnip more deeply into these new changes, such as support for [categorical predictors](https://xgboost.readthedocs.io/en/stable/tutorials/categorical.html) and [quantile regression](https://xgboost.readthedocs.io/en/stable/python/examples/quantile_regression.html#quantile-regression).
+
