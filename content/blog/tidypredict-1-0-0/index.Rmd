@@ -46,9 +46,9 @@ library(tidypredict)
 
 ## Improved output for random forest models
 
-The previous version of tidypredict `tidypredict_fit()` would return a list of expressions, one for each tree, when applied to random forest models. This didn't align with what is returned by other types of models. In version 1.0.0, this has been changed to produce a single combined expression to reflect how predictions should be done.
+The previous version of tidypredict `tidypredict_fit()` would return a list of expressions, one for each tree, when applied to random forest models. This didn't align with what is returned by other types of models. In version 1.0.0, this has been changed to produce a single, combined expression that reflects how predictions should be made.
 
-This is technically a breaking change, but one we believe is a worthwhile change as it provides a more consistent output for `tidypredict_fit()` as well as hides the technical details about how to combine trees from different packages.
+This is technically a breaking change, but one we believe is worthwhile, as it provides a more consistent output for `tidypredict_fit()` and hides the technical details about how to combine trees from different packages.
 
 ## Faster parsing of trees
 
@@ -73,7 +73,7 @@ case_when(
 )
 ```
 
-With this new update, we have taken advantage of the `.default` argument whenever possible, hopefully leading to faster predictions as we don't need to calculate redundant conditionals.
+With this new update, we have taken advantage of the `.default` argument whenever possible, which should lead to faster predictions, as we no longer need to calculate redundant conditionals.
 
 ```{r}
 tidypredict_fit(model)
@@ -83,7 +83,7 @@ tidypredict_fit(model)
 
 We now support the glmnet package. This package provides generalized linear models with lasso or elasticnet regularization.
 
-The main restriction when using a glmnet model with `tidypredict()` is that the model will need to have been fit with the `lmanbda` argument set.
+The primary restriction when using a glmnet model with `tidypredict()` is that the model must have been fitted with the `lambda` argument set to a single value.
 
 ```{r}
 model <- glmnet::glmnet(mtcars[, -1], mtcars$mpg, lambda = 0.01)
@@ -91,6 +91,7 @@ model <- glmnet::glmnet(mtcars[, -1], mtcars$mpg, lambda = 0.01)
 tidypredict_fit(model)
 ```
 
+`glmnet()` computes a collection of models using many sets of penalty values. This can be very efficient, but for tidypredict, we need to predict with a single penalty. 
 Note how, as we increase the penalty, the extracted expression correctly removes terms with coefficients of `0` instead of leaving them as `(disp * 0)`.
 
 ```{r}
@@ -99,7 +100,7 @@ model <- glmnet::glmnet(mtcars[, -1], mtcars$mpg, lambda = 1)
 tidypredict_fit(model)
 ```
 
-tidypredict is being used as the main parser for models used by the [orbital](https://orbital.tidymodels.org/) package. This means that all the changes seen in this post also take effect when using orbital with tidymodels workflows. Such as using `parsnip::linear_reg()` with `engine = "glmnet"`.
+tidypredict is used as the primary parser for models employed by the [orbital](https://orbital.tidymodels.org/) package. This means that all the changes seen in this post also take effect when using orbital with tidymodels workflows. Such as using `parsnip::linear_reg()` with `engine = "glmnet"`.
 
 ## Acknowledgements
 
