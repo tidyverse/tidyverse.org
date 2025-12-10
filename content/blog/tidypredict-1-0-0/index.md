@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidypredict-1-0-0
 title: tidypredict 1.0.0
-date: 2025-12-04
+date: 2025-12-10
 author: Emil Hvitfeldt
 description: >
     tidypredict 1.0.0 brings faster computations for tree-based models, more efficient tree representations, glmnet model support, and a change in how random forests are handled. 
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, tidypredict, orbital]
-rmd_hash: 8fe30706d8dce790
+rmd_hash: 5e23e8ef618e8397
 
 ---
 
@@ -52,9 +52,9 @@ This blog post highlights the most important changes in this release, including 
 
 ## Improved output for random forest models
 
-The previous version of tidypredict [`tidypredict_fit()`](https://tidypredict.tidymodels.org/reference/tidypredict_fit.html) would return a list of expressions, one for each tree, when applied to random forest models. This didn't align with what is returned by other types of models. In version 1.0.0, this has been changed to produce a single combined expression to reflect how predictions should be done.
+The previous version of tidypredict [`tidypredict_fit()`](https://tidypredict.tidymodels.org/reference/tidypredict_fit.html) would return a list of expressions, one for each tree, when applied to random forest models. This didn't align with what is returned by other types of models. In version 1.0.0, this has been changed to produce a single, combined expression that reflects how predictions should be made.
 
-This is technically a breaking change, but one we believe is a worthwhile change as it provides a more consistent output for [`tidypredict_fit()`](https://tidypredict.tidymodels.org/reference/tidypredict_fit.html) as well as hides the technical details about how to combine trees from different packages.
+This is technically a breaking change, but one we believe is worthwhile, as it provides a more consistent output for [`tidypredict_fit()`](https://tidypredict.tidymodels.org/reference/tidypredict_fit.html) and hides the technical details about how to combine trees from different packages.
 
 ## Faster parsing of trees
 
@@ -95,7 +95,7 @@ case_when(
 )
 ```
 
-With this new update, we have taken advantage of the `.default` argument whenever possible, hopefully leading to faster predictions as we don't need to calculate redundant conditionals.
+With this new update, we have taken advantage of the `.default` argument whenever possible, which should lead to faster predictions, as we no longer need to calculate redundant conditionals.
 
 <div class="highlight">
 
@@ -110,7 +110,7 @@ With this new update, we have taken advantage of the `.default` argument wheneve
 
 We now support the glmnet package. This package provides generalized linear models with lasso or elasticnet regularization.
 
-The main restriction when using a glmnet model with `tidypredict()` is that the model will need to have been fit with the `lmanbda` argument set.
+The primary restriction when using a glmnet model with `tidypredict()` is that the model must have been fitted with the `lambda` argument set to a single value.
 
 <div class="highlight">
 
@@ -126,7 +126,7 @@ The main restriction when using a glmnet model with `tidypredict()` is that the 
 
 </div>
 
-Note how, as we increase the penalty, the extracted expression correctly removes terms with coefficients of `0` instead of leaving them as `(disp * 0)`.
+`glmnet()` computes a collection of models using many sets of penalty values. This can be very efficient, but for tidypredict, we need to predict with a single penalty. Note how, as we increase the penalty, the extracted expression correctly removes terms with coefficients of `0` instead of leaving them as `(disp * 0)`.
 
 <div class="highlight">
 
@@ -139,7 +139,7 @@ Note how, as we increase the penalty, the extracted expression correctly removes
 
 </div>
 
-tidypredict is being used as the main parser for models used by the [orbital](https://orbital.tidymodels.org/) package. This means that all the changes seen in this post also take effect when using orbital with tidymodels workflows. Such as using [`parsnip::linear_reg()`](https://parsnip.tidymodels.org/reference/linear_reg.html) with `engine = "glmnet"`.
+tidypredict is used as the primary parser for models employed by the [orbital](https://orbital.tidymodels.org/) package. This means that all the changes seen in this post also take effect when using orbital with tidymodels workflows. Such as using [`parsnip::linear_reg()`](https://parsnip.tidymodels.org/reference/linear_reg.html) with `engine = "glmnet"`.
 
 ## Acknowledgements
 
