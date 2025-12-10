@@ -14,8 +14,6 @@ photo:
 
 categories: [other] 
 tags: [tidymodels]
-rmd_hash: 366303f100631c01
-
 ---
 
 The [xgboost](https://xgboost.readthedocs.io/en/stable/r_docs/R-package/docs/index.html) library has recently gotten a big CRAN release. Jumping from version 1.7.11.1 to 3.1.2.1. We at the tidymodels team have been following the development and have done our best to ensure that your experience is unaffected by this release.
@@ -25,4 +23,16 @@ In addition to all the new features and improvements that are now available for 
 If you are using xgboost purely through tidymodels via functions like [`parsnip::boost_tree()`](https://parsnip.tidymodels.org/reference/boost_tree.html) and [`embed::step_discretize_xgb()`](https://embed.tidymodels.org/reference/step_discretize_xgb.html), you should not need to change anything, as we have updated our packages to work with both the new and old versions of xgboost. If you are having any issues, please let us know by filing an issue for the affected package.
 
 We look forward to integrating parsnip more deeply into these new changes, such as support for [categorical predictors](https://xgboost.readthedocs.io/en/stable/tutorials/categorical.html) and [quantile regression](https://xgboost.readthedocs.io/en/stable/python/examples/quantile_regression.html#quantile-regression).
+
+Here are the package that we've updated or helped the maintainers update 
+
+- [parsnip](https://parsnip.tidymodels.org/news/index.html#parsnip-140)
+- [tidypredict](https://tidypredict.tidymodels.org/news/index.html#tidypredict-100)
+- [embed](https://embed.tidymodels.org/news/index.html#embed-121)
+- [butcher](https://butcher.tidymodels.org/news/index.html#butcher-040)
+- [lime](https://github.com/tidymodels/lime)
+- [bundle](https://rstudio.github.io/bundle/dev/news/index.html#bundle-development-version)
+- [vetiver](https://rstudio.github.io/vetiver-r/dev/index.html)
+- [xf](https://github.com/holub008/xrf/releases/tag/0.3.0)
+- [modeltime](https://business-science.github.io/modeltime/)
 
