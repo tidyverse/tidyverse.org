@@ -1,0 +1,135 @@
+---
+output: hugodown::hugo_document
+
+slug: orbital-0-4-0
+title: orbital 0.4.0
+date: 2025-12-13
+author: Emil Hvitfeldt
+description: >
+    orbital 0.4.0 is on CRAN! orbital now has post processing support.
+
+photo:
+  url: https://unsplash.com/photos/a-wispy-nebula-glows-with-purple-and-orange-hues-KLFP4HwaXyk
+  author: Scott Lord
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [tidymodels, orbital]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+We're over the moon to announce the release of [orbital](https://orbital.tidymodels.org/) 0.4.0. orbital lets you predict in databases using tidymodels workflows.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("orbital")
+```
+
+This blog post will cover the highlights, which are post processing support and the new `show_query()` method.
+
+You can see a full list of changes in the [release notes](https://orbital.tidymodels.org/news/index.html#orbital-040).
+
+```{r setup, include = FALSE}
+library(tidymodels)
+library(orbital)
+```
+
+## Classification support
+
+The biggest improvement in this version is that `orbital()` now works for supported [tailor](https://tailor.tidymodels.org/) methods. See [vignette](https://orbital.tidymodels.org/articles/supported-models.html#tailor-adjustments) for a list of all supported post-processors.
+
+Let's start by fitting a classification model on the `penguins` data set, using {xgboost} as the engine. We will be showcasing using an adjustment that only works on binary classification and will thus recode `species` to have levels `"Adelie"` and `"not_Adelie"`.
+
+```{r}
+penguins$species <- forcats::fct_recode(
+ penguins$species,
+ not_Adelie = "Chinstrap", not_Adelie = "Gentoo"
+)
+```
+
+After we have modified the data, we set up a simple workflow, with a preprocessor using recipes and the model specification using parsnip.
+
+We also set up a post processor using the tailor package. A single adjustment will be done by adding `adjust_equivocal_zone()`. This will apply an equivocal zone to our binary classification model. Stopping predictions that are too close to the thresholds by labeling them as `"[EQ]"`. Setting the argument `value = 0.2` means that any predictions with a predicted probability of between 0.3 and 0.7 will be predicted as `"[EQ]"` instead.
+
+```{r}
+rec_spec <- recipe(species ~ ., data = penguins) |>
+  step_unknown(all_nominal_predictors()) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_impute_mean(all_numeric_predictors()) |>
+  step_zv(all_predictors())
+
+lr_spec <- boost_tree(tree_depth = 1, trees = 5) |>
+  set_mode("classification") |>
+  set_engine("xgboost")
+
+tlr_spec <- tailor() |>
+  adjust_equivocal_zone(value = 0.2)
+
+wf_spec <- workflow(rec_spec, lr_spec, tlr_spec)
+wf_fit <- fit(wf_spec, data = penguins)
+```
+
+With this fitted workflow object, we can call `orbital()` on it to create an orbital object. Notice that for `adjust_equivocal_zone()` to work, we need to set `type = c("class", "prob")` as both are required for the `adjust_equivocal_zone()` transformation.
+
+```{r}
+orbital_obj <- orbital(wf_fit, type = c("class", "prob"))
+orbital_obj
+```
+
+This object contains all the information that is needed to produce predictions. Which we can produce with `predict()`.
+
+```{r}
+preds <- predict(orbital_obj, penguins)
+preds
+```
+
+The predictions are working; however, we don't see any evidence that `adjust_equivocal_zone()` is working. A call to `count()` reveals that a couple of observation lands in the equivocal zone.
+
+```{r}
+count(preds, .pred_class)
+```
+
+And we can further verify that they are correct.
+
+```{r}
+filter(preds, .pred_class == '[EQ]')
+```
+
+## New show_query method
+
+One of the main purposes of orbital is to allow for predictions in data bases.
+
+```{r}
+library(DBI)
+library(RSQLite)
+
+con_sqlite <- dbConnect(SQLite(), path = ":memory:")
+penguins_sqlite <- copy_to(con_sqlite, penguins, name = "penguins_table")
+```
+
+Having set up a data base we could have used `orbital_sql()` to show what the SQL query would have looked like. For quick testing, the output isn't immediately ready to be pasted over in its own file due to the `<SQL>` fragments around in the output.
+
+The `show_query()` method has been implemented to see exactly what the generated SQL looks like.
+
+```{r}
+show_query(orbital_obj, con_sqlite)
+```
+
+## Acknowledgements
+
+A big thank you to all the people who have contributed to orbital since the release of v0.4.0:
+
+[&#x0040;EmilHvitfeldt](https://github.com/EmilHvitfeldt), [&#x0040;frankiethull](https://github.com/frankiethull), [&#x0040;jeroenjanssens](https://github.com/jeroenjanssens), and [&#x0040;topepo](https://github.com/topepo).
