@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: tidymodels-xgboost
 title: tidymodels & xgboost
-date: 2025-12-05
+date: 2025-12-15
 author: Emil Hvitfeldt
 description: >
     The tidymodels ecosystem is prepared for big xgboost CRAN release.
@@ -14,6 +14,8 @@ photo:
 
 categories: [other] 
 tags: [tidymodels]
+rmd_hash: ccd7e9b0ad0a886f
+
 ---
 
 The [xgboost](https://xgboost.readthedocs.io/en/stable/r_docs/R-package/docs/index.html) library has recently gotten a big CRAN release. Jumping from version 1.7.11.1 to 3.1.2.1. We at the tidymodels team have been following the development and have done our best to ensure that your experience is unaffected by this release.
@@ -24,15 +26,16 @@ If you are using xgboost purely through tidymodels via functions like [`parsnip:
 
 We look forward to integrating parsnip more deeply into these new changes, such as support for [categorical predictors](https://xgboost.readthedocs.io/en/stable/tutorials/categorical.html) and [quantile regression](https://xgboost.readthedocs.io/en/stable/python/examples/quantile_regression.html#quantile-regression).
 
-Here are the package that we've updated or helped the maintainers update 
+Here are the package that we've updated or helped the maintainers update
 
-- [parsnip](https://parsnip.tidymodels.org/news/index.html#parsnip-140)
-- [tidypredict](https://tidypredict.tidymodels.org/news/index.html#tidypredict-100)
-- [embed](https://embed.tidymodels.org/news/index.html#embed-121)
-- [butcher](https://butcher.tidymodels.org/news/index.html#butcher-040)
-- [lime](https://github.com/tidymodels/lime)
-- [bundle](https://rstudio.github.io/bundle/dev/news/index.html#bundle-development-version)
-- [vetiver](https://rstudio.github.io/vetiver-r/dev/index.html)
-- [xf](https://github.com/holub008/xrf/releases/tag/0.3.0)
-- [modeltime](https://business-science.github.io/modeltime/)
+-   [bundle](https://rstudio.github.io/bundle/dev/news/index.html#bundle-013)
+-   [butcher](https://butcher.tidymodels.org/news/index.html#butcher-040)
+-   [embed](https://embed.tidymodels.org/news/index.html#embed-121)
+-   [lime](https://github.com/tidymodels/lime/releases/tag/v0.5.4)
+-   [modeltime](https://business-science.github.io/modeltime/)
+-   [orbital](https://orbital.tidymodels.org/news/index.html#orbital-041)
+-   [parsnip](https://parsnip.tidymodels.org/news/index.html#parsnip-140)
+-   [tidypredict](https://tidypredict.tidymodels.org/news/index.html#tidypredict-100)
+-   [vetiver](https://rstudio.github.io/vetiver-r/dev/news/index.html#vetiver-027)
+-   [xf](https://github.com/holub008/xrf/releases/tag/0.3.0)
 
