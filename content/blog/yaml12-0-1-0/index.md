@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [yaml, r, python, rust]
-rmd_hash: d85225a464757432
+rmd_hash: daf221102833d540
 
 ---
 
@@ -145,7 +145,7 @@ That makes YAML a better default for configuration files, front matter, and data
 The two packages intentionally share the same high-level functions:
 
 - [`parse_yaml()`](https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html): Parse YAML from a string
-- [`read_yaml()`](https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html): Parse YAML from a file
+- [`read_yaml()`](https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html): Read YAML from a file
 - [`format_yaml()`](https://posit-dev.github.io/r-yaml12/reference/format_yaml.html): Format values as YAML (to a string)
 - [`write_yaml()`](https://posit-dev.github.io/r-yaml12/reference/format_yaml.html): Write YAML to a file (or stdout)
 
@@ -154,7 +154,7 @@ The two packages intentionally share the same high-level functions:
 Tags are preserved by default:
 
 - In R, tags are kept in a `yaml_tag` attribute.
-- In Python, tags are kept by wrapping values in a `Yaml` object.
+- In Python, tags are kept by wrapping values in a `Yaml()` object.
 
 Handlers let you opt into custom behavior for tags (including tags on mapping keys) while keeping parsing as a data-only operation by default.
 
@@ -162,11 +162,11 @@ R example:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/dput.html'>dput</a></span><span class='o'>(</span><span class='nf'>yaml12</span><span class='nf'>::</span><span class='nf'><a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml</a></span><span class='o'>(</span><span class='s'>"!upper foo"</span><span class='o'>)</span><span class='o'>)</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/dput.html'>dput</a></span><span class='o'>(</span><span class='nf'><a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml</a></span><span class='o'>(</span><span class='s'>"!upper foo"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; structure("foo", yaml_tag = "!upper")</span></span>
 <span></span><span></span>
 <span><span class='nv'>handlers</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='o'>(</span><span class='s'>"!upper"</span> <span class='o'>=</span> <span class='nv'>toupper</span><span class='o'>)</span></span>
-<span><span class='nf'>yaml12</span><span class='nf'>::</span><span class='nf'><a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml</a></span><span class='o'>(</span><span class='s'>"!upper foo"</span>, handlers <span class='o'>=</span> <span class='nv'>handlers</span><span class='o'>)</span></span>
+<span><span class='nf'><a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml</a></span><span class='o'>(</span><span class='s'>"!upper foo"</span>, handlers <span class='o'>=</span> <span class='nv'>handlers</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1] "FOO"</span></span>
 <span></span></code></pre>
 
@@ -192,10 +192,10 @@ In R, [`parse_yaml()`](https://posit-dev.github.io/r-yaml12/reference/parse_yaml
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'>yaml12</span><span class='nf'>::</span><span class='nf'><a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml</a></span><span class='o'>(</span><span class='s'>"[1, 2, 3, null]"</span><span class='o'>)</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml</a></span><span class='o'>(</span><span class='s'>"[1, 2, 3, null]"</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; [1]  1  2  3 NA</span></span>
 <span></span><span></span>
-<span><span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='nf'>yaml12</span><span class='nf'>::</span><span class='nf'><a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml</a></span><span class='o'>(</span><span class='s'>"[1, 2, 3, null]"</span>, simplify <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span><span class='o'>)</span></span>
+<span><span class='nf'><a href='https://rdrr.io/r/utils/str.html'>str</a></span><span class='o'>(</span><span class='nf'><a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml</a></span><span class='o'>(</span><span class='s'>"[1, 2, 3, null]"</span>, simplify <span class='o'>=</span> <span class='kc'>FALSE</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; List of 4</span></span>
 <span><span class='c'>#&gt;  $ : int 1</span></span>
 <span><span class='c'>#&gt;  $ : int 2</span></span>
@@ -216,7 +216,7 @@ R example:
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/dput.html'>dput</a></span><span class='o'>(</span><span class='nf'>yaml12</span><span class='nf'>::</span><span class='nf'><a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml</a></span><span class='o'>(</span><span class='s'>"&#123;a: b&#125;: c"</span><span class='o'>)</span><span class='o'>)</span></span>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/base/dput.html'>dput</a></span><span class='o'>(</span><span class='nf'><a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml</a></span><span class='o'>(</span><span class='s'>"&#123;a: b&#125;: c"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='c'>#&gt; structure(list("c"), names = "", yaml_keys = list(list(a = "b")))</span></span>
 <span></span></code></pre>
 

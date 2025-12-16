@@ -87,8 +87,9 @@ identical(obj, parse_yaml(format_yaml(obj)))
 
 ## Quick start (Python)
 ```{r, include=FALSE}
-#reticulate::py_require("git+https://github.com/posit-dev/py-yaml12")
-reticulate::py_require("py-yaml12@/Users/tomasz/github/posit-dev/py-yaml12")
+# reticulate::py_require("py-yaml12@/Users/tomasz/github/posit-dev/py-yaml12")
+# reticulate::py_require("git+https://github.com/posit-dev/py-yaml12")
+reticulate::py_require("py-yaml12")
 ```
 
 ```{python quick_start_python}
@@ -138,7 +139,7 @@ moments (or “why did this become a date?”).
 The two packages intentionally share the same high-level functions:
 
 - `parse_yaml()`: Parse YAML from a string
-- `read_yaml()`: Parse YAML from a file
+- `read_yaml()`: Read YAML from a file
 - `format_yaml()`: Format values as YAML (to a string)
 - `write_yaml()`: Write YAML to a file (or stdout)
 
@@ -147,7 +148,7 @@ The two packages intentionally share the same high-level functions:
 Tags are preserved by default:
 
 - In R, tags are kept in a `yaml_tag` attribute.
-- In Python, tags are kept by wrapping values in a `Yaml` object.
+- In Python, tags are kept by wrapping values in a `Yaml()` object.
 
 Handlers let you opt into custom behavior for tags (including tags on mapping
 keys) while keeping parsing as a data-only operation by default.
@@ -155,10 +156,10 @@ keys) while keeping parsing as a data-only operation by default.
 R example:
 
 ```{r tags_and_handlers_r}
-dput(yaml12::parse_yaml("!upper foo"))
+dput(parse_yaml("!upper foo"))
 
 handlers <- list("!upper" = toupper)
-yaml12::parse_yaml("!upper foo", handlers = handlers)
+parse_yaml("!upper foo", handlers = handlers)
 ```
 
 Python example:
@@ -176,9 +177,9 @@ In R, `parse_yaml()` can simplify homogeneous sequences to vectors. When it
 does, YAML `null` becomes the appropriate `NA` type:
 
 ```{r simplify_r}
-yaml12::parse_yaml("[1, 2, 3, null]")
+parse_yaml("[1, 2, 3, null]")
 
-str(yaml12::parse_yaml("[1, 2, 3, null]", simplify = FALSE))
+str(parse_yaml("[1, 2, 3, null]", simplify = FALSE))
 ```
 
 ### Non-string mapping keys
@@ -194,7 +195,7 @@ scalars, even sequences and mappings). Both packages preserve these safely:
 R example:
 
 ```{r non_string_keys_r}
-dput(yaml12::parse_yaml("{a: b}: c"))
+dput(parse_yaml("{a: b}: c"))
 ```
 
 Python example:
