@@ -1,4 +1,303 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>python | Tidyverse</title><link>https://www.tidyverse.org/tags/python/</link><atom:link href="https://www.tidyverse.org/tags/python/index.xml" rel="self" type="application/rss+xml"/><description>python</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 12 Nov 2025 00:00:00 +0000</lastBuildDate><item><title>Python Open-Source Developer</title><link>https://www.tidyverse.org/blog/2025/11/python-open-source-developer/</link><pubDate>Wed, 12 Nov 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/11/python-open-source-developer/</guid><description>&lt;p>We are hiring a Python open-source developer with a specialization in data analysis and modeling tools. Since deep learning models already have extensive support in Python, our focus is on the analysis and modeling of &lt;em>tabular data&lt;/em>. Our primary goal is to develop packages that enhance the existing capabilities of frameworks such as scikit-learn. Note that the current position doesn&amp;rsquo;t involve building or publishing models created here; &lt;em>this is a pure package developer role&lt;/em>.&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>python | Tidyverse</title><link>https://www.tidyverse.org/tags/python/</link><atom:link href="https://www.tidyverse.org/tags/python/index.xml" rel="self" type="application/rss+xml"/><description>python</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 07 Jan 2026 00:00:00 +0000</lastBuildDate><item><title>yaml12: YAML 1.2 for R and Python</title><link>https://www.tidyverse.org/blog/2026/01/yaml12-0-1-0/</link><pubDate>Wed, 07 Jan 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/01/yaml12-0-1-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html) (optional)
+-->
+&lt;p>Today we&amp;rsquo;re announcing two new packages for parsing and emitting YAML 1.2:
+&lt;a href="https://posit-dev.github.io/r-yaml12/" target="_blank" rel="noopener">&lt;code>yaml12&lt;/code>&lt;/a> for R and
+&lt;a href="https://posit-dev.github.io/py-yaml12/" target="_blank" rel="noopener">&lt;code>py-yaml12&lt;/code>&lt;/a> for Python.&lt;/p>
+&lt;p>Both packages are implemented in Rust and built on the excellent
+&lt;a href="https://github.com/saphyr-rs/saphyr" target="_blank" rel="noopener">&lt;code>saphyr&lt;/code>&lt;/a> crate. They share the same design goals: predictable YAML 1.2 typing, explicit control over tag interpretation via handlers, and clean round-tripping of unhandled tags.&lt;/p>
+&lt;p>Before we get into the details, a quick note on how this relates to the existing R
+&lt;a href="https://github.com/r-lib/yaml" target="_blank" rel="noopener">&lt;code>yaml&lt;/code>&lt;/a> package. The R &lt;code>yaml&lt;/code> package is now in
+&lt;a href="https://github.com/r-lib" target="_blank" rel="noopener">r-lib&lt;/a>, and we&amp;rsquo;ve taken over maintenance after years of stewardship by its original author, Jeremy Stephens, and later by Shawn Garbett.&lt;/p>
+&lt;p>If &lt;code>yaml&lt;/code> already works for you, there&amp;rsquo;s no need to switch. &lt;code>yaml12&lt;/code> is an experiment providing consistent R and Python bindings to a new Rust library specifically for YAML 1.2, which, as we&amp;rsquo;ll see below, has some particular advantages.&lt;/p>
+&lt;h2 id="install">Install
+&lt;a href="#install">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Install the R package from CRAN:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"yaml12"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Install the Python package from PyPI:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-bash" data-lang="bash">pip install py-yaml12
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="quick-start-r">Quick start (R)
+&lt;a href="#quick-start-r">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://posit-dev.github.io/r-yaml12/'>yaml12&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>yaml&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='s'>"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='s'>title: A modern YAML parser and emitter written in Rust&lt;/span>&lt;/span>
+&lt;span>&lt;span class='s'>properties: [fast, correct, safe, simple]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='s'>"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>doc&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>yaml&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/str.html'>str&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>doc&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; List of 2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ title : chr "A modern YAML parser and emitter written in Rust"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ properties: chr [1:4] "fast" "correct" "safe" "simple"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Round-trip back to YAML:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>obj&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/list.html'>list&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> seq &lt;span class='o'>=&lt;/span> &lt;span class='m'>1&lt;/span>&lt;span class='o'>:&lt;/span>&lt;span class='m'>2&lt;/span>,&lt;/span>
+&lt;span> map &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/list.html'>list&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>key &lt;span class='o'>=&lt;/span> &lt;span class='s'>"value"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> tagged &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/structure.html'>structure&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"1 + 1"&lt;/span>, yaml_tag &lt;span class='o'>=&lt;/span> &lt;span class='s'>"!expr"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://posit-dev.github.io/r-yaml12/reference/format_yaml.html'>write_yaml&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>obj&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ---&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; seq:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; - 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; - 2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; map:&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; key: value&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; tagged: !expr 1 + 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ...&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/identical.html'>identical&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>obj&lt;/span>, &lt;span class='nf'>&lt;a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://posit-dev.github.io/r-yaml12/reference/format_yaml.html'>format_yaml&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>obj&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] TRUE&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="quick-start-python">Quick start (Python)
+&lt;a href="#quick-start-python">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'># Install from PyPI:
+# python -m pip install py-yaml12
+from yaml12 import parse_yaml, format_yaml, Yaml
+yaml_text = """
+title: A modern YAML parser and emitter written in Rust
+properties: [fast, correct, safe, simple]
+"""
+doc = parse_yaml(yaml_text)
+assert doc == {
+"title": "A modern YAML parser and emitter written in Rust",
+"properties": ["fast", "correct", "safe", "simple"]
+}
+assert doc == parse_yaml(format_yaml(doc))
+# Tagged values
+tagged = parse_yaml("!expr 1 + 1")
+assert tagged == Yaml(value="1 + 1", tag="!expr")
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="why-yaml-12">Why YAML 1.2?
+&lt;a href="#why-yaml-12">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>YAML 1.2 tightened up a number of ambiguous implicit conversions. In particular, plain scalars like &lt;code>on&lt;/code>/&lt;code>off&lt;/code>/&lt;code>yes&lt;/code>/&lt;code>no&lt;/code>/&lt;code>y&lt;/code>/&lt;code>n&lt;/code> are strings in the 1.2 core schema, and YAML 1.2 removed sexagesimal (base-60) parsing, so values like &lt;code>1:2&lt;/code> are not treated as numbers.&lt;/p>
+&lt;p>YAML 1.2 also removed &lt;code>!!timestamp&lt;/code>, &lt;code>!!binary&lt;/code>, and &lt;code>!!omap&lt;/code> from the set of core types, which further reduces implicit coercions (for example, getting a date/time object when you expected a string). If you want to interpret those values, you can do so explicitly via tags and handlers.&lt;/p>
+&lt;p>That makes YAML a better default for configuration files, front matter, and data interchange. You get fewer surprises and fewer &amp;ldquo;why did this become a boolean?&amp;rdquo; moments (or &amp;ldquo;why did this become a date?&amp;quot;).&lt;/p>
+&lt;h2 id="highlights">Highlights
+&lt;a href="#highlights">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="a-consistent-api-in-r-and-python">A consistent API in R and Python
+&lt;a href="#a-consistent-api-in-r-and-python">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The two packages intentionally share the same high-level functions:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html" target="_blank" rel="noopener">&lt;code>parse_yaml()&lt;/code>&lt;/a>: Parse YAML from a string&lt;/li>
+&lt;li>
+&lt;a href="https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html" target="_blank" rel="noopener">&lt;code>read_yaml()&lt;/code>&lt;/a>: Read YAML from a file&lt;/li>
+&lt;li>
+&lt;a href="https://posit-dev.github.io/r-yaml12/reference/format_yaml.html" target="_blank" rel="noopener">&lt;code>format_yaml()&lt;/code>&lt;/a>: Format values as YAML (to a string)&lt;/li>
+&lt;li>
+&lt;a href="https://posit-dev.github.io/r-yaml12/reference/format_yaml.html" target="_blank" rel="noopener">&lt;code>write_yaml()&lt;/code>&lt;/a>: Write YAML to a file (or stdout)&lt;/li>
+&lt;/ul>
+&lt;h3 id="tags-and-handlers-opt-in-meaning-safe-defaults">Tags and handlers (opt-in, meaning, safe defaults)
+&lt;a href="#tags-and-handlers-opt-in-meaning-safe-defaults">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>In YAML, tags are explicit annotations like &lt;code>!expr&lt;/code> or &lt;code>!!timestamp&lt;/code> that attach type and meaning to a value.&lt;/p>
+&lt;p>Tags are preserved by default:&lt;/p>
+&lt;ul>
+&lt;li>In R, tags are kept in a &lt;code>yaml_tag&lt;/code> attribute.&lt;/li>
+&lt;li>In Python, tags are kept by wrapping values in a &lt;code>Yaml()&lt;/code> object.&lt;/li>
+&lt;/ul>
+&lt;p>Handlers let you opt into custom behavior for tags (including tags on mapping keys) while keeping parsing as a data-only operation by default.&lt;/p>
+&lt;p>If you used R &lt;code>yaml&lt;/code>'s &lt;code>!expr&lt;/code> tag to evaluate expressions, you can recreate that behavior by registering a handler, but it&amp;rsquo;s only recommended when parsing trusted YAML, since evaluating arbitrary code is a security risk. For untrusted input, the default behavior is safer because it keeps &lt;code>!expr&lt;/code> as data and does not execute code.&lt;/p>
+&lt;p>R example:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># by default, tags are kept as data&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/dput.html'>dput&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"!expr 1 + 1"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; structure("1 + 1", yaml_tag = "!expr")&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Add a handler to process tagged nodes (like the &amp;#123;yaml&amp;#125; package does)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>handlers&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/list.html'>list&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"!expr"&lt;/span> &lt;span class='o'>=&lt;/span> \&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/eval.html'>eval&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/parse.html'>str2expression&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/environment.html'>globalenv&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"!expr 1 + 1"&lt;/span>, handlers &lt;span class='o'>=&lt;/span> &lt;span class='nv'>handlers&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 2&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Python example:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>from yaml12 import parse_yaml
+handlers = {"!expr": eval} # use with trusted input only
+parse_yaml("!expr 1 + 1", handlers=handlers)
+#> 2
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h3 id="simplification-and-missing-values-r">Simplification and missing values (R)
+&lt;a href="#simplification-and-missing-values-r">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>In R,
+&lt;a href="https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html" target="_blank" rel="noopener">&lt;code>parse_yaml()&lt;/code>&lt;/a> can simplify homogeneous sequences to vectors. When it does, YAML &lt;code>null&lt;/code> becomes the appropriate &lt;code>NA&lt;/code> type:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"[1, 2, 3, null]"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 1 2 3 NA&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/str.html'>str&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"[1, 2, 3, null]"&lt;/span>, simplify &lt;span class='o'>=&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; List of 4&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ : int 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ : int 2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ : int 3&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ : NULL&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h3 id="non-string-mapping-keys">Non-string mapping keys
+&lt;a href="#non-string-mapping-keys">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>YAML allows mapping keys that aren&amp;rsquo;t plain strings (numbers, booleans, tagged scalars, even sequences and mappings). Both packages preserve these safely:&lt;/p>
+&lt;ul>
+&lt;li>In R, you&amp;rsquo;ll get a regular named list plus a &lt;code>yaml_keys&lt;/code> attribute when needed.&lt;/li>
+&lt;li>In Python, unhashable keys (like lists/dicts) are wrapped in &lt;code>Yaml&lt;/code> so they can still be used as &lt;code>dict&lt;/code> keys and round-trip correctly.&lt;/li>
+&lt;/ul>
+&lt;p>R example:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/dput.html'>dput&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"&amp;#123;a: b&amp;#125;: c"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; structure(list("c"), names = "", yaml_keys = list(list(a = "b")))&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Python example:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>from yaml12 import parse_yaml, Yaml
+doc = parse_yaml("{a: b}: c")
+assert doc == {Yaml({'a': 'b'}): 'c'}
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h3 id="mapping-order-is-preserved">Mapping order is preserved
+&lt;a href="#mapping-order-is-preserved">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>YAML mappings are ordered. &lt;code>yaml12&lt;/code> preserves mapping/dictionary order when parsing and formatting, so the order you see in a YAML file (or emit) round-trips in both R and Python.&lt;/p>
+&lt;h3 id="document-streams-and-front-matter">Document streams and front matter
+&lt;a href="#document-streams-and-front-matter">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Both packages support multi-document YAML streams with &lt;code>multi = TRUE&lt;/code>. When &lt;code>multi = FALSE&lt;/code> (the default), parsing stops after the first document, which is handy for extracting YAML front matter from text that continues with non-YAML content.&lt;/p>
+&lt;p>Example:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>yaml&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='s'>"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='s'>---&lt;/span>&lt;/span>
+&lt;span>&lt;span class='s'>title: Extracting YAML front matter&lt;/span>&lt;/span>
+&lt;span>&lt;span class='s'>---&lt;/span>&lt;/span>
+&lt;span>&lt;span class='s'>This is technically now the second document in a YAML stream&lt;/span>&lt;/span>
+&lt;span>&lt;span class='s'>"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/str.html'>str&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>yaml&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; List of 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ title: chr "Extracting YAML front matter"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/str.html'>str&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://posit-dev.github.io/r-yaml12/reference/parse_yaml.html'>parse_yaml&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>yaml&lt;/span>, multi &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; List of 2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ :List of 1&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; ..$ title: chr "Extracting YAML front matter"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; $ : chr "This is technically now the second document in a YAML stream"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h3 id="performance-and-safety-notes">Performance and safety notes
+&lt;a href="#performance-and-safety-notes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>&lt;code>yaml12&lt;/code> is implemented in Rust and written with performance and safety in mind. It avoids unnecessary allocations, copies, and extra traversals where possible. In Python, &lt;code>py-yaml12&lt;/code> (imported as &lt;code>yaml12&lt;/code>) also releases the GIL for large parses and serializations.&lt;/p>
+&lt;p>In typical usage, the R package &lt;code>yaml12&lt;/code> is ~2× faster than the &lt;code>yaml&lt;/code> package, and the Python package &lt;code>py-yaml12&lt;/code> is ≥50× faster than default &lt;code>PyYAML&lt;/code> in the benchmarks (
+&lt;a href="https://posit-dev.github.io/r-yaml12/articles/benchmarks.html" target="_blank" rel="noopener">R benchmarks&lt;/a>;
+&lt;a href="https://posit-dev.github.io/py-yaml12/benchmarks/#read-performance" target="_blank" rel="noopener">Python benchmarks&lt;/a>).&lt;/p>
+&lt;p>Tags are preserved by default, and interpreting them (including any kind of evaluation) is always an explicit opt-in via handlers. Plain scalars follow the YAML 1.2 core schema rules for predictable typing.&lt;/p>
+&lt;p>In Python, &lt;code>py-yaml12&lt;/code> ships prebuilt wheels for common platforms. If you do need to build from source, you&amp;rsquo;ll need a Rust toolchain. In R, &lt;code>yaml12&lt;/code> is available from CRAN (including binaries on common platforms).&lt;/p>
+&lt;h2 id="wrapping-up">Wrapping up
+&lt;a href="#wrapping-up">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If you work with YAML as a data format for configuration, front matter, or data interchange, we hope &lt;code>yaml12&lt;/code> (R) and &lt;code>py-yaml12&lt;/code> (Python) help you parse and emit YAML 1.2 predictably. If you run into YAML that doesn&amp;rsquo;t behave as expected, we&amp;rsquo;d love to hear about it in the issue trackers:
+&lt;a href="https://github.com/posit-dev/r-yaml12/issues" target="_blank" rel="noopener">r-yaml12&lt;/a> and
+&lt;a href="https://github.com/posit-dev/py-yaml12/issues" target="_blank" rel="noopener">py-yaml12&lt;/a>.&lt;/p>
+&lt;h2 id="learn-more">Learn more
+&lt;a href="#learn-more">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>R package docs: &lt;a href="https://posit-dev.github.io/r-yaml12/">https://posit-dev.github.io/r-yaml12/&lt;/a>&lt;/li>
+&lt;li>R package on CRAN: &lt;a href="https://cran.r-project.org/package=yaml12">https://cran.r-project.org/package=yaml12&lt;/a>&lt;/li>
+&lt;li>Python package docs: &lt;a href="https://posit-dev.github.io/py-yaml12/">https://posit-dev.github.io/py-yaml12/&lt;/a>&lt;/li>
+&lt;li>Python package on PyPI: &lt;a href="https://pypi.org/project/py-yaml12/">https://pypi.org/project/py-yaml12/&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Both packages build on the fantastic work in the YAML ecosystem, especially the &lt;code>saphyr&lt;/code> Rust crate and the
+&lt;a href="https://github.com/yaml/yaml-test-suite" target="_blank" rel="noopener">yaml-test-suite&lt;/a>.&lt;/p></description></item><item><title>Python Open-Source Developer</title><link>https://www.tidyverse.org/blog/2025/11/python-open-source-developer/</link><pubDate>Wed, 12 Nov 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/11/python-open-source-developer/</guid><description>&lt;p>We are hiring a Python open-source developer with a specialization in data analysis and modeling tools. Since deep learning models already have extensive support in Python, our focus is on the analysis and modeling of &lt;em>tabular data&lt;/em>. Our primary goal is to develop packages that enhance the existing capabilities of frameworks such as scikit-learn. Note that the current position doesn&amp;rsquo;t involve building or publishing models created here; &lt;em>this is a pure package developer role&lt;/em>.&lt;/p>
 &lt;p>We think that the tidymodels
 &lt;a href="https://www.tmwr.org/software-modeling#fundamentals-for-modeling-software" target="_blank" rel="noopener">philosophy&lt;/a> can enhance modeling in Python, and we believe that learning more about modeling in Python will provide us with ideas on how to improve tidymodels. To clarify, we are not creating a tidymodels Python package; however, some of its APIs may be beneficial to Python users. Two examples are
 &lt;a href="https://recipes.tidymodels.org/" target="_blank" rel="noopener">recipes&lt;/a> and broom&amp;rsquo;s
