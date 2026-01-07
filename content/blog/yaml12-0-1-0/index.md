@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: yaml12-0-1-0
 title: "yaml12: YAML 1.2 for R and Python"
-date: 2026-01-06
+date: 2026-01-07
 author: Tomasz Kalinowski
 description: >
     We’re pleased to announce two new YAML 1.2 packages: `yaml12` for R and
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [yaml, r, python, rust]
-rmd_hash: b7b11ca031b726af
+rmd_hash: 71cb649ff8add345
 
 ---
 
@@ -35,8 +35,6 @@ TODO:
 -->
 
 Today we're announcing two new packages for parsing and emitting YAML 1.2: [`yaml12`](https://posit-dev.github.io/r-yaml12/) for R and [`py-yaml12`](https://posit-dev.github.io/py-yaml12/) for Python.
-
-In Python, the package is published on PyPI as `py-yaml12`, but you import it as `yaml12`.
 
 Both packages are implemented in Rust and built on the excellent [`saphyr`](https://github.com/saphyr-rs/saphyr) crate. They share the same design goals: predictable YAML 1.2 typing, explicit control over tag interpretation via handlers, and clean round-tripping of unhandled tags.
 
