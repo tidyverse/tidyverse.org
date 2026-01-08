@@ -148,7 +148,7 @@ The second headliner is support for various authentication schemes out of the bo
 
 Setting up authentication is twofold: creating guards and attaching guards to routes.
 
-First, you need to define one or more guards to use. A guard is an adaption of a specific authentication scheme such as e.g. OAuth. Currently, fireproof supports the Basic and Bearer HTTP authorization schemes, a custom key based scheme, as well as OAuth 2.0 and OpenID Connect. Setting up a challenges can be done both programmatically and with annotations:
+First, you need to define one or more guards to use. A guard is an adaption of a specific authentication scheme such as e.g. OAuth. Currently, fireproof supports the Basic and Bearer HTTP authorization schemes, a custom key based scheme, as well as OAuth 2.0 and OpenID Connect. Setting up a guard can be done both programmatically and with annotations:
 
 ```{r}
 #| eval: false
@@ -304,6 +304,27 @@ storr::driver_environment()
 The `my_store` proceeding the key is optional and gives the name of the datastore (defaults to `datastore`). Below the block you provide a [storr](https://richfitz.github.io/storr/) driver and then you are good to go.
 
 Authentication requires a datastore in order to work as it facilitates persistent session login. Below, you can see an annotation implementation of a single guard that leverages a storr datastore.
+
+```{r}
+#| eval: false
+#* @datastore ds
+storr::driver_environment()
+
+#* @authGuard github
+fireproof::guard_github(
+  redirect_url = "https://example.com/auth",
+  client_id = "MY_APP_ID",
+  client_secret = "SUCHASECRET"
+)
+
+#* Get a summary of your github commit history
+#* 
+#* @auth github
+function(ds) {
+  github_token <- ds$session$github$token$access_token
+  # Use the access token to fetch commit history and do some fun things
+}
+```
 
 ### More powerful report support
 The report endpoint has gotten even more powerful in this release in a number of ways:
