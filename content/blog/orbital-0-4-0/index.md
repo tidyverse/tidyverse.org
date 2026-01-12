@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, orbital]
-rmd_hash: 7a24dfdde2d3d0f4
+rmd_hash: 6b5e1c2db0c114de
 
 ---
 
@@ -57,7 +57,9 @@ Let's start by fitting a classification model on the `penguins` data set, using 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>penguins</span><span class='o'>$</span><span class='nv'>species</span> <span class='o'>&lt;-</span> <span class='nf'>forcats</span><span class='nf'>::</span><span class='nf'><a href='https://forcats.tidyverse.org/reference/fct_recode.html'>fct_recode</a></span><span class='o'>(</span></span>
 <span> <span class='nv'>penguins</span><span class='o'>$</span><span class='nv'>species</span>,</span>
 <span> not_Adelie <span class='o'>=</span> <span class='s'>"Chinstrap"</span>, not_Adelie <span class='o'>=</span> <span class='s'>"Gentoo"</span></span>
-<span><span class='o'>)</span></span></code></pre>
+<span><span class='o'>)</span></span>
+<span><span class='c'>#&gt; Warning: Unknown levels in `f`: Chinstrap, Gentoo</span></span>
+<span></span></code></pre>
 
 </div>
 
@@ -173,7 +175,7 @@ And we can further verify that they are correct.
 
 ## New show_query method
 
-One of the main purposes of orbital is to allow for predictions in data bases.
+One of the main purposes of orbital is to allow for predictions in databases.
 
 <div class="highlight">
 
@@ -185,7 +187,7 @@ One of the main purposes of orbital is to allow for predictions in data bases.
 
 </div>
 
-Having set up a data base we could have used [`orbital_sql()`](https://orbital.tidymodels.org/reference/orbital_sql.html) to show what the SQL query would have looked like. For quick testing, the output isn't immediately ready to be pasted over in its own file due to the `<SQL>` fragments around in the output.
+Having set up a database we could have used [`orbital_sql()`](https://orbital.tidymodels.org/reference/orbital_sql.html) to show what the SQL query would have looked like. For quick testing, the output isn't immediately ready to be pasted into its own file due to the `<SQL>` fragments within the output.
 
 The `show_query()` method has been implemented to see exactly what the generated SQL looks like.
 
