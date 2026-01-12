@@ -19,8 +19,8 @@ TODO:
 &lt;p>This blog post will cover the highlights, which are post processing support and the new &lt;code>show_query()&lt;/code> method.&lt;/p>
 &lt;p>You can see a full list of changes in the
 &lt;a href="https://orbital.tidymodels.org/news/index.html#orbital-040" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
-&lt;h2 id="classification-support">Classification support
-&lt;a href="#classification-support">
+&lt;h2 id="post-processing-support">Post processing support
+&lt;a href="#post-processing-support">
 &lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
 &lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
 &lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
@@ -35,9 +35,7 @@ TODO:
 &lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>penguins&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>species&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>forcats&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://forcats.tidyverse.org/reference/fct_recode.html'>fct_recode&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
 &lt;span> &lt;span class='nv'>penguins&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>species&lt;/span>,&lt;/span>
 &lt;span> not_Adelie &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Chinstrap"&lt;/span>, not_Adelie &lt;span class='o'>=&lt;/span> &lt;span class='s'>"Gentoo"&lt;/span>&lt;/span>
-&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
-&lt;span>&lt;span class='c'>#&amp;gt; Warning: Unknown levels in `f`: Chinstrap, Gentoo&lt;/span>&lt;/span>
-&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
 &lt;/div>
 &lt;p>After we have modified the data, we set up a simple workflow, with a preprocessor using recipes and the model specification using parsnip.&lt;/p>
 &lt;p>We also set up a post processor using the tailor package. A single adjustment will be done by adding &lt;code>adjust_equivocal_zone()&lt;/code>. This will apply an equivocal zone to our binary classification model. Stopping predictions that are too close to the thresholds by labeling them as &lt;code>&amp;quot;[EQ]&amp;quot;&lt;/code>. Setting the argument &lt;code>value = 0.2&lt;/code> means that any predictions with a predicted probability of between 0.3 and 0.7 will be predicted as &lt;code>&amp;quot;[EQ]&amp;quot;&lt;/code> instead.&lt;/p>
