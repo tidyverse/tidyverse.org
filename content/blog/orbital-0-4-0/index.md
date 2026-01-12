@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, orbital]
-rmd_hash: 6b5e1c2db0c114de
+rmd_hash: af5478c76965d272
 
 ---
 
@@ -46,7 +46,7 @@ This blog post will cover the highlights, which are post processing support and 
 
 You can see a full list of changes in the [release notes](https://orbital.tidymodels.org/news/index.html#orbital-040).
 
-## Classification support
+## Post processing support
 
 The biggest improvement in this version is that [`orbital()`](https://orbital.tidymodels.org/reference/orbital.html) now works for supported [tailor](https://tailor.tidymodels.org/) methods. See [vignette](https://orbital.tidymodels.org/articles/supported-models.html#tailor-adjustments) for a list of all supported post-processors.
 
@@ -57,9 +57,7 @@ Let's start by fitting a classification model on the `penguins` data set, using 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>penguins</span><span class='o'>$</span><span class='nv'>species</span> <span class='o'>&lt;-</span> <span class='nf'>forcats</span><span class='nf'>::</span><span class='nf'><a href='https://forcats.tidyverse.org/reference/fct_recode.html'>fct_recode</a></span><span class='o'>(</span></span>
 <span> <span class='nv'>penguins</span><span class='o'>$</span><span class='nv'>species</span>,</span>
 <span> not_Adelie <span class='o'>=</span> <span class='s'>"Chinstrap"</span>, not_Adelie <span class='o'>=</span> <span class='s'>"Gentoo"</span></span>
-<span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Warning: Unknown levels in `f`: Chinstrap, Gentoo</span></span>
-<span></span></code></pre>
+<span><span class='o'>)</span></span></code></pre>
 
 </div>
 
