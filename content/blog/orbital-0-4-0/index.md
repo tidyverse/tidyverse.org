@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: orbital-0-4-0
 title: orbital 0.4.0
-date: 2025-12-13
+date: 2026-01-12
 author: Emil Hvitfeldt
 description: >
     orbital 0.4.0 is on CRAN! orbital now has post processing support.
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, orbital]
-rmd_hash: 3c25db88980be173
+rmd_hash: 7a24dfdde2d3d0f4
 
 ---
 
@@ -92,14 +92,14 @@ With this fitted workflow object, we can call [`orbital()`](https://orbital.tidy
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>orbital_obj</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://orbital.tidymodels.org/reference/orbital.html'>orbital</a></span><span class='o'>(</span><span class='nv'>wf_fit</span>, type <span class='o'>=</span> <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span><span class='s'>"class"</span>, <span class='s'>"prob"</span><span class='o'>)</span><span class='o'>)</span></span>
 <span><span class='nv'>orbital_obj</span></span>
 <span><span class='c'>#&gt; </span></span>
-<span><span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>orbital Object</span> <span style='color: #00BBBB;'>────────────────────────────────────────────</span></span></span>
-<span><span class='c'>#&gt; • bill_length_mm = dplyr::if_else(is.na(bill_length_mm) ...</span></span>
-<span><span class='c'>#&gt; • flipper_length_mm = dplyr::if_else(is.na(flipper_leng ...</span></span>
-<span><span class='c'>#&gt; • .pred_class = dplyr::case_when(1 - 1/(1 + exp(dplyr:: ...</span></span>
-<span><span class='c'>#&gt; • .pred_Adelie = 1 - 1/(1 + exp(dplyr::case_when(bill_l ...</span></span>
-<span><span class='c'>#&gt; • .pred_not_Adelie = 1 - (1 - 1/(1 + exp(dplyr::case_wh ...</span></span>
-<span><span class='c'>#&gt; • .pred_class = dplyr::case_when( .pred_Adelie &gt; 0.5 + ...</span></span>
-<span><span class='c'>#&gt; ──────────────────────────────────────────────────────────────</span></span>
+<span><span class='c'>#&gt; <span style='color: #00BBBB;'>──</span> <span style='font-weight: bold;'>orbital Object</span> <span style='color: #00BBBB;'>───────────────────────────────────────────────────────</span></span></span>
+<span><span class='c'>#&gt; • bill_length_mm = dplyr::if_else(is.na(bill_length_mm), 43.92193, ...</span></span>
+<span><span class='c'>#&gt; • flipper_length_mm = dplyr::if_else(is.na(flipper_length_mm), 201 ...</span></span>
+<span><span class='c'>#&gt; • .pred_class = dplyr::case_when(1 - 1/(1 + exp(dplyr::case_when(b ...</span></span>
+<span><span class='c'>#&gt; • .pred_Adelie = 1 - 1/(1 + exp(dplyr::case_when(bill_length_mm &lt; ...</span></span>
+<span><span class='c'>#&gt; • .pred_not_Adelie = 1 - (1 - 1/(1 + exp(dplyr::case_when(bill_len ...</span></span>
+<span><span class='c'>#&gt; • .pred_class = dplyr::case_when( .pred_Adelie &gt; 0.5 + 0.2 ~ 'Adel ...</span></span>
+<span><span class='c'>#&gt; ─────────────────────────────────────────────────────────────────────────</span></span>
 <span><span class='c'>#&gt; 6 equations in total.</span></span>
 <span></span></code></pre>
 
