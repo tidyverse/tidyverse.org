@@ -1,4 +1,327 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>plumber2 | Tidyverse</title><link>https://www.tidyverse.org/tags/plumber2/</link><atom:link href="https://www.tidyverse.org/tags/plumber2/index.xml" rel="self" type="application/rss+xml"/><description>plumber2</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 23 Sep 2025 00:00:00 +0000</lastBuildDate><item><title>plumber2 0.1.0</title><link>https://www.tidyverse.org/blog/2025/09/plumber2-0-1-0/</link><pubDate>Tue, 23 Sep 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/09/plumber2-0-1-0/</guid><description>&lt;!--
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>plumber2 | Tidyverse</title><link>https://www.tidyverse.org/tags/plumber2/</link><atom:link href="https://www.tidyverse.org/tags/plumber2/index.xml" rel="self" type="application/rss+xml"/><description>plumber2</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 20 Jan 2026 00:00:00 +0000</lastBuildDate><item><title>plumber2 0.2.0</title><link>https://www.tidyverse.org/blog/2026/01/plumber2-0-2-0/</link><pubDate>Tue, 20 Jan 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/01/plumber2-0-2-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re stoked to announce the release of
+&lt;a href="https://plumber2.posit.co" target="_blank" rel="noopener">plumber2&lt;/a> 0.2.0. plumber2 is a package for creating webservers in R based on either an annotation-based or programmatic workflow. It is the successor to the
+&lt;a href="https://www.rplumber.io/" target="_blank" rel="noopener">plumber&lt;/a> package who has empowered the R community for 10 years and allowed them to share their R based functionalities with their organizations and the world.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>pak&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://pak.r-lib.org/reference/pak.html'>pak&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"plumber2"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This release covers both a bunch of new features as well as some tangible improvements to performance. The headlining features are OpenTelemetry (OTEL) support and support for authentication which we will dive into below. In the end we will also provide a grab-bag of miscellaneous improvements for your enjoyment.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://www.tidyverse.org/news/index.html">release notes&lt;/a>&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://plumber2.posit.co/'>plumber2&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="otel-support">OTEL support
+&lt;a href="#otel-support">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We have been hard at work at adding support for
+&lt;a href="https://opentelemetry.io/" target="_blank" rel="noopener">OpenTelemetry (OTEL)&lt;/a> for our tools to allow easy instrumentation across our offerings, see e.g. the
+&lt;a href="https://shiny.posit.co/blog/posts/shiny-r-1.12/" target="_blank" rel="noopener">shiny blog post&lt;/a> announcing support for it there. If you do not know what OTEL is, here is a short introduction to the subject:&lt;/p>
+&lt;p>OTEL describes itself as &amp;ldquo;high-quality, ubiquitous, and portable telemetry to enable effective observability&amp;rdquo;. In simpler terms, OpenTelemetry is a set of tools, APIs, and SDKs that help you collect and export telemetry data (like traces, logs, and metrics) from your applications. This data provides insights into how your applications are performing and behaving in real-world scenarios.&lt;/p>
+&lt;p>It captures three key types of data:&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>Traces:&lt;/strong> These show the path of a request through your application.&lt;/li>
+&lt;li>&lt;strong>Logs:&lt;/strong> These are detailed event records that capture what happened at specific moments.&lt;/li>
+&lt;li>&lt;strong>Metrics:&lt;/strong> These are numerical measurements over time, like how many users are connected or how long outputs take to render.&lt;/li>
+&lt;/ol>
+&lt;p>These data types were standardized under the OTEL project,
+&lt;a href="https://opentelemetry.io/community/marketing-guidelines/#i-opentelemetry-is-a-joint-effort" target="_blank" rel="noopener">which is supported by a large community and many companies&lt;/a>. The goal is to provide a consistent way to collect and export observability data, making it easier to monitor and troubleshoot applications.&lt;/p>
+&lt;p>OTEL is vendor-neutral, meaning you can send your telemetry data to various local backends like
+&lt;a href="https://www.jaegertracing.io/" target="_blank" rel="noopener">Jaeger&lt;/a>,
+&lt;a href="https://zipkin.io/" target="_blank" rel="noopener">Zipkin&lt;/a>,
+&lt;a href="https://prometheus.io/" target="_blank" rel="noopener">Prometheus&lt;/a>, or cloud-based services like
+&lt;a href="https://grafana.com/products/cloud/" target="_blank" rel="noopener">Grafana Cloud&lt;/a>,
+&lt;a href="https://pydantic.dev/logfire" target="_blank" rel="noopener">Logfire&lt;/a>, and
+&lt;a href="https://langfuse.com/" target="_blank" rel="noopener">Langfuse&lt;/a>. This flexibility means you&amp;rsquo;re not locked into any particular monitoring solution.&lt;/p>
+&lt;p>While that may be somewhat of a mouthful the &lt;em>tldr;&lt;/em> is that with OTEL you can capture what goes on in your application and use a variety of services to explore this data. This is great especially for code that is meant to be deployed and thus not readily available for introspection.&lt;/p>
+&lt;p>A great thing about OTEL is that traces are linked across applications. If you have multiple linked microservices based on plumber2, then you can follow a request trace as it travels between the different APIs. The same goes for a shiny app that calls into a plumber2 api or the other way around. As we build out support across our tools this benefit will only get more profound.&lt;/p>
+&lt;h3 id="otel-in-plumber2">OTEL in plumber2
+&lt;a href="#otel-in-plumber2">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>While OTEL is integrated into plumber2 it is not activated by default. To set it up you need the otel and otelsdk installed and configured:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>pak&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://pak.r-lib.org/reference/pak.html'>pak&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"otel"&lt;/span>, &lt;span class='s'>"otelsdk"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Configuration is completely code free and based on environment variables. You can e.g. add the lines below to your &lt;code>.Renviron&lt;/code> file to setup OTEL with Logfire&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="c1"># Enable OpenTelemetry by setting Collector environment variables&lt;/span>
+&lt;span class="nv">OTEL_TRACES_EXPORTER&lt;/span>&lt;span class="o">=&lt;/span>http
+&lt;span class="nv">OTEL_LOGS_EXPORTER&lt;/span>&lt;span class="o">=&lt;/span>http
+&lt;span class="nv">OTEL_LOG_LEVEL&lt;/span>&lt;span class="o">=&lt;/span>debug
+&lt;span class="nv">OTEL_METRICS_EXPORTER&lt;/span>&lt;span class="o">=&lt;/span>http
+&lt;span class="nv">OTEL_EXPORTER_OTLP_ENDPOINT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;https://logfire-us.pydantic.dev&amp;#34;&lt;/span>
+&lt;span class="nv">OTEL_EXPORTER_OTLP_HEADERS&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;Authorization=&amp;lt;your-write-token&amp;gt;&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can verify that everything is set up by calling
+&lt;a href="https://otel.r-lib.org/reference/is_tracing_enabled.html" target="_blank" rel="noopener">&lt;code>otel::is_tracing_enabled()&lt;/code>&lt;/a> which should return &lt;code>TRUE&lt;/code> in that case.&lt;/p>
+&lt;p>OTEL has an extensive list of semantic conventions for telemetry of various domains so that information is captured in a standardised way. plumber2 adheres to the HTTP server conventions and supports all the required and most of the recommended
+&lt;a href="https://opentelemetry.io/docs/specs/semconv/http/http-spans/#http-server-span" target="_blank" rel="noopener">trace attributes&lt;/a> and
+&lt;a href="https://opentelemetry.io/docs/specs/semconv/http/http-metrics/" target="_blank" rel="noopener">metrics&lt;/a>.&lt;/p>
+&lt;p>Within a plumber2 API, a trace span is started the moment a request is received. The span is populated with the following information:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>http.request.method&lt;/code>: The method of the request (e.g. &lt;code>GET&lt;/code>, &lt;code>POST&lt;/code>, etc)&lt;/li>
+&lt;li>&lt;code>url.path&lt;/code>: The exact path requested&lt;/li>
+&lt;li>&lt;code>url.scheme&lt;/code>: The protocol used for the request&lt;/li>
+&lt;li>&lt;code>http.route&lt;/code>: The route pattern of the last of the route handlers the request went through&lt;/li>
+&lt;li>&lt;code>network.protocol.name&lt;/code>: The internal protocol used. Always &lt;code>http&lt;/code>&lt;/li>
+&lt;li>&lt;code>network.protocol.version&lt;/code>: The version of the protocol. Always &lt;code>1.1&lt;/code>&lt;/li>
+&lt;li>&lt;code>server.port&lt;/code>: The port the server is listening on. Can be used to distinguish multiple concurrent servers&lt;/li>
+&lt;li>&lt;code>url.query&lt;/code>: The querystring of the request&lt;/li>
+&lt;li>&lt;code>client.address&lt;/code>: The IP address the request comes from&lt;/li>
+&lt;li>&lt;code>server.address&lt;/code>: The address the request was send to&lt;/li>
+&lt;li>&lt;code>user_agent.original&lt;/code>: The user agent of the client sending the request&lt;/li>
+&lt;li>&lt;code>http.request.header.&amp;lt;header-name&amp;gt;&lt;/code>: The value of &lt;code>header-name&lt;/code> in the request. E.g. &lt;code>http.request.header.date&lt;/code> will contain the value of the &lt;code>Date&lt;/code> header&lt;/li>
+&lt;/ul>
+&lt;p>Once the request has been handled it will further append the following information:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>http.response.status_code&lt;/code>: The status code of the response&lt;/li>
+&lt;li>&lt;code>http.response.header.&amp;lt;header-name&amp;gt;&lt;/code>: The value of &lt;code>header-name&lt;/code> in the response. E.g. &lt;code>http.response.header.content-type&lt;/code> will contain the value of the &lt;code>Content-Type&lt;/code> header&lt;/li>
+&lt;/ul>
+&lt;p>In addition to the trace attributes above, a number of OTEL metrics are also recorded:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>http.server.request.duration&lt;/code>: The duration of the request handling from it is received to it is send back&lt;/li>
+&lt;li>&lt;code>http.server.active_requests&lt;/code>: The number of active requests being handled at the given time&lt;/li>
+&lt;li>&lt;code>http.server.request.body.size&lt;/code>: The size of the request body&lt;/li>
+&lt;li>&lt;code>http.server.response.body.size&lt;/code>: The size of the response body&lt;/li>
+&lt;/ul>
+&lt;p>As a child of this parent span each handler in your API will also initiate a span with the following attributes:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>routr.route&lt;/code>: The path pattern of the handler. This will be recorded in the routr representation which uses &lt;code>:param&lt;/code> instead of &lt;code>{param}&lt;/code> format (e.g. &lt;code>users/:username&lt;/code> instead of &lt;code>users/{username}&lt;/code>)&lt;/li>
+&lt;li>&lt;code>routr.path.param.&amp;lt;param-name&amp;gt;&lt;/code>: The value of the &lt;code>param-name&lt;/code> path parameter. E.g. a request for &lt;code>users/thomas&lt;/code> will get a &lt;code>routr.path.param.username&lt;/code> attribute with the value &lt;code>thomas&lt;/code> for the route &lt;code>users/{username}&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;p>Any span you initiate inside a handler will become a child of the handler span and through that be linked to the parent request span.&lt;/p>
+&lt;p>As you can see, the integration provides extensive information for you to use when figuring out what is going on in your application. On top of that, you can also use OTEL as your logging solution by setting &lt;code>logger_otel&lt;/code> as your logging solution:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://plumber2.posit.co/reference/api.html'>api&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://plumber2.posit.co/reference/api_logger.html'>api_logger&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>logger_otel&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This ensures that all the logs from errors, warnings, etc all end up in the same place as your other recordings and further gets linked to the exact request that gave rise to the log.&lt;/p>
+&lt;p>We truly believe extensive OTEL support across the ecosystem will be a game changer for deployed R code and we can&amp;rsquo;t wait for our users to take advantage of it!&lt;/p>
+&lt;h2 id="auth-support">Auth support
+&lt;a href="#auth-support">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The second headliner is support for various authentication schemes out of the box. This comes courtesy of of the
+&lt;a href="https://fireproof.data-imaginist.com" target="_blank" rel="noopener">fireproof&lt;/a> package which provides an auth plugin for fiery.&lt;/p>
+&lt;p>Setting up authentication is twofold: creating guards and attaching guards to routes.&lt;/p>
+&lt;p>First, you need to define one or more guards to use. A guard is an adaption of a specific authentication scheme such as e.g. OAuth. Currently, fireproof supports the Basic and Bearer HTTP authorization schemes, a custom key based scheme, as well as OAuth 2.0 and OpenID Connect. Setting up a guard can be done both programmatically and with annotations:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># Programmatic&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>api&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://plumber2.posit.co/reference/api.html'>api&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://plumber2.posit.co/reference/api_auth_guard.html'>api_auth_guard&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> guard &lt;span class='o'>=&lt;/span> &lt;span class='nf'>fireproof&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://fireproof.data-imaginist.com/reference/guard_key.html'>guard_key&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> key_name &lt;span class='o'>=&lt;/span> &lt;span class='s'>"X-API-KEY"&lt;/span>,&lt;/span>
+&lt;span> validate &lt;span class='o'>=&lt;/span> &lt;span class='s'>"MY_VERY_SECRET_KEY"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> name &lt;span class='o'>=&lt;/span> &lt;span class='s'>"key_guard"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># Annotation&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @authGuard key_guard&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>fireproof&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://fireproof.data-imaginist.com/reference/guard_key.html'>guard_key&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> key_name &lt;span class='o'>=&lt;/span> &lt;span class='s'>"X-API-KEY"&lt;/span>,&lt;/span>
+&lt;span> validate &lt;span class='o'>=&lt;/span> &lt;span class='s'>"MY_VERY_SECRET_KEY"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Both of these pieces of code yields the same result. You API now has a guard registered under the name &lt;code>key_guard&lt;/code> which will (if called upon) check a request for the existence of a cookie named &lt;code>X-API-KEY&lt;/code> with the value &lt;code>MY_VERY_SECRET_KEY&lt;/code>.&lt;/p>
+&lt;p>Secondly, your handlers can now integrate the guards to protect access to the requested path. Again, this can be done both programmatically and in annotation and will generally be handled when the request handler is created:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># Programmatic&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>api&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://plumber2.posit.co/reference/api_request_handlers.html'>api_get&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> path &lt;span class='o'>=&lt;/span> &lt;span class='s'>"/admin"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>...&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='c'># whatever you wish to protect&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>&amp;#125;&lt;/span>,&lt;/span>
+&lt;span> auth_flow &lt;span class='o'>=&lt;/span> &lt;span class='nv'>key_guard&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># Annotation&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'>#* An example endpoint with auth&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @get /admin&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @auth key_guard&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>...&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='c'># whatever you wish to protect&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Again, both code chunks achieve the same thing. They set up the endpoint to require the &lt;code>key_guard&lt;/code> to be passed before further handling takes place.&lt;/p>
+&lt;h3 id="multiple-guards-and-requirements">Multiple guards and requirements
+&lt;a href="#multiple-guards-and-requirements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The previous section demonstrates the most basic authentication setup as it only uses the key guard&amp;mdash;the simplest guard to configure. We can imagine a situation where we both want to allow users to log in with a username and password &lt;em>or&lt;/em> authorize with a key and a google login. This requires defining multiple guards which can be done in sequence:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* @authGuard key&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>fireproof&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://fireproof.data-imaginist.com/reference/guard_key.html'>guard_key&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> key_name &lt;span class='o'>=&lt;/span> &lt;span class='s'>"X-API-KEY"&lt;/span>,&lt;/span>
+&lt;span> validate &lt;span class='o'>=&lt;/span> &lt;span class='s'>"MY_VERY_SECRET_KEY"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @authGuard basic&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>fireproof&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://fireproof.data-imaginist.com/reference/guard_basic.html'>guard_basic&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> validate &lt;span class='o'>=&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>username&lt;/span>, &lt;span class='nv'>password&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>username&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='s'>"thomas"&lt;/span> &lt;span class='o'>&amp;amp;&amp;amp;&lt;/span> &lt;span class='nv'>password&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='s'>"xrCy45rWrgwq"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @authGuard google&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>fireproof&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://fireproof.data-imaginist.com/reference/guard_google.html'>guard_google&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> redirect_url &lt;span class='o'>=&lt;/span> &lt;span class='s'>"https://example.com/auth"&lt;/span>,&lt;/span>
+&lt;span> client_id &lt;span class='o'>=&lt;/span> &lt;span class='s'>"MY_APP_ID"&lt;/span>,&lt;/span>
+&lt;span> client_secret &lt;span class='o'>=&lt;/span> &lt;span class='s'>"SUCHASECRET"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>We now have 3 guards (of dubious quality) that we can attach to our handler. How do we capture the relationship of requiring either the basic to pass or the key and google to pass? Simple, with a logical expression:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* An example endpoint with auth&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @get /admin&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @auth basic || (key &amp;amp;&amp;amp; google)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>...&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='c'># whatever you wish to protect&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The names of the guards act as booleans and can be composed with the basic boolean operators (&lt;code>||&lt;/code>, &lt;code>&amp;amp;&amp;amp;&lt;/code>, and &lt;code>(&lt;/code>/&lt;code>)&lt;/code>). The combinations are endless!&lt;/p>
+&lt;h3 id="scopes">Scopes
+&lt;a href="#scopes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Sometimes you need more granularity in your authentication. Some users may only read while others may read and write to resources. This could be solved with multiple guards but it quickly becomes unwieldy. Instead you can set scope requirements on an endpoint. Guards can then grant scopes to a user in their &lt;code>validate&lt;/code> function by returning a character vector instead of a boolean, like this:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* @authGuard basic&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>fireproof&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://fireproof.data-imaginist.com/reference/guard_basic.html'>guard_basic&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> validate &lt;span class='o'>=&lt;/span> &lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>username&lt;/span>, &lt;span class='nv'>password&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='kr'>if&lt;/span> &lt;span class='o'>(&lt;/span>&lt;span class='nv'>username&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='s'>"guest"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/function.html'>return&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"read"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='kr'>if&lt;/span> &lt;span class='o'>(&lt;/span>&lt;span class='nv'>username&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='s'>"thomas"&lt;/span> &lt;span class='o'>&amp;amp;&amp;amp;&lt;/span> &lt;span class='nv'>password&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='s'>"xrCy45rWrgwq"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/function.html'>return&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"read"&lt;/span>, &lt;span class='s'>"write"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='kc'>FALSE&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'>#* Read the calendar entries&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @get /calendar&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @auth basic&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @authScope read&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>...&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='c'># return calendar entries&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'>#* Add a new calendar entry&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @post /calendar&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @auth basic&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @authScope write&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>...&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='c'># update the calendar&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The authentication that can be integrated is very flexible and will only grow as more guards are added to fireproof.&lt;/p>
+&lt;h2 id="other-news">Other news
+&lt;a href="#other-news">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>
+&lt;h3 id="annotation-for-datastores">Annotation for datastores
+&lt;a href="#annotation-for-datastores">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>While datastores through the
+&lt;a href="https://github.com/thomasp85/firesale" target="_blank" rel="noopener">firesale&lt;/a> package was supported upon release, they could only be set up programmatically. This has now been corrected with the addition of the &lt;code>@datastore&lt;/code> tag. It works like this:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* @datastore my_store&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>storr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://richfitz.github.io/storr/reference/storr_environment.html'>driver_environment&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The &lt;code>my_store&lt;/code> proceeding the key is optional and gives the name of the datastore (defaults to &lt;code>datastore&lt;/code>). Below the block you provide a
+&lt;a href="https://richfitz.github.io/storr/" target="_blank" rel="noopener">storr&lt;/a> driver and then you are good to go.&lt;/p>
+&lt;p>Authentication requires a datastore in order to work as it facilitates persistent session login. Below, you can see an annotation implementation of a single guard that leverages a storr datastore.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'>#* @datastore ds&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>storr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://richfitz.github.io/storr/reference/storr_environment.html'>driver_environment&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @authGuard github&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>fireproof&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://fireproof.data-imaginist.com/reference/guard_github.html'>guard_github&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> redirect_url &lt;span class='o'>=&lt;/span> &lt;span class='s'>"https://example.com/auth"&lt;/span>,&lt;/span>
+&lt;span> client_id &lt;span class='o'>=&lt;/span> &lt;span class='s'>"MY_APP_ID"&lt;/span>,&lt;/span>
+&lt;span> client_secret &lt;span class='o'>=&lt;/span> &lt;span class='s'>"SUCHASECRET"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'>#* Get a summary of your github commit history&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#* @auth github&lt;/span>&lt;/span>
+&lt;span>&lt;span class='kr'>function&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>ds&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>github_token&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>ds&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>session&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>github&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>token&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>access_token&lt;/span>&lt;/span>
+&lt;span> &lt;span class='c'># Use the access token to fetch commit history and do some fun things&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h3 id="more-powerful-report-support">More powerful report support
+&lt;a href="#more-powerful-report-support">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The report endpoint has gotten even more powerful in this release in a number of ways:&lt;/p>
+&lt;ul>
+&lt;li>Report endpoints can now be added programmatically as well using
+&lt;a href="https://plumber2.posit.co/reference/api_report.html" target="_blank" rel="noopener">&lt;code>api_report()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>There is now support for quarto documents using the jupyter engine&lt;/li>
+&lt;li>OpenAPI documentation is now generated automatically for the report and incorporates the standard annotation known from request handler blocks.&lt;/li>
+&lt;li>Parameterised reports now has their parameters type checked and casted based on the type of the default values or on explicit type specification in the &lt;code>@param&lt;/code> tags.&lt;/li>
+&lt;li>You can now request specific named output formats through the &lt;code>/{output_format}&lt;/code> subpath. This is in addition to the content negotiation already available. E.g. &lt;code>/report/revealjs&lt;/code> will request the revealjs format of the report served at &lt;code>/report&lt;/code>.&lt;/li>
+&lt;li>Caches can now be user specific if the rendering includes information specific to the user requesting it&lt;/li>
+&lt;li>Caches can now be cleared using a &lt;code>DELETE&lt;/code> request&lt;/li>
+&lt;/ul>
+&lt;h2 id="thank-you">Thank you
+&lt;a href="#thank-you">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>I want to say thanks to everyone who has given plumber2 a spin. It takes some time to reach maturity when replacing a decade old package and every test spin brings more insight. With the addition of OTEL integration and auth support plumber2 has now reached the feature set I was planning for during the initial development and the next phase will be about refinement, performance, and bug fixes. Your input and experiences will be critical there.&lt;/p></description></item><item><title>plumber2 0.1.0</title><link>https://www.tidyverse.org/blog/2025/09/plumber2-0-1-0/</link><pubDate>Tue, 23 Sep 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/09/plumber2-0-1-0/</guid><description>&lt;!--
 TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
