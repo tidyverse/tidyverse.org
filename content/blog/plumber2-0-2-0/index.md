@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: plumber2-0-2-0
 title: plumber2 0.2.0
-date: 2026-01-05
+date: 2026-01-20
 author: Thomas Lin Pedersen
 description: >
     The next version of plumber2 has hit CRAN. Read all about the new features 
@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [plumber2, web]
-rmd_hash: 9854e478c97f93eb
+rmd_hash: 2716f3157be6958a
 
 ---
 
@@ -50,7 +50,7 @@ You can see a full list of changes in the [release notes](/news/index.html)
 
 <div class="highlight">
 
-<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://posit-dev.github.io/plumber2/'>plumber2</a></span><span class='o'>)</span></span></code></pre>
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://plumber2.posit.co/'>plumber2</a></span><span class='o'>)</span></span></code></pre>
 
 </div>
 
@@ -160,7 +160,7 @@ First, you need to define one or more guards to use. A guard is an adaption of a
 
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='c'># Programmatic</span></span>
 <span><span class='nv'>api</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://plumber2.posit.co/reference/api.html'>api</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> </span>
-<span>  <span class='nf'>api_auth_guard</span><span class='o'>(</span></span>
+<span>  <span class='nf'><a href='https://plumber2.posit.co/reference/api_auth_guard.html'>api_auth_guard</a></span><span class='o'>(</span></span>
 <span>    guard <span class='o'>=</span> <span class='nf'>fireproof</span><span class='nf'>::</span><span class='nf'><a href='https://fireproof.data-imaginist.com/reference/guard_key.html'>guard_key</a></span><span class='o'>(</span></span>
 <span>      key_name <span class='o'>=</span> <span class='s'>"X-API-KEY"</span>,</span>
 <span>      validate <span class='o'>=</span> <span class='s'>"MY_VERY_SECRET_KEY"</span></span>
@@ -345,7 +345,7 @@ Authentication requires a datastore in order to work as it facilitates persisten
 
 The report endpoint has gotten even more powerful in this release in a number of ways:
 
-- Report endpoints can now be added programmatically as well using `api_report()`
+- Report endpoints can now be added programmatically as well using [`api_report()`](https://plumber2.posit.co/reference/api_report.html)
 - There is now support for quarto documents using the jupyter engine
 - OpenAPI documentation is now generated automatically for the report and incorporates the standard annotation known from request handler blocks.
 - Parameterised reports now has their parameters type checked and casted based on the type of the default values or on explicit type specification in the `@param` tags.
