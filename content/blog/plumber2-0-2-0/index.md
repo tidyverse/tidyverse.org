@@ -17,7 +17,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [plumber2, web]
-rmd_hash: 2716f3157be6958a
+rmd_hash: 189cf75f601e4c07
 
 ---
 
@@ -46,7 +46,7 @@ You can install it from CRAN with:
 
 This release covers both a bunch of new features as well as some tangible improvements to performance. The headlining features are OpenTelemetry (OTEL) support and support for authentication which we will dive into below. In the end we will also provide a grab-bag of miscellaneous improvements for your enjoyment.
 
-You can see a full list of changes in the [release notes](/news/index.html)
+You can see a full list of changes in the [release notes](https://plumber2.posit.co/news/index.html)
 
 <div class="highlight">
 
