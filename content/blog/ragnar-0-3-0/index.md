@@ -1,8 +1,8 @@
 ---
 output: hugodown::hugo_document
-slug: ragnar-0-3-0 
+slug: ragnar-0-3-0
 title: ragnar 0.3.0
-date: 2026-01-26
+date: 2026-01-27
 author: Tomasz Kalinowski
 description: >
   The new release of ragnar adds faster ingestion, new embedding providers, improved
@@ -16,7 +16,7 @@ editor:
   markdown:
     canonical: true
     wrap: 72
-rmd_hash: ed67e65706028b84
+rmd_hash: b6334dfd0a9b5a75
 
 ---
 
@@ -66,14 +66,14 @@ At a high level, a typical ragnar workflow has three parts:
 
 ## What's new
 
+This release focuses on four big improvements:
+
 - Faster ingestion for large corpora with [`ragnar_store_ingest()`](https://ragnar.tidyverse.org/reference/ragnar_store_ingest.html).
 - Better retrieval with multi-query support and better de-duplication and de-overlapping of results.
 - New embedding providers: Azure OpenAI and Snowflake.
 - New integrations and tooling: serve a store over MCP, plus improved inspection with the Store Inspector and embedding atlas.
 
-### Breaking changes
-
-- In [`ragnar_find_links()`](https://ragnar.tidyverse.org/reference/ragnar_find_links.html), the default `children_only = FALSE` now returns all links on a page. If you relied on the previous default, set `children_only = TRUE`.
+In the sections below, we'll walk through each change in more detail.
 
 ### Faster ingestion with `ragnar_store_ingest()`
 
@@ -130,12 +130,14 @@ These integrate the same way as the other providers: you choose an embed functio
 
 ### Better document reading (including YouTube transcripts)
 
-Small improvements in document conversion add up, because low-quality ingestion leads to low-quality retrieval.
+[`read_as_markdown()`](https://ragnar.tidyverse.org/reference/read_as_markdown.html) is now more robust across common inputs, so you get higher-quality documents without having to hand-fix edge cases.
 
 - Substantial improvements to HTML-to-Markdown conversion, including correct handling of nested code blocks, plus a range of other robustness fixes driven by real-world failure cases.
 - [`read_as_markdown()`](https://ragnar.tidyverse.org/reference/read_as_markdown.html) once again fetches YouTube transcripts and now supports a `youtube_transcript_formatter` so you can include timestamps or links in the transcript output.
 - Reading plain text with non-ASCII content was fixed.
 - [`read_as_markdown()`](https://ragnar.tidyverse.org/reference/read_as_markdown.html) gained an `origin` argument to control what gets recorded on returned documents.
+
+Together, these changes make ingestion more reliable, which helps improve retrieval quality downstream.
 
 ### New integrations: serve a store over MCP
 
@@ -177,17 +179,9 @@ If you're not sure whether a store "looks right", [`ragnar_store_atlas()`](https
 
 ## Get started
 
-- **Install:** `install.packages("ragnar")`
-- **Read:** [Getting Started vignette](https://ragnar.tidyverse.org/articles/ragnar.html)
-- **Reference:** [Function reference](https://ragnar.tidyverse.org/reference/)
+Install ragnar with `install.packages("ragnar")`, then work through the [Getting Started vignette](https://ragnar.tidyverse.org/articles/ragnar.html). For details on individual functions, see the [function reference](https://ragnar.tidyverse.org/reference/). For the full changelog, see [NEWS](https://github.com/tidyverse/ragnar/blob/main/NEWS.md).
 
-## Additional improvements
-
-- [`ragnar_find_links()`](https://ragnar.tidyverse.org/reference/ragnar_find_links.html) works better with local HTML files.
-- [`embed_ollama()`](https://ragnar.tidyverse.org/reference/embed_ollama.html) now defaults to the `embeddinggemma` model.
-- Error messages from [`embed_openai()`](https://ragnar.tidyverse.org/reference/embed_ollama.html) are now surfaced to the user.
-- The `RagnarStore` print method now shows the store location.
-- Embedding helpers now share a generalized request retry policy, configurable via `options(ragnar.embed.req_retry = ...)`.
+ragnar is designed to help you build trustworthy RAG workflows by making it easy to inspect what gets retrieved and what ultimately gets sent to your model. If you try ragnar 0.3.0, we'd love to hear what you're using it for in [GitHub Discussions](https://github.com/tidyverse/ragnar/discussions).
 
 ## Acknowledgements
 
