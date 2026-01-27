@@ -1,0 +1,189 @@
+---
+output: hugodown::hugo_document
+slug: ragnar-0-3-0
+title: ragnar 0.3.0
+date: 2026-01-27
+author: Tomasz Kalinowski
+description: >
+  The new release of ragnar adds faster ingestion, new embedding providers, improved
+  retrieval, and new integrations for using ragnar stores from tools.
+photo:
+  url: https://unsplash.com/photos/a-bunch-of-vegetables-being-washed-in-a-machine-72Xh7lH72k0
+  author: wei
+categories: [package]
+tags: [ragnar, ai]
+editor:
+  markdown:
+    canonical: true
+    wrap: 72
+rmd_hash: b6334dfd0a9b5a75
+
+---
+
+# ragnar 0.3.0
+
+We're happy to announce that [ragnar 0.3.0](https://ragnar.tidyverse.org/) is now available on CRAN. ragnar is a tidy, transparent toolkit for building trustworthy retrieval-augmented generation (RAG) workflows: ingest documents, build a store, retrieve relevant chunks, and inspect exactly what's being fed to a model.
+
+If you're new to ragnar, the quickest way to get oriented is the [Getting Started vignette](https://ragnar.tidyverse.org/articles/ragnar.html). If you've already built a store with ragnar 0.2, this release focuses on making it easier to scale ingestion, use more embedding providers, and connect your store to the tools you already use.
+
+You can install ragnar from CRAN with:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://rdrr.io/r/utils/install.packages.html'>install.packages</a></span><span class='o'>(</span><span class='s'>"ragnar"</span><span class='o'>)</span></span></code></pre>
+
+</div>
+
+This post covers the biggest user-facing changes in ragnar 0.3.0. For a complete list of changes, see the [NEWS](https://github.com/tidyverse/ragnar/blob/main/NEWS.md).
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='kr'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='o'>(</span><span class='nv'><a href='https://ragnar.tidyverse.org/'>ragnar</a></span><span class='o'>)</span></span></code></pre>
+
+</div>
+
+## A quick refresher
+
+If you're already familiar with ragnar, feel free to skip this section.
+
+ragnar helps you build retrieval-augmented generation (RAG) workflows by turning your trusted documents into a local store that you can query with both vector search (embeddings) and keyword search (BM25).
+
+At the "front door", [`read_as_markdown()`](https://ragnar.tidyverse.org/reference/read_as_markdown.html) can ingest web pages, PDFs, Office documents, images (via OCR), archives, and even YouTube URLs (via transcripts), so you can usually start from the same sources you'd use for manual research.
+
+At a high level, a typical ragnar workflow has three parts:
+
+1.  Build a store:
+    - Collect document sources (URLs or files) and convert them to Markdown with [`read_as_markdown()`](https://ragnar.tidyverse.org/reference/read_as_markdown.html).
+    - Split documents into chunks with [`markdown_chunk()`](https://ragnar.tidyverse.org/reference/markdown_chunk.html) (optionally adding context).
+    - Embed and store chunks in a DuckDB-backed `RagnarStore`.
+2.  Query and inspect the store:
+    - Retrieve chunks directly with [`ragnar_retrieve()`](https://ragnar.tidyverse.org/reference/ragnar_retrieve.html). It returns a tibble with scores, source information, and the chunk text (including columns like `origin`, `cosine_distance`, `bm25`, `context`, and `text`), so you can inspect exactly what will be passed downstream.
+    - Use the Store Inspector or Embedding Atlas ([`ragnar_store_inspect()`](https://ragnar.tidyverse.org/reference/ragnar_store_inspect.html) and [`ragnar_store_atlas()`](https://ragnar.tidyverse.org/reference/ragnar_store_atlas.html)) to understand what's working, then iterate and go back to step 1 as needed.
+3.  Connect the store to tools:
+    - Register a retrieval tool with an ellmer chat so an agent can search the store on demand.
+    - Serve retrieval over MCP so external tools and agents can query the store directly.
+    - Write your own loop using [`ragnar_retrieve()`](https://ragnar.tidyverse.org/reference/ragnar_retrieve.html) or lower-level helpers like [`ragnar_retrieve_vss()`](https://ragnar.tidyverse.org/reference/ragnar_retrieve_vss.html) and [`ragnar_retrieve_bm25()`](https://ragnar.tidyverse.org/reference/ragnar_retrieve_bm25.html).
+
+## What's new
+
+This release focuses on four big improvements:
+
+- Faster ingestion for large corpora with [`ragnar_store_ingest()`](https://ragnar.tidyverse.org/reference/ragnar_store_ingest.html).
+- Better retrieval with multi-query support and better de-duplication and de-overlapping of results.
+- New embedding providers: Azure OpenAI and Snowflake.
+- New integrations and tooling: serve a store over MCP, plus improved inspection with the Store Inspector and embedding atlas.
+
+In the sections below, we'll walk through each change in more detail.
+
+### Faster ingestion with `ragnar_store_ingest()`
+
+Ingestion is usually the slowest part of building a knowledge store. [`ragnar_store_ingest()`](https://ragnar.tidyverse.org/reference/ragnar_store_ingest.html) parallelizes the document preparation step with [mirai](https://mirai.r-lib.org), and then writes prepared chunks to the store in the main process. It's designed to make it easy to ingest hundreds (or thousands) of pages without hand-rolling your own parallel pipeline.
+
+Only preparation (reading, chunking, and optionally embedding) is parallelized; store writes still happen in the main process.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>store</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ragnar.tidyverse.org/reference/ragnar_store_create.html'>ragnar_store_create</a></span><span class='o'>(</span></span>
+<span>  <span class='s'>"docs.ragnar.duckdb"</span>,</span>
+<span>  embed <span class='o'>=</span> \<span class='o'>(</span><span class='nv'>x</span><span class='o'>)</span> <span class='nf'>ragnar</span><span class='nf'>::</span><span class='nf'><a href='https://ragnar.tidyverse.org/reference/embed_ollama.html'>embed_openai</a></span><span class='o'>(</span><span class='nv'>x</span>, model <span class='o'>=</span> <span class='s'>"text-embedding-3-small"</span><span class='o'>)</span></span>
+<span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nv'>paths</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://ragnar.tidyverse.org/reference/ragnar_find_links.html'>ragnar_find_links</a></span><span class='o'>(</span><span class='s'>"https://quarto.org/sitemap.xml"</span><span class='o'>)</span></span>
+<span></span>
+<span><span class='nf'><a href='https://ragnar.tidyverse.org/reference/ragnar_store_ingest.html'>ragnar_store_ingest</a></span><span class='o'>(</span><span class='nv'>store</span>, <span class='nv'>paths</span>, n_workers <span class='o'>=</span> <span class='m'>4</span>, prepare <span class='o'>=</span> \<span class='o'>(</span><span class='nv'>path</span><span class='o'>)</span> <span class='o'>&#123;</span></span>
+<span>  <span class='nv'>path</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://ragnar.tidyverse.org/reference/read_as_markdown.html'>read_as_markdown</a></span><span class='o'>(</span><span class='o'>)</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://ragnar.tidyverse.org/reference/markdown_chunk.html'>markdown_chunk</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='o'>&#125;</span><span class='o'>)</span></span></code></pre>
+
+</div>
+
+### Better retrieval: multiple queries and fewer duplicates
+
+Retrieval is where ragnar tries to be pragmatic: we run both semantic search (embeddings) and keyword search (BM25) because they fail in different ways. This release makes it easier to do that intentionally.
+
+- [`ragnar_retrieve()`](https://ragnar.tidyverse.org/reference/ragnar_retrieve.html) now accepts a *vector of queries*, so you can pass one query tuned for semantic search and one tuned for keywords.
+- [`ragnar_register_tool_retrieve()`](https://ragnar.tidyverse.org/reference/ragnar_register_tool_retrieve.html) uses a new default tool name prefix: `search_{store@name}` (instead of `rag_retrieve_from_{store@name}`).
+- When registered with ellmer, ragnar's retrieval tool continues to avoid returning previously returned chunks, enabling deeper searches via repeated tool calls.
+- BM25 result ordering was corrected to sort by descending score.
+- Duplicate rows from [`ragnar_retrieve()`](https://ragnar.tidyverse.org/reference/ragnar_retrieve.html) when running multiple queries were removed.
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nf'><a href='https://ragnar.tidyverse.org/reference/ragnar_retrieve.html'>ragnar_retrieve</a></span><span class='o'>(</span></span>
+<span>  <span class='nv'>store</span>,</span>
+<span>  <span class='nf'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='o'>(</span></span>
+<span>    <span class='s'>"How do I subset a data frame with a logical vector?"</span>,</span>
+<span>    <span class='s'>"subset dataframe logical vector"</span></span>
+<span>  <span class='o'>)</span>,</span>
+<span>  top_k <span class='o'>=</span> <span class='m'>10</span></span>
+<span><span class='o'>)</span></span></code></pre>
+
+</div>
+
+### New embedding providers: Azure OpenAI and Snowflake
+
+ragnar's embedding helpers continue to expand so you can use the infrastructure you already have:
+
+- [`embed_azure_openai()`](https://ragnar.tidyverse.org/reference/embed_azure_openai.html) supports embeddings from Azure AI Foundry.
+- [`embed_snowflake()`](https://ragnar.tidyverse.org/reference/embed_snowflake.html) supports embeddings via the Snowflake Cortex Embedding API.
+
+These integrate the same way as the other providers: you choose an embed function when creating a store, and ragnar uses it during insertion and retrieval.
+
+### Better document reading (including YouTube transcripts)
+
+[`read_as_markdown()`](https://ragnar.tidyverse.org/reference/read_as_markdown.html) is now more robust across common inputs, so you get higher-quality documents without having to hand-fix edge cases.
+
+- Substantial improvements to HTML-to-Markdown conversion, including correct handling of nested code blocks, plus a range of other robustness fixes driven by real-world failure cases.
+- [`read_as_markdown()`](https://ragnar.tidyverse.org/reference/read_as_markdown.html) once again fetches YouTube transcripts and now supports a `youtube_transcript_formatter` so you can include timestamps or links in the transcript output.
+- Reading plain text with non-ASCII content was fixed.
+- [`read_as_markdown()`](https://ragnar.tidyverse.org/reference/read_as_markdown.html) gained an `origin` argument to control what gets recorded on returned documents.
+
+Together, these changes make ingestion more reliable, which helps improve retrieval quality downstream.
+
+### New integrations: serve a store over MCP
+
+[`mcp_serve_store()`](https://ragnar.tidyverse.org/reference/mcp_serve_store.html) lets you expose a `RagnarStore` as an MCP tool. This is particularly useful if you already have a local store and want an MCP-enabled client (like Codex CLI or Claude Code) to query it directly.
+
+For example, with Codex CLI you can add something like this to `~/.codex/config.toml`:
+
+``` toml
+[mcp_servers.my_store]
+command = "Rscript"
+args = [
+  "-e",
+  "ragnar::mcp_serve_store('docs.ragnar.duckdb', top_k=10)"
+]
+```
+
+This runs a long-lived R process that exposes retrieval over MCP.
+
+### New ways to inspect a store
+
+ragnar now has more tools to help you understand what your store contains and why retrieval is (or isn't) working:
+
+- The Store Inspector received a number of usability improvements (keyboard shortcuts, improved preview, better metadata display, and general bug fixes).
+- [`ragnar_store_atlas()`](https://ragnar.tidyverse.org/reference/ragnar_store_atlas.html) integrates with the Embedding Atlas project to visualize your embedding space (via reticulate).
+
+The Store Inspector makes it easy to iterate on retrieval: try a query, compare vector search and BM25, and inspect the underlying chunks and metadata that were returned. The screenshots below show a store built from the Quarto documentation.
+
+<figure>
+<img src="ragnar-store-inspector.png" alt="The Store Inspector, showing retrieval results and a document preview." />
+<figcaption aria-hidden="true">The Store Inspector, showing retrieval results and a document preview.</figcaption>
+</figure>
+
+If you're not sure whether a store "looks right", [`ragnar_store_atlas()`](https://ragnar.tidyverse.org/reference/ragnar_store_atlas.html) gives you a high-level view of how your documents cluster in embedding space. It's a useful way to spot outliers, see which areas of the space match a query, and explore how clusters relate back to your sources.
+
+<figure>
+<img src="ragnar-store-atlas.png" alt="An embedding atlas view of a ragnar store, with query highlighting and metadata filters." />
+<figcaption aria-hidden="true">An embedding atlas view of a ragnar store, with query highlighting and metadata filters.</figcaption>
+</figure>
+
+## Get started
+
+Install ragnar with `install.packages("ragnar")`, then work through the [Getting Started vignette](https://ragnar.tidyverse.org/articles/ragnar.html). For details on individual functions, see the [function reference](https://ragnar.tidyverse.org/reference/). For the full changelog, see [NEWS](https://github.com/tidyverse/ragnar/blob/main/NEWS.md).
+
+ragnar is designed to help you build trustworthy RAG workflows by making it easy to inspect what gets retrieved and what ultimately gets sent to your model. If you try ragnar 0.3.0, we'd love to hear what you're using it for in [GitHub Discussions](https://github.com/tidyverse/ragnar/discussions).
+
+## Acknowledgements
+
+Thanks to everyone who contributed to ragnar 0.3.0 through code, issues, testing, and feedback: [@agricolamz](https://github.com/agricolamz), [@AlekFisher](https://github.com/AlekFisher), [@bianchenhao](https://github.com/bianchenhao), [@brooklynbagel](https://github.com/brooklynbagel), [@bshashikadze](https://github.com/bshashikadze), [@christophscheuch](https://github.com/christophscheuch), [@cstubben](https://github.com/cstubben), [@dfalbel](https://github.com/dfalbel), [@eschillerstrom-usfws](https://github.com/eschillerstrom-usfws), [@grantmcdermott](https://github.com/grantmcdermott), [@howardbaik](https://github.com/howardbaik), [@jeroenjanssens](https://github.com/jeroenjanssens), [@jhbrut](https://github.com/jhbrut), [@JosiahParry](https://github.com/JosiahParry), [@jpmarindiaz](https://github.com/jpmarindiaz), [@luisDVA](https://github.com/luisDVA), [@mattwarkentin](https://github.com/mattwarkentin), [@Rednose22](https://github.com/Rednose22), [@shikokuchuo](https://github.com/shikokuchuo), [@smach](https://github.com/smach), [@SokolovAnatoliy](https://github.com/SokolovAnatoliy), [@t-kalinowski](https://github.com/t-kalinowski), [@thisisnic](https://github.com/thisisnic), and [@vrognas](https://github.com/vrognas).
+
