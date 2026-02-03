@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: dplyr-1-2-0
 title: dplyr 1.2.0
-date: 2026-02-03
+date: 2026-02-04
 author: Davis Vaughan
 description: >
     dplyr 1.2.0 fills in some important gaps in dplyr's API: we've added a new complement to `filter()` focused on dropping rows, and we've expanded the `case_when()` family with three new recoding and replacing functions!
@@ -22,7 +22,7 @@ editor:
 
 editor_options:
   chunk_output_type: console
-rmd_hash: 06bbf8dc5b53c664
+rmd_hash: 0ac18091bc56ac24
 
 ---
 
