@@ -6,7 +6,7 @@ title: dplyr 1.2.0
 date: 2026-02-03
 author: Davis Vaughan
 description: >
-    dplyr 1.2.0 fills in some important gaps in dplyr's API. We've added a new complement to `filter()` focused on dropping rows, and we've expanded the `case_when()` family with three new recoding and replacing functions!
+    dplyr 1.2.0 fills in some important gaps in dplyr's API: we've added a new complement to `filter()` focused on dropping rows, and we've expanded the `case_when()` family with three new recoding and replacing functions!
 
 photo:
   url: https://unsplash.com/photos/eksqjXTLpak
@@ -22,7 +22,7 @@ editor:
 
 editor_options:
   chunk_output_type: console
-rmd_hash: 381b54379ad3cc10
+rmd_hash: 9b23bef5ac197ad3
 
 ---
 
@@ -42,7 +42,7 @@ You can install dplyr 1.2.0 from CRAN with:
 
 </div>
 
-You can see a full list of changes in the [release notes](https://dplyr.tidyverse.org/news/index.html).
+You can see a full list of changes in the [release notes](https://github.com/tidyverse/dplyr/releases/tag/v1.2.0).
 
 <div class="highlight">
 
@@ -54,7 +54,7 @@ You can see a full list of changes in the [release notes](https://dplyr.tidyvers
 
 [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) has been a core dplyr verb since the very beginning, but over the years we've isolated a few key issues with it:
 
--   The name [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) is ambiguous, are you keeping rows or dropping rows? i.e., are you filtering *for* rows or filtering *out* rows?
+-   The name [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) is ambiguous, are you keeping or dropping rows? i.e., are you filtering *for* rows or filtering *out* rows?
 
 -   [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) is optimized for the case of *keeping* rows, but you are just as likely to try and use it for *dropping* rows. Using [`filter()`](https://dplyr.tidyverse.org/reference/filter.html) to drop rows quickly forces you to confront complex boolean logic and explicitly handle missing values, which is difficult to teach, error prone to write, and hard to understand when you come back to it in the future.
 
@@ -409,7 +409,7 @@ It's also very common for your `lookup` table to exist in a CSV file that you ha
 
 </div>
 
-But everything else works the same.
+Then everything else works the same.
 
 ### Unmatched cases
 
