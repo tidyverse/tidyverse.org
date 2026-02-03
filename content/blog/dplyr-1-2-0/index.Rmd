@@ -472,6 +472,73 @@ We've soft-deprecated `case_match()` in favor of `recode_values()`, which is a d
 
 Rather than keeping `case_match()` around indefinitely, we've decided to initiate the process of its removal since it was only introduced in dplyr 1.1.0.
 
+## Deprecations
+
+dplyr 1.2.0 advances the deprecation stage of many functions.
+These deprecations have been in the works for many years now, due to our slow and very deliberate deprecation process via the [lifecycle package](https://lifecycle.r-lib.org/).
+We'll cover the highlights, and you can find the full list [here](https://github.com/tidyverse/dplyr/releases/tag/v1.2.0).
+
+-   All underscored verbs have moved from deprecated to defunct, such as `mutate_()` and `arrange_()`.
+    These have been deprecated since dplyr 0.7.0 back in 2017 (yes, 2017!!).
+    Use the non-underscored versions, see `vignette("programming")` for details.
+
+-   `mutate_each()` and `summarise_each()` have moved from deprecated to defunct.
+    These were also deprecated in dplyr 0.7.0.
+    Use `mutate()` and `summarise()` with `across()` instead.
+
+-   Returning more or less than 1 row per group in `summarise()` has moved from deprecated to defunct.
+    This was deprecated in dplyr 1.1.0 in 2023 after we realized that this was an unsafe feature for `summarise()`, which you should always expect to return exactly 1 row per group.
+    `reframe()` is a drop in replacement when you need this.
+
+-   In `case_when()`, supplying all size 1 LHS inputs along with a size \>1 RHS input is now soft-deprecated.
+    This is an improper usage of `case_when()` that should instead be a series of if statements, like:
+
+    ``` r
+    # Scalars!
+    code <- 1L
+    flavor <- "vanilla"
+
+    # Improper usage:
+    case_when(
+      code == 1L && flavor == "chocolate" ~ x,
+      code == 1L && flavor == "vanilla" ~ y,
+      code == 2L && flavor == "vanilla" ~ z,
+      .default = default
+    )
+
+    # Recommended:
+    if (code == 1L && flavor == "chocolate") {
+      x
+    } else if (code == 1L && flavor == "vanilla") {
+      y
+    } else if (code == 2L && flavor == "vanilla") {
+      z
+    } else {
+      default
+    }
+    ```
+
+    The recycling behavior that allows this style of `case_when()` to work is unsafe, and can result in silent bugs that we'd like to guard against with an error in the future.
+    See [this issue](https://github.com/tidyverse/dplyr/issues/7082) for context.
+
+-   The `dplyr.legacy_locale` global option is soft-deprecated.
+    If you used this to affect the ordering of `arrange()`, use `arrange(.locale =)` instead.
+    If you used this to affect the ordering of `group_by() |> summarise()`, follow up with an additional call to `arrange(.locale =)` instead.
+
+-   `if_else()` no longer allows `condition` to be a logical array.
+    It must be a logical vector with no `dim` attribute.
+
+-   We've removed a number of previously defunct functions, shrinking the footprint of dplyr's API:
+
+    -   `id()`
+    -   `failwith()`
+    -   `select_vars()` and `select_vars_()`
+    -   `rename_vars()` and `rename_vars_()`
+    -   `select_var()`
+    -   `current_vars()`
+    -   `bench_tbls()`, `compare_tbls()`, `compare_tbls2()`, `eval_tbls()`, and `eval_tbls2()`
+    -   `location()` and `changes()`
+
 ## Acknowledgements
 
 We'd like to thank all 177 contributors who help in someway, whether it was filing issues or contributing code and documentation: [\@abalter](https://github.com/abalter), [\@abichat](https://github.com/abichat), [\@adupaix](https://github.com/adupaix), [\@AlexBainton](https://github.com/AlexBainton), [\@alexmcsw](https://github.com/alexmcsw), [\@AltfunsMA](https://github.com/AltfunsMA), [\@AmeliaMN](https://github.com/AmeliaMN), [\@antdurrant](https://github.com/antdurrant), [\@AnthonyEbert](https://github.com/AnthonyEbert), [\@apalacio9502](https://github.com/apalacio9502), [\@apeterson91](https://github.com/apeterson91), [\@arnaudgallou](https://github.com/arnaudgallou), [\@awpsoras](https://github.com/awpsoras), [\@bakaburg1](https://github.com/bakaburg1), [\@barnabasharris](https://github.com/barnabasharris), [\@BHII-KSC](https://github.com/BHII-KSC), [\@bholtemeyer](https://github.com/bholtemeyer), [\@billdenney](https://github.com/billdenney), [\@bounlu](https://github.com/bounlu), [\@brendensm](https://github.com/brendensm), [\@bridroberts1](https://github.com/bridroberts1), [\@brookslogan](https://github.com/brookslogan), [\@catalamarti](https://github.com/catalamarti), [\@cboettig](https://github.com/cboettig), [\@cbrnr](https://github.com/cbrnr), [\@ccani007](https://github.com/ccani007), [\@charliejhadley](https://github.com/charliejhadley), [\@ChrisHIV](https://github.com/ChrisHIV), [\@ChristianRohde](https://github.com/ChristianRohde), [\@cobac](https://github.com/cobac), [\@conig](https://github.com/conig), [\@const-ae](https://github.com/const-ae), [\@Copilot](https://github.com/Copilot), [\@d-morrison](https://github.com/d-morrison), [\@DanChaltiel](https://github.com/DanChaltiel), [\@daniel-simeone](https://github.com/daniel-simeone), [\@DanielBraddock](https://github.com/DanielBraddock), [\@david-romano](https://github.com/david-romano), [\@davidrsch](https://github.com/davidrsch), [\@davidss101](https://github.com/davidss101), [\@DavisVaughan](https://github.com/DavisVaughan), [\@dcaud](https://github.com/dcaud), [\@deschen1](https://github.com/deschen1), [\@DesiQuintans](https://github.com/DesiQuintans), [\@devster31](https://github.com/devster31), [\@dkutner](https://github.com/dkutner), [\@dmuenz](https://github.com/dmuenz), [\@ds-jim](https://github.com/ds-jim), [\@eitsupi](https://github.com/eitsupi), [\@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [\@etiennebacher](https://github.com/etiennebacher), [\@eutwt](https://github.com/eutwt), [\@EvertonTLima](https://github.com/EvertonTLima), [\@ferreirafm](https://github.com/ferreirafm), [\@gaborcsardi](https://github.com/gaborcsardi), [\@GabryS3](https://github.com/GabryS3), [\@Gastonia02](https://github.com/Gastonia02), [\@GBarnsley](https://github.com/GBarnsley), [\@gevro](https://github.com/gevro), [\@ggrothendieck](https://github.com/ggrothendieck), [\@GischD](https://github.com/GischD), [\@gks281263](https://github.com/gks281263), [\@gracehartley](https://github.com/gracehartley), [\@graphdr](https://github.com/graphdr), [\@hadley](https://github.com/hadley), [\@heliconone](https://github.com/heliconone), [\@Hzanib](https://github.com/Hzanib), [\@ilovemane](https://github.com/ilovemane), [\@ja-ortiz-uniandes](https://github.com/ja-ortiz-uniandes), [\@jack-davison](https://github.com/jack-davison), [\@james-kilgour](https://github.com/james-kilgour), [\@JamesHWade](https://github.com/JamesHWade), [\@jaymicro](https://github.com/jaymicro), [\@JBrandenburg02](https://github.com/JBrandenburg02), [\@jc-usda](https://github.com/jc-usda), [\@jennybc](https://github.com/jennybc), [\@jeroenjanssens](https://github.com/jeroenjanssens), [\@jestover](https://github.com/jestover), [\@jl5000](https://github.com/jl5000), [\@jmbarbone](https://github.com/jmbarbone), [\@john-b-edwards](https://github.com/john-b-edwards), [\@jordanmross](https://github.com/jordanmross), [\@joshua-theisen](https://github.com/joshua-theisen), [\@jrwinget](https://github.com/jrwinget), [\@juliaapolonio](https://github.com/juliaapolonio), [\@jxu](https://github.com/jxu), [\@KaiAragaki](https://github.com/KaiAragaki), [\@kiki830621](https://github.com/kiki830621), [\@KittJonathan](https://github.com/KittJonathan), [\@kleinerChemiker](https://github.com/kleinerChemiker), [\@kletts](https://github.com/kletts), [\@krlmlr](https://github.com/krlmlr), [\@ks8997](https://github.com/ks8997), [\@kylebutts](https://github.com/kylebutts), [\@larsentom](https://github.com/larsentom), [\@latot](https://github.com/latot), [\@lboller-pwbm](https://github.com/lboller-pwbm), [\@lionel-](https://github.com/lionel-), [\@Longfei2](https://github.com/Longfei2), [\@lschneiderbauer](https://github.com/lschneiderbauer), [\@LukasTang](https://github.com/LukasTang), [\@lukebandy](https://github.com/lukebandy), [\@maciekbanas](https://github.com/maciekbanas), [\@maelle](https://github.com/maelle), [\@marcuslehr](https://github.com/marcuslehr), [\@Mark-AP](https://github.com/Mark-AP), [\@markwestcott34](https://github.com/markwestcott34), [\@maskegger](https://github.com/maskegger), [\@matiasandina](https://github.com/matiasandina), [\@matthewjnield](https://github.com/matthewjnield), [\@mbcann01](https://github.com/mbcann01), [\@Meghansaha](https://github.com/Meghansaha), [\@metanoid](https://github.com/metanoid), [\@MichaelChirico](https://github.com/MichaelChirico), [\@MikeJohnPage](https://github.com/MikeJohnPage), [\@MilesMcBain](https://github.com/MilesMcBain), [\@mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [\@MohsenSoltanifar](https://github.com/MohsenSoltanifar), [\@moodymudskipper](https://github.com/moodymudskipper), [\@Moohan](https://github.com/Moohan), [\@mp8](https://github.com/mp8), [\@mpsturbo](https://github.com/mpsturbo), [\@mr-c](https://github.com/mr-c), [\@muschellij2](https://github.com/muschellij2), [\@musvaage](https://github.com/musvaage), [\@Mzhuk7](https://github.com/Mzhuk7), [\@nalimilan](https://github.com/nalimilan), [\@nathanhaigh](https://github.com/nathanhaigh), [\@nirguk](https://github.com/nirguk), [\@nmercadeb](https://github.com/nmercadeb), [\@olivermagnanimous](https://github.com/olivermagnanimous), [\@olivroy](https://github.com/olivroy), [\@orgadish](https://github.com/orgadish), [\@pangchaoran](https://github.com/pangchaoran), [\@paschatz](https://github.com/paschatz), [\@prubin73](https://github.com/prubin73), [\@PStaus](https://github.com/PStaus), [\@psychelzh](https://github.com/psychelzh), [\@py9mrg](https://github.com/py9mrg), [\@Raesu](https://github.com/Raesu), [\@randyzwitch](https://github.com/randyzwitch), [\@Raoul-Kima](https://github.com/Raoul-Kima), [\@ReedMerrill](https://github.com/ReedMerrill), [\@RodDalBen](https://github.com/RodDalBen), [\@RodrigoZepeda](https://github.com/RodrigoZepeda), [\@rossholmberg](https://github.com/rossholmberg), [\@RoyalTS](https://github.com/RoyalTS), [\@ryandward](https://github.com/ryandward), [\@sbanville-delfi](https://github.com/sbanville-delfi), [\@ScientiaFelis](https://github.com/ScientiaFelis), [\@shirdekel](https://github.com/shirdekel), [\@slager](https://github.com/slager), [\@sschooler](https://github.com/sschooler), [\@steffen-stell](https://github.com/steffen-stell), [\@szimmer](https://github.com/szimmer), [\@TheClownBongo](https://github.com/TheClownBongo), [\@thomasjwood](https://github.com/thomasjwood), [\@TimTaylor](https://github.com/TimTaylor), [\@tlyons253](https://github.com/tlyons253), [\@tomalrussell](https://github.com/tomalrussell), [\@tomwagstaff-opml](https://github.com/tomwagstaff-opml), [\@torfason](https://github.com/torfason), [\@Tyrrx](https://github.com/Tyrrx), [\@Unaimend](https://github.com/Unaimend), [\@VisruthSK](https://github.com/VisruthSK), [\@vorpalvorpal](https://github.com/vorpalvorpal), [\@walkerjameschris](https://github.com/walkerjameschris), [\@wbvguo](https://github.com/wbvguo), [\@wbzyl](https://github.com/wbzyl), [\@wkumler](https://github.com/wkumler), [\@yaboody](https://github.com/yaboody), [\@yjunechoe](https://github.com/yjunechoe), [\@ynsec37](https://github.com/ynsec37), [\@ywhcuhk](https://github.com/ywhcuhk), [\@ZHBHSMILE](https://github.com/ZHBHSMILE), [\@zhjx19](https://github.com/zhjx19), and [\@ZIBOWANGKANGYU](https://github.com/ZIBOWANGKANGYU).

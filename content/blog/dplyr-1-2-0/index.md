@@ -22,7 +22,7 @@ editor:
 
 editor_options:
   chunk_output_type: console
-rmd_hash: 9b23bef5ac197ad3
+rmd_hash: 38b2fe42932e1700
 
 ---
 
@@ -675,6 +675,60 @@ We've soft-deprecated [`case_match()`](https://dplyr.tidyverse.org/reference/cas
 -   It lacks a replacement variant, like [`replace_values()`](https://dplyr.tidyverse.org/reference/recode-and-replace-values.html).
 
 Rather than keeping [`case_match()`](https://dplyr.tidyverse.org/reference/case_match.html) around indefinitely, we've decided to initiate the process of its removal since it was only introduced in dplyr 1.1.0.
+
+## Deprecations
+
+dplyr 1.2.0 advances the deprecation stage of many functions. These deprecations have been in the works for many years now, due to our slow and very deliberate deprecation process via the [lifecycle package](https://lifecycle.r-lib.org/). We'll cover the highlights, and you can find the full list [here](https://github.com/tidyverse/dplyr/releases/tag/v1.2.0).
+
+-   All underscored verbs have moved from deprecated to defunct, such as [`mutate_()`](https://dplyr.tidyverse.org/reference/defunct-lazyeval.html) and [`arrange_()`](https://dplyr.tidyverse.org/reference/defunct-lazyeval.html). These have been deprecated since dplyr 0.7.0 back in 2017 (yes, 2017!!). Use the non-underscored versions, see [`vignette("programming")`](https://dplyr.tidyverse.org/articles/programming.html) for details.
+
+-   [`mutate_each()`](https://dplyr.tidyverse.org/reference/defunct-each.html) and [`summarise_each()`](https://dplyr.tidyverse.org/reference/defunct-each.html) have moved from deprecated to defunct. These were also deprecated in dplyr 0.7.0. Use [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) and [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) with [`across()`](https://dplyr.tidyverse.org/reference/across.html) instead.
+
+-   Returning more or less than 1 row per group in [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html) has moved from deprecated to defunct. This was deprecated in dplyr 1.1.0 in 2023 after we realized that this was an unsafe feature for [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html), which you should always expect to return exactly 1 row per group. [`reframe()`](https://dplyr.tidyverse.org/reference/reframe.html) is a drop in replacement when you need this.
+
+-   In [`case_when()`](https://dplyr.tidyverse.org/reference/case-and-replace-when.html), supplying all size 1 LHS inputs along with a size \>1 RHS input is now soft-deprecated. This is an improper usage of [`case_when()`](https://dplyr.tidyverse.org/reference/case-and-replace-when.html) that should instead be a series of if statements, like:
+
+    ``` r
+    # Scalars!
+    code <- 1L
+    flavor <- "vanilla"
+
+    # Improper usage:
+    case_when(
+      code == 1L && flavor == "chocolate" ~ x,
+      code == 1L && flavor == "vanilla" ~ y,
+      code == 2L && flavor == "vanilla" ~ z,
+      .default = default
+    )
+
+    # Recommended:
+    if (code == 1L && flavor == "chocolate") {
+      x
+    } else if (code == 1L && flavor == "vanilla") {
+      y
+    } else if (code == 2L && flavor == "vanilla") {
+      z
+    } else {
+      default
+    }
+    ```
+
+    The recycling behavior that allows this style of [`case_when()`](https://dplyr.tidyverse.org/reference/case-and-replace-when.html) to work is unsafe, and can result in silent bugs that we'd like to guard against with an error in the future. See [this issue](https://github.com/tidyverse/dplyr/issues/7082) for context.
+
+-   The `dplyr.legacy_locale` global option is soft-deprecated. If you used this to affect the ordering of [`arrange()`](https://dplyr.tidyverse.org/reference/arrange.html), use `arrange(.locale =)` instead. If you used this to affect the ordering of `group_by() |> summarise()`, follow up with an additional call to `arrange(.locale =)` instead.
+
+-   [`if_else()`](https://dplyr.tidyverse.org/reference/if_else.html) no longer allows `condition` to be a logical array. It must be a logical vector with no `dim` attribute.
+
+-   We've removed a number of previously defunct functions, shrinking the footprint of dplyr's API:
+
+    -   `id()`
+    -   `failwith()`
+    -   `select_vars()` and `select_vars_()`
+    -   `rename_vars()` and `rename_vars_()`
+    -   `select_var()`
+    -   `current_vars()`
+    -   `bench_tbls()`, `compare_tbls()`, `compare_tbls2()`, `eval_tbls()`, and `eval_tbls2()`
+    -   `location()` and `changes()`
 
 ## Acknowledgements
 
