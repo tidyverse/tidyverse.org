@@ -22,7 +22,7 @@ editor:
 
 editor_options:
   chunk_output_type: console
-rmd_hash: 38b2fe42932e1700
+rmd_hash: 06bbf8dc5b53c664
 
 ---
 
@@ -678,7 +678,9 @@ Rather than keeping [`case_match()`](https://dplyr.tidyverse.org/reference/case_
 
 ## Deprecations
 
-dplyr 1.2.0 advances the deprecation stage of many functions. These deprecations have been in the works for many years now, due to our slow and very deliberate deprecation process via the [lifecycle package](https://lifecycle.r-lib.org/). We'll cover the highlights, and you can find the full list [here](https://github.com/tidyverse/dplyr/releases/tag/v1.2.0).
+dplyr 1.2.0 advances the lifecycle stage of many deprecated functions. These deprecations have been in the works for many years now, due to our slow and very deliberate deprecation process via the [lifecycle package](https://lifecycle.r-lib.org/). We'll cover the highlights, and you can find the full list [here](https://github.com/tidyverse/dplyr/releases/tag/v1.2.0).
+
+For any packages that we broke via these deprecations, we provided a pull request (or at least an issue, for complex cases) and some advance warning. We semi-automated some of this process using Claude Code, which you can read about [here](https://blog.davisvaughan.com/posts/2026-01-09-claude-200-pull-requests/).
 
 -   All underscored verbs have moved from deprecated to defunct, such as [`mutate_()`](https://dplyr.tidyverse.org/reference/defunct-lazyeval.html) and [`arrange_()`](https://dplyr.tidyverse.org/reference/defunct-lazyeval.html). These have been deprecated since dplyr 0.7.0 back in 2017 (yes, 2017!!). Use the non-underscored versions, see [`vignette("programming")`](https://dplyr.tidyverse.org/articles/programming.html) for details.
 
