@@ -1,4 +1,957 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>dplyr | Tidyverse</title><link>https://www.tidyverse.org/tags/dplyr/</link><atom:link href="https://www.tidyverse.org/tags/dplyr/index.xml" rel="self" type="application/rss+xml"/><description>dplyr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 19 Jun 2025 00:00:00 +0000</lastBuildDate><item><title>duckplyr fully joins the tidyverse!</title><link>https://www.tidyverse.org/blog/2025/06/duckplyr-1-1-0/</link><pubDate>Thu, 19 Jun 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/06/duckplyr-1-1-0/</guid><description>&lt;p>We&amp;rsquo;re well chuffed to announce the release of
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>dplyr | Tidyverse</title><link>https://www.tidyverse.org/tags/dplyr/</link><atom:link href="https://www.tidyverse.org/tags/dplyr/index.xml" rel="self" type="application/rss+xml"/><description>dplyr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 04 Feb 2026 00:00:00 +0000</lastBuildDate><item><title>dplyr 1.2.0</title><link>https://www.tidyverse.org/blog/2026/02/dplyr-1-2-0/</link><pubDate>Wed, 04 Feb 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/02/dplyr-1-2-0/</guid><description>&lt;p>
+&lt;a href="https://dplyr.tidyverse.org" target="_blank" rel="noopener">dplyr 1.2.0&lt;/a> is out now! This large release of dplyr comes with two sets of exciting features:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter_out()&lt;/code>&lt;/a>, the missing complement to
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a>, and accompanying
+&lt;a href="https://dplyr.tidyverse.org/reference/when-any-all.html" target="_blank" rel="noopener">&lt;code>when_any()&lt;/code>&lt;/a> and
+&lt;a href="https://dplyr.tidyverse.org/reference/when-any-all.html" target="_blank" rel="noopener">&lt;code>when_all()&lt;/code>&lt;/a> helpers.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>recode_values()&lt;/code>&lt;/a>,
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>replace_values()&lt;/code>&lt;/a>, and
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>replace_when()&lt;/code>&lt;/a>, three new functions that join
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> to create a cohesive family of powerful tools for recoding and replacing.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Both of these sets of features are backed by successful &lt;em>tidyups&lt;/em>, the tidyverse&amp;rsquo;s community facing proposal process (
+&lt;a href="https://github.com/tidyverse/tidyups/pull/30" target="_blank" rel="noopener">filtering&lt;/a>,
+&lt;a href="https://github.com/tidyverse/tidyups/pull/29" target="_blank" rel="noopener">recoding&lt;/a>). We really enjoyed having the community weigh in on these features!&lt;/p>
+&lt;p>You can install dplyr 1.2.0 from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"dplyr"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://github.com/tidyverse/dplyr/releases/tag/v1.2.0" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://dplyr.tidyverse.org'>dplyr&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="expanding-the-filter-family">Expanding the &lt;code>filter()&lt;/code> family
+&lt;a href="#expanding-the-filter-family">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a> has been a core dplyr verb since the very beginning, but over the years we&amp;rsquo;ve isolated a few key issues with it:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>The name
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a> is ambiguous, are you keeping or dropping rows? i.e., are you filtering &lt;em>for&lt;/em> rows or filtering &lt;em>out&lt;/em> rows?&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a> is optimized for the case of &lt;em>keeping&lt;/em> rows, but you are just as likely to try and use it for &lt;em>dropping&lt;/em> rows. Using
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a> to drop rows quickly forces you to confront complex boolean logic and explicitly handle missing values, which is difficult to teach, error prone to write, and hard to understand when you come back to it in the future.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a> combines comma separated conditions with &lt;code>&amp;amp;&lt;/code> because this covers the majority of the cases. But if you&amp;rsquo;d like to combine conditions with &lt;code>|&lt;/code>, then you have to introduce parentheses around your conditions and combine them into one large condition separated by &lt;code>|&lt;/code>, reducing readability.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>In the next few sections, we&amp;rsquo;ll motivate these issues and discuss how some new features in dplyr can simplify things dramatically!&lt;/p>
+&lt;h3 id="filteringout">Filtering&amp;hellip;out!
+&lt;a href="#filteringout">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Take a look at this &lt;code>patients&lt;/code> data. Our task with this data is:&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;em>Filter out&lt;/em> rows where the patient is deceased &lt;em>and&lt;/em> the year was before 2012.&lt;/p>
+&lt;/blockquote>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>patients&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> name &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Anne"&lt;/span>, &lt;span class='s'>"Mark"&lt;/span>, &lt;span class='s'>"Sarah"&lt;/span>, &lt;span class='s'>"Davis"&lt;/span>, &lt;span class='s'>"Max"&lt;/span>, &lt;span class='s'>"Derek"&lt;/span>, &lt;span class='s'>"Tina"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> deceased &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='kc'>FALSE&lt;/span>, &lt;span class='kc'>TRUE&lt;/span>, &lt;span class='kc'>NA&lt;/span>, &lt;span class='kc'>TRUE&lt;/span>, &lt;span class='kc'>NA&lt;/span>, &lt;span class='kc'>FALSE&lt;/span>, &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> date &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>2005&lt;/span>, &lt;span class='m'>2010&lt;/span>, &lt;span class='kc'>NA&lt;/span>, &lt;span class='m'>2020&lt;/span>, &lt;span class='m'>2010&lt;/span>, &lt;span class='kc'>NA&lt;/span>, &lt;span class='kc'>NA&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>patients&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 7 × 3&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; name deceased date&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;lgl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> Anne FALSE &lt;span style='text-decoration: underline;'>2&lt;/span>005&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> Mark TRUE &lt;span style='text-decoration: underline;'>2&lt;/span>010&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> Sarah &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> Davis TRUE &lt;span style='text-decoration: underline;'>2&lt;/span>020&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> Max &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='text-decoration: underline;'>2&lt;/span>010&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> Derek FALSE &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>7&lt;/span> Tina TRUE &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>With
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a>, you&amp;rsquo;d probably start by translating &amp;ldquo;patient is deceased and the year was before 2012&amp;rdquo; into &lt;code>deceased &amp;amp; date &amp;lt; 2012&lt;/code>, and then inverting that with &lt;code>!(&amp;lt;expression&amp;gt;)&lt;/code> to drop rows:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>patients&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/filter.html'>filter&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>!&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>deceased&lt;/span> &lt;span class='o'>&amp;amp;&lt;/span> &lt;span class='nv'>date&lt;/span> &lt;span class='o'>&amp;lt;&lt;/span> &lt;span class='m'>2012&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 3 × 3&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; name deceased date&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;lgl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> Anne FALSE &lt;span style='text-decoration: underline;'>2&lt;/span>005&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> Davis TRUE &lt;span style='text-decoration: underline;'>2&lt;/span>020&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> Derek FALSE &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>That seems to have worked, let&amp;rsquo;s use an
+&lt;a href="https://dplyr.tidyverse.org/reference/filter-joins.html" target="_blank" rel="noopener">&lt;code>anti_join()&lt;/code>&lt;/a> to check with rows have been dropped from &lt;code>patients&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># These rows were dropped&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/filter-joins.html'>anti_join&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>patients&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>patients&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/filter.html'>filter&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>!&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>deceased&lt;/span> &lt;span class='o'>&amp;amp;&lt;/span> &lt;span class='nv'>date&lt;/span> &lt;span class='o'>&amp;lt;&lt;/span> &lt;span class='m'>2012&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/join_by.html'>join_by&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>name&lt;/span>, &lt;span class='nv'>deceased&lt;/span>, &lt;span class='nv'>date&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 4 × 3&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; name deceased date&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;lgl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> Mark TRUE &lt;span style='text-decoration: underline;'>2&lt;/span>010&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> Sarah &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> Max &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='text-decoration: underline;'>2&lt;/span>010&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> Tina TRUE &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This is subtly wrong! We only wanted to drop rows where we &lt;em>know&lt;/em> that the patient was deceased before 2012. If a missing value is present, we &lt;em>don&amp;rsquo;t&lt;/em> want to drop that row because we aren&amp;rsquo;t sure about the condition. In this case, we were hoping to only drop &lt;code>Mark&lt;/code>! It seems like
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a> has unexpectedly &lt;em>dropped more rows than we expected&lt;/em>.&lt;/p>
+&lt;p>Here&amp;rsquo;s what a technically correct
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a> call might look like:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>patients&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/filter.html'>filter&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>!&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>deceased&lt;/span> &lt;span class='o'>&amp;amp;&lt;/span> &lt;span class='o'>!&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/NA.html'>is.na&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>deceased&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;amp;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>(&lt;/span>&lt;span class='nv'>date&lt;/span> &lt;span class='o'>&amp;lt;&lt;/span> &lt;span class='m'>2012&lt;/span> &lt;span class='o'>&amp;amp;&lt;/span> &lt;span class='o'>!&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/NA.html'>is.na&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>date&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 6 × 3&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; name deceased date&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;lgl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> Anne FALSE &lt;span style='text-decoration: underline;'>2&lt;/span>005&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> Sarah &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> Davis TRUE &lt;span style='text-decoration: underline;'>2&lt;/span>020&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> Max &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='text-decoration: underline;'>2&lt;/span>010&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> Derek FALSE &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> Tina TRUE &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>That&amp;rsquo;s horrible! You&amp;rsquo;ll likely look back on this in a year wondering what you were even trying to do here.&lt;/p>
+&lt;p>This phenomenon is rather confusing, but is due to the fact that
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a> is designed around the idea that you&amp;rsquo;re going to tell it which rows to &lt;em>keep&lt;/em>. With that design in mind, dropping &lt;code>NA&lt;/code>s makes sense, i.e. if you don&amp;rsquo;t &lt;em>know&lt;/em> that you want to keep that row (because an &lt;code>NA&lt;/code> is ambiguous), then you probably don&amp;rsquo;t want to keep it.&lt;/p>
+&lt;p>This works well until you try to use
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a> as a way to &lt;em>filter out&lt;/em> rows, at which point this behavior works against you. At this point, most people (reasonably!) reach for &lt;code>&amp;amp; !is.na()&lt;/code> and you end up with the mess from above.&lt;/p>
+&lt;p>We took a close look at many examples like this one, and eventually realized that the core issue is:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a> is designed around supplying which rows to &lt;em>keep&lt;/em>&lt;/li>
+&lt;li>We are missing a verb designed around supplying which rows to &lt;em>drop&lt;/em>&lt;/li>
+&lt;/ul>
+&lt;p>
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter_out()&lt;/code>&lt;/a> fills that gap:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>patients&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/filter.html'>filter_out&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>deceased&lt;/span>, &lt;span class='nv'>date&lt;/span> &lt;span class='o'>&amp;lt;&lt;/span> &lt;span class='m'>2012&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 6 × 3&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; name deceased date&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;lgl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> Anne FALSE &lt;span style='text-decoration: underline;'>2&lt;/span>005&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> Sarah &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> Davis TRUE &lt;span style='text-decoration: underline;'>2&lt;/span>020&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> Max &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='text-decoration: underline;'>2&lt;/span>010&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> Derek FALSE &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> Tina TRUE &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Just like with
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a>,
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter_out()&lt;/code>&lt;/a> treats &lt;code>NA&lt;/code> values as &lt;code>FALSE&lt;/code>. The difference is that
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter_out()&lt;/code>&lt;/a> expects that you are going to tell it which rows to &lt;em>drop&lt;/em> (rather than which rows to keep), so the default behavior of treating &lt;code>NA&lt;/code> like &lt;code>FALSE&lt;/code> works &lt;em>with you&lt;/em> rather than &lt;em>against you&lt;/em>. It&amp;rsquo;s also much easier to understand when you look back on it a year from now!&lt;/p>
+&lt;p>In general, our advice is that if you find yourself using &amp;ldquo;negative&amp;rdquo; operators like &lt;code>!=&lt;/code> or &lt;code>!&lt;/code> or reaching for the &lt;code>!is.na()&lt;/code> pattern to manually handle missing values, try reaching for
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter_out()&lt;/code>&lt;/a> instead.&lt;/p>
+&lt;p>Personally, I&amp;rsquo;ve always been pretty jealous of Stata here because they had both
+&lt;a href="https://www.stata.com/manuals/ddrop.pdf" target="_blank" rel="noopener">&lt;code>keep if&lt;/code> and &lt;code>drop if&lt;/code>&lt;/a>, allowing them to write &lt;code>drop if deceased &amp;amp; date &amp;lt; 2012&lt;/code>. In my first job, I translated a bunch of Stata code over to R and still remember being frustrated by &lt;code>NA&lt;/code> handling every time I had to translate a &lt;code>drop if&lt;/code> to a
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a>. With
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter_out()&lt;/code>&lt;/a>, it feels like I can finally let go of a long term grudge I&amp;rsquo;ve held over the past 6 years 🙂.&lt;/p>
+&lt;h3 id="combining-with-or-rather-than-and">Combining with &lt;code>OR&lt;/code> rather than &lt;code>AND&lt;/code>
+&lt;a href="#combining-with-or-rather-than-and">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>So far, we&amp;rsquo;ve talked a lot about &lt;em>dropping&lt;/em> rows, but dplyr 1.2.0 also has a new feature to help with &lt;em>keeping&lt;/em> rows using conditions combined with &lt;code>|&lt;/code> -
+&lt;a href="https://dplyr.tidyverse.org/reference/when-any-all.html" target="_blank" rel="noopener">&lt;code>when_any()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>Our goal here is:&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;em>Filter for&lt;/em> rows where &amp;ldquo;US&amp;rdquo; and &amp;ldquo;CA&amp;rdquo; have a score between 200-300, &lt;em>or&lt;/em> rows where &amp;ldquo;PR&amp;rdquo; and &amp;ldquo;RU&amp;rdquo; have a score between 100-200.&lt;/p>
+&lt;/blockquote>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>countries&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> name &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"US"&lt;/span>, &lt;span class='s'>"CA"&lt;/span>, &lt;span class='s'>"PR"&lt;/span>, &lt;span class='s'>"RU"&lt;/span>, &lt;span class='s'>"US"&lt;/span>, &lt;span class='kc'>NA&lt;/span>, &lt;span class='s'>"CA"&lt;/span>, &lt;span class='s'>"PR"&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> score &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>200&lt;/span>, &lt;span class='m'>100&lt;/span>, &lt;span class='m'>150&lt;/span>, &lt;span class='kc'>NA&lt;/span>, &lt;span class='m'>50&lt;/span>, &lt;span class='m'>100&lt;/span>, &lt;span class='m'>300&lt;/span>, &lt;span class='m'>250&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>countries&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 8 × 2&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; name score&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> US 200&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> CA 100&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> PR 150&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> RU &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> US 50&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> 100&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>7&lt;/span> CA 300&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>8&lt;/span> PR 250&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Here&amp;rsquo;s a
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a> solution, note how we lose the ability to specify comma separated conditions, and in the process we&amp;rsquo;ve introduced 3 operators, &lt;code>&amp;amp;&lt;/code>, &lt;code>|&lt;/code>, and &lt;code>()&lt;/code>, decreasing readability and increasing the mental gymnastics required to understand it:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>countries&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/filter.html'>filter&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>(&lt;/span>&lt;span class='nv'>name&lt;/span> &lt;span class='o'>&lt;a href='https://rdrr.io/r/base/match.html'>%in%&lt;/a>&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"US"&lt;/span>, &lt;span class='s'>"CA"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;amp;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/between.html'>between&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>score&lt;/span>, &lt;span class='m'>200&lt;/span>, &lt;span class='m'>300&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>|&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>(&lt;/span>&lt;span class='nv'>name&lt;/span> &lt;span class='o'>&lt;a href='https://rdrr.io/r/base/match.html'>%in%&lt;/a>&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"PR"&lt;/span>, &lt;span class='s'>"RU"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;amp;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/between.html'>between&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>score&lt;/span>, &lt;span class='m'>100&lt;/span>, &lt;span class='m'>200&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 3 × 2&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; name score&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> US 200&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> PR 150&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> CA 300&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>With
+&lt;a href="https://dplyr.tidyverse.org/reference/when-any-all.html" target="_blank" rel="noopener">&lt;code>when_any()&lt;/code>&lt;/a>, you specify comma separated conditions like you&amp;rsquo;re used to, but they get combined with &lt;code>|&lt;/code> rather than &lt;code>&amp;amp;&lt;/code>. This allows us to reduce the amount of operators introduced down to just &lt;code>&amp;amp;&lt;/code>, and it remains very readable:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>countries&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/filter.html'>filter&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/when-any-all.html'>when_any&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>name&lt;/span> &lt;span class='o'>&lt;a href='https://rdrr.io/r/base/match.html'>%in%&lt;/a>&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"US"&lt;/span>, &lt;span class='s'>"CA"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;amp;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/between.html'>between&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>score&lt;/span>, &lt;span class='m'>200&lt;/span>, &lt;span class='m'>300&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>name&lt;/span> &lt;span class='o'>&lt;a href='https://rdrr.io/r/base/match.html'>%in%&lt;/a>&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"PR"&lt;/span>, &lt;span class='s'>"RU"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>&amp;amp;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/between.html'>between&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>score&lt;/span>, &lt;span class='m'>100&lt;/span>, &lt;span class='m'>200&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 3 × 2&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; name score&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> US 200&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> PR 150&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> CA 300&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>
+&lt;a href="https://dplyr.tidyverse.org/reference/when-any-all.html" target="_blank" rel="noopener">&lt;code>when_any()&lt;/code>&lt;/a> and its counterpart
+&lt;a href="https://dplyr.tidyverse.org/reference/when-any-all.html" target="_blank" rel="noopener">&lt;code>when_all()&lt;/code>&lt;/a> aren&amp;rsquo;t restricted to
+&lt;a href="https://dplyr.tidyverse.org/reference/filter.html" target="_blank" rel="noopener">&lt;code>filter()&lt;/code>&lt;/a>. They are normal vector functions that can be used anywhere. And if you&amp;rsquo;re a package author, you might be interested in
+&lt;a href="https://vctrs.r-lib.org/reference/parallel-operators.html" target="_blank" rel="noopener">&lt;code>vctrs::vec_pany()&lt;/code>&lt;/a> and
+&lt;a href="https://vctrs.r-lib.org/reference/parallel-operators.html" target="_blank" rel="noopener">&lt;code>vctrs::vec_pall()&lt;/code>&lt;/a>, the underlying low dependency functions that power the dplyr variants.&lt;/p>
+&lt;h2 id="reaching-recoding-nirvana">Reaching recoding nirvana
+&lt;a href="#reaching-recoding-nirvana">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Over the years, we&amp;rsquo;ve experimented with various ways of recoding columns and replacing values within them, including:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;a href="https://rdrr.io/pkg/plyr/man/mapvalues.html" target="_blank" rel="noopener">&lt;code>plyr::mapvalues()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://rdrr.io/pkg/plyr/man/revalue.html" target="_blank" rel="noopener">&lt;code>plyr::revalue()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://dplyr.tidyverse.org/reference/recode.html" target="_blank" rel="noopener">&lt;code>dplyr::recode()&lt;/code>&lt;/a>&lt;/li>
+&lt;li>
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>dplyr::case_when()&lt;/code>&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>Despite all of our improvements, it&amp;rsquo;s felt like there have always been holes in our solutions. Most recently, this came to the forefront in a post about
+&lt;a href="https://www.linkedin.com/posts/libbyheeren_rstats-activity-7343291858275487744-XlPl?utm_source=share&amp;amp;utm_medium=member_desktop&amp;amp;rcm=ACoAAAy7IywB2qfaREGGoCca5XkthJ2hLjru6ts" target="_blank" rel="noopener">recoding using a lookup table&lt;/a>, which is almost impossible to do with
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a>, and had people resorting to confusing solutions using the superseded
+&lt;a href="https://dplyr.tidyverse.org/reference/recode.html" target="_blank" rel="noopener">&lt;code>dplyr::recode()&lt;/code>&lt;/a> combined with &lt;code>!!!&lt;/code> to splice in a lookup table.&lt;/p>
+&lt;p>After seeing this, we took a step back and were finally able to isolate the issues with our current solutions. The result of our
+&lt;a href="https://github.com/tidyverse/tidyups/pull/29" target="_blank" rel="noopener">analysis&lt;/a> is three new functions that join
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> to form a powerful recoding and replacing family.&lt;/p>
+&lt;p>It&amp;rsquo;ll be helpful to define exactly what we mean by recoding vs replacing:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;em>Recoding&lt;/em> a column creates an entirely new column using values from an existing column. The new column may have a different type from the original column.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;em>Replacing&lt;/em> values within a column partially updates an existing column with new values. The result has the same type as the original column.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>The family of functions can be summarized by the following table:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>&lt;/th>
+&lt;th>&lt;strong>Recoding&lt;/strong>&lt;/th>
+&lt;th>&lt;strong>Replacing&lt;/strong>&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;strong>Match with conditions&lt;/strong>&lt;/td>
+&lt;td>
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a>&lt;/td>
+&lt;td>
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>replace_when()&lt;/code>&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;strong>Match with values&lt;/strong>&lt;/td>
+&lt;td>
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>recode_values()&lt;/code>&lt;/a>&lt;/td>
+&lt;td>
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>replace_values()&lt;/code>&lt;/a>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>We&amp;rsquo;ve written a
+&lt;a href="https://dplyr.tidyverse.org/articles/recoding-replacing.html" target="_blank" rel="noopener">new vignette&lt;/a> that expands on all of these from first principles, and in the next few sections we&amp;rsquo;ll look at some examples.&lt;/p>
+&lt;h3 id="recode_values">&lt;code>recode_values()&lt;/code>
+&lt;a href="#recode_values">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The goal of the post from above was to recode a numeric column of
+&lt;a href="https://en.wikipedia.org/wiki/Likert_scale" target="_blank" rel="noopener">Likert scale&lt;/a> scores into their string counterparts.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>likert&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> score &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>, &lt;span class='m'>2&lt;/span>, &lt;span class='m'>3&lt;/span>, &lt;span class='m'>4&lt;/span>, &lt;span class='m'>5&lt;/span>, &lt;span class='m'>2&lt;/span>, &lt;span class='m'>3&lt;/span>, &lt;span class='m'>1&lt;/span>, &lt;span class='m'>4&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>We could certainly try
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>likert&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> category &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/case-and-replace-when.html'>case_when&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>score&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='m'>1&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Strongly disagree"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>score&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='m'>2&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Disagree"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>score&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='m'>3&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Neutral"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>score&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='m'>4&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Agree"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>score&lt;/span> &lt;span class='o'>==&lt;/span> &lt;span class='m'>5&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Strongly agree"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 9 × 2&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; score category &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> 1 Strongly disagree&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> 2 Disagree &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> 3 Neutral &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> 4 Agree &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> 5 Strongly agree &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> 2 Disagree &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>7&lt;/span> 3 Neutral &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>8&lt;/span> 1 Strongly disagree&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>9&lt;/span> 4 Agree&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>But &lt;code>score ==&lt;/code> is repeated so many times! When you find yourself using &lt;code>==&lt;/code> in this way, recognize that what you&amp;rsquo;re really doing is matching on the &lt;em>values&lt;/em> of a single column. In cases like these, you&amp;rsquo;ll want to switch to
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>recode_values()&lt;/code>&lt;/a>. Rather than taking logical vectors,
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>recode_values()&lt;/code>&lt;/a> takes &lt;em>values&lt;/em> on the left-hand side to match against a single input that you&amp;rsquo;ll provide as the first argument.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>likert&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> category &lt;span class='o'>=&lt;/span> &lt;span class='nv'>score&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/recode-and-replace-values.html'>recode_values&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='m'>1&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Strongly disagree"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='m'>2&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Disagree"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='m'>3&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Neutral"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='m'>4&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Agree"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='m'>5&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Strongly agree"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 9 × 2&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; score category &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> 1 Strongly disagree&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> 2 Disagree &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> 3 Neutral &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> 4 Agree &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> 5 Strongly agree &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> 2 Disagree &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>7&lt;/span> 3 Neutral &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>8&lt;/span> 1 Strongly disagree&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>9&lt;/span> 4 Agree&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This removes all of the repetition, allowing you to focus on the mapping. And it should feel pretty familiar! This is the same formula interface of
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>If you squint, the mapping should look roughly like a lookup table between the numeric value and the Likert encoding. One of the novel features of
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>recode_values()&lt;/code>&lt;/a> is that it has an alternate interface that allows you to make this lookup table more explicit. Using a
+&lt;a href="https://tibble.tidyverse.org/reference/tribble.html" target="_blank" rel="noopener">&lt;code>tribble()&lt;/code>&lt;/a>, we can extract out the lookup table into its own standalone data frame.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>lookup&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://tibble.tidyverse.org/reference/tribble.html'>tribble&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>~&lt;/span>&lt;span class='nv'>from&lt;/span> , &lt;span class='o'>~&lt;/span>&lt;span class='nv'>to&lt;/span> ,&lt;/span>
+&lt;span> &lt;span class='m'>1&lt;/span> , &lt;span class='s'>"Strongly disagree"&lt;/span> ,&lt;/span>
+&lt;span> &lt;span class='m'>2&lt;/span> , &lt;span class='s'>"Disagree"&lt;/span> ,&lt;/span>
+&lt;span> &lt;span class='m'>3&lt;/span> , &lt;span class='s'>"Neutral"&lt;/span> ,&lt;/span>
+&lt;span> &lt;span class='m'>4&lt;/span> , &lt;span class='s'>"Agree"&lt;/span> ,&lt;/span>
+&lt;span> &lt;span class='m'>5&lt;/span> , &lt;span class='s'>"Strongly agree"&lt;/span> ,&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>We can then utilize the alternative &lt;code>from&lt;/code> and &lt;code>to&lt;/code> arguments of
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>recode_values()&lt;/code>&lt;/a> rather than supplying formulas to specify how the values should be recoded:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>likert&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>category &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/recode-and-replace-values.html'>recode_values&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>score&lt;/span>, from &lt;span class='o'>=&lt;/span> &lt;span class='nv'>lookup&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>from&lt;/span>, to &lt;span class='o'>=&lt;/span> &lt;span class='nv'>lookup&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>to&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 9 × 2&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; score category &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;dbl&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> 1 Strongly disagree&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> 2 Disagree &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> 3 Neutral &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> 4 Agree &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> 5 Strongly agree &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> 2 Disagree &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>7&lt;/span> 3 Neutral &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>8&lt;/span> 1 Strongly disagree&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>9&lt;/span> 4 Agree&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Lifting the lookup table out to the top of the file is particularly nice when you have a long pipe chain. The details of the mapping get some room to breathe, and in the pipe chain you can focus on the actual data manipulations.&lt;/p>
+&lt;p>It&amp;rsquo;s also very common for your &lt;code>lookup&lt;/code> table to exist in a CSV file that you have to read in separately. In that case, you can replace the
+&lt;a href="https://tibble.tidyverse.org/reference/tribble.html" target="_blank" rel="noopener">&lt;code>tribble()&lt;/code>&lt;/a> call with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>lookup&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>readr&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://readr.tidyverse.org/reference/read_delim.html'>read_csv&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"lookup.csv"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Then everything else works the same.&lt;/p>
+&lt;h3 id="unmatched-cases">Unmatched cases
+&lt;a href="#unmatched-cases">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>If you are confident that you&amp;rsquo;ve captured every case during the recoding process, you can now supply &lt;code>unmatched = &amp;quot;error&amp;quot;&lt;/code> as an alternative to &lt;code>default&lt;/code>.
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>recode_values()&lt;/code>&lt;/a> will error if that assertion doesn&amp;rsquo;t hold. This is great for defensive programming!&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># Notice the `0` that we don't have a mapping for!&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>likert&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> score &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0&lt;/span>, &lt;span class='m'>1&lt;/span>, &lt;span class='m'>2&lt;/span>, &lt;span class='m'>2&lt;/span>, &lt;span class='m'>4&lt;/span>, &lt;span class='m'>5&lt;/span>, &lt;span class='m'>2&lt;/span>, &lt;span class='m'>3&lt;/span>, &lt;span class='m'>1&lt;/span>, &lt;span class='m'>4&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>likert&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> score &lt;span class='o'>=&lt;/span> &lt;span class='nv'>score&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/recode-and-replace-values.html'>recode_values&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> from &lt;span class='o'>=&lt;/span> &lt;span class='nv'>lookup&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>from&lt;/span>,&lt;/span>
+&lt;span> to &lt;span class='o'>=&lt;/span> &lt;span class='nv'>lookup&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>to&lt;/span>,&lt;/span>
+&lt;span> unmatched &lt;span class='o'>=&lt;/span> &lt;span class='s'>"error"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00; font-weight: bold;'>Error&lt;/span>&lt;span style='font-weight: bold;'> in `mutate()`:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #00BBBB;'>ℹ&lt;/span> In argument: `score = recode_values(score, from = lookup$from, to = lookup$to, unmatched = "error")`.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='font-weight: bold;'>Caused by error in `recode_values()`:&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BBBB00;'>!&lt;/span> Each location must be matched.&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #BB0000;'>✖&lt;/span> Location 1 is unmatched.&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Note that missing values must be explicitly handled when setting &lt;code>unmatched = &amp;quot;error&amp;quot;&lt;/code>, even if that&amp;rsquo;s just setting &lt;code>NA ~ NA&lt;/code>, otherwise they will trigger the unmatched error. This forces you to explicitly opt in to expecting missing values.&lt;/p>
+&lt;p>Similar to
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>recode_values()&lt;/code>&lt;/a>,
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> has also gained the &lt;code>.unmatched&lt;/code> argument.&lt;/p>
+&lt;h3 id="replace_values">&lt;code>replace_values()&lt;/code>
+&lt;a href="#replace_values">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Out of all of the new things introduced in dplyr 1.2.0, I think I&amp;rsquo;m most excited about
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>replace_values()&lt;/code>&lt;/a>.&lt;/p>
+&lt;p>While
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>recode_values()&lt;/code>&lt;/a> is great for creating an entirely new column (possibly with a new type), if you just need to replace a few rows of an existing column, then
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>replace_values()&lt;/code>&lt;/a> is the best tool for the job!&lt;/p>
+&lt;p>Imagine we&amp;rsquo;d like to collapse some, but not all, of these school names into common buckets:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>schools&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> name &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='s'>"UNC"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='s'>"Chapel Hill"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='kc'>NA&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='s'>"Duke"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='s'>"Duke University"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='s'>"UNC"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='s'>"NC State"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='s'>"ECU"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>We could use
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> or
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>recode_values()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>schools&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> name &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/case-and-replace-when.html'>case_when&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>name&lt;/span> &lt;span class='o'>&lt;a href='https://rdrr.io/r/base/match.html'>%in%&lt;/a>&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"UNC"&lt;/span>, &lt;span class='s'>"Chapel Hill"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"UNC Chapel Hill"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>name&lt;/span> &lt;span class='o'>&lt;a href='https://rdrr.io/r/base/match.html'>%in%&lt;/a>&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Duke"&lt;/span>, &lt;span class='s'>"Duke University"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Duke"&lt;/span>,&lt;/span>
+&lt;span> .default &lt;span class='o'>=&lt;/span> &lt;span class='nv'>name&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 8 × 1&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; name &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> Duke &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> Duke &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>7&lt;/span> NC State &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>8&lt;/span> ECU&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>schools&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> name &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/recode-and-replace-values.html'>recode_values&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>name&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"UNC"&lt;/span>, &lt;span class='s'>"Chapel Hill"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"UNC Chapel Hill"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Duke"&lt;/span>, &lt;span class='s'>"Duke University"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Duke"&lt;/span>,&lt;/span>
+&lt;span> default &lt;span class='o'>=&lt;/span> &lt;span class='nv'>name&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 8 × 1&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; name &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> Duke &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> Duke &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>7&lt;/span> NC State &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>8&lt;/span> ECU&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>But this &amp;ldquo;partial update&amp;rdquo; operation is so common that it really deserves its own name that doesn&amp;rsquo;t require you to specify &lt;code>default&lt;/code> and is type stable on the input. For that, we have
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>replace_values()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>schools&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> name &lt;span class='o'>=&lt;/span> &lt;span class='nv'>name&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/recode-and-replace-values.html'>replace_values&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"UNC"&lt;/span>, &lt;span class='s'>"Chapel Hill"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"UNC Chapel Hill"&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Duke"&lt;/span>, &lt;span class='s'>"Duke University"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Duke"&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 8 × 1&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; name &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> Duke &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> Duke &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>7&lt;/span> NC State &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>8&lt;/span> ECU&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Notice how pipe friendly
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>replace_values()&lt;/code>&lt;/a> is! The first input is your &amp;ldquo;primary&amp;rdquo; input, and you can expect the output to have the same type and size as that input.&lt;/p>
+&lt;p>Like
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>recode_values()&lt;/code>&lt;/a>,
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>replace_values()&lt;/code>&lt;/a> has an alternative &lt;code>from&lt;/code> and &lt;code>to&lt;/code> API that works well with lookup tables and allows you to move your mapping out of the pipe chain:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>lookup&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://tibble.tidyverse.org/reference/tribble.html'>tribble&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>~&lt;/span>&lt;span class='nv'>from&lt;/span> , &lt;span class='o'>~&lt;/span>&lt;span class='nv'>to&lt;/span> ,&lt;/span>
+&lt;span> &lt;span class='s'>"UNC"&lt;/span> , &lt;span class='s'>"UNC Chapel Hill"&lt;/span> ,&lt;/span>
+&lt;span> &lt;span class='s'>"Chapel Hill"&lt;/span> , &lt;span class='s'>"UNC Chapel Hill"&lt;/span> ,&lt;/span>
+&lt;span> &lt;span class='s'>"Duke"&lt;/span> , &lt;span class='s'>"Duke"&lt;/span> ,&lt;/span>
+&lt;span> &lt;span class='s'>"Duke University"&lt;/span> , &lt;span class='s'>"Duke"&lt;/span> ,&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>schools&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>name &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/recode-and-replace-values.html'>replace_values&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>name&lt;/span>, from &lt;span class='o'>=&lt;/span> &lt;span class='nv'>lookup&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>from&lt;/span>, to &lt;span class='o'>=&lt;/span> &lt;span class='nv'>lookup&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>to&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 8 × 1&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; name &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> Duke &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> Duke &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>7&lt;/span> NC State &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>8&lt;/span> ECU&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>An extremely neat feature of the &lt;code>from&lt;/code> and &lt;code>to&lt;/code> API is that they also take &lt;em>lists&lt;/em> of vectors that describe the mapping, which has been designed to work elegantly with the fact that
+&lt;a href="https://tibble.tidyverse.org/reference/tribble.html" target="_blank" rel="noopener">&lt;code>tribble()&lt;/code>&lt;/a> can create list columns, allowing you to further collapse this lookup table:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># Condensed lookup table with a `many:1` mapping per row&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>lookup&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://tibble.tidyverse.org/reference/tribble.html'>tribble&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>~&lt;/span>&lt;span class='nv'>from&lt;/span> , &lt;span class='o'>~&lt;/span>&lt;span class='nv'>to&lt;/span> ,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"UNC"&lt;/span>, &lt;span class='s'>"Chapel Hill"&lt;/span>&lt;span class='o'>)&lt;/span> , &lt;span class='s'>"UNC Chapel Hill"&lt;/span> ,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"Duke"&lt;/span>, &lt;span class='s'>"Duke University"&lt;/span>&lt;span class='o'>)&lt;/span> , &lt;span class='s'>"Duke"&lt;/span> ,&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Note that `from` is a list column&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>lookup&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 2 × 2&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; from to &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;list&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> &lt;span style='color: #555555;'>&amp;lt;chr [2]&amp;gt;&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> &lt;span style='color: #555555;'>&amp;lt;chr [2]&amp;gt;&lt;/span> Duke&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>lookup&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>from&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [[1]]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "UNC" "Chapel Hill"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [[2]]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "Duke" "Duke University"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Works the same as before&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>schools&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>name &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/recode-and-replace-values.html'>replace_values&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>name&lt;/span>, from &lt;span class='o'>=&lt;/span> &lt;span class='nv'>lookup&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>from&lt;/span>, to &lt;span class='o'>=&lt;/span> &lt;span class='nv'>lookup&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>to&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 8 × 1&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; name &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> Duke &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> Duke &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>6&lt;/span> UNC Chapel Hill&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>7&lt;/span> NC State &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>8&lt;/span> ECU&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>The formula interface of
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>replace_values()&lt;/code>&lt;/a> is a bit of a Swiss Army knife for all manner of scenarios where you might have previously reached for
+&lt;a href="https://dplyr.tidyverse.org/reference/coalesce.html" target="_blank" rel="noopener">&lt;code>dplyr::coalesce()&lt;/code>&lt;/a>,
+&lt;a href="https://dplyr.tidyverse.org/reference/na_if.html" target="_blank" rel="noopener">&lt;code>dplyr::na_if()&lt;/code>&lt;/a>, or
+&lt;a href="https://tidyr.tidyverse.org/reference/replace_na.html" target="_blank" rel="noopener">&lt;code>tidyr::replace_na()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>state&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"NC"&lt;/span>, &lt;span class='s'>"NY"&lt;/span>, &lt;span class='s'>"CA"&lt;/span>, &lt;span class='kc'>NA&lt;/span>, &lt;span class='s'>"NY"&lt;/span>, &lt;span class='s'>"Unknown"&lt;/span>, &lt;span class='kc'>NA&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Replace missing values with a constant&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/recode-and-replace-values.html'>replace_values&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>state&lt;/span>, &lt;span class='kc'>NA&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Unknown"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "NC" "NY" "CA" "Unknown" "NY" "Unknown" "Unknown"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Replace missing values with the corresponding value from another column&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>region&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"South"&lt;/span>, &lt;span class='s'>"North"&lt;/span>, &lt;span class='s'>"West"&lt;/span>, &lt;span class='s'>"East"&lt;/span>, &lt;span class='s'>"North"&lt;/span>, &lt;span class='s'>"Unknown"&lt;/span>, &lt;span class='s'>"West"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/recode-and-replace-values.html'>replace_values&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>state&lt;/span>, &lt;span class='kc'>NA&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>region&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "NC" "NY" "CA" "East" "NY" "Unknown" "West"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Replace problematic values with a missing value&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/recode-and-replace-values.html'>replace_values&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>state&lt;/span>, &lt;span class='s'>"Unknown"&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='kc'>NA&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "NC" "NY" "CA" NA "NY" NA NA&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Standardize multiple issues at once&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/recode-and-replace-values.html'>replace_values&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>state&lt;/span>, &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='kc'>NA&lt;/span>, &lt;span class='s'>"Unknown"&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"&amp;lt;missing&amp;gt;"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "NC" "NY" "CA" "&amp;lt;missing&amp;gt;" "NY" "&amp;lt;missing&amp;gt;"&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [7] "&amp;lt;missing&amp;gt;"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>We also think it better expresses intent than
+&lt;a href="https://dplyr.tidyverse.org/reference/if_else.html" target="_blank" rel="noopener">&lt;code>if_else()&lt;/code>&lt;/a> or
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> when performing a partial update:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># - Type stable on `x`&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'># - Intent of "partially updating" `state` is clear&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'># - Pipe friendly&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>state&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/recode-and-replace-values.html'>replace_values&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='kc'>NA&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Unknown"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Historically this has been "the way" to do a partial update,&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'># but it's odd that the "primary" input is at the end!&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/if_else.html'>if_else&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/NA.html'>is.na&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>state&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='s'>"Unknown"&lt;/span>, &lt;span class='nv'>state&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/case-and-replace-when.html'>case_when&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/NA.html'>is.na&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>state&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='s'>"Unknown"&lt;/span>, .default &lt;span class='o'>=&lt;/span> &lt;span class='nv'>state&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>If you&amp;rsquo;re a package author, you&amp;rsquo;ll probably also be interested in
+&lt;a href="https://vctrs.r-lib.org/reference/vec-recode-and-replace.html" target="_blank" rel="noopener">&lt;code>vctrs::vec_recode_values()&lt;/code>&lt;/a> and
+&lt;a href="https://vctrs.r-lib.org/reference/vec-recode-and-replace.html" target="_blank" rel="noopener">&lt;code>vctrs::vec_replace_values()&lt;/code>&lt;/a>, which are low dependency functions that power the dplyr variants.&lt;/p>
+&lt;h3 id="what-about-case_match">What about &lt;code>case_match()&lt;/code>?
+&lt;a href="#what-about-case_match">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>We&amp;rsquo;ve soft-deprecated
+&lt;a href="https://dplyr.tidyverse.org/reference/case_match.html" target="_blank" rel="noopener">&lt;code>case_match()&lt;/code>&lt;/a> in favor of
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>recode_values()&lt;/code>&lt;/a>, which is a drop in replacement.&lt;/p>
+&lt;p>
+&lt;a href="https://dplyr.tidyverse.org/reference/case_match.html" target="_blank" rel="noopener">&lt;code>case_match()&lt;/code>&lt;/a> was an incremental step towards this recoding family, but:&lt;/p>
+&lt;ul>
+&lt;li>It has a pretty confusing name compared with
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>recode_values()&lt;/code>&lt;/a>.&lt;/li>
+&lt;li>It lacked a way to work with lookup tables, like &lt;code>from&lt;/code> and &lt;code>to&lt;/code>.&lt;/li>
+&lt;li>It lacks a replacement variant, like
+&lt;a href="https://dplyr.tidyverse.org/reference/recode-and-replace-values.html" target="_blank" rel="noopener">&lt;code>replace_values()&lt;/code>&lt;/a>.&lt;/li>
+&lt;/ul>
+&lt;p>Rather than keeping
+&lt;a href="https://dplyr.tidyverse.org/reference/case_match.html" target="_blank" rel="noopener">&lt;code>case_match()&lt;/code>&lt;/a> around indefinitely, we&amp;rsquo;ve decided to initiate the process of its removal since it was only introduced in dplyr 1.1.0.&lt;/p>
+&lt;h2 id="deprecations">Deprecations
+&lt;a href="#deprecations">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>dplyr 1.2.0 advances the lifecycle stage of many deprecated functions. These deprecations have been in the works for many years now, due to our slow and very deliberate deprecation process via the
+&lt;a href="https://lifecycle.r-lib.org/" target="_blank" rel="noopener">lifecycle package&lt;/a>. We&amp;rsquo;ll cover the highlights, and you can find the full list
+&lt;a href="https://github.com/tidyverse/dplyr/releases/tag/v1.2.0" target="_blank" rel="noopener">here&lt;/a>.&lt;/p>
+&lt;p>For any packages that we broke via these deprecations, we provided a pull request (or at least an issue, for complex cases) and some advance warning. We semi-automated some of this process using Claude Code, which you can read about
+&lt;a href="https://blog.davisvaughan.com/posts/2026-01-09-claude-200-pull-requests/" target="_blank" rel="noopener">here&lt;/a>.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>All underscored verbs have moved from deprecated to defunct, such as
+&lt;a href="https://dplyr.tidyverse.org/reference/defunct-lazyeval.html" target="_blank" rel="noopener">&lt;code>mutate_()&lt;/code>&lt;/a> and
+&lt;a href="https://dplyr.tidyverse.org/reference/defunct-lazyeval.html" target="_blank" rel="noopener">&lt;code>arrange_()&lt;/code>&lt;/a>. These have been deprecated since dplyr 0.7.0 back in 2017 (yes, 2017!!). Use the non-underscored versions, see
+&lt;a href="https://dplyr.tidyverse.org/articles/programming.html" target="_blank" rel="noopener">&lt;code>vignette(&amp;quot;programming&amp;quot;)&lt;/code>&lt;/a> for details.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://dplyr.tidyverse.org/reference/defunct-each.html" target="_blank" rel="noopener">&lt;code>mutate_each()&lt;/code>&lt;/a> and
+&lt;a href="https://dplyr.tidyverse.org/reference/defunct-each.html" target="_blank" rel="noopener">&lt;code>summarise_each()&lt;/code>&lt;/a> have moved from deprecated to defunct. These were also deprecated in dplyr 0.7.0. Use
+&lt;a href="https://dplyr.tidyverse.org/reference/mutate.html" target="_blank" rel="noopener">&lt;code>mutate()&lt;/code>&lt;/a> and
+&lt;a href="https://dplyr.tidyverse.org/reference/summarise.html" target="_blank" rel="noopener">&lt;code>summarise()&lt;/code>&lt;/a> with
+&lt;a href="https://dplyr.tidyverse.org/reference/across.html" target="_blank" rel="noopener">&lt;code>across()&lt;/code>&lt;/a> instead.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Returning more or less than 1 row per group in
+&lt;a href="https://dplyr.tidyverse.org/reference/summarise.html" target="_blank" rel="noopener">&lt;code>summarise()&lt;/code>&lt;/a> has moved from deprecated to defunct. This was deprecated in dplyr 1.1.0 in 2023 after we realized that this was an unsafe feature for
+&lt;a href="https://dplyr.tidyverse.org/reference/summarise.html" target="_blank" rel="noopener">&lt;code>summarise()&lt;/code>&lt;/a>, which you should always expect to return exactly 1 row per group.
+&lt;a href="https://dplyr.tidyverse.org/reference/reframe.html" target="_blank" rel="noopener">&lt;code>reframe()&lt;/code>&lt;/a> is a drop in replacement when you need this.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>In
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a>, supplying all size 1 LHS inputs along with a size &amp;gt;1 RHS input is now soft-deprecated. This is an improper usage of
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> that should instead be a series of if statements, like:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># Scalars!&lt;/span>
+&lt;span class="n">code&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="m">1L&lt;/span>
+&lt;span class="n">flavor&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="s">&amp;#34;vanilla&amp;#34;&lt;/span>
+&lt;span class="c1"># Improper usage:&lt;/span>
+&lt;span class="nf">case_when&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">code&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="m">1L&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="n">flavor&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s">&amp;#34;chocolate&amp;#34;&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">code&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="m">1L&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="n">flavor&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s">&amp;#34;vanilla&amp;#34;&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">y&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">code&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="m">2L&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="n">flavor&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s">&amp;#34;vanilla&amp;#34;&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">z&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">.default&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">default&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Recommended:&lt;/span>
+&lt;span class="nf">if &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">code&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="m">1L&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="n">flavor&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s">&amp;#34;chocolate&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">x&lt;/span>
+&lt;span class="p">}&lt;/span> &lt;span class="n">else&lt;/span> &lt;span class="nf">if &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">code&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="m">1L&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="n">flavor&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s">&amp;#34;vanilla&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">y&lt;/span>
+&lt;span class="p">}&lt;/span> &lt;span class="n">else&lt;/span> &lt;span class="nf">if &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">code&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="m">2L&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="n">flavor&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s">&amp;#34;vanilla&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">z&lt;/span>
+&lt;span class="p">}&lt;/span> &lt;span class="n">else&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">default&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The recycling behavior that allows this style of
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> to work is unsafe, and can result in silent bugs that we&amp;rsquo;d like to guard against with an error in the future. See
+&lt;a href="https://github.com/tidyverse/dplyr/issues/7082" target="_blank" rel="noopener">this issue&lt;/a> for context.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>The &lt;code>dplyr.legacy_locale&lt;/code> global option is soft-deprecated. If you used this to affect the ordering of
+&lt;a href="https://dplyr.tidyverse.org/reference/arrange.html" target="_blank" rel="noopener">&lt;code>arrange()&lt;/code>&lt;/a>, use &lt;code>arrange(.locale =)&lt;/code> instead. If you used this to affect the ordering of &lt;code>group_by() |&amp;gt; summarise()&lt;/code>, follow up with an additional call to &lt;code>arrange(.locale =)&lt;/code> instead.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://dplyr.tidyverse.org/reference/if_else.html" target="_blank" rel="noopener">&lt;code>if_else()&lt;/code>&lt;/a> no longer allows &lt;code>condition&lt;/code> to be a logical array. It must be a logical vector with no &lt;code>dim&lt;/code> attribute.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>We&amp;rsquo;ve removed a number of previously defunct functions, shrinking the footprint of dplyr&amp;rsquo;s API:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>id()&lt;/code>&lt;/li>
+&lt;li>&lt;code>failwith()&lt;/code>&lt;/li>
+&lt;li>&lt;code>select_vars()&lt;/code> and &lt;code>select_vars_()&lt;/code>&lt;/li>
+&lt;li>&lt;code>rename_vars()&lt;/code> and &lt;code>rename_vars_()&lt;/code>&lt;/li>
+&lt;li>&lt;code>select_var()&lt;/code>&lt;/li>
+&lt;li>&lt;code>current_vars()&lt;/code>&lt;/li>
+&lt;li>&lt;code>bench_tbls()&lt;/code>, &lt;code>compare_tbls()&lt;/code>, &lt;code>compare_tbls2()&lt;/code>, &lt;code>eval_tbls()&lt;/code>, and &lt;code>eval_tbls2()&lt;/code>&lt;/li>
+&lt;li>&lt;code>location()&lt;/code> and &lt;code>changes()&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;d like to thank all 177 contributors who help in someway, whether it was filing issues or contributing code and documentation:
+&lt;a href="https://github.com/abalter" target="_blank" rel="noopener">@abalter&lt;/a>,
+&lt;a href="https://github.com/abichat" target="_blank" rel="noopener">@abichat&lt;/a>,
+&lt;a href="https://github.com/adupaix" target="_blank" rel="noopener">@adupaix&lt;/a>,
+&lt;a href="https://github.com/AlexBainton" target="_blank" rel="noopener">@AlexBainton&lt;/a>,
+&lt;a href="https://github.com/alexmcsw" target="_blank" rel="noopener">@alexmcsw&lt;/a>,
+&lt;a href="https://github.com/AltfunsMA" target="_blank" rel="noopener">@AltfunsMA&lt;/a>,
+&lt;a href="https://github.com/AmeliaMN" target="_blank" rel="noopener">@AmeliaMN&lt;/a>,
+&lt;a href="https://github.com/antdurrant" target="_blank" rel="noopener">@antdurrant&lt;/a>,
+&lt;a href="https://github.com/AnthonyEbert" target="_blank" rel="noopener">@AnthonyEbert&lt;/a>,
+&lt;a href="https://github.com/apalacio9502" target="_blank" rel="noopener">@apalacio9502&lt;/a>,
+&lt;a href="https://github.com/apeterson91" target="_blank" rel="noopener">@apeterson91&lt;/a>,
+&lt;a href="https://github.com/arnaudgallou" target="_blank" rel="noopener">@arnaudgallou&lt;/a>,
+&lt;a href="https://github.com/awpsoras" target="_blank" rel="noopener">@awpsoras&lt;/a>,
+&lt;a href="https://github.com/bakaburg1" target="_blank" rel="noopener">@bakaburg1&lt;/a>,
+&lt;a href="https://github.com/barnabasharris" target="_blank" rel="noopener">@barnabasharris&lt;/a>,
+&lt;a href="https://github.com/BHII-KSC" target="_blank" rel="noopener">@BHII-KSC&lt;/a>,
+&lt;a href="https://github.com/bholtemeyer" target="_blank" rel="noopener">@bholtemeyer&lt;/a>,
+&lt;a href="https://github.com/billdenney" target="_blank" rel="noopener">@billdenney&lt;/a>,
+&lt;a href="https://github.com/bounlu" target="_blank" rel="noopener">@bounlu&lt;/a>,
+&lt;a href="https://github.com/brendensm" target="_blank" rel="noopener">@brendensm&lt;/a>,
+&lt;a href="https://github.com/bridroberts1" target="_blank" rel="noopener">@bridroberts1&lt;/a>,
+&lt;a href="https://github.com/brookslogan" target="_blank" rel="noopener">@brookslogan&lt;/a>,
+&lt;a href="https://github.com/catalamarti" target="_blank" rel="noopener">@catalamarti&lt;/a>,
+&lt;a href="https://github.com/cboettig" target="_blank" rel="noopener">@cboettig&lt;/a>,
+&lt;a href="https://github.com/cbrnr" target="_blank" rel="noopener">@cbrnr&lt;/a>,
+&lt;a href="https://github.com/ccani007" target="_blank" rel="noopener">@ccani007&lt;/a>,
+&lt;a href="https://github.com/charliejhadley" target="_blank" rel="noopener">@charliejhadley&lt;/a>,
+&lt;a href="https://github.com/ChrisHIV" target="_blank" rel="noopener">@ChrisHIV&lt;/a>,
+&lt;a href="https://github.com/ChristianRohde" target="_blank" rel="noopener">@ChristianRohde&lt;/a>,
+&lt;a href="https://github.com/cobac" target="_blank" rel="noopener">@cobac&lt;/a>,
+&lt;a href="https://github.com/conig" target="_blank" rel="noopener">@conig&lt;/a>,
+&lt;a href="https://github.com/const-ae" target="_blank" rel="noopener">@const-ae&lt;/a>,
+&lt;a href="https://github.com/Copilot" target="_blank" rel="noopener">@Copilot&lt;/a>,
+&lt;a href="https://github.com/d-morrison" target="_blank" rel="noopener">@d-morrison&lt;/a>,
+&lt;a href="https://github.com/DanChaltiel" target="_blank" rel="noopener">@DanChaltiel&lt;/a>,
+&lt;a href="https://github.com/daniel-simeone" target="_blank" rel="noopener">@daniel-simeone&lt;/a>,
+&lt;a href="https://github.com/DanielBraddock" target="_blank" rel="noopener">@DanielBraddock&lt;/a>,
+&lt;a href="https://github.com/david-romano" target="_blank" rel="noopener">@david-romano&lt;/a>,
+&lt;a href="https://github.com/davidrsch" target="_blank" rel="noopener">@davidrsch&lt;/a>,
+&lt;a href="https://github.com/davidss101" target="_blank" rel="noopener">@davidss101&lt;/a>,
+&lt;a href="https://github.com/DavisVaughan" target="_blank" rel="noopener">@DavisVaughan&lt;/a>,
+&lt;a href="https://github.com/dcaud" target="_blank" rel="noopener">@dcaud&lt;/a>,
+&lt;a href="https://github.com/deschen1" target="_blank" rel="noopener">@deschen1&lt;/a>,
+&lt;a href="https://github.com/DesiQuintans" target="_blank" rel="noopener">@DesiQuintans&lt;/a>,
+&lt;a href="https://github.com/devster31" target="_blank" rel="noopener">@devster31&lt;/a>,
+&lt;a href="https://github.com/dkutner" target="_blank" rel="noopener">@dkutner&lt;/a>,
+&lt;a href="https://github.com/dmuenz" target="_blank" rel="noopener">@dmuenz&lt;/a>,
+&lt;a href="https://github.com/ds-jim" target="_blank" rel="noopener">@ds-jim&lt;/a>,
+&lt;a href="https://github.com/eitsupi" target="_blank" rel="noopener">@eitsupi&lt;/a>,
+&lt;a href="https://github.com/EmilHvitfeldt" target="_blank" rel="noopener">@EmilHvitfeldt&lt;/a>,
+&lt;a href="https://github.com/etiennebacher" target="_blank" rel="noopener">@etiennebacher&lt;/a>,
+&lt;a href="https://github.com/eutwt" target="_blank" rel="noopener">@eutwt&lt;/a>,
+&lt;a href="https://github.com/EvertonTLima" target="_blank" rel="noopener">@EvertonTLima&lt;/a>,
+&lt;a href="https://github.com/ferreirafm" target="_blank" rel="noopener">@ferreirafm&lt;/a>,
+&lt;a href="https://github.com/gaborcsardi" target="_blank" rel="noopener">@gaborcsardi&lt;/a>,
+&lt;a href="https://github.com/GabryS3" target="_blank" rel="noopener">@GabryS3&lt;/a>,
+&lt;a href="https://github.com/Gastonia02" target="_blank" rel="noopener">@Gastonia02&lt;/a>,
+&lt;a href="https://github.com/GBarnsley" target="_blank" rel="noopener">@GBarnsley&lt;/a>,
+&lt;a href="https://github.com/gevro" target="_blank" rel="noopener">@gevro&lt;/a>,
+&lt;a href="https://github.com/ggrothendieck" target="_blank" rel="noopener">@ggrothendieck&lt;/a>,
+&lt;a href="https://github.com/GischD" target="_blank" rel="noopener">@GischD&lt;/a>,
+&lt;a href="https://github.com/gks281263" target="_blank" rel="noopener">@gks281263&lt;/a>,
+&lt;a href="https://github.com/gracehartley" target="_blank" rel="noopener">@gracehartley&lt;/a>,
+&lt;a href="https://github.com/graphdr" target="_blank" rel="noopener">@graphdr&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/heliconone" target="_blank" rel="noopener">@heliconone&lt;/a>,
+&lt;a href="https://github.com/Hzanib" target="_blank" rel="noopener">@Hzanib&lt;/a>,
+&lt;a href="https://github.com/ilovemane" target="_blank" rel="noopener">@ilovemane&lt;/a>,
+&lt;a href="https://github.com/ja-ortiz-uniandes" target="_blank" rel="noopener">@ja-ortiz-uniandes&lt;/a>,
+&lt;a href="https://github.com/jack-davison" target="_blank" rel="noopener">@jack-davison&lt;/a>,
+&lt;a href="https://github.com/james-kilgour" target="_blank" rel="noopener">@james-kilgour&lt;/a>,
+&lt;a href="https://github.com/JamesHWade" target="_blank" rel="noopener">@JamesHWade&lt;/a>,
+&lt;a href="https://github.com/jaymicro" target="_blank" rel="noopener">@jaymicro&lt;/a>,
+&lt;a href="https://github.com/JBrandenburg02" target="_blank" rel="noopener">@JBrandenburg02&lt;/a>,
+&lt;a href="https://github.com/jc-usda" target="_blank" rel="noopener">@jc-usda&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jeroenjanssens" target="_blank" rel="noopener">@jeroenjanssens&lt;/a>,
+&lt;a href="https://github.com/jestover" target="_blank" rel="noopener">@jestover&lt;/a>,
+&lt;a href="https://github.com/jl5000" target="_blank" rel="noopener">@jl5000&lt;/a>,
+&lt;a href="https://github.com/jmbarbone" target="_blank" rel="noopener">@jmbarbone&lt;/a>,
+&lt;a href="https://github.com/john-b-edwards" target="_blank" rel="noopener">@john-b-edwards&lt;/a>,
+&lt;a href="https://github.com/jordanmross" target="_blank" rel="noopener">@jordanmross&lt;/a>,
+&lt;a href="https://github.com/joshua-theisen" target="_blank" rel="noopener">@joshua-theisen&lt;/a>,
+&lt;a href="https://github.com/jrwinget" target="_blank" rel="noopener">@jrwinget&lt;/a>,
+&lt;a href="https://github.com/juliaapolonio" target="_blank" rel="noopener">@juliaapolonio&lt;/a>,
+&lt;a href="https://github.com/jxu" target="_blank" rel="noopener">@jxu&lt;/a>,
+&lt;a href="https://github.com/KaiAragaki" target="_blank" rel="noopener">@KaiAragaki&lt;/a>,
+&lt;a href="https://github.com/kiki830621" target="_blank" rel="noopener">@kiki830621&lt;/a>,
+&lt;a href="https://github.com/KittJonathan" target="_blank" rel="noopener">@KittJonathan&lt;/a>,
+&lt;a href="https://github.com/kleinerChemiker" target="_blank" rel="noopener">@kleinerChemiker&lt;/a>,
+&lt;a href="https://github.com/kletts" target="_blank" rel="noopener">@kletts&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/ks8997" target="_blank" rel="noopener">@ks8997&lt;/a>,
+&lt;a href="https://github.com/kylebutts" target="_blank" rel="noopener">@kylebutts&lt;/a>,
+&lt;a href="https://github.com/larsentom" target="_blank" rel="noopener">@larsentom&lt;/a>,
+&lt;a href="https://github.com/latot" target="_blank" rel="noopener">@latot&lt;/a>,
+&lt;a href="https://github.com/lboller-pwbm" target="_blank" rel="noopener">@lboller-pwbm&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/Longfei2" target="_blank" rel="noopener">@Longfei2&lt;/a>,
+&lt;a href="https://github.com/lschneiderbauer" target="_blank" rel="noopener">@lschneiderbauer&lt;/a>,
+&lt;a href="https://github.com/LukasTang" target="_blank" rel="noopener">@LukasTang&lt;/a>,
+&lt;a href="https://github.com/lukebandy" target="_blank" rel="noopener">@lukebandy&lt;/a>,
+&lt;a href="https://github.com/maciekbanas" target="_blank" rel="noopener">@maciekbanas&lt;/a>,
+&lt;a href="https://github.com/maelle" target="_blank" rel="noopener">@maelle&lt;/a>,
+&lt;a href="https://github.com/marcuslehr" target="_blank" rel="noopener">@marcuslehr&lt;/a>,
+&lt;a href="https://github.com/Mark-AP" target="_blank" rel="noopener">@Mark-AP&lt;/a>,
+&lt;a href="https://github.com/markwestcott34" target="_blank" rel="noopener">@markwestcott34&lt;/a>,
+&lt;a href="https://github.com/maskegger" target="_blank" rel="noopener">@maskegger&lt;/a>,
+&lt;a href="https://github.com/matiasandina" target="_blank" rel="noopener">@matiasandina&lt;/a>,
+&lt;a href="https://github.com/matthewjnield" target="_blank" rel="noopener">@matthewjnield&lt;/a>,
+&lt;a href="https://github.com/mbcann01" target="_blank" rel="noopener">@mbcann01&lt;/a>,
+&lt;a href="https://github.com/Meghansaha" target="_blank" rel="noopener">@Meghansaha&lt;/a>,
+&lt;a href="https://github.com/metanoid" target="_blank" rel="noopener">@metanoid&lt;/a>,
+&lt;a href="https://github.com/MichaelChirico" target="_blank" rel="noopener">@MichaelChirico&lt;/a>,
+&lt;a href="https://github.com/MikeJohnPage" target="_blank" rel="noopener">@MikeJohnPage&lt;/a>,
+&lt;a href="https://github.com/MilesMcBain" target="_blank" rel="noopener">@MilesMcBain&lt;/a>,
+&lt;a href="https://github.com/mine-cetinkaya-rundel" target="_blank" rel="noopener">@mine-cetinkaya-rundel&lt;/a>,
+&lt;a href="https://github.com/MohsenSoltanifar" target="_blank" rel="noopener">@MohsenSoltanifar&lt;/a>,
+&lt;a href="https://github.com/moodymudskipper" target="_blank" rel="noopener">@moodymudskipper&lt;/a>,
+&lt;a href="https://github.com/Moohan" target="_blank" rel="noopener">@Moohan&lt;/a>,
+&lt;a href="https://github.com/mp8" target="_blank" rel="noopener">@mp8&lt;/a>,
+&lt;a href="https://github.com/mpsturbo" target="_blank" rel="noopener">@mpsturbo&lt;/a>,
+&lt;a href="https://github.com/mr-c" target="_blank" rel="noopener">@mr-c&lt;/a>,
+&lt;a href="https://github.com/muschellij2" target="_blank" rel="noopener">@muschellij2&lt;/a>,
+&lt;a href="https://github.com/musvaage" target="_blank" rel="noopener">@musvaage&lt;/a>,
+&lt;a href="https://github.com/Mzhuk7" target="_blank" rel="noopener">@Mzhuk7&lt;/a>,
+&lt;a href="https://github.com/nalimilan" target="_blank" rel="noopener">@nalimilan&lt;/a>,
+&lt;a href="https://github.com/nathanhaigh" target="_blank" rel="noopener">@nathanhaigh&lt;/a>,
+&lt;a href="https://github.com/nirguk" target="_blank" rel="noopener">@nirguk&lt;/a>,
+&lt;a href="https://github.com/nmercadeb" target="_blank" rel="noopener">@nmercadeb&lt;/a>,
+&lt;a href="https://github.com/olivermagnanimous" target="_blank" rel="noopener">@olivermagnanimous&lt;/a>,
+&lt;a href="https://github.com/olivroy" target="_blank" rel="noopener">@olivroy&lt;/a>,
+&lt;a href="https://github.com/orgadish" target="_blank" rel="noopener">@orgadish&lt;/a>,
+&lt;a href="https://github.com/pangchaoran" target="_blank" rel="noopener">@pangchaoran&lt;/a>,
+&lt;a href="https://github.com/paschatz" target="_blank" rel="noopener">@paschatz&lt;/a>,
+&lt;a href="https://github.com/prubin73" target="_blank" rel="noopener">@prubin73&lt;/a>,
+&lt;a href="https://github.com/PStaus" target="_blank" rel="noopener">@PStaus&lt;/a>,
+&lt;a href="https://github.com/psychelzh" target="_blank" rel="noopener">@psychelzh&lt;/a>,
+&lt;a href="https://github.com/py9mrg" target="_blank" rel="noopener">@py9mrg&lt;/a>,
+&lt;a href="https://github.com/Raesu" target="_blank" rel="noopener">@Raesu&lt;/a>,
+&lt;a href="https://github.com/randyzwitch" target="_blank" rel="noopener">@randyzwitch&lt;/a>,
+&lt;a href="https://github.com/Raoul-Kima" target="_blank" rel="noopener">@Raoul-Kima&lt;/a>,
+&lt;a href="https://github.com/ReedMerrill" target="_blank" rel="noopener">@ReedMerrill&lt;/a>,
+&lt;a href="https://github.com/RodDalBen" target="_blank" rel="noopener">@RodDalBen&lt;/a>,
+&lt;a href="https://github.com/RodrigoZepeda" target="_blank" rel="noopener">@RodrigoZepeda&lt;/a>,
+&lt;a href="https://github.com/rossholmberg" target="_blank" rel="noopener">@rossholmberg&lt;/a>,
+&lt;a href="https://github.com/RoyalTS" target="_blank" rel="noopener">@RoyalTS&lt;/a>,
+&lt;a href="https://github.com/ryandward" target="_blank" rel="noopener">@ryandward&lt;/a>,
+&lt;a href="https://github.com/sbanville-delfi" target="_blank" rel="noopener">@sbanville-delfi&lt;/a>,
+&lt;a href="https://github.com/ScientiaFelis" target="_blank" rel="noopener">@ScientiaFelis&lt;/a>,
+&lt;a href="https://github.com/shirdekel" target="_blank" rel="noopener">@shirdekel&lt;/a>,
+&lt;a href="https://github.com/slager" target="_blank" rel="noopener">@slager&lt;/a>,
+&lt;a href="https://github.com/sschooler" target="_blank" rel="noopener">@sschooler&lt;/a>,
+&lt;a href="https://github.com/steffen-stell" target="_blank" rel="noopener">@steffen-stell&lt;/a>,
+&lt;a href="https://github.com/szimmer" target="_blank" rel="noopener">@szimmer&lt;/a>,
+&lt;a href="https://github.com/TheClownBongo" target="_blank" rel="noopener">@TheClownBongo&lt;/a>,
+&lt;a href="https://github.com/thomasjwood" target="_blank" rel="noopener">@thomasjwood&lt;/a>,
+&lt;a href="https://github.com/TimTaylor" target="_blank" rel="noopener">@TimTaylor&lt;/a>,
+&lt;a href="https://github.com/tlyons253" target="_blank" rel="noopener">@tlyons253&lt;/a>,
+&lt;a href="https://github.com/tomalrussell" target="_blank" rel="noopener">@tomalrussell&lt;/a>,
+&lt;a href="https://github.com/tomwagstaff-opml" target="_blank" rel="noopener">@tomwagstaff-opml&lt;/a>,
+&lt;a href="https://github.com/torfason" target="_blank" rel="noopener">@torfason&lt;/a>,
+&lt;a href="https://github.com/Tyrrx" target="_blank" rel="noopener">@Tyrrx&lt;/a>,
+&lt;a href="https://github.com/Unaimend" target="_blank" rel="noopener">@Unaimend&lt;/a>,
+&lt;a href="https://github.com/VisruthSK" target="_blank" rel="noopener">@VisruthSK&lt;/a>,
+&lt;a href="https://github.com/vorpalvorpal" target="_blank" rel="noopener">@vorpalvorpal&lt;/a>,
+&lt;a href="https://github.com/walkerjameschris" target="_blank" rel="noopener">@walkerjameschris&lt;/a>,
+&lt;a href="https://github.com/wbvguo" target="_blank" rel="noopener">@wbvguo&lt;/a>,
+&lt;a href="https://github.com/wbzyl" target="_blank" rel="noopener">@wbzyl&lt;/a>,
+&lt;a href="https://github.com/wkumler" target="_blank" rel="noopener">@wkumler&lt;/a>,
+&lt;a href="https://github.com/yaboody" target="_blank" rel="noopener">@yaboody&lt;/a>,
+&lt;a href="https://github.com/yjunechoe" target="_blank" rel="noopener">@yjunechoe&lt;/a>,
+&lt;a href="https://github.com/ynsec37" target="_blank" rel="noopener">@ynsec37&lt;/a>,
+&lt;a href="https://github.com/ywhcuhk" target="_blank" rel="noopener">@ywhcuhk&lt;/a>,
+&lt;a href="https://github.com/ZHBHSMILE" target="_blank" rel="noopener">@ZHBHSMILE&lt;/a>,
+&lt;a href="https://github.com/zhjx19" target="_blank" rel="noopener">@zhjx19&lt;/a>, and
+&lt;a href="https://github.com/ZIBOWANGKANGYU" target="_blank" rel="noopener">@ZIBOWANGKANGYU&lt;/a>.&lt;/p></description></item><item><title>duckplyr fully joins the tidyverse!</title><link>https://www.tidyverse.org/blog/2025/06/duckplyr-1-1-0/</link><pubDate>Thu, 19 Jun 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/06/duckplyr-1-1-0/</guid><description>&lt;p>We&amp;rsquo;re well chuffed to announce the release of
 &lt;a href="https://duckplyr.tidyverse.org" target="_blank" rel="noopener">duckplyr&lt;/a> 1.1.0. This is a dplyr backend powered by
 &lt;a href="https://duckdb.org/" target="_blank" rel="noopener">DuckDB&lt;/a>, a fast in-memory analytical database system&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup>. duckplyr uses the power of DuckDB for impressive performance where it can, and seemlessly falls back to R where it can&amp;rsquo;t. You can install it from CRAN with:&lt;/p>
 &lt;div class="highlight">
