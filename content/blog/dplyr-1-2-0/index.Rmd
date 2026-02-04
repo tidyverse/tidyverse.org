@@ -1,0 +1,547 @@
+---
+output: hugodown::hugo_document
+
+slug: dplyr-1-2-0
+title: dplyr 1.2.0
+date: 2026-02-04
+author: Davis Vaughan
+description: >
+    dplyr 1.2.0 fills in some important gaps in dplyr's API: we've added a new complement to `filter()` focused on dropping rows, and we've expanded the `case_when()` family with three new recoding and replacing functions!
+
+photo:
+  url: https://unsplash.com/photos/eksqjXTLpak
+  author: Nathan Dumlao
+
+categories: [package]
+tags: [dplyr]
+
+editor:
+  markdown:
+    wrap: sentence
+    canonical: true
+
+editor_options:
+  chunk_output_type: console
+---
+
+[dplyr 1.2.0](https://dplyr.tidyverse.org) is out now!
+This large release of dplyr comes with two sets of exciting features:
+
+-   `filter_out()`, the missing complement to `filter()`, and accompanying `when_any()` and `when_all()` helpers.
+
+-   `recode_values()`, `replace_values()`, and `replace_when()`, three new functions that join `case_when()` to create a cohesive family of powerful tools for recoding and replacing.
+
+Both of these sets of features are backed by successful *tidyups*, the tidyverse's community facing proposal process ([filtering](https://github.com/tidyverse/tidyups/pull/30), [recoding](https://github.com/tidyverse/tidyups/pull/29)).
+We really enjoyed having the community weigh in on these features!
+
+You can install dplyr 1.2.0 from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("dplyr")
+```
+
+You can see a full list of changes in the [release notes](https://github.com/tidyverse/dplyr/releases/tag/v1.2.0).
+
+```{r setup, warning=FALSE, message=FALSE}
+library(dplyr)
+```
+
+## Expanding the `filter()` family
+
+`filter()` has been a core dplyr verb since the very beginning, but over the years we've isolated a few key issues with it:
+
+-   The name `filter()` is ambiguous, are you keeping or dropping rows?
+    i.e., are you filtering *for* rows or filtering *out* rows?
+
+-   `filter()` is optimized for the case of *keeping* rows, but you are just as likely to try and use it for *dropping* rows.
+    Using `filter()` to drop rows quickly forces you to confront complex boolean logic and explicitly handle missing values, which is difficult to teach, error prone to write, and hard to understand when you come back to it in the future.
+
+-   `filter()` combines comma separated conditions with `&` because this covers the majority of the cases.
+    But if you'd like to combine conditions with `|`, then you have to introduce parentheses around your conditions and combine them into one large condition separated by `|`, reducing readability.
+
+In the next few sections, we'll motivate these issues and discuss how some new features in dplyr can simplify things dramatically!
+
+### Filtering...out!
+
+Take a look at this `patients` data.
+Our task with this data is:
+
+> *Filter out* rows where the patient is deceased *and* the year was before 2012.
+
+```{r}
+patients <- tibble(
+  name = c("Anne", "Mark", "Sarah", "Davis", "Max", "Derek", "Tina"),
+  deceased = c(FALSE, TRUE, NA, TRUE, NA, FALSE, TRUE),
+  date = c(2005, 2010, NA, 2020, 2010, NA, NA)
+)
+
+patients
+```
+
+With `filter()`, you'd probably start by translating "patient is deceased and the year was before 2012" into `deceased & date < 2012`, and then inverting that with `!(<expression>)` to drop rows:
+
+```{r}
+patients |>
+  filter(!(deceased & date < 2012))
+```
+
+That seems to have worked, let's use an `anti_join()` to check with rows have been dropped from `patients`:
+
+```{r}
+# These rows were dropped
+anti_join(
+  patients,
+  patients |> filter(!(deceased & date < 2012)),
+  join_by(name, deceased, date)
+)
+```
+
+This is subtly wrong!
+We only wanted to drop rows where we *know* that the patient was deceased before 2012.
+If a missing value is present, we *don't* want to drop that row because we aren't sure about the condition.
+In this case, we were hoping to only drop `Mark`!
+It seems like `filter()` has unexpectedly *dropped more rows than we expected*.
+
+Here's what a technically correct `filter()` call might look like:
+
+```{r}
+patients |>
+  filter(
+    !((deceased & !is.na(deceased)) &
+      (date < 2012 & !is.na(date)))
+  )
+```
+
+That's horrible!
+You'll likely look back on this in a year wondering what you were even trying to do here.
+
+This phenomenon is rather confusing, but is due to the fact that `filter()` is designed around the idea that you're going to tell it which rows to *keep*.
+With that design in mind, dropping `NA`s makes sense, i.e. if you don't *know* that you want to keep that row (because an `NA` is ambiguous), then you probably don't want to keep it.
+
+This works well until you try to use `filter()` as a way to *filter out* rows, at which point this behavior works against you.
+At this point, most people (reasonably!) reach for `& !is.na()` and you end up with the mess from above.
+
+We took a close look at many examples like this one, and eventually realized that the core issue is:
+
+-   `filter()` is designed around supplying which rows to *keep*
+-   We are missing a verb designed around supplying which rows to *drop*
+
+`filter_out()` fills that gap:
+
+```{r}
+patients |>
+  filter_out(deceased, date < 2012)
+```
+
+Just like with `filter()`, `filter_out()` treats `NA` values as `FALSE`.
+The difference is that `filter_out()` expects that you are going to tell it which rows to *drop* (rather than which rows to keep), so the default behavior of treating `NA` like `FALSE` works *with you* rather than *against you*.
+It's also much easier to understand when you look back on it a year from now!
+
+In general, our advice is that if you find yourself using "negative" operators like `!=` or `!` or reaching for the `!is.na()` pattern to manually handle missing values, try reaching for `filter_out()` instead.
+
+Personally, I've always been pretty jealous of Stata here because they had both [`keep if` and `drop if`](https://www.stata.com/manuals/ddrop.pdf), allowing them to write `drop if deceased & date < 2012`.
+In my first job, I translated a bunch of Stata code over to R and still remember being frustrated by `NA` handling every time I had to translate a `drop if` to a `filter()`.
+With `filter_out()`, it feels like I can finally let go of a long term grudge I've held over the past 6 years 🙂.
+
+### Combining with `OR` rather than `AND`
+
+So far, we've talked a lot about *dropping* rows, but dplyr 1.2.0 also has a new feature to help with *keeping* rows using conditions combined with `|` - `when_any()`.
+
+Our goal here is:
+
+> *Filter for* rows where "US" and "CA" have a score between 200-300, *or* rows where "PR" and "RU" have a score between 100-200.
+
+```{r}
+countries <- tibble(
+  name = c("US", "CA", "PR", "RU", "US", NA, "CA", "PR"),
+  score = c(200, 100, 150, NA, 50, 100, 300, 250)
+)
+
+countries
+```
+
+Here's a `filter()` solution, note how we lose the ability to specify comma separated conditions, and in the process we've introduced 3 operators, `&`, `|`, and `()`, decreasing readability and increasing the mental gymnastics required to understand it:
+
+```{r}
+countries |>
+  filter(
+    (name %in% c("US", "CA") & between(score, 200, 300)) |
+      (name %in% c("PR", "RU") & between(score, 100, 200))
+  )
+```
+
+With `when_any()`, you specify comma separated conditions like you're used to, but they get combined with `|` rather than `&`.
+This allows us to reduce the amount of operators introduced down to just `&`, and it remains very readable:
+
+```{r}
+countries |>
+  filter(when_any(
+    name %in% c("US", "CA") & between(score, 200, 300),
+    name %in% c("PR", "RU") & between(score, 100, 200)
+  ))
+```
+
+`when_any()` and its counterpart `when_all()` aren't restricted to `filter()`.
+They are normal vector functions that can be used anywhere.
+And if you're a package author, you might be interested in `vctrs::vec_pany()` and `vctrs::vec_pall()`, the underlying low dependency functions that power the dplyr variants.
+
+## Reaching recoding nirvana
+
+Over the years, we've experimented with various ways of recoding columns and replacing values within them, including:
+
+-   `plyr::mapvalues()`
+-   `plyr::revalue()`
+-   `dplyr::recode()`
+-   `dplyr::case_when()`
+
+Despite all of our improvements, it's felt like there have always been holes in our solutions.
+Most recently, this came to the forefront in a post about [recoding using a lookup table](https://www.linkedin.com/posts/libbyheeren_rstats-activity-7343291858275487744-XlPl?utm_source=share&utm_medium=member_desktop&rcm=ACoAAAy7IywB2qfaREGGoCca5XkthJ2hLjru6ts), which is almost impossible to do with `case_when()`, and had people resorting to confusing solutions using the superseded `dplyr::recode()` combined with `!!!` to splice in a lookup table.
+
+After seeing this, we took a step back and were finally able to isolate the issues with our current solutions.
+The result of our [analysis](https://github.com/tidyverse/tidyups/pull/29) is three new functions that join `case_when()` to form a powerful recoding and replacing family.
+
+It'll be helpful to define exactly what we mean by recoding vs replacing:
+
+-   *Recoding* a column creates an entirely new column using values from an existing column.
+    The new column may have a different type from the original column.
+
+-   *Replacing* values within a column partially updates an existing column with new values.
+    The result has the same type as the original column.
+
+The family of functions can be summarized by the following table:
+
+|                           | **Recoding**      | **Replacing**      |
+|---------------------------|-------------------|--------------------|
+| **Match with conditions** | `case_when()`     | `replace_when()`   |
+| **Match with values**     | `recode_values()` | `replace_values()` |
+
+We've written a [new vignette](https://dplyr.tidyverse.org/articles/recoding-replacing.html) that expands on all of these from first principles, and in the next few sections we'll look at some examples.
+
+### `recode_values()`
+
+The goal of the post from above was to recode a numeric column of [Likert scale](https://en.wikipedia.org/wiki/Likert_scale) scores into their string counterparts.
+
+```{r}
+likert <- tibble(
+  score = c(1, 2, 3, 4, 5, 2, 3, 1, 4)
+)
+```
+
+We could certainly try `case_when()`:
+
+```{r}
+likert |>
+  mutate(
+    category = case_when(
+      score == 1 ~ "Strongly disagree",
+      score == 2 ~ "Disagree",
+      score == 3 ~ "Neutral",
+      score == 4 ~ "Agree",
+      score == 5 ~ "Strongly agree"
+    )
+  )
+```
+
+But `score ==` is repeated so many times!
+When you find yourself using `==` in this way, recognize that what you're really doing is matching on the *values* of a single column.
+In cases like these, you'll want to switch to `recode_values()`.
+Rather than taking logical vectors, `recode_values()` takes *values* on the left-hand side to match against a single input that you'll provide as the first argument.
+
+```{r}
+likert |>
+  mutate(
+    category = score |>
+      recode_values(
+        1 ~ "Strongly disagree",
+        2 ~ "Disagree",
+        3 ~ "Neutral",
+        4 ~ "Agree",
+        5 ~ "Strongly agree"
+      )
+  )
+```
+
+This removes all of the repetition, allowing you to focus on the mapping.
+And it should feel pretty familiar!
+This is the same formula interface of `case_when()`.
+
+If you squint, the mapping should look roughly like a lookup table between the numeric value and the Likert encoding.
+One of the novel features of `recode_values()` is that it has an alternate interface that allows you to make this lookup table more explicit.
+Using a `tribble()`, we can extract out the lookup table into its own standalone data frame.
+
+```{r}
+lookup <- tribble(
+  ~from , ~to                 ,
+      1 , "Strongly disagree" ,
+      2 , "Disagree"          ,
+      3 , "Neutral"           ,
+      4 , "Agree"             ,
+      5 , "Strongly agree"    ,
+)
+```
+
+We can then utilize the alternative `from` and `to` arguments of `recode_values()` rather than supplying formulas to specify how the values should be recoded:
+
+```{r}
+likert |>
+  mutate(category = recode_values(score, from = lookup$from, to = lookup$to))
+```
+
+Lifting the lookup table out to the top of the file is particularly nice when you have a long pipe chain.
+The details of the mapping get some room to breathe, and in the pipe chain you can focus on the actual data manipulations.
+
+It's also very common for your `lookup` table to exist in a CSV file that you have to read in separately.
+In that case, you can replace the `tribble()` call with:
+
+```{r, eval = FALSE}
+lookup <- readr::read_csv("lookup.csv")
+```
+
+Then everything else works the same.
+
+### Unmatched cases
+
+If you are confident that you've captured every case during the recoding process, you can now supply `unmatched = "error"` as an alternative to `default`.
+`recode_values()` will error if that assertion doesn't hold.
+This is great for defensive programming!
+
+```{r, error = TRUE}
+# Notice the `0` that we don't have a mapping for!
+likert <- tibble(
+  score = c(0, 1, 2, 2, 4, 5, 2, 3, 1, 4)
+)
+
+likert |>
+  mutate(
+    score = score |>
+      recode_values(
+        from = lookup$from,
+        to = lookup$to,
+        unmatched = "error"
+      )
+  )
+```
+
+Note that missing values must be explicitly handled when setting `unmatched = "error"`, even if that's just setting `NA ~ NA`, otherwise they will trigger the unmatched error.
+This forces you to explicitly opt in to expecting missing values.
+
+Similar to `recode_values()`, `case_when()` has also gained the `.unmatched` argument.
+
+### `replace_values()`
+
+Out of all of the new things introduced in dplyr 1.2.0, I think I'm most excited about `replace_values()`.
+
+While `recode_values()` is great for creating an entirely new column (possibly with a new type), if you just need to replace a few rows of an existing column, then `replace_values()` is the best tool for the job!
+
+Imagine we'd like to collapse some, but not all, of these school names into common buckets:
+
+```{r}
+schools <- tibble(
+  name = c(
+    "UNC",
+    "Chapel Hill",
+    NA,
+    "Duke",
+    "Duke University",
+    "UNC",
+    "NC State",
+    "ECU"
+  )
+)
+```
+
+We could use `case_when()` or `recode_values()`:
+
+```{r}
+schools |>
+  mutate(
+    name = case_when(
+      name %in% c("UNC", "Chapel Hill") ~ "UNC Chapel Hill",
+      name %in% c("Duke", "Duke University") ~ "Duke",
+      .default = name
+    )
+  )
+
+schools |>
+  mutate(
+    name = recode_values(
+      name,
+      c("UNC", "Chapel Hill") ~ "UNC Chapel Hill",
+      c("Duke", "Duke University") ~ "Duke",
+      default = name
+    )
+  )
+```
+
+But this "partial update" operation is so common that it really deserves its own name that doesn't require you to specify `default` and is type stable on the input.
+For that, we have `replace_values()`:
+
+```{r}
+schools |>
+  mutate(
+    name = name |>
+      replace_values(
+        c("UNC", "Chapel Hill") ~ "UNC Chapel Hill",
+        c("Duke", "Duke University") ~ "Duke"
+      )
+  )
+```
+
+Notice how pipe friendly `replace_values()` is!
+The first input is your "primary" input, and you can expect the output to have the same type and size as that input.
+
+Like `recode_values()`, `replace_values()` has an alternative `from` and `to` API that works well with lookup tables and allows you to move your mapping out of the pipe chain:
+
+```{r}
+lookup <- tribble(
+  ~from             , ~to               ,
+  "UNC"             , "UNC Chapel Hill" ,
+  "Chapel Hill"     , "UNC Chapel Hill" ,
+  "Duke"            , "Duke"            ,
+  "Duke University" , "Duke"            ,
+)
+
+schools |>
+  mutate(name = replace_values(name, from = lookup$from, to = lookup$to))
+```
+
+An extremely neat feature of the `from` and `to` API is that they also take *lists* of vectors that describe the mapping, which has been designed to work elegantly with the fact that `tribble()` can create list columns, allowing you to further collapse this lookup table:
+
+```{r}
+# Condensed lookup table with a `many:1` mapping per row
+lookup <- tribble(
+  ~from                        , ~to               ,
+  c("UNC", "Chapel Hill")      , "UNC Chapel Hill" ,
+  c("Duke", "Duke University") , "Duke"            ,
+)
+
+# Note that `from` is a list column
+lookup
+
+lookup$from
+
+# Works the same as before
+schools |>
+  mutate(name = replace_values(name, from = lookup$from, to = lookup$to))
+```
+
+The formula interface of `replace_values()` is a bit of a Swiss Army knife for all manner of scenarios where you might have previously reached for `dplyr::coalesce()`, `dplyr::na_if()`, or `tidyr::replace_na()`:
+
+```{r}
+state <- c("NC", "NY", "CA", NA, "NY", "Unknown", NA)
+
+# Replace missing values with a constant
+replace_values(state, NA ~ "Unknown")
+
+# Replace missing values with the corresponding value from another column
+region <- c("South", "North", "West", "East", "North", "Unknown", "West")
+replace_values(state, NA ~ region)
+
+# Replace problematic values with a missing value
+replace_values(state, "Unknown" ~ NA)
+
+# Standardize multiple issues at once
+replace_values(state, c(NA, "Unknown") ~ "<missing>")
+```
+
+We also think it better expresses intent than `if_else()` or `case_when()` when performing a partial update:
+
+```{r, eval = FALSE}
+# - Type stable on `x`
+# - Intent of "partially updating" `state` is clear
+# - Pipe friendly
+state |> replace_values(NA ~ "Unknown")
+
+# Historically this has been "the way" to do a partial update,
+# but it's odd that the "primary" input is at the end!
+if_else(is.na(state), "Unknown", state)
+case_when(is.na(state) ~ "Unknown", .default = state)
+```
+
+If you're a package author, you'll probably also be interested in `vctrs::vec_recode_values()` and `vctrs::vec_replace_values()`, which are low dependency functions that power the dplyr variants.
+
+### What about `case_match()`?
+
+We've soft-deprecated `case_match()` in favor of `recode_values()`, which is a drop in replacement.
+
+`case_match()` was an incremental step towards this recoding family, but:
+
+-   It has a pretty confusing name compared with `recode_values()`.
+-   It lacked a way to work with lookup tables, like `from` and `to`.
+-   It lacks a replacement variant, like `replace_values()`.
+
+Rather than keeping `case_match()` around indefinitely, we've decided to initiate the process of its removal since it was only introduced in dplyr 1.1.0.
+
+## Deprecations
+
+dplyr 1.2.0 advances the lifecycle stage of many deprecated functions.
+These deprecations have been in the works for many years now, due to our slow and very deliberate deprecation process via the [lifecycle package](https://lifecycle.r-lib.org/).
+We'll cover the highlights, and you can find the full list [here](https://github.com/tidyverse/dplyr/releases/tag/v1.2.0).
+
+For any packages that we broke via these deprecations, we provided a pull request (or at least an issue, for complex cases) and some advance warning.
+We semi-automated some of this process using Claude Code, which you can read about [here](https://blog.davisvaughan.com/posts/2026-01-09-claude-200-pull-requests/).
+
+-   All underscored verbs have moved from deprecated to defunct, such as `mutate_()` and `arrange_()`.
+    These have been deprecated since dplyr 0.7.0 back in 2017 (yes, 2017!!).
+    Use the non-underscored versions, see `vignette("programming")` for details.
+
+-   `mutate_each()` and `summarise_each()` have moved from deprecated to defunct.
+    These were also deprecated in dplyr 0.7.0.
+    Use `mutate()` and `summarise()` with `across()` instead.
+
+-   Returning more or less than 1 row per group in `summarise()` has moved from deprecated to defunct.
+    This was deprecated in dplyr 1.1.0 in 2023 after we realized that this was an unsafe feature for `summarise()`, which you should always expect to return exactly 1 row per group.
+    `reframe()` is a drop in replacement when you need this.
+
+-   In `case_when()`, supplying all size 1 LHS inputs along with a size \>1 RHS input is now soft-deprecated.
+    This is an improper usage of `case_when()` that should instead be a series of if statements, like:
+
+    ``` r
+    # Scalars!
+    code <- 1L
+    flavor <- "vanilla"
+
+    # Improper usage:
+    case_when(
+      code == 1L && flavor == "chocolate" ~ x,
+      code == 1L && flavor == "vanilla" ~ y,
+      code == 2L && flavor == "vanilla" ~ z,
+      .default = default
+    )
+
+    # Recommended:
+    if (code == 1L && flavor == "chocolate") {
+      x
+    } else if (code == 1L && flavor == "vanilla") {
+      y
+    } else if (code == 2L && flavor == "vanilla") {
+      z
+    } else {
+      default
+    }
+    ```
+
+    The recycling behavior that allows this style of `case_when()` to work is unsafe, and can result in silent bugs that we'd like to guard against with an error in the future.
+    See [this issue](https://github.com/tidyverse/dplyr/issues/7082) for context.
+
+-   The `dplyr.legacy_locale` global option is soft-deprecated.
+    If you used this to affect the ordering of `arrange()`, use `arrange(.locale =)` instead.
+    If you used this to affect the ordering of `group_by() |> summarise()`, follow up with an additional call to `arrange(.locale =)` instead.
+
+-   `if_else()` no longer allows `condition` to be a logical array.
+    It must be a logical vector with no `dim` attribute.
+
+-   We've removed a number of previously defunct functions, shrinking the footprint of dplyr's API:
+
+    -   `id()`
+    -   `failwith()`
+    -   `select_vars()` and `select_vars_()`
+    -   `rename_vars()` and `rename_vars_()`
+    -   `select_var()`
+    -   `current_vars()`
+    -   `bench_tbls()`, `compare_tbls()`, `compare_tbls2()`, `eval_tbls()`, and `eval_tbls2()`
+    -   `location()` and `changes()`
+
+## Acknowledgements
+
+We'd like to thank all 177 contributors who help in someway, whether it was filing issues or contributing code and documentation: [\@abalter](https://github.com/abalter), [\@abichat](https://github.com/abichat), [\@adupaix](https://github.com/adupaix), [\@AlexBainton](https://github.com/AlexBainton), [\@alexmcsw](https://github.com/alexmcsw), [\@AltfunsMA](https://github.com/AltfunsMA), [\@AmeliaMN](https://github.com/AmeliaMN), [\@antdurrant](https://github.com/antdurrant), [\@AnthonyEbert](https://github.com/AnthonyEbert), [\@apalacio9502](https://github.com/apalacio9502), [\@apeterson91](https://github.com/apeterson91), [\@arnaudgallou](https://github.com/arnaudgallou), [\@awpsoras](https://github.com/awpsoras), [\@bakaburg1](https://github.com/bakaburg1), [\@barnabasharris](https://github.com/barnabasharris), [\@BHII-KSC](https://github.com/BHII-KSC), [\@bholtemeyer](https://github.com/bholtemeyer), [\@billdenney](https://github.com/billdenney), [\@bounlu](https://github.com/bounlu), [\@brendensm](https://github.com/brendensm), [\@bridroberts1](https://github.com/bridroberts1), [\@brookslogan](https://github.com/brookslogan), [\@catalamarti](https://github.com/catalamarti), [\@cboettig](https://github.com/cboettig), [\@cbrnr](https://github.com/cbrnr), [\@ccani007](https://github.com/ccani007), [\@charliejhadley](https://github.com/charliejhadley), [\@ChrisHIV](https://github.com/ChrisHIV), [\@ChristianRohde](https://github.com/ChristianRohde), [\@cobac](https://github.com/cobac), [\@conig](https://github.com/conig), [\@const-ae](https://github.com/const-ae), [\@Copilot](https://github.com/Copilot), [\@d-morrison](https://github.com/d-morrison), [\@DanChaltiel](https://github.com/DanChaltiel), [\@daniel-simeone](https://github.com/daniel-simeone), [\@DanielBraddock](https://github.com/DanielBraddock), [\@david-romano](https://github.com/david-romano), [\@davidrsch](https://github.com/davidrsch), [\@davidss101](https://github.com/davidss101), [\@DavisVaughan](https://github.com/DavisVaughan), [\@dcaud](https://github.com/dcaud), [\@deschen1](https://github.com/deschen1), [\@DesiQuintans](https://github.com/DesiQuintans), [\@devster31](https://github.com/devster31), [\@dkutner](https://github.com/dkutner), [\@dmuenz](https://github.com/dmuenz), [\@ds-jim](https://github.com/ds-jim), [\@eitsupi](https://github.com/eitsupi), [\@EmilHvitfeldt](https://github.com/EmilHvitfeldt), [\@etiennebacher](https://github.com/etiennebacher), [\@eutwt](https://github.com/eutwt), [\@EvertonTLima](https://github.com/EvertonTLima), [\@ferreirafm](https://github.com/ferreirafm), [\@gaborcsardi](https://github.com/gaborcsardi), [\@GabryS3](https://github.com/GabryS3), [\@Gastonia02](https://github.com/Gastonia02), [\@GBarnsley](https://github.com/GBarnsley), [\@gevro](https://github.com/gevro), [\@ggrothendieck](https://github.com/ggrothendieck), [\@GischD](https://github.com/GischD), [\@gks281263](https://github.com/gks281263), [\@gracehartley](https://github.com/gracehartley), [\@graphdr](https://github.com/graphdr), [\@hadley](https://github.com/hadley), [\@heliconone](https://github.com/heliconone), [\@Hzanib](https://github.com/Hzanib), [\@ilovemane](https://github.com/ilovemane), [\@ja-ortiz-uniandes](https://github.com/ja-ortiz-uniandes), [\@jack-davison](https://github.com/jack-davison), [\@james-kilgour](https://github.com/james-kilgour), [\@JamesHWade](https://github.com/JamesHWade), [\@jaymicro](https://github.com/jaymicro), [\@JBrandenburg02](https://github.com/JBrandenburg02), [\@jc-usda](https://github.com/jc-usda), [\@jennybc](https://github.com/jennybc), [\@jeroenjanssens](https://github.com/jeroenjanssens), [\@jestover](https://github.com/jestover), [\@jl5000](https://github.com/jl5000), [\@jmbarbone](https://github.com/jmbarbone), [\@john-b-edwards](https://github.com/john-b-edwards), [\@jordanmross](https://github.com/jordanmross), [\@joshua-theisen](https://github.com/joshua-theisen), [\@jrwinget](https://github.com/jrwinget), [\@juliaapolonio](https://github.com/juliaapolonio), [\@jxu](https://github.com/jxu), [\@KaiAragaki](https://github.com/KaiAragaki), [\@kiki830621](https://github.com/kiki830621), [\@KittJonathan](https://github.com/KittJonathan), [\@kleinerChemiker](https://github.com/kleinerChemiker), [\@kletts](https://github.com/kletts), [\@krlmlr](https://github.com/krlmlr), [\@ks8997](https://github.com/ks8997), [\@kylebutts](https://github.com/kylebutts), [\@larsentom](https://github.com/larsentom), [\@latot](https://github.com/latot), [\@lboller-pwbm](https://github.com/lboller-pwbm), [\@lionel-](https://github.com/lionel-), [\@Longfei2](https://github.com/Longfei2), [\@lschneiderbauer](https://github.com/lschneiderbauer), [\@LukasTang](https://github.com/LukasTang), [\@lukebandy](https://github.com/lukebandy), [\@maciekbanas](https://github.com/maciekbanas), [\@maelle](https://github.com/maelle), [\@marcuslehr](https://github.com/marcuslehr), [\@Mark-AP](https://github.com/Mark-AP), [\@markwestcott34](https://github.com/markwestcott34), [\@maskegger](https://github.com/maskegger), [\@matiasandina](https://github.com/matiasandina), [\@matthewjnield](https://github.com/matthewjnield), [\@mbcann01](https://github.com/mbcann01), [\@Meghansaha](https://github.com/Meghansaha), [\@metanoid](https://github.com/metanoid), [\@MichaelChirico](https://github.com/MichaelChirico), [\@MikeJohnPage](https://github.com/MikeJohnPage), [\@MilesMcBain](https://github.com/MilesMcBain), [\@mine-cetinkaya-rundel](https://github.com/mine-cetinkaya-rundel), [\@MohsenSoltanifar](https://github.com/MohsenSoltanifar), [\@moodymudskipper](https://github.com/moodymudskipper), [\@Moohan](https://github.com/Moohan), [\@mp8](https://github.com/mp8), [\@mpsturbo](https://github.com/mpsturbo), [\@mr-c](https://github.com/mr-c), [\@muschellij2](https://github.com/muschellij2), [\@musvaage](https://github.com/musvaage), [\@Mzhuk7](https://github.com/Mzhuk7), [\@nalimilan](https://github.com/nalimilan), [\@nathanhaigh](https://github.com/nathanhaigh), [\@nirguk](https://github.com/nirguk), [\@nmercadeb](https://github.com/nmercadeb), [\@olivermagnanimous](https://github.com/olivermagnanimous), [\@olivroy](https://github.com/olivroy), [\@orgadish](https://github.com/orgadish), [\@pangchaoran](https://github.com/pangchaoran), [\@paschatz](https://github.com/paschatz), [\@prubin73](https://github.com/prubin73), [\@PStaus](https://github.com/PStaus), [\@psychelzh](https://github.com/psychelzh), [\@py9mrg](https://github.com/py9mrg), [\@Raesu](https://github.com/Raesu), [\@randyzwitch](https://github.com/randyzwitch), [\@Raoul-Kima](https://github.com/Raoul-Kima), [\@ReedMerrill](https://github.com/ReedMerrill), [\@RodDalBen](https://github.com/RodDalBen), [\@RodrigoZepeda](https://github.com/RodrigoZepeda), [\@rossholmberg](https://github.com/rossholmberg), [\@RoyalTS](https://github.com/RoyalTS), [\@ryandward](https://github.com/ryandward), [\@sbanville-delfi](https://github.com/sbanville-delfi), [\@ScientiaFelis](https://github.com/ScientiaFelis), [\@shirdekel](https://github.com/shirdekel), [\@slager](https://github.com/slager), [\@sschooler](https://github.com/sschooler), [\@steffen-stell](https://github.com/steffen-stell), [\@szimmer](https://github.com/szimmer), [\@TheClownBongo](https://github.com/TheClownBongo), [\@thomasjwood](https://github.com/thomasjwood), [\@TimTaylor](https://github.com/TimTaylor), [\@tlyons253](https://github.com/tlyons253), [\@tomalrussell](https://github.com/tomalrussell), [\@tomwagstaff-opml](https://github.com/tomwagstaff-opml), [\@torfason](https://github.com/torfason), [\@Tyrrx](https://github.com/Tyrrx), [\@Unaimend](https://github.com/Unaimend), [\@VisruthSK](https://github.com/VisruthSK), [\@vorpalvorpal](https://github.com/vorpalvorpal), [\@walkerjameschris](https://github.com/walkerjameschris), [\@wbvguo](https://github.com/wbvguo), [\@wbzyl](https://github.com/wbzyl), [\@wkumler](https://github.com/wkumler), [\@yaboody](https://github.com/yaboody), [\@yjunechoe](https://github.com/yjunechoe), [\@ynsec37](https://github.com/ynsec37), [\@ywhcuhk](https://github.com/ywhcuhk), [\@ZHBHSMILE](https://github.com/ZHBHSMILE), [\@zhjx19](https://github.com/zhjx19), and [\@ZIBOWANGKANGYU](https://github.com/ZIBOWANGKANGYU).
