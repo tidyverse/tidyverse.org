@@ -1,4 +1,321 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>nanonext | Tidyverse</title><link>https://www.tidyverse.org/tags/nanonext/</link><atom:link href="https://www.tidyverse.org/tags/nanonext/index.xml" rel="self" type="application/rss+xml"/><description>nanonext</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 02 Sep 2025 00:00:00 +0000</lastBuildDate><item><title>nanonext 1.7.0</title><link>https://www.tidyverse.org/blog/2025/09/nanonext-1-7-0/</link><pubDate>Tue, 02 Sep 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/09/nanonext-1-7-0/</guid><description>&lt;!--
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>nanonext | Tidyverse</title><link>https://www.tidyverse.org/tags/nanonext/</link><atom:link href="https://www.tidyverse.org/tags/nanonext/index.xml" rel="self" type="application/rss+xml"/><description>nanonext</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 09 Feb 2026 00:00:00 +0000</lastBuildDate><item><title>nanonext 1.8.0</title><link>https://www.tidyverse.org/blog/2026/02/nanonext-1-8-0/</link><pubDate>Mon, 09 Feb 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/02/nanonext-1-8-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>When we
+&lt;a href="https://www.tidyverse.org/blog/2025/09/nanonext-1-7-0/">introduced nanonext&lt;/a> last year, we showed how it connects R directly to Python, Go, Rust, and other languages through NNG&amp;rsquo;s messaging protocols. We hinted at its web capabilities &amp;ndash; but that was just the beginning.&lt;/p>
+&lt;p>R already has excellent web infrastructure.
+&lt;a href="https://shiny.posit.co/" target="_blank" rel="noopener">Shiny&lt;/a> and
+&lt;a href="https://plumber2.posit.co/" target="_blank" rel="noopener">plumber2&lt;/a> are the go-to tools for building interactive applications and REST APIs in R. They are both powered by
+&lt;a href="https://rstudio.github.io/httpuv/" target="_blank" rel="noopener">httpuv&lt;/a>.
+&lt;a href="https://nanonext.r-lib.org" target="_blank" rel="noopener">nanonext&lt;/a> adds a complementary option at the httpuv level of the stack &amp;ndash; a low-level streaming HTTP and WebSocket server built on NNG, giving developers fine-grained control over connections, streaming, and static file serving over TLS. nanonext is for when you need lower-level control &amp;ndash; custom protocols, infrastructure endpoints, or embedding a server alongside an existing Shiny or plumber2 application.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;nanonext&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can see a full list of changes in the
+&lt;a href="https://nanonext.r-lib.org/news/#nanonext-180" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="streaming-httpwebsocket-server">Streaming HTTP/WebSocket server
+&lt;a href="#streaming-httpwebsocket-server">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The flagship feature of this release is
+&lt;a href="https://nanonext.r-lib.org/reference/http_server.html" target="_blank" rel="noopener">&lt;code>http_server()&lt;/code>&lt;/a>, a streaming HTTP and WebSocket server with full TLS support. Built on NNG&amp;rsquo;s HTTP server architecture, it brings the same performance that powers nanonext&amp;rsquo;s messaging layer to web serving.&lt;/p>
+&lt;p>One server, one port &amp;ndash; HTTP endpoints, WebSocket connections, and streaming all coexist. Static files bypass R entirely, served natively by NNG. WebSocket and streaming connections run callbacks on R&amp;rsquo;s main thread via the later package. Mbed TLS is built in for HTTPS/WSS, and there&amp;rsquo;s no need to run separate processes or bind additional ports.&lt;/p>
+&lt;p>Because it shares the same event loop that Shiny uses,
+&lt;a href="https://nanonext.r-lib.org/reference/http_server.html" target="_blank" rel="noopener">&lt;code>http_server()&lt;/code>&lt;/a> can run alongside a Shiny app in the same R process. You could spin up a nanonext server to handle health checks, serve static assets, or stream real-time events &amp;ndash; while Shiny or plumber2 handles the application logic. They&amp;rsquo;re designed to work together.&lt;/p>
+&lt;p>As part of our investment in expanding what&amp;rsquo;s possible with R, we&amp;rsquo;re already using nanonext at Posit to explore new real-time capabilities, and we&amp;rsquo;re excited to see what the community builds with it.&lt;/p>
+&lt;h3 id="basic-http-server">Basic HTTP server
+&lt;a href="#basic-http-server">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Where frameworks like plumber2 give you a full-featured API layer with routing, serialization, and documentation out of the box,
+&lt;a href="https://nanonext.r-lib.org/reference/http_server.html" target="_blank" rel="noopener">&lt;code>http_server()&lt;/code>&lt;/a> gives you direct control over requests and responses &amp;ndash; the kind of direct access you&amp;rsquo;d reach for when building custom infrastructure or embedding a server inside a larger system.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">nanonext&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">server&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">http_server&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">url&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;http://127.0.0.1:8080&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">handlers&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="nf">handler&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">req&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">status&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">200L&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">body&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;Hello from nanonext!&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">}),&lt;/span>
+&lt;span class="nf">handler&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/api/data&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">req&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">status&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">200L&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">headers&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Content-Type&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;application/json&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">body&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#39;{&amp;#34;value&amp;#34;: 42}&amp;#39;&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="p">},&lt;/span> &lt;span class="n">method&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;GET&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="n">server&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">start&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Handlers receive a request and return a response list. You can freely mix handler types in a single server:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th align="left">Handler&lt;/th>
+&lt;th align="left">Purpose&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td align="left">
+&lt;a href="https://nanonext.r-lib.org/reference/handler.html" target="_blank" rel="noopener">&lt;code>handler()&lt;/code>&lt;/a>&lt;/td>
+&lt;td align="left">HTTP request/response with R callback&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td align="left">
+&lt;a href="https://nanonext.r-lib.org/reference/handler_ws.html" target="_blank" rel="noopener">&lt;code>handler_ws()&lt;/code>&lt;/a>&lt;/td>
+&lt;td align="left">WebSocket with &lt;code>on_message&lt;/code>, &lt;code>on_open&lt;/code>, &lt;code>on_close&lt;/code> callbacks&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td align="left">
+&lt;a href="https://nanonext.r-lib.org/reference/handler_stream.html" target="_blank" rel="noopener">&lt;code>handler_stream()&lt;/code>&lt;/a>&lt;/td>
+&lt;td align="left">Chunked HTTP streaming (SSE, NDJSON, custom)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td align="left">
+&lt;a href="https://nanonext.r-lib.org/reference/handler_file.html" target="_blank" rel="noopener">&lt;code>handler_file()&lt;/code>&lt;/a>&lt;/td>
+&lt;td align="left">Serve a single static file&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td align="left">
+&lt;a href="https://nanonext.r-lib.org/reference/handler_directory.html" target="_blank" rel="noopener">&lt;code>handler_directory()&lt;/code>&lt;/a>&lt;/td>
+&lt;td align="left">Serve a directory tree with automatic MIME types&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td align="left">
+&lt;a href="https://nanonext.r-lib.org/reference/handler_inline.html" target="_blank" rel="noopener">&lt;code>handler_inline()&lt;/code>&lt;/a>&lt;/td>
+&lt;td align="left">Serve in-memory content&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td align="left">
+&lt;a href="https://nanonext.r-lib.org/reference/handler_redirect.html" target="_blank" rel="noopener">&lt;code>handler_redirect()&lt;/code>&lt;/a>&lt;/td>
+&lt;td align="left">HTTP redirect&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>Specifying port &lt;code>0&lt;/code> in the URL lets the operating system assign an available port. The actual port is reflected in &lt;code>server$url&lt;/code> after &lt;code>$start()&lt;/code>, so you can set up test servers without worrying about port conflicts.&lt;/p>
+&lt;h3 id="static-file-serving">Static file serving
+&lt;a href="#static-file-serving">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Static handlers bypass R entirely &amp;ndash; NNG serves content directly and efficiently:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">handler_directory&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/static&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;www/assets&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># serve a folder&lt;/span>
+&lt;span class="nf">handler_file&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/favicon.ico&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;favicon.ico&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1"># serve a single file&lt;/span>
+&lt;span class="nf">handler_inline&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="s">&amp;#34;/robots.txt&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="s">&amp;#34;User-agent: *\nDisallow:&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">content_type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;text/plain&amp;#34;&lt;/span>
+&lt;span class="p">)&lt;/span> &lt;span class="c1"># serve in-memory content&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>For example, you can serve a rendered Quarto website with a single handler:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">server&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">http_server&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">url&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;http://127.0.0.1:0&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">handlers&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">handler_directory&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;_site&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="n">server&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">start&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="n">server&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">url&lt;/span>
+&lt;span class="c1"># Browse to the URL to see your Quarto site&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="websocket-server">WebSocket server
+&lt;a href="#websocket-server">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>WebSockets provide full bidirectional communication &amp;ndash; the server can push messages to the client, and the client can send messages back. WebSocket and HTTP handlers share the same server and port, so a browser can load a page over HTTP and open a WebSocket to the same origin &amp;ndash; no cross-origin configuration needed:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">server&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">http_server&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">url&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;http://127.0.0.1:8080&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">handlers&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="nf">handler&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">req&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">status&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">200L&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">body&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;&amp;lt;html&amp;gt;...&amp;lt;/html&amp;gt;&amp;#34;&lt;/span>&lt;span class="p">)),&lt;/span>
+&lt;span class="nf">handler_ws&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/ws&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">on_message&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ws&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">ws&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">send&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">on_open&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ws&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">cat&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;connected:&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">ws&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">id&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;\n&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">on_close&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ws&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">cat&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;disconnected:&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">ws&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">id&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;\n&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This makes it easy to build lightweight real-time services &amp;ndash; monitoring endpoints or live-updating feeds that push results to the browser as they arrive.&lt;/p>
+&lt;h3 id="http-streaming-and-server-sent-events">HTTP streaming and Server-Sent Events
+&lt;a href="#http-streaming-and-server-sent-events">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>When you only need to push data in one direction &amp;ndash; server to client &amp;ndash; streaming is a lighter-weight alternative to WebSockets. It works over plain HTTP, so any client that speaks HTTP can consume the stream without needing a WebSocket library.
+&lt;a href="https://nanonext.r-lib.org/reference/handler_stream.html" target="_blank" rel="noopener">&lt;code>handler_stream()&lt;/code>&lt;/a> enables chunked transfer encoding for streaming responses:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">conns&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="nf">handler_stream&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/events&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">on_request&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">conn&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">req&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">conn&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">set_header&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Content-Type&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;text/event-stream&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">conn&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">set_header&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Cache-Control&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;no-cache&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">conns[&lt;/span>&lt;span class="nf">[as.character&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">conn&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">id&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">]]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;-&lt;/span> &lt;span class="n">conn&lt;/span>
+&lt;span class="n">conn&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">send&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">format_sse&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;connected&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">id&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;1&amp;#34;&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="p">},&lt;/span>
+&lt;span class="n">on_close&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">conn&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">conns[&lt;/span>&lt;span class="nf">[as.character&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">conn&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">id&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">]]&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;-&lt;/span> &lt;span class="kc">NULL&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The
+&lt;a href="https://nanonext.r-lib.org/reference/format_sse.html" target="_blank" rel="noopener">&lt;code>format_sse()&lt;/code>&lt;/a> helper formats messages per the SSE specification. On the browser side, updates arrive automatically as they happen &amp;ndash; no page refreshes or repeated requests needed. Streaming also supports NDJSON and custom formats &amp;ndash; useful for streaming model training progress, sensor readings, monitoring endpoints, or pipeline notifications.&lt;/p>
+&lt;h3 id="tlsssl-support">TLS/SSL support
+&lt;a href="#tlsssl-support">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>For HTTPS, pass a TLS configuration. nanonext bundles Mbed TLS, so there&amp;rsquo;s nothing extra to install:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">cert&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">write_cert&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">cn&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;127.0.0.1&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">server&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">http_server&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">url&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;https://127.0.0.1:0&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">handlers&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">handler&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">req&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">list&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">status&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">200L&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">body&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;Secure!&amp;#34;&lt;/span>&lt;span class="p">)),&lt;/span>
+&lt;span class="n">tls&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">tls_config&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">server&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">cert&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">server&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="full-response-headers-for-http-client">Full response headers for HTTP client
+&lt;a href="#full-response-headers-for-http-client">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://nanonext.r-lib.org/reference/ncurl.html" target="_blank" rel="noopener">&lt;code>ncurl()&lt;/code>&lt;/a> now accepts &lt;code>response = TRUE&lt;/code> to return all response headers:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>resp&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://nanonext.r-lib.org/reference/ncurl.html'>ncurl&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"https://postman-echo.com/get"&lt;/span>, response &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>resp&lt;/span>&lt;span class='o'>$&lt;/span>&lt;span class='nv'>headers&lt;/span> &lt;span class='o'>|&amp;gt;&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/names.html'>names&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "Date" "Content-Type" &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [3] "Content-Length" "Connection" &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [5] "CF-RAY" "etag" &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [7] "vary" "Set-Cookie" &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [9] "x-envoy-upstream-service-time" "cf-cache-status" &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [11] "Server"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Previously you could only request specific headers by name. Now you can retrieve the complete set &amp;ndash; useful for inspecting rate limits, caching directives, and other metadata from REST APIs.&lt;/p>
+&lt;h2 id="async-http-with-shiny">Async HTTP with Shiny
+&lt;a href="#async-http-with-shiny">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If your Shiny app calls a REST API, a slow or unresponsive endpoint will block the R process and freeze the app for &lt;em>all&lt;/em> users, not just the one who triggered the request.
+&lt;a href="https://nanonext.r-lib.org/reference/ncurl_aio.html" target="_blank" rel="noopener">&lt;code>ncurl_aio()&lt;/code>&lt;/a> avoids this &amp;ndash; it performs the HTTP call on a background thread and returns a promise, so the R process stays free to serve other sessions. It works anywhere that accepts a promise, including Shiny&amp;rsquo;s ExtendedTask:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">shiny&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">bslib&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">nanonext&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">ui&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">page_fluid&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="nf">p&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;The time is &amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">textOutput&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;current_time&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">inline&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)),&lt;/span>
+&lt;span class="nf">hr&lt;/span>&lt;span class="p">(),&lt;/span>
+&lt;span class="nf">input_task_button&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;btn&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Fetch data&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="nf">verbatimTextOutput&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;result&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="n">server&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">output&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">session&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">output&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">current_time&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">renderText&lt;/span>&lt;span class="p">({&lt;/span>
+&lt;span class="nf">invalidateLater&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1000&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">format&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">Sys.time&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="s">&amp;#34;%H:%M:%S %p&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">})&lt;/span>
+&lt;span class="n">task&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">ExtendedTask&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">new&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="nf">function&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="nf">ncurl_aio&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;https://postman-echo.com/get&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">response&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span> &lt;span class="nf">bind_task_button&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;btn&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">observeEvent&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">input&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">btn&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">task&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">invoke&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="n">output&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">result&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">renderPrint&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">task&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="nf">result&lt;/span>&lt;span class="p">()&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">headers&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="nf">shinyApp&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ui&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">server&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="new-documentation">New documentation
+&lt;a href="#new-documentation">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The package documentation has been reorganized into focused, self-contained guides:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th align="left">Guide&lt;/th>
+&lt;th align="left">Topics&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td align="left">
+&lt;a href="https://nanonext.r-lib.org/articles/nanonext.html" target="_blank" rel="noopener">Quick Reference&lt;/a>&lt;/td>
+&lt;td align="left">At-a-glance API overview&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td align="left">
+&lt;a href="https://nanonext.r-lib.org/articles/v01-messaging.html" target="_blank" rel="noopener">Messaging&lt;/a>&lt;/td>
+&lt;td align="left">Cross-language exchange, async I/O, synchronization&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td align="left">
+&lt;a href="https://nanonext.r-lib.org/articles/v02-protocols.html" target="_blank" rel="noopener">Protocols&lt;/a>&lt;/td>
+&lt;td align="left">req/rep, pub/sub, surveyor/respondent&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td align="left">
+&lt;a href="https://nanonext.r-lib.org/articles/v03-configuration.html" target="_blank" rel="noopener">Configuration&lt;/a>&lt;/td>
+&lt;td align="left">TLS, options, serialization&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td align="left">
+&lt;a href="https://nanonext.r-lib.org/articles/v04-web.html" target="_blank" rel="noopener">Web Toolkit&lt;/a>&lt;/td>
+&lt;td align="left">HTTP client/server, WebSocket, streaming&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>Whether you need a quick API cheatsheet or a deep dive into WebSocket chat servers, the new vignettes are designed to get you up and running fast.&lt;/p>
+&lt;h2 id="bug-fixes-and-improvements">Bug fixes and improvements
+&lt;a href="#bug-fixes-and-improvements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A new
+&lt;a href="https://nanonext.r-lib.org/reference/race_aio.html" target="_blank" rel="noopener">&lt;code>race_aio()&lt;/code>&lt;/a> function returns the index of the first resolved async operation in a list &amp;ndash; useful when waiting on multiple concurrent operations and you want to act on whichever completes first.&lt;/p>
+&lt;p>This release also fixes two critical issues &amp;ndash; one affecting TLS operations in fresh sessions with newer system versions of Mbed TLS, another when custom serialization hooks threw errors. Error handling is now more graceful throughout, with closed streams returning error values instead of throwing. Under the hood, serialization, streaming, and async sends are all faster, and the bundled Mbed TLS is updated to 3.6.5 LTS. Building from source no longer requires &lt;code>xz&lt;/code>.&lt;/p>
+&lt;h2 id="looking-ahead">Looking ahead
+&lt;a href="#looking-ahead">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>nanonext gives R a new building block for web infrastructure &amp;ndash; one that complements httpuv. We see it as part of a broader investment in making R a first-class platform for real-time, connected applications. If you want to dig deeper, visit the
+&lt;a href="https://nanonext.r-lib.org" target="_blank" rel="noopener">package website&lt;/a> or explore the source on
+&lt;a href="https://github.com/r-lib/nanonext" target="_blank" rel="noopener">GitHub&lt;/a>.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thank you to everyone who contributed to this release:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/jeroenjanssens" target="_blank" rel="noopener">@jeroenjanssens&lt;/a> and
+&lt;a href="https://github.com/shikokuchuo" target="_blank" rel="noopener">@shikokuchuo&lt;/a>.&lt;/p></description></item><item><title>nanonext 1.7.0</title><link>https://www.tidyverse.org/blog/2025/09/nanonext-1-7-0/</link><pubDate>Tue, 02 Sep 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/09/nanonext-1-7-0/</guid><description>&lt;!--
 TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
