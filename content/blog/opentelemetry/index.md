@@ -1,19 +1,19 @@
 ---
 output: hugodown::hugo_document
 slug: opentelemetry
-title: "OpenTelemetry for R: observability across the ecosystem"
+title: "Bringing OpenTelemetry to R in production"
 date: 2026-02-16
 author: Gábor Csárdi, Charlie Gao, Aaron Jacobs, Barret Schloerke
 description: >
     Posit has instrumented Shiny, plumber2, mirai, httr2, ellmer, knitr,
     testthat, and DBI with OpenTelemetry, bringing production-grade
-    observability to the R ecosystem.
+    observability to R.
 photo:
   url: https://unsplash.com/photos/JKUTrJ4vK00
   author: Jordan Harrison
 categories: [other]
 tags: [otel, shiny, plumber2, mirai, httr2, ellmer, knitr, testthat, DBI]
-rmd_hash: 0a86057b710d8abf
+rmd_hash: 6dfe7577755dd24c
 
 ---
 
