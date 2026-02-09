@@ -9,11 +9,11 @@ description: >
     testthat, and DBI with OpenTelemetry, bringing production-grade
     observability to R.
 photo:
-  url: https://unsplash.com/photos/JKUTrJ4vK00
-  author: Jordan Harrison
+  url: https://unsplash.com/photos/LtnPejWDSAY
+  author: Lightscape
 categories: [other]
 tags: [otel, shiny, plumber2, mirai, httr2, ellmer, knitr, testthat, DBI]
-rmd_hash: 6dfe7577755dd24c
+rmd_hash: d0fa75d82b5e12c8
 
 ---
 
