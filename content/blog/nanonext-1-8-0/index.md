@@ -13,7 +13,7 @@ photo:
   author: Albert Stoynov
 categories: [package]
 tags: [nanonext, r-lib]
-rmd_hash: 72237fad43b29013
+rmd_hash: 0b7e03caefed2282
 
 ---
 
@@ -98,8 +98,11 @@ Static handlers bypass R entirely -- NNG serves content directly and efficiently
 ``` r
 handler_directory("/static", "www/assets")  # serve a folder
 handler_file("/favicon.ico", "favicon.ico") # serve a single file
-handler_inline("/robots.txt", "User-agent: *\nDisallow:",
-               content_type = "text/plain") # serve in-memory content
+handler_inline(
+  "/robots.txt",
+  "User-agent: *\nDisallow:",
+  content_type = "text/plain"
+) # serve in-memory content
 ```
 
 For example, you can serve a rendered Quarto website with a single handler:
