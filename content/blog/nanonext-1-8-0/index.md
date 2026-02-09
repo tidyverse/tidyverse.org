@@ -1,0 +1,254 @@
+---
+output: hugodown::hugo_document
+slug: nanonext-1-8-0
+title: nanonext 1.8.0
+date: 2026-02-09
+author: Charlie Gao
+description: >
+    nanonext 1.8.0 adds a low-level streaming HTTP/WebSocket server to R's web
+    infrastructure, with TLS support, new async primitives, and redesigned
+    documentation.
+photo:
+  url: https://unsplash.com/photos/yhJVLxcquEY
+  author: Albert Stoynov
+categories: [package]
+tags: [nanonext, r-lib]
+rmd_hash: 72237fad43b29013
+
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+
+When we [introduced nanonext](/blog/2025/09/nanonext-1-7-0/) last year, we showed how it connects R directly to Python, Go, Rust, and other languages through NNG's messaging protocols. We hinted at its web capabilities -- but that was just the beginning.
+
+R already has excellent web infrastructure. [Shiny](https://shiny.posit.co/) and [plumber2](https://plumber2.posit.co/) are the go-to tools for building interactive applications and REST APIs in R. They are both powered by [httpuv](https://rstudio.github.io/httpuv/). [nanonext](https://nanonext.r-lib.org) adds a complementary option at the httpuv level of the stack -- a low-level streaming HTTP and WebSocket server built on NNG, giving developers fine-grained control over connections, streaming, and static file serving over TLS. nanonext is for when you need lower-level control -- custom protocols, infrastructure endpoints, or embedding a server alongside an existing Shiny or plumber2 application.
+
+You can install it from CRAN with:
+
+``` r
+install.packages("nanonext")
+```
+
+You can see a full list of changes in the [release notes](https://nanonext.r-lib.org/news/#nanonext-180).
+
+## Streaming HTTP/WebSocket server
+
+The flagship feature of this release is [`http_server()`](https://nanonext.r-lib.org/reference/http_server.html), a streaming HTTP and WebSocket server with full TLS support. Built on NNG's HTTP server architecture, it brings the same performance that powers nanonext's messaging layer to web serving.
+
+One server, one port -- HTTP endpoints, WebSocket connections, and streaming all coexist. Static files bypass R entirely, served natively by NNG. WebSocket and streaming connections run callbacks on R's main thread via the later package. Mbed TLS is built in for HTTPS/WSS, and there's no need to run separate processes or bind additional ports.
+
+Because it shares the same event loop that Shiny uses, [`http_server()`](https://nanonext.r-lib.org/reference/http_server.html) can run alongside a Shiny app in the same R process. You could spin up a nanonext server to handle health checks, serve static assets, or stream real-time events -- while Shiny or plumber2 handles the application logic. They're designed to work together.
+
+As part of our investment in expanding what's possible with R, we're already using nanonext at Posit to explore new real-time capabilities, and we're excited to see what the community builds with it.
+
+### Basic HTTP server
+
+Where frameworks like plumber2 give you a full-featured API layer with routing, serialization, and documentation out of the box, [`http_server()`](https://nanonext.r-lib.org/reference/http_server.html) gives you direct control over requests and responses -- the kind of direct access you'd reach for when building custom infrastructure or embedding a server inside a larger system.
+
+``` r
+library(nanonext)
+
+server <- http_server(
+  url = "http://127.0.0.1:8080",
+  handlers = list(
+    handler("/", function(req) {
+      list(status = 200L, body = "Hello from nanonext!")
+    }),
+    handler("/api/data", function(req) {
+      list(
+        status = 200L,
+        headers = c("Content-Type" = "application/json"),
+        body = '{"value": 42}'
+      )
+    }, method = "GET")
+  )
+)
+server$start()
+```
+
+Handlers receive a request and return a response list. You can freely mix handler types in a single server:
+
+| Handler | Purpose |
+|:-----------------------------------|:-----------------------------------|
+| [`handler()`](https://nanonext.r-lib.org/reference/handler.html) | HTTP request/response with R callback |
+| [`handler_ws()`](https://nanonext.r-lib.org/reference/handler_ws.html) | WebSocket with `on_message`, `on_open`, `on_close` callbacks |
+| [`handler_stream()`](https://nanonext.r-lib.org/reference/handler_stream.html) | Chunked HTTP streaming (SSE, NDJSON, custom) |
+| [`handler_file()`](https://nanonext.r-lib.org/reference/handler_file.html) | Serve a single static file |
+| [`handler_directory()`](https://nanonext.r-lib.org/reference/handler_directory.html) | Serve a directory tree with automatic MIME types |
+| [`handler_inline()`](https://nanonext.r-lib.org/reference/handler_inline.html) | Serve in-memory content |
+| [`handler_redirect()`](https://nanonext.r-lib.org/reference/handler_redirect.html) | HTTP redirect |
+
+Specifying port `0` in the URL lets the operating system assign an available port. The actual port is reflected in `server$url` after `$start()`, so you can set up test servers without worrying about port conflicts.
+
+### Static file serving
+
+Static handlers bypass R entirely -- NNG serves content directly and efficiently:
+
+``` r
+handler_directory("/static", "www/assets")  # serve a folder
+handler_file("/favicon.ico", "favicon.ico") # serve a single file
+handler_inline("/robots.txt", "User-agent: *\nDisallow:",
+               content_type = "text/plain") # serve in-memory content
+```
+
+For example, you can serve a rendered Quarto website with a single handler:
+
+``` r
+server <- http_server(
+  url = "http://127.0.0.1:0",
+  handlers = handler_directory("/", "_site")
+)
+server$start()
+server$url
+# Browse to the URL to see your Quarto site
+```
+
+### WebSocket server
+
+WebSockets provide full bidirectional communication -- the server can push messages to the client, and the client can send messages back. WebSocket and HTTP handlers share the same server and port, so a browser can load a page over HTTP and open a WebSocket to the same origin -- no cross-origin configuration needed:
+
+``` r
+server <- http_server(
+  url = "http://127.0.0.1:8080",
+  handlers = list(
+    handler("/", function(req) list(status = 200L, body = "<html>...</html>")),
+    handler_ws("/ws",
+      on_message = function(ws, data) ws$send(data),
+      on_open = function(ws) cat("connected:", ws$id, "\n"),
+      on_close = function(ws) cat("disconnected:", ws$id, "\n")
+    )
+  )
+)
+```
+
+This makes it easy to build lightweight real-time services -- monitoring endpoints or live-updating feeds that push results to the browser as they arrive.
+
+### HTTP streaming and Server-Sent Events
+
+When you only need to push data in one direction -- server to client -- streaming is a lighter-weight alternative to WebSockets. It works over plain HTTP, so any client that speaks HTTP can consume the stream without needing a WebSocket library. [`handler_stream()`](https://nanonext.r-lib.org/reference/handler_stream.html) enables chunked transfer encoding for streaming responses:
+
+``` r
+conns <- list()
+
+handler_stream("/events",
+  on_request = function(conn, req) {
+    conn$set_header("Content-Type", "text/event-stream")
+    conn$set_header("Cache-Control", "no-cache")
+    conns[[as.character(conn$id)]] <<- conn
+    conn$send(format_sse(data = "connected", id = "1"))
+  },
+  on_close = function(conn) {
+    conns[[as.character(conn$id)]] <<- NULL
+  }
+)
+```
+
+The [`format_sse()`](https://nanonext.r-lib.org/reference/format_sse.html) helper formats messages per the SSE specification. On the browser side, updates arrive automatically as they happen -- no page refreshes or repeated requests needed. Streaming also supports NDJSON and custom formats -- useful for streaming model training progress, sensor readings, monitoring endpoints, or pipeline notifications.
+
+### TLS/SSL support
+
+For HTTPS, pass a TLS configuration. nanonext bundles Mbed TLS, so there's nothing extra to install:
+
+``` r
+cert <- write_cert(cn = "127.0.0.1")
+server <- http_server(
+  url = "https://127.0.0.1:0",
+  handlers = handler("/", function(req) list(status = 200L, body = "Secure!")),
+  tls = tls_config(server = cert$server)
+)
+```
+
+## Full response headers for HTTP client
+
+[`ncurl()`](https://nanonext.r-lib.org/reference/ncurl.html) now accepts `response = TRUE` to return all response headers:
+
+<div class="highlight">
+
+<pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>resp</span> <span class='o'>&lt;-</span> <span class='nf'><a href='https://nanonext.r-lib.org/reference/ncurl.html'>ncurl</a></span><span class='o'>(</span><span class='s'>"https://postman-echo.com/get"</span>, response <span class='o'>=</span> <span class='kc'>TRUE</span><span class='o'>)</span></span>
+<span><span class='nv'>resp</span><span class='o'>$</span><span class='nv'>headers</span> <span class='o'>|&gt;</span> <span class='nf'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='o'>(</span><span class='o'>)</span></span>
+<span><span class='c'>#&gt;  [1] "Date"                          "Content-Type"                 </span></span>
+<span><span class='c'>#&gt;  [3] "Content-Length"                "Connection"                   </span></span>
+<span><span class='c'>#&gt;  [5] "CF-RAY"                        "etag"                         </span></span>
+<span><span class='c'>#&gt;  [7] "vary"                          "Set-Cookie"                   </span></span>
+<span><span class='c'>#&gt;  [9] "x-envoy-upstream-service-time" "cf-cache-status"              </span></span>
+<span><span class='c'>#&gt; [11] "Server"</span></span>
+<span></span></code></pre>
+
+</div>
+
+Previously you could only request specific headers by name. Now you can retrieve the complete set -- useful for inspecting rate limits, caching directives, and other metadata from REST APIs.
+
+## Async HTTP with Shiny
+
+If your Shiny app calls a REST API, a slow or unresponsive endpoint will block the R process and freeze the app for *all* users, not just the one who triggered the request. [`ncurl_aio()`](https://nanonext.r-lib.org/reference/ncurl_aio.html) avoids this -- it performs the HTTP call on a background thread and returns a promise, so the R process stays free to serve other sessions. It works anywhere that accepts a promise, including Shiny's ExtendedTask:
+
+``` r
+library(shiny)
+library(bslib)
+library(nanonext)
+
+ui <- page_fluid(
+  p("The time is ", textOutput("current_time", inline = TRUE)),
+  hr(),
+  input_task_button("btn", "Fetch data"),
+  verbatimTextOutput("result")
+)
+
+server <- function(input, output, session) {
+  output$current_time <- renderText({
+    invalidateLater(1000)
+    format(Sys.time(), "%H:%M:%S %p")
+  })
+
+  task <- ExtendedTask$new(
+    function() ncurl_aio("https://postman-echo.com/get", response = TRUE)
+  ) |> bind_task_button("btn")
+
+  observeEvent(input$btn, task$invoke())
+  output$result <- renderPrint(task$result()$headers)
+}
+
+shinyApp(ui, server)
+```
+
+## New documentation
+
+The package documentation has been reorganized into focused, self-contained guides:
+
+| Guide | Topics |
+|:---------------------------------|:-------------------------------------|
+| [Quick Reference](https://nanonext.r-lib.org/articles/nanonext.html) | At-a-glance API overview |
+| [Messaging](https://nanonext.r-lib.org/articles/v01-messaging.html) | Cross-language exchange, async I/O, synchronization |
+| [Protocols](https://nanonext.r-lib.org/articles/v02-protocols.html) | req/rep, pub/sub, surveyor/respondent |
+| [Configuration](https://nanonext.r-lib.org/articles/v03-configuration.html) | TLS, options, serialization |
+| [Web Toolkit](https://nanonext.r-lib.org/articles/v04-web.html) | HTTP client/server, WebSocket, streaming |
+
+Whether you need a quick API cheatsheet or a deep dive into WebSocket chat servers, the new vignettes are designed to get you up and running fast.
+
+## Bug fixes and improvements
+
+A new [`race_aio()`](https://nanonext.r-lib.org/reference/race_aio.html) function returns the index of the first resolved async operation in a list -- useful when waiting on multiple concurrent operations and you want to act on whichever completes first.
+
+This release also fixes two critical issues -- one affecting TLS operations in fresh sessions with newer system versions of Mbed TLS, another when custom serialization hooks threw errors. Error handling is now more graceful throughout, with closed streams returning error values instead of throwing. Under the hood, serialization, streaming, and async sends are all faster, and the bundled Mbed TLS is updated to 3.6.5 LTS. Building from source no longer requires `xz`.
+
+## Looking ahead
+
+nanonext gives R a new building block for web infrastructure -- one that complements httpuv. We see it as part of a broader investment in making R a first-class platform for real-time, connected applications. If you want to dig deeper, visit the [package website](https://nanonext.r-lib.org) or explore the source on [GitHub](https://github.com/r-lib/nanonext).
+
+## Acknowledgements
+
+A big thank you to everyone who contributed to this release:
+
+[@jeroenjanssens](https://github.com/jeroenjanssens) and [@shikokuchuo](https://github.com/shikokuchuo).
+
