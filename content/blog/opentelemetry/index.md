@@ -13,7 +13,7 @@ photo:
   author: Lightscape
 categories: [other]
 tags: [otel, shiny, plumber2, mirai, httr2, ellmer, knitr, testthat, DBI]
-rmd_hash: d0fa75d82b5e12c8
+rmd_hash: 1f21887402f0cd61
 
 ---
 
@@ -140,6 +140,8 @@ Add these to your `.Renviron` file (use [`usethis::edit_r_environ()`](https://us
     OTEL_TRACES_EXPORTER="http"
     OTEL_EXPORTER_OTLP_ENDPOINT="https://logfire-eu.pydantic.dev"
     OTEL_EXPORTER_OTLP_HEADERS="Authorization=<YOUR-WRITE-TOKEN>"
+
+If you're deploying content to Posit Connect, refer to [how to set environment variables on Posit Connect](https://docs.posit.co/connect/user/content-settings/#content-vars).
 
 ### Step 4: Run your app
 
