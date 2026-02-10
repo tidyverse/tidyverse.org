@@ -1,4 +1,490 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>dplyr | Tidyverse</title><link>https://www.tidyverse.org/tags/dplyr/</link><atom:link href="https://www.tidyverse.org/tags/dplyr/index.xml" rel="self" type="application/rss+xml"/><description>dplyr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 04 Feb 2026 00:00:00 +0000</lastBuildDate><item><title>dplyr 1.2.0</title><link>https://www.tidyverse.org/blog/2026/02/dplyr-1-2-0/</link><pubDate>Wed, 04 Feb 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/02/dplyr-1-2-0/</guid><description>&lt;p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>dplyr | Tidyverse</title><link>https://www.tidyverse.org/tags/dplyr/</link><atom:link href="https://www.tidyverse.org/tags/dplyr/index.xml" rel="self" type="application/rss+xml"/><description>dplyr</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 10 Feb 2026 00:00:00 +0000</lastBuildDate><item><title>`dplyr::if_else()` and `dplyr::case_when()` are up to 30x faster</title><link>https://www.tidyverse.org/blog/2026/02/dplyr-performance/</link><pubDate>Tue, 10 Feb 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/02/dplyr-performance/</guid><description>&lt;p>In this technical post, we&amp;rsquo;ll dive into some performance improvements we&amp;rsquo;ve made to dplyr 1.2.0 to make
+&lt;a href="https://dplyr.tidyverse.org/reference/if_else.html" target="_blank" rel="noopener">&lt;code>if_else()&lt;/code>&lt;/a> and
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> up to 30x faster and use up to 10x less memory.&lt;/p>
+&lt;p>If you haven&amp;rsquo;t seen our
+&lt;a href="https://tidyverse.org/blog/2026/02/dplyr-1-2-0/" target="_blank" rel="noopener">previous post&lt;/a> about the exciting new features in dplyr 1.2.0, you&amp;rsquo;ll want to go check that out first!&lt;/p>
+&lt;p>Here&amp;rsquo;s a before-and-after benchmark with
+&lt;a href="https://dplyr.tidyverse.org/reference/if_else.html" target="_blank" rel="noopener">&lt;code>if_else()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='c'># Using https://github.com/DavisVaughan/cross&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>cross&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/pkg/cross/man/bench_versions.html'>bench_versions&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>pkgs &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"tidyverse/dplyr@v1.1.4"&lt;/span>, &lt;span class='s'>"tidyverse/dplyr"&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://dplyr.tidyverse.org'>dplyr&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>123&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='nv'>condition&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='kc'>TRUE&lt;/span>, &lt;span class='kc'>FALSE&lt;/span>, &lt;span class='kc'>NA&lt;/span>&lt;span class='o'>)&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>x&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>y&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>z&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='nf'>bench&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://bench.r-lib.org/reference/mark.html'>mark&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>if_else &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/if_else.html'>if_else&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>condition&lt;/span>, &lt;span class='nv'>x&lt;/span>, &lt;span class='nv'>y&lt;/span>, missing &lt;span class='o'>=&lt;/span> &lt;span class='nv'>z&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">#&amp;gt; # A tibble: 2 × 6&lt;/span>
+&lt;span class="c1">#&amp;gt; pkg expression min median `itr/sec` mem_alloc&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;bch:expr&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;bch:byt&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 tidyverse/dplyr@v1.1.4 if_else 248.25ms 249.25ms 4.02 381.6MB&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 tidyverse/dplyr if_else 7.27ms 7.51ms 132. 38.2MB&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>And with
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>cross&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/pkg/cross/man/bench_versions.html'>bench_versions&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>pkgs &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"tidyverse/dplyr@v1.1.4"&lt;/span>, &lt;span class='s'>"tidyverse/dplyr"&lt;/span>&lt;span class='o'>)&lt;/span>, &lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://dplyr.tidyverse.org'>dplyr&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>123&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='nv'>column&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>100&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='nv'>x_condition&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>column&lt;/span> &lt;span class='o'>&amp;lt;&lt;/span> &lt;span class='m'>20&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>y_condition&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>column&lt;/span> &lt;span class='o'>&amp;lt;&lt;/span> &lt;span class='m'>50&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>z_condition&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>column&lt;/span> &lt;span class='o'>&amp;lt;&lt;/span> &lt;span class='m'>80&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='nv'>x&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>y&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>z&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='nf'>bench&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://bench.r-lib.org/reference/mark.html'>mark&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> case_when &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/case-and-replace-when.html'>case_when&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>x_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>x&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>y_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>y&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>z_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>z&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">#&amp;gt; # A tibble: 2 × 6&lt;/span>
+&lt;span class="c1">#&amp;gt; pkg expression min median `itr/sec` mem_alloc&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;bch:expr&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;bch:tm&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;bch:byt&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 tidyverse/dplyr@v1.1.4 case_when 228.3ms 231.2ms 4.33 419.9MB&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 tidyverse/dplyr case_when 15.5ms 15.8ms 62.8 38.3MB&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>So a 33x speed improvement for
+&lt;a href="https://dplyr.tidyverse.org/reference/if_else.html" target="_blank" rel="noopener">&lt;code>if_else()&lt;/code>&lt;/a>, a 15x speed improvement for
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a>, and a 10x improvement in memory usage for both! In the rest of this post, we&amp;rsquo;ll explain how we&amp;rsquo;ve achieved these numbers.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://dplyr.tidyverse.org'>dplyr&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="lets-talk-memory">Let&amp;rsquo;s talk memory
+&lt;a href="#lets-talk-memory">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;ll start with
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a>, because
+&lt;a href="https://dplyr.tidyverse.org/reference/if_else.html" target="_blank" rel="noopener">&lt;code>if_else()&lt;/code>&lt;/a> is actually just a small variant of that.&lt;/p>
+&lt;p>The most important place to start is with the memory usage. Memory usage and raw speed are often related, as allocating memory takes time. Let&amp;rsquo;s look at the memory usage of
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> in dplyr 1.1.4:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>123&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>column&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>100&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>x_condition&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>column&lt;/span> &lt;span class='o'>&amp;lt;&lt;/span> &lt;span class='m'>20&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>y_condition&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>column&lt;/span> &lt;span class='o'>&amp;lt;&lt;/span> &lt;span class='m'>50&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>z_condition&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>column&lt;/span> &lt;span class='o'>&amp;lt;&lt;/span> &lt;span class='m'>80&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>x&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>y&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>z&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">profmem&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">profmem&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">threshold&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">1000&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="nf">case_when&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">x_condition&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">y_condition&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">y&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">z_condition&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">z&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; Rprofmem memory profiling of:&lt;/span>
+&lt;span class="c1">#&amp;gt; case_when(x_condition ~ x, y_condition ~ y, z_condition ~ z)&lt;/span>
+&lt;span class="c1">#&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; Memory allocations (&amp;gt;= 1000 bytes):&lt;/span>
+&lt;span class="c1">#&amp;gt; what bytes calls&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 alloc 40000048 case_when() -&amp;gt; vec_case_when() -&amp;gt; vec_rep()&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 alloc 40000048 case_when() -&amp;gt; vec_case_when()&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 alloc 40000056 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 alloc 7600664 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 alloc 40000048 case_when() -&amp;gt; vec_case_when()&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 alloc 40000056 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 alloc 12003312 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 alloc 40000048 case_when() -&amp;gt; vec_case_when()&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 alloc 40000056 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 alloc 11996112 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; 11 alloc 40000056 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; 12 alloc 8400112 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; 13 alloc 7600664 case_when() -&amp;gt; vec_case_when() -&amp;gt; vec_slice()&lt;/span>
+&lt;span class="c1">#&amp;gt; 14 alloc 12003312 case_when() -&amp;gt; vec_case_when() -&amp;gt; vec_slice()&lt;/span>
+&lt;span class="c1">#&amp;gt; 15 alloc 11996112 case_when() -&amp;gt; vec_case_when() -&amp;gt; vec_slice()&lt;/span>
+&lt;span class="c1">#&amp;gt; 16 alloc 8400112 case_when() -&amp;gt; vec_case_when() -&amp;gt; vec_recycle()&lt;/span>
+&lt;span class="c1">#&amp;gt; 17 alloc 40000048 case_when() -&amp;gt; vec_case_when() -&amp;gt; list_unchop()&lt;/span>
+&lt;span class="c1">#&amp;gt; total 440000864&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>That&amp;rsquo;s a lot of allocations! And it&amp;rsquo;s pretty hard to understand where they are coming from without a bit more explanation. For that, we&amp;rsquo;re actually going to &amp;ldquo;manually&amp;rdquo; implement an underpowered version of
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> for this example.&lt;/p>
+&lt;p>Here&amp;rsquo;s a diagram of what we need to accomplish:&lt;/p>
+&lt;p>&lt;img src="./images/x-y-z-default.png" alt="">&lt;/p>
+&lt;p>In bullets:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>x_condition&lt;/code> selects the blue elements of &lt;code>x&lt;/code>&lt;/li>
+&lt;li>&lt;code>y_condition&lt;/code> selects the red elements of &lt;code>y&lt;/code>&lt;/li>
+&lt;li>&lt;code>z_condition&lt;/code> selects the green elements of &lt;code>z&lt;/code>&lt;/li>
+&lt;li>A &lt;code>default&lt;/code> is built around the unused locations&lt;/li>
+&lt;li>We combine all of the pieces into &lt;code>out&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>The trickiest part about
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> is handling places where &lt;code>x_condition&lt;/code> and &lt;code>y_condition&lt;/code> overlap. In the image, even though both &lt;code>x&lt;/code> and &lt;code>y&lt;/code> are selected at location 5, only the value of &lt;code>x&lt;/code> is retained since it is hit &amp;ldquo;first&amp;rdquo;. This forces us to have to modify &lt;code>y_condition&lt;/code> to avoid already &amp;ldquo;used&amp;rdquo; locations.&lt;/p>
+&lt;p>An R implementation that computes these modified locations might look like:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>n&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/length.html'>length&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x_condition&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>unused&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/rep.html'>rep&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='kc'>TRUE&lt;/span>, times &lt;span class='o'>=&lt;/span> &lt;span class='nv'>n&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='c'># 1&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>x_loc&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>unused&lt;/span> &lt;span class='o'>&amp;amp;&lt;/span> &lt;span class='nv'>x_condition&lt;/span> &lt;span class='c'># 2&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>x_loc&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/which.html'>which&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x_loc&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='c'># 3,4&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>unused&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>x_loc&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>y_loc&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>unused&lt;/span> &lt;span class='o'>&amp;amp;&lt;/span> &lt;span class='nv'>y_condition&lt;/span> &lt;span class='c'># 5&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>y_loc&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/which.html'>which&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>y_loc&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='c'># 6,7&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>unused&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>y_loc&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>z_loc&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>unused&lt;/span> &lt;span class='o'>&amp;amp;&lt;/span> &lt;span class='nv'>z_condition&lt;/span> &lt;span class='c'># 8&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>z_loc&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/which.html'>which&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>z_loc&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='c'># 9,10&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>unused&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>z_loc&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kc'>FALSE&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Anything that is still &lt;code>unused&lt;/code> falls through to the &lt;code>default&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>default&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='kc'>NA_integer_&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>default_loc&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/which.html'>which&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>unused&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='c'># 11,12&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>With &lt;code>x_loc&lt;/code>, &lt;code>y_loc&lt;/code>, &lt;code>z_loc&lt;/code>, and &lt;code>default_loc&lt;/code> in hand, we can build the output from the pieces:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>out&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/vector.html'>vector&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"integer"&lt;/span>, length &lt;span class='o'>=&lt;/span> &lt;span class='nv'>n&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='c'># 17&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>out&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>x_loc&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>x&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>x_loc&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='c'># 13&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>out&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>y_loc&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>y&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>y_loc&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='c'># 14&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>out&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>z_loc&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>z&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>z_loc&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='c'># 15&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>out&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>default_loc&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/rep.html'>rep&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>default&lt;/span>, times &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/length.html'>length&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>default_loc&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='c'># 16&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>And sure enough, this is identical to
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/identical.html'>identical&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>out&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/case-and-replace-when.html'>case_when&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>x_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>x&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>y_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>y&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>z_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>z&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] TRUE&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>You might be wondering what all of the comments with numbers beside them mean. Those actually map 1:1 with the allocations that
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> was emitting. In fact, we can now split up those allocations into their respective role:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">#&amp;gt; # Tracking `unused` locations&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 alloc 40000048 case_when() -&amp;gt; vec_case_when() -&amp;gt; vec_rep()&lt;/span>
+&lt;span class="c1">#&amp;gt; # Computing `x_loc`, `y_loc`, and `z_loc`&lt;/span>
+&lt;span class="c1">#&amp;gt; 2 alloc 40000048 case_when() -&amp;gt; vec_case_when()&lt;/span>
+&lt;span class="c1">#&amp;gt; 3 alloc 40000056 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 alloc 7600664 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; 5 alloc 40000048 case_when() -&amp;gt; vec_case_when()&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 alloc 40000056 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; 7 alloc 12003312 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; 8 alloc 40000048 case_when() -&amp;gt; vec_case_when()&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 alloc 40000056 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; 10 alloc 11996112 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; # Computing `default_loc`&lt;/span>
+&lt;span class="c1">#&amp;gt; 11 alloc 40000056 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; 12 alloc 8400112 case_when() -&amp;gt; vec_case_when() -&amp;gt; which()&lt;/span>
+&lt;span class="c1">#&amp;gt; # Slicing `x`, `y`, and `z` to align with `x_loc`, `y_loc`, and `z_loc`&lt;/span>
+&lt;span class="c1">#&amp;gt; 13 alloc 7600664 case_when() -&amp;gt; vec_case_when() -&amp;gt; vec_slice()&lt;/span>
+&lt;span class="c1">#&amp;gt; 14 alloc 12003312 case_when() -&amp;gt; vec_case_when() -&amp;gt; vec_slice()&lt;/span>
+&lt;span class="c1">#&amp;gt; 15 alloc 11996112 case_when() -&amp;gt; vec_case_when() -&amp;gt; vec_slice()&lt;/span>
+&lt;span class="c1">#&amp;gt; # Recycling `default` of `NA` to align with `default_loc`&lt;/span>
+&lt;span class="c1">#&amp;gt; 16 alloc 8400112 case_when() -&amp;gt; vec_case_when() -&amp;gt; vec_recycle()&lt;/span>
+&lt;span class="c1">#&amp;gt; # Final output container, which we assign `x`, `y`, `z`, and `default` into&lt;/span>
+&lt;span class="c1">#&amp;gt; # at locations `x_loc`, `y_loc`, and `z_loc`&lt;/span>
+&lt;span class="c1">#&amp;gt; 17 alloc 40000048 case_when() -&amp;gt; vec_case_when() -&amp;gt; list_unchop()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>We sought to remove every one of these allocations except for the last one, which is the final output container that is returned to the user. In other words, we were after this, which is the actual profmem result of this
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> call in dplyr 1.2.0:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">#&amp;gt; Rprofmem memory profiling of:&lt;/span>
+&lt;span class="c1">#&amp;gt; case_when(x_condition ~ x, y_condition ~ y, z_condition ~ z)&lt;/span>
+&lt;span class="c1">#&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; Memory allocations (&amp;gt;= 1000 bytes):&lt;/span>
+&lt;span class="c1">#&amp;gt; what bytes calls&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 alloc 40000048 case_when() -&amp;gt; vec_case_when()&lt;/span>
+&lt;span class="c1">#&amp;gt; total 40000048&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="sliced-assignment">Sliced assignment
+&lt;a href="#sliced-assignment">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>To work towards this, let&amp;rsquo;s focus on what happens to &lt;code>x&lt;/code> throughout this process:&lt;/p>
+&lt;p>&lt;img src="./images/just-x.png" alt="">&lt;/p>
+&lt;p>We had a hypothesis that we could cut out the intermediate work here. Ideally, we&amp;rsquo;d take the logical LHS &lt;code>x_condition&lt;/code> and the RHS &lt;code>x&lt;/code> and map that straight into the output, with no extra allocations:&lt;/p>
+&lt;p>&lt;img src="./images/just-x-ideal.png" alt="">&lt;/p>
+&lt;p>But this just wasn&amp;rsquo;t possible with the way that assignment typically works in R!&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>x&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"a"&lt;/span>, &lt;span class='s'>"b"&lt;/span>, &lt;span class='s'>"c"&lt;/span>, &lt;span class='s'>"d"&lt;/span>, &lt;span class='s'>"e"&lt;/span>, &lt;span class='s'>"f"&lt;/span>, &lt;span class='s'>"g"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>x_condition&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='kc'>FALSE&lt;/span>, &lt;span class='kc'>TRUE&lt;/span>, &lt;span class='kc'>FALSE&lt;/span>, &lt;span class='kc'>FALSE&lt;/span>, &lt;span class='kc'>TRUE&lt;/span>, &lt;span class='kc'>FALSE&lt;/span>, &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>out&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/vector.html'>vector&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"character"&lt;/span>, length &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/length.html'>length&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x_condition&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>out&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>x_condition&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>x&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; Warning in out[x_condition] &amp;lt;- x: number of items to replace is not a multiple of replacement length&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Instead, you must pre-slice &lt;code>x&lt;/code> to a length that matches the locations that &lt;code>x_condition&lt;/code> points to in &lt;code>out&lt;/code>, i.e.:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>out&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>x_condition&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>x&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>x_condition&lt;/span>&lt;span class='o'>]&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Now, in
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> we don&amp;rsquo;t actually use &lt;code>[&amp;lt;-&lt;/code> for assignment or &lt;code>[&lt;/code> for slicing. Instead, we use tools from
+&lt;a href="https://vctrs.r-lib.org/" target="_blank" rel="noopener">vctrs&lt;/a>, a low level package for building consistent tidyverse functions. In this case, we&amp;rsquo;d use &lt;code>vctrs::vec_assign()&lt;/code> and &lt;code>vctrs::vec_slice()&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>out&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_assign&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>out&lt;/span>, &lt;span class='nv'>x_condition&lt;/span>, &lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_slice&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>, &lt;span class='nv'>x_condition&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>But &lt;code>vec_assign()&lt;/code> had the same problem!&lt;/p>
+&lt;p>To solve this, we&amp;rsquo;ve added a new boolean argument to &lt;code>vec_assign()&lt;/code> called &lt;code>slice_value&lt;/code>. You use it like this:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>out&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_assign&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>out&lt;/span>, &lt;span class='nv'>x_condition&lt;/span>, &lt;span class='nv'>x&lt;/span>, slice_value &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>With &lt;code>slice_value = TRUE&lt;/code>, &lt;code>vec_assign()&lt;/code> assumes that both &lt;code>out&lt;/code> and &lt;code>x&lt;/code> are the same length and that &lt;code>x_condition&lt;/code> applies to &lt;em>both&lt;/em> of these. Internally, rather than materializing &lt;code>x[x_condition]&lt;/code>, we instead just loop over both &lt;code>out&lt;/code> and &lt;code>x&lt;/code> at the same time (at C level) and copy over values from &lt;code>x&lt;/code> whenever &lt;code>x_condition&lt;/code> is &lt;code>TRUE&lt;/code>.&lt;/p>
+&lt;p>This is huge! It means that allocations 13-15 from above related to slicing &lt;code>x&lt;/code>, &lt;code>y&lt;/code>, and &lt;code>z&lt;/code> all disappear.&lt;/p>
+&lt;h2 id="logical-indices">Logical &lt;code>i&lt;/code>ndices
+&lt;a href="#logical-indices">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>You might have noticed that we&amp;rsquo;ve been using &lt;code>which()&lt;/code> quite a bit in the above algorithm. This turns a logical vector of &lt;code>TRUE&lt;/code> and &lt;code>FALSE&lt;/code> into an integer vector of locations pointing to where the logical vector was &lt;code>TRUE&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>x_condition&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='kc'>TRUE&lt;/span>, &lt;span class='kc'>FALSE&lt;/span>, &lt;span class='kc'>TRUE&lt;/span>, &lt;span class='kc'>FALSE&lt;/span>, &lt;span class='kc'>FALSE&lt;/span>, &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>x_loc&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/which.html'>which&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x_condition&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>x_loc&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 1 3 6&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>We perform this conversion up front due to how the following works at C level:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>out&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>x_condition&lt;/span>&lt;span class='o'>]&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>x&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='nv'>x_condition&lt;/span>&lt;span class='o'>]&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Both &lt;code>[&lt;/code> and &lt;code>[&amp;lt;-&lt;/code> will convert a logical &lt;code>x_condition&lt;/code> into the integer &lt;code>x_loc&lt;/code> form before proceeding with the assignment, meaning that &lt;code>which()&lt;/code> gets called twice if we don&amp;rsquo;t do it once up front. And vctrs is the same way! Both &lt;code>vec_assign()&lt;/code> and &lt;code>vec_slice()&lt;/code> here would convert &lt;code>x_condition&lt;/code> to an integer vector.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_assign&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>out&lt;/span>, &lt;span class='nv'>x_condition&lt;/span>, &lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_slice&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>, &lt;span class='nv'>x_condition&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Now, with the previous optimization we&amp;rsquo;ve already seen that we can reduce this to:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_assign&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>out&lt;/span>, &lt;span class='nv'>x_condition&lt;/span>, &lt;span class='nv'>x&lt;/span>, slice_value &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>But &lt;code>vec_assign()&lt;/code> still converts a logical &lt;code>x_condition&lt;/code> to integer locations internally before doing the assignment. So now it doesn&amp;rsquo;t matter whether we do this conversion up front via &lt;code>which()&lt;/code> or if we let &lt;code>vec_assign()&lt;/code> do it, it still happens once per input. But we&amp;rsquo;d like to avoid it entirely!&lt;/p>
+&lt;p>The solution here wasn&amp;rsquo;t too magical, it just involved a good bit of grunt work. We&amp;rsquo;ve added a path in &lt;code>vec_assign()&lt;/code>'s
+&lt;a href="https://github.com/r-lib/vctrs/blob/94cea16b1ed3939aaa59c58dda75eedc75d6d075/src/slice-assign.c#L390-L417" target="_blank" rel="noopener">C code&lt;/a> that can handle logical indices like &lt;code>x_condition&lt;/code> directly, rather than forcing them to be converted to integer locations first.&lt;/p>
+&lt;p>But this is a huge win, because it means that allocations 1-10, which were all related to
+&lt;a href="https://rdrr.io/r/base/which.html" target="_blank" rel="noopener">&lt;code>which()&lt;/code>&lt;/a>, can now be removed. &lt;code>vec_assign()&lt;/code> will just handle that optimally for us without any extra allocations.&lt;/p>
+&lt;p>The nice part about an optimization like this is that any other existing code that is using &lt;code>vec_assign()&lt;/code> with a logical index will also benefit from this without having to change a thing!&lt;/p>
+&lt;h2 id="default-handling">&lt;code>default&lt;/code> handling
+&lt;a href="#default-handling">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The remaining allocations are 11-12 and 16, which all have to do with the implied &lt;code>default&lt;/code>. Allocations 11-12 were about figuring out where to put &lt;code>default&lt;/code>, and allocation 16 was about recycling a typed size 1 &lt;code>default&lt;/code> to the right size before assigning it into &lt;code>out&lt;/code>.&lt;/p>
+&lt;p>As it turns out, we don&amp;rsquo;t need any of this!&lt;/p>
+&lt;p>In vctrs, when we initialize any output container, we use &lt;code>vec_init()&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_init.html'>vec_init&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/integer.html'>integer&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, n &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] NA NA NA NA NA&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_init.html'>vec_init&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/integer.html'>integer&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, y &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/character.html'>character&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>, n &lt;span class='o'>=&lt;/span> &lt;span class='m'>5&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'># A tibble: 5 × 2&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; x y &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555; font-style: italic;'>&amp;lt;int&amp;gt;&lt;/span> &lt;span style='color: #555555; font-style: italic;'>&amp;lt;chr&amp;gt;&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>1&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>2&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>3&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>4&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &lt;span style='color: #555555;'>5&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span> &lt;span style='color: #BB0000;'>NA&lt;/span>&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This &lt;em>already&lt;/em> has the implied &lt;code>default&lt;/code> assigned to every location. We then overwrite this with &lt;code>x&lt;/code>, &lt;code>y&lt;/code>, and &lt;code>z&lt;/code> at the appropriate locations, but anything left untouched by those is still set to the &lt;code>default&lt;/code>, so we&amp;rsquo;re done!&lt;/p>
+&lt;p>For cases where the user supplies their own &lt;code>default&lt;/code>, things are slightly more complicated. We actually do have to compute a &lt;code>default_loc&lt;/code> implied from &lt;code>x_condition&lt;/code>, &lt;code>y_condition&lt;/code>, and &lt;code>z_condition&lt;/code>, but internally we do so using a C vector of &lt;code>bool&lt;/code> (even more efficient than R&amp;rsquo;s logical vector type), so the memory footprint is as small as it can be.&lt;/p>
+&lt;h2 id="the-first-wins-conundrum">The &amp;ldquo;first wins&amp;rdquo; conundrum
+&lt;a href="#the-first-wins-conundrum">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>One thing we&amp;rsquo;ve skipped over is the &amp;ldquo;first wins&amp;rdquo; behavior of
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> mentioned earlier. Now that we&amp;rsquo;ve removed &lt;code>x_loc&lt;/code>, &lt;code>y_loc&lt;/code>, and &lt;code>z_loc&lt;/code>, which is where that was being handled, how do we keep this behavior without slowing things down?&lt;/p>
+&lt;p>To be explicit, we are talking about this feature of
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> where only the first hit is kept when you have overlapping logical indices:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>x&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"x1"&lt;/span>, &lt;span class='s'>"x2"&lt;/span>, &lt;span class='s'>"x3"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>y&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"y1"&lt;/span>, &lt;span class='s'>"y2"&lt;/span>, &lt;span class='s'>"y3"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>z&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"z1"&lt;/span>, &lt;span class='s'>"z2"&lt;/span>, &lt;span class='s'>"z3"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>x_condition&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='kc'>TRUE&lt;/span>, &lt;span class='kc'>FALSE&lt;/span>, &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>y_condition&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='kc'>TRUE&lt;/span>, &lt;span class='kc'>TRUE&lt;/span>, &lt;span class='kc'>FALSE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>z_condition&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='kc'>FALSE&lt;/span>, &lt;span class='kc'>TRUE&lt;/span>, &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/case-and-replace-when.html'>case_when&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>x_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>x&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>y_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>y&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>z_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>z&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "x1" "y2" "x3"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>A naive approach doesn&amp;rsquo;t work, as you end up with &amp;ldquo;last wins&amp;rdquo; behavior:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>out&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_init.html'>vec_init&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/character.html'>character&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, n &lt;span class='o'>=&lt;/span> &lt;span class='m'>3&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>out&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_assign&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>out&lt;/span>, &lt;span class='nv'>x_condition&lt;/span>, &lt;span class='nv'>x&lt;/span>, slice_value &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>out&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_assign&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>out&lt;/span>, &lt;span class='nv'>y_condition&lt;/span>, &lt;span class='nv'>y&lt;/span>, slice_value &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>out&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_assign&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>out&lt;/span>, &lt;span class='nv'>z_condition&lt;/span>, &lt;span class='nv'>z&lt;/span>, slice_value &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># This is wrong!&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>out&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] "y1" "z2" "z3"&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/identical.html'>identical&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>out&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/case-and-replace-when.html'>case_when&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>x_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>x&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>y_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>y&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>z_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>z&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] FALSE&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>Instead,
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> just &lt;em>iterates in reverse&lt;/em>, assigning &lt;code>z&lt;/code>, then &lt;code>y&lt;/code>, then &lt;code>x&lt;/code>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nv'>out&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_init.html'>vec_init&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/character.html'>character&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>)&lt;/span>, n &lt;span class='o'>=&lt;/span> &lt;span class='m'>3&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>out&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_assign&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>out&lt;/span>, &lt;span class='nv'>z_condition&lt;/span>, &lt;span class='nv'>z&lt;/span>, slice_value &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>out&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_assign&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>out&lt;/span>, &lt;span class='nv'>y_condition&lt;/span>, &lt;span class='nv'>y&lt;/span>, slice_value &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>out&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/vec_slice.html'>vec_assign&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>out&lt;/span>, &lt;span class='nv'>x_condition&lt;/span>, &lt;span class='nv'>x&lt;/span>, slice_value &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/identical.html'>identical&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>out&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/case-and-replace-when.html'>case_when&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>x_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>x&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>y_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>y&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>z_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>z&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] TRUE&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This diagram demonstrates how that works:&lt;/p>
+&lt;p>&lt;img src="./images/case-when-reverse.png" alt="">&lt;/p>
+&lt;h2 id="optimizing-speed">Optimizing speed?
+&lt;a href="#optimizing-speed">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Now that we&amp;rsquo;ve optimized the memory usage of
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a>, you might be wondering if we did anything else to specifically optimize its speed. Not really! We have moved everything from R to C, but focusing our efforts on reducing memory also resulted in some pretty performant code, and there wasn&amp;rsquo;t much left to optimize after that.&lt;/p>
+&lt;h2 id="if_else">&lt;code>if_else()&lt;/code>
+&lt;a href="#if_else">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://dplyr.tidyverse.org/reference/if_else.html" target="_blank" rel="noopener">&lt;code>if_else()&lt;/code>&lt;/a> can actually be written as a form of
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a>:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/if_else.html'>if_else&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>condition&lt;/span>, &lt;span class='nv'>true&lt;/span>, &lt;span class='nv'>false&lt;/span>, &lt;span class='nv'>missing&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/case-and-replace-when.html'>case_when&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>true&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='o'>!&lt;/span>&lt;span class='nv'>condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>false&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/NA.html'>is.na&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>condition&lt;/span>&lt;span class='o'>)&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>missing&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>In our actual C implementation of
+&lt;a href="https://dplyr.tidyverse.org/reference/if_else.html" target="_blank" rel="noopener">&lt;code>if_else()&lt;/code>&lt;/a>, for simple types like integer, character, or numeric vectors we have an
+&lt;a href="https://github.com/r-lib/vctrs/blob/94cea16b1ed3939aaa59c58dda75eedc75d6d075/src/if-else.c#L276-L505" target="_blank" rel="noopener">extremely fast path&lt;/a> that&amp;rsquo;s even more optimized than this, but for anything with a class we pretty much use this exact
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a> approach.&lt;/p>
+&lt;h2 id="for-package-developers">For package developers
+&lt;a href="#for-package-developers">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If you&amp;rsquo;re a package developer, you&amp;rsquo;ll be happy to know that vctrs itself now exposes low dependency versions of
+&lt;a href="https://dplyr.tidyverse.org/reference/if_else.html" target="_blank" rel="noopener">&lt;code>if_else()&lt;/code>&lt;/a> and
+&lt;a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" target="_blank" rel="noopener">&lt;code>case_when()&lt;/code>&lt;/a>, here&amp;rsquo;s the full family:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>vec_if_else()&lt;/code>&lt;/li>
+&lt;li>&lt;code>vec_case_when()&lt;/code>&lt;/li>
+&lt;li>&lt;code>vec_replace_when()&lt;/code>&lt;/li>
+&lt;li>&lt;code>vec_recode_values()&lt;/code>&lt;/li>
+&lt;li>&lt;code>vec_replace_values()&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>
+&lt;a href="https://dplyr.tidyverse.org/reference/if_else.html" target="_blank" rel="noopener">&lt;code>dplyr::if_else()&lt;/code>&lt;/a> and friends are now just very thin wrappers over these. Feel free to use the vctrs versions in your package if you need the consistency of the tidyverse without the heavy-ish dependency of dplyr.&lt;/p>
+&lt;h2 id="at-the-deepest-level-list_combine">At the deepest level, &lt;code>list_combine()&lt;/code>
+&lt;a href="#at-the-deepest-level-list_combine">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>At the deepest level of all of this is one final new vctrs function, &lt;code>list_combine()&lt;/code>. This is a flexible way to combine multiple vectors together at locations specified by &lt;code>indices&lt;/code>.&lt;/p>
+&lt;p>&lt;code>list_combine()&lt;/code> powers all of &lt;code>vec_case_when()&lt;/code>, &lt;code>vec_replace_when()&lt;/code>, &lt;code>vec_recode_values()&lt;/code>, &lt;code>vec_replace_values()&lt;/code>, &lt;code>vec_if_else()&lt;/code>, and even &lt;code>vec_c()&lt;/code>, the tidyverse version of
+&lt;a href="https://rdrr.io/r/base/c.html" target="_blank" rel="noopener">&lt;code>c()&lt;/code>&lt;/a>.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Random.html'>set.seed&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>123&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>column&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>100&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>x_condition&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>column&lt;/span> &lt;span class='o'>&amp;lt;&lt;/span> &lt;span class='m'>20&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>y_condition&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>column&lt;/span> &lt;span class='o'>&amp;lt;&lt;/span> &lt;span class='m'>50&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>z_condition&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nv'>column&lt;/span> &lt;span class='o'>&amp;lt;&lt;/span> &lt;span class='m'>80&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>x&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>y&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>z&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/sample.html'>sample&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>10&lt;/span>, size &lt;span class='o'>=&lt;/span> &lt;span class='m'>1e7&lt;/span>, replace &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='nv'>out&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>vctrs&lt;/span>&lt;span class='nf'>::&lt;/span>&lt;span class='nf'>&lt;a href='https://vctrs.r-lib.org/reference/list_combine.html'>list_combine&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> x &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/list.html'>list&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x&lt;/span>, &lt;span class='nv'>y&lt;/span>, &lt;span class='nv'>z&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='c'># `indices` are allowed to be logical and aren't forced to integer&lt;/span>&lt;/span>
+&lt;span> indices &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/list.html'>list&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x_condition&lt;/span>, &lt;span class='nv'>y_condition&lt;/span>, &lt;span class='nv'>z_condition&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span> size &lt;span class='o'>=&lt;/span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/length.html'>length&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>x_condition&lt;/span>&lt;span class='o'>)&lt;/span>,&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='c'># When there are overlaps, take the "first"&lt;/span>&lt;/span>
+&lt;span> multiple &lt;span class='o'>=&lt;/span> &lt;span class='s'>"first"&lt;/span>,&lt;/span>
+&lt;span>&lt;/span>
+&lt;span> &lt;span class='c'># Same as `slice_value` from `vec_assign()`&lt;/span>&lt;/span>
+&lt;span> slice_x &lt;span class='o'>=&lt;/span> &lt;span class='kc'>TRUE&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/identical.html'>identical&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>out&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://dplyr.tidyverse.org/reference/case-and-replace-when.html'>case_when&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nv'>x_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>x&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>y_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>y&lt;/span>,&lt;/span>
+&lt;span> &lt;span class='nv'>z_condition&lt;/span> &lt;span class='o'>~&lt;/span> &lt;span class='nv'>z&lt;/span>&lt;/span>
+&lt;span> &lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] TRUE&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div></description></item><item><title>dplyr 1.2.0</title><link>https://www.tidyverse.org/blog/2026/02/dplyr-1-2-0/</link><pubDate>Wed, 04 Feb 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/02/dplyr-1-2-0/</guid><description>&lt;p>
 &lt;a href="https://dplyr.tidyverse.org" target="_blank" rel="noopener">dplyr 1.2.0&lt;/a> is out now! This large release of dplyr comes with two sets of exciting features:&lt;/p>
 &lt;ul>
 &lt;li>
