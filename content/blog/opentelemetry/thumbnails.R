@@ -17,12 +17,15 @@ front_matter <- yaml::yaml.load(
 )
 photo_url <- front_matter$photo$url
 
-# Convert Unsplash page URL to a download URL
-photo_id <- basename(photo_url)
-download_url <- sprintf(
-  "https://unsplash.com/photos/%s/download?force=true&w=2400",
-  photo_id
+# Fetch the Unsplash page and extract the direct image URL from og:image.
+# This handles both old-style (/photos/ID) and new-style (/photos/slug-ID) URLs.
+page_text <- paste(readLines(photo_url, warn = FALSE), collapse = "")
+m <- regexec(
+  'og:image"\\s+content="(https://images\\.unsplash\\.com/photo-[^?&"]+)',
+  page_text
 )
+img_base <- regmatches(page_text, m)[[1]][2]
+download_url <- paste0(img_base, "?w=2400")
 
 cat("Downloading:", download_url, "\n")
 img <- image_read(download_url)
@@ -69,5 +72,9 @@ image_crop(img, geometry_area(crop_w, crop_h, 0, y_off_wd)) |>
   image_write("thumbnail-wd.jpg", quality = 90)
 
 wd_info <- image_info(image_read("thumbnail-wd.jpg"))
-cat(sprintf("Created thumbnail-wd.jpg (%d x %d, ratio %.1f:1)\n",
-            wd_info$width, wd_info$height, wd_info$width / wd_info$height))
+cat(sprintf(
+  "Created thumbnail-wd.jpg (%d x %d, ratio %.1f:1)\n",
+  wd_info$width,
+  wd_info$height,
+  wd_info$width / wd_info$height
+))
