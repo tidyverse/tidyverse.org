@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: dplyr-performance
 title: "`dplyr::if_else()` and `dplyr::case_when()` are up to 30x faster"
-date: 2026-02-03
+date: 2026-02-10
 author: Davis Vaughan
 description: >
     dplyr 1.2.0 comes with much faster and more memory efficient `if_else()` and `case_when()` functions!
@@ -22,7 +22,7 @@ editor:
 
 editor_options:
   chunk_output_type: console
-rmd_hash: 6870ef4ec043a72e
+rmd_hash: c342a29b86242864
 
 ---
 
