@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 slug: opentelemetry
 title: "Bringing OpenTelemetry to R in production"
 date: 2026-02-16
-author: Gábor Csárdi, Charlie Gao, Aaron Jacobs, Barret Schloerke
+author: Charlie Gao, Aaron Jacobs, Barret Schloerke, Gábor Csárdi
 description: >
     Posit has instrumented Shiny, plumber2, mirai, httr2, ellmer, knitr,
     testthat, and DBI with OpenTelemetry, bringing production-grade
@@ -28,22 +28,22 @@ TODO:
 * [ ] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
 -->
 
-We're bringing [OpenTelemetry](https://opentelemetry.io/) to R. As a Posit-wide initiative across our open source packages, we've instrumented the most widely-used R packages for production workloads -- [Shiny](https://shiny.posit.co/), [plumber2](https://plumber2.posit.co/), [mirai](https://mirai.r-lib.org), [httr2](https://httr2.r-lib.org), [ellmer](https://ellmer.tidyverse.org), [knitr](https://yihui.org/knitr/), [testthat](https://testthat.r-lib.org), and [DBI](https://dbi.r-lib.org) -- so that you can add observability to your R applications with **no code changes**. Just set a few environment variables and you get traces, logs, and metrics flowing to the backend of your choice.
+We're bringing [OpenTelemetry](https://opentelemetry.io/) to R. As a Posit-wide initiative across our open source packages, we've instrumented some of the most widely-used R packages for production workloads -- [Shiny](https://shiny.posit.co/), [plumber2](https://plumber2.posit.co/), [mirai](https://mirai.r-lib.org), [httr2](https://httr2.r-lib.org), [ellmer](https://ellmer.tidyverse.org), [knitr](https://yihui.org/knitr/), [testthat](https://testthat.r-lib.org), and [DBI](https://dbi.r-lib.org) -- so that you can add observability to your R applications with **no code changes**. Set a few environment variables and you get traces, logs, and metrics flowing to the backend of your choice.
 
 This is part of our commitment to R in production. As R applications scale -- more users, more processes, more machines -- you need tools to understand what's happening across your entire system. OpenTelemetry is that tool, and it's now available to the R community.
 
 ## What is OpenTelemetry?
 
-[OpenTelemetry](https://opentelemetry.io/) (OTel) is a vendor-neutral, open source observability framework backed by the [Cloud Native Computing Foundation](https://www.cncf.io/). It defines a standard for collecting telemetry data:
+[OpenTelemetry](https://opentelemetry.io/) (OTel) is a vendor-neutral, open source observability framework backed by the [Cloud Native Computing Foundation](https://www.cncf.io/).
+It has broad industry support across languages and platforms, and is already the standard in the Python, Java, JavaScript, and Go ecosystems. Now it's available for R.
 
-- **Traces** follow a request as it moves through your system, showing exactly which functions ran, in what order, and how long each took.
+OpenTelemetry defines a standard for collecting telemetry data:
+
+- **Traces** follow an operation as it moves through your system, showing exactly which functions ran, in what order, and how long each took.
 - **Metrics** capture numerical measurements over time -- things like request counts, response latencies, or memory usage.
 - **Logs** record detailed events as they happen, providing context when you need to investigate a specific moment.
 
-The instrumented packages described in this post focus on traces, which provide the most immediate value for understanding production behavior.
-Metrics and logs are available for you to add to your own application code via the [otel](https://otel.r-lib.org) package.
-
-OpenTelemetry has broad industry support across languages and platforms. It's already the standard in the Python, Java, JavaScript, and Go ecosystems. Now it's available for R.
+The instrumented packages described in this post all use the [otel](https://otel.r-lib.org) package under the hood, and focus on traces, which provide the most immediate value for understanding production behavior. You can also use otel directly to add your own metrics and logs to your application code.
 
 ## Why observability matters for R in production
 
@@ -97,17 +97,15 @@ The second query failed. Without tracing, you'd see an error in your logs and st
 
 ## Getting started
 
-Getting started requires two packages and a few environment variables. No changes to your application code.
+Getting started requires the otelsdk package and a few environment variables. No changes to your application code.
 
-Here's how the pieces fit together: the instrumented R packages generate telemetry data as they run. The [otel](https://otel.r-lib.org) package provides the API that captures this data. The [otelsdk](https://otelsdk.r-lib.org) package collects and exports this data over HTTP to a **backend** -- a service that stores your traces and provides a web dashboard where you can search, filter, and visualize them (like the trace screenshots above).
+Here's how the pieces fit together: the instrumented R packages generate telemetry data as they run. The [otelsdk](https://otelsdk.r-lib.org) package collects and exports this data over HTTP to a **backend** -- a service that stores your traces and provides a web dashboard where you can search, filter, and visualize them (like the trace screenshots above).
 
-### Step 1: Install the packages
+### Step 1: Install otelsdk
 
 ```r
-install.packages(c("otel", "otelsdk"))
+install.packages("otelsdk")
 ```
-
-The otel package is lightweight with no compiled code and no dependencies, so it adds minimal overhead to your project. The otelsdk package handles the collection and export, and requires a C++ compiler to install.
 
 ### Step 2: Choose a backend
 
@@ -116,9 +114,9 @@ OpenTelemetry is vendor-neutral, so you can send your data to any compatible bac
 - **Cloud services**: [Logfire](https://logfire.pydantic.dev/), [Grafana Cloud](https://grafana.com/products/cloud/), [Langfuse](https://langfuse.com/)
 - **Self-hosted**: [Jaeger](https://www.jaegertracing.io/), [Zipkin](https://zipkin.io/), [Prometheus](https://prometheus.io/)
 
-You can also use a local [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/) as a proxy, so no telemetry data ever leaves your network. The collector can then forward data to any backend, or you can inspect it locally.
+You can also use a local [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/) instead, so no telemetry data ever leaves your network. You're then free to inspect it locally.
 
-Each backend will give you an endpoint URL and an authentication token.
+Each backend will give you an endpoint URL and an authentication token. The [otelsdk collecting telemetry data guide](https://otelsdk.r-lib.org/reference/collecting.html#setup) has examples for some common backends.
 
 ### Step 3: Set environment variables
 
@@ -143,7 +141,7 @@ otel::is_tracing_enabled()
 #> [1] TRUE
 ```
 
-Importantly, OpenTelemetry is designed to be safe in production. If anything goes wrong in the telemetry code itself, it will never crash your application -- errors are silently suppressed so your app keeps running. You can set `OTEL_ENV="dev"` during development to surface these errors instead.
+Importantly, OpenTelemetry is designed to be safe in production. If anything goes wrong in the telemetry code itself, it will never crash your application -- errors are silently suppressed so your app keeps running.
 
 ## Zero-code instrumentation
 
@@ -175,9 +173,8 @@ The otelsdk package is configured entirely through environment variables, follow
 | `OTEL_R_INSTRUMENT_PKGS` | Packages for zero-code instrumentation |
 | `OTEL_R_EMIT_SCOPES` | Restrict telemetry to specific packages |
 | `OTEL_R_SUPPRESS_SCOPES` | Exclude specific packages from telemetry |
-| `OTEL_ENV` | Set to `"dev"` for development mode with error reporting |
 
-See the [otel environment variables reference](https://otel.r-lib.org/reference/environmentvariables.html) for the complete list.
+See the [otelsdk environment variables reference](https://otelsdk.r-lib.org/reference/environmentvariables.html) for the complete list.
 
 ## Looking ahead
 
