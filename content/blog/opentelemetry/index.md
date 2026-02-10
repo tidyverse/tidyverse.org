@@ -6,14 +6,14 @@ date: 2026-02-16
 author: Charlie Gao, Aaron Jacobs, Barret Schloerke, Gábor Csárdi
 description: >
     Posit has instrumented Shiny, plumber2, mirai, httr2, ellmer, knitr,
-    testthat, and DBI with OpenTelemetry, bringing production-grade
-    observability to R.
+    testthat, and DBI with OpenTelemetry, and created tools for you to
+    instrument your own packages, bringing production-grade observability to R.
 photo:
   url: https://unsplash.com/photos/LtnPejWDSAY
   author: Lightscape
 categories: [other]
 tags: [otel, shiny, plumber2, mirai, httr2, ellmer, knitr, testthat, DBI]
-rmd_hash: 73af51751683b42e
+rmd_hash: f155a6ff8b2c12f0
 
 ---
 
