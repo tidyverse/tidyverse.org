@@ -13,13 +13,13 @@ photo:
   author: Egor Litvinov
 categories: [package]
 tags: [mirai, parallelism, r-lib]
-rmd_hash: 688dd29ddc42e5a1
+rmd_hash: e4f0fe2ac817bae4
 
 ---
 
-[mirai](https://mirai.r-lib.org) 2.6.0 is now on CRAN. mirai is R's minimalist async evaluation framework.
+[mirai](https://mirai.r-lib.org) 2.6.0 is now on CRAN. mirai is R's framework for parallel and asynchronous computing. If you're fitting models, running simulations, or building Shiny apps, mirai lets you spread that work across multiple processes -- locally or on remote infrastructure.
 
-With this release, it bridges the gap between your laptop and enterprise infrastructure -- the same code you prototype locally now deploys to Posit Workbench, or any cloud HTTP API, with a single function call.
+With this release, it bridges the gap between your laptop and enterprise infrastructure -- the same code you prototype locally now deploys to Posit Workbench or any cloud HTTP API, with a single function call.
 
 You can install it from CRAN with:
 
