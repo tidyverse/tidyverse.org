@@ -9,11 +9,11 @@ description: >
     a C-level dispatcher for near-zero overhead task dispatch, and new
     tools for racing and debugging async tasks.
 photo:
-  url: https://unsplash.com/photos/nighttime-traffic-light-trails-captured-with-long-exposure-6-QINjM3DSM
-  author: Egor Litvinov
+  url: https://unsplash.com/photos/GywJOPMjBqY
+  author: Alexandra Diaconu
 categories: [package]
 tags: [mirai, parallelism, r-lib]
-rmd_hash: e4f0fe2ac817bae4
+rmd_hash: ba2c98ab8a4c9088
 
 ---
 
