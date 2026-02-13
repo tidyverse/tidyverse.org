@@ -1,4 +1,295 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>mirai | Tidyverse</title><link>https://www.tidyverse.org/tags/mirai/</link><atom:link href="https://www.tidyverse.org/tags/mirai/index.xml" rel="self" type="application/rss+xml"/><description>mirai</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 05 Sep 2025 00:00:00 +0000</lastBuildDate><item><title>mirai 2.5.0</title><link>https://www.tidyverse.org/blog/2025/09/mirai-2-5-0/</link><pubDate>Fri, 05 Sep 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/09/mirai-2-5-0/</guid><description>&lt;!--
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>mirai | Tidyverse</title><link>https://www.tidyverse.org/tags/mirai/</link><atom:link href="https://www.tidyverse.org/tags/mirai/index.xml" rel="self" type="application/rss+xml"/><description>mirai</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 12 Feb 2026 00:00:00 +0000</lastBuildDate><item><title>mirai 2.6.0</title><link>https://www.tidyverse.org/blog/2026/02/mirai-2-6-0/</link><pubDate>Thu, 12 Feb 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/02/mirai-2-6-0/</guid><description>&lt;p>
+&lt;a href="https://mirai.r-lib.org" target="_blank" rel="noopener">mirai&lt;/a> 2.6.0 is now on CRAN. mirai is R&amp;rsquo;s framework for parallel and asynchronous computing. If you&amp;rsquo;re fitting models, running simulations, or building Shiny apps, mirai lets you spread that work across multiple processes &amp;ndash; locally or on remote infrastructure.&lt;/p>
+&lt;p>With this release, it bridges the gap between your laptop and enterprise infrastructure &amp;ndash; the same code you prototype locally now deploys to Posit Workbench or any cloud HTTP API, with a single function call.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;mirai&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The flagship feature for this release is the HTTP launcher for deploying daemons to cloud and enterprise platforms. This release also brings a C-level dispatcher for minimal task dispatch overhead,
+&lt;a href="https://mirai.r-lib.org/reference/race_mirai.html" target="_blank" rel="noopener">&lt;code>race_mirai()&lt;/code>&lt;/a> for process-as-completed patterns, synchronous mode for debugging, and daemon synchronization for remote deployments. You can see a full list of changes in the
+&lt;a href="https://mirai.r-lib.org/news/#mirai-260" target="_blank" rel="noopener">release notes&lt;/a>.&lt;/p>
+&lt;h2 id="how-mirai-works">How mirai works
+&lt;a href="#how-mirai-works">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If you&amp;rsquo;ve ever waited for a loop to finish fitting models, processing files, or calling APIs, mirai can help. Any task that&amp;rsquo;s repeated independently across items is a candidate for parallel execution.&lt;/p>
+&lt;p>The
+&lt;a href="https://www.tidyverse.org/blog/2025/09/mirai-2-5-0/">previous release post&lt;/a> covered mirai&amp;rsquo;s design philosophy in detail. Here&amp;rsquo;s a brief overview for readers encountering mirai for the first time.&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='kr'>&lt;a href='https://rdrr.io/r/base/library.html'>library&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nv'>&lt;a href='https://mirai.r-lib.org'>mirai&lt;/a>&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'># Set up 4 background processes&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://mirai.r-lib.org/reference/daemons.html'>daemons&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>4&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Send work -- non-blocking, returns immediately&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>m&lt;/span> &lt;span class='o'>&amp;lt;-&lt;/span> &lt;span class='nf'>&lt;a href='https://mirai.r-lib.org/reference/mirai.html'>mirai&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='o'>&amp;#123;&lt;/span>&lt;/span>
+&lt;span> &lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/Sys.sleep.html'>Sys.sleep&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>1&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span> &lt;span class='m'>100&lt;/span> &lt;span class='o'>+&lt;/span> &lt;span class='m'>42&lt;/span>&lt;/span>
+&lt;span>&lt;span class='o'>&amp;#125;&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>m&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; &amp;lt; mirai [] &amp;gt;&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Collect the result when ready&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nv'>m&lt;/span>&lt;span class='o'>[&lt;/span>&lt;span class='o'>]&lt;/span>&lt;/span>
+&lt;span>&lt;span class='c'>#&amp;gt; [1] 142&lt;/span>&lt;/span>
+&lt;span>&lt;/span>&lt;span>&lt;/span>
+&lt;span>&lt;span class='c'># Shut down&lt;/span>&lt;/span>
+&lt;span>&lt;span class='nf'>&lt;a href='https://mirai.r-lib.org/reference/daemons.html'>daemons&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='m'>0&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>That&amp;rsquo;s mirai in a nutshell:
+&lt;a href="https://mirai.r-lib.org/reference/daemons.html" target="_blank" rel="noopener">&lt;code>daemons()&lt;/code>&lt;/a> to set up workers,
+&lt;a href="https://mirai.r-lib.org/reference/mirai.html" target="_blank" rel="noopener">&lt;code>mirai()&lt;/code>&lt;/a> to send work, &lt;code>[]&lt;/code> to collect results. Everything else builds on this.&lt;/p>
+&lt;p>In mirai&amp;rsquo;s hub architecture, the host session listens at a URL and &lt;em>daemons&lt;/em> &amp;ndash; background R processes that do the actual work &amp;ndash; connect to it. You send tasks with
+&lt;a href="https://mirai.r-lib.org/reference/mirai.html" target="_blank" rel="noopener">&lt;code>mirai()&lt;/code>&lt;/a>, and the dispatcher routes them to available daemons in first-in, first-out (FIFO) order.&lt;/p>
+&lt;p>This design enables dynamic scaling: daemons can connect and disconnect at any time without disrupting the host. Add capacity when you need it, release it when you don&amp;rsquo;t.&lt;/p>
+&lt;p>&lt;img src="architecture.svg" alt="Hub architecture diagram showing compute profiles with daemons connecting to host" width="100%" />&lt;/p>
+&lt;p>A single compute profile can mix daemons launched by different methods, and you can run multiple profiles simultaneously to direct different tasks to different resources. The basic syntax for each deployment method:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Deploy to&lt;/th>
+&lt;th>Setup&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Local&lt;/td>
+&lt;td>&lt;code>daemons(4)&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Remote (SSH)&lt;/td>
+&lt;td>&lt;code>daemons(url = host_url(), remote = ssh_config(...))&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>HPC cluster (Slurm, SGE, PBS, LSF)&lt;/td>
+&lt;td>&lt;code>daemons(url = host_url(), remote = cluster_config())&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>HTTP API / Posit Workbench&lt;/td>
+&lt;td>&lt;code>daemons(url = host_url(), remote = http_config())&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>Change one line and your local prototype runs on a Slurm cluster. Change it again and it runs on Posit Workbench. Your analysis code stays identical.&lt;/p>
+&lt;h2 id="the-async-foundation-for-the-modern-r-stack">The async foundation for the modern R stack
+&lt;a href="#the-async-foundation-for-the-modern-r-stack">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>mirai has become the convergence point for asynchronous and parallel computing across the R ecosystem.&lt;/p>
+&lt;p>It is the
+&lt;a href="https://rstudio.github.io/promises/articles/promises_04_mirai.html" target="_blank" rel="noopener">recommended async backend&lt;/a> for
+&lt;a href="https://shiny.posit.co/" target="_blank" rel="noopener">Shiny&lt;/a> &amp;ndash; if you&amp;rsquo;re building production Shiny apps, you should be using mirai. It is the &lt;em>only&lt;/em> async backend for the next-generation
+&lt;a href="https://plumber2.posit.co/" target="_blank" rel="noopener">plumber2&lt;/a> &amp;ndash; if you&amp;rsquo;re building APIs with plumber2, you&amp;rsquo;re already using mirai.&lt;/p>
+&lt;p>It is the parallel backend for
+&lt;a href="https://purrr.tidyverse.org/" target="_blank" rel="noopener">purrr&lt;/a> &amp;ndash; if you use &lt;code>map()&lt;/code>, mirai is how you make it parallel. Wrap your function in
+&lt;a href="https://purrr.tidyverse.org/reference/in_parallel.html" target="_blank" rel="noopener">&lt;code>in_parallel()&lt;/code>&lt;/a>, set up daemons, and your map calls run across all of them:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">purrr&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">4&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">models&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">split&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mtcars&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">mtcars&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">cyl&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span>
+&lt;span class="nf">map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">in_parallel&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">\&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">lm&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mpg&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">wt&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">hp&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="p">)))&lt;/span>
+&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>It powers
+&lt;a href="https://docs.ropensci.org/targets/" target="_blank" rel="noopener">targets&lt;/a> &amp;ndash; the pipeline orchestration tool for reproducible analysis. And most recently,
+&lt;a href="https://ragnar.tidyverse.org/" target="_blank" rel="noopener">ragnar&lt;/a> &amp;ndash; the Tidyverse package for retrieval-augmented generation (RAG) &amp;ndash; adopted mirai for its parallel processing.&lt;/p>
+&lt;p>As an
+&lt;a href="https://stat.ethz.ch/R-manual/R-devel/library/parallel/html/makeCluster.html" target="_blank" rel="noopener">official alternative communications backend&lt;/a> for R&amp;rsquo;s &lt;code>parallel&lt;/code> package, mirai underpins workflows from interactive web applications to pipeline orchestration to AI-powered document processing.&lt;/p>
+&lt;p>Learn mirai, and you&amp;rsquo;ve learned the async primitive that powers the modern R stack. The same two concepts &amp;ndash;
+&lt;a href="https://mirai.r-lib.org/reference/daemons.html" target="_blank" rel="noopener">&lt;code>daemons()&lt;/code>&lt;/a> to set up workers,
+&lt;a href="https://mirai.r-lib.org/reference/mirai.html" target="_blank" rel="noopener">&lt;code>mirai()&lt;/code>&lt;/a> to send work &amp;ndash; are all you need to keep a Shiny app responsive or run async tasks in production.&lt;/p>
+&lt;h2 id="http-launcher">HTTP launcher
+&lt;a href="#http-launcher">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>This release extends the &amp;ldquo;deploy everywhere&amp;rdquo; principle with
+&lt;a href="https://mirai.r-lib.org/reference/http_config.html" target="_blank" rel="noopener">&lt;code>http_config()&lt;/code>&lt;/a>, a new remote launch configuration that deploys daemons via HTTP API calls &amp;ndash; any platform with an HTTP API for launching jobs.&lt;/p>
+&lt;h3 id="posit-workbench">Posit Workbench
+&lt;a href="#posit-workbench">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Many organizations use
+&lt;a href="https://posit.co/products/enterprise/workbench/" target="_blank" rel="noopener">Posit Workbench&lt;/a> to run research and data science at scale. mirai now integrates directly with it.&lt;sup id="fnref:1">&lt;a href="#fn:1" class="footnote-ref" role="doc-noteref">1&lt;/a>&lt;/sup> Call
+&lt;a href="https://mirai.r-lib.org/reference/http_config.html" target="_blank" rel="noopener">&lt;code>http_config()&lt;/code>&lt;/a> with no arguments and it auto-configures using the Workbench environment:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">n&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">url&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">host_url&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="n">remote&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">http_config&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>That&amp;rsquo;s it. Four daemons launch as Workbench jobs, connect back to your session, and you can start sending work to them.&lt;/p>
+&lt;figure>
+&lt;img src="workbench.png" alt="Posit Workbench session showing launched mirai daemons" />
+&lt;figcaption aria-hidden="true">Posit Workbench session showing launched mirai daemons&lt;/figcaption>
+&lt;/figure>
+&lt;p>Here&amp;rsquo;s what that looks like in practice: you&amp;rsquo;re developing a model in your Workbench session. Fitting it locally is slow. Add that line, and those fits fan out across four Workbench-managed compute jobs. When you&amp;rsquo;re done, &lt;code>daemons(0)&lt;/code> releases them. No YAML, no job scripts, no leaving your R session &amp;ndash; resource allocation, access control, and job lifecycle are all handled by the platform.&lt;/p>
+&lt;p>If you&amp;rsquo;ve been bitten by expired tokens in long-running sessions,
+&lt;a href="https://mirai.r-lib.org/reference/http_config.html" target="_blank" rel="noopener">&lt;code>http_config()&lt;/code>&lt;/a> is designed to prevent that. Under the hood, it stores &lt;em>functions&lt;/em> rather than static values for credentials and endpoint URLs. These functions are called at the moment daemons actually launch, so session cookies and API tokens are always fresh &amp;ndash; even if you created the configuration hours earlier.&lt;/p>
+&lt;p>See the mirai vignette for
+&lt;a href="https://mirai.r-lib.org/articles/v01-reference.html#troubleshooting" target="_blank" rel="noopener">troubleshooting&lt;/a> remote launches.&lt;/p>
+&lt;h3 id="custom-apis">Custom APIs
+&lt;a href="#custom-apis">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>The HTTP launcher works with any HTTP API, not just Workbench. Supply your own endpoint, authentication, and request body:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">n&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">url&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">host_url&lt;/span>&lt;span class="p">(),&lt;/span>
+&lt;span class="n">remote&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">http_config&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">url&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;https://api.example.com/launch&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">method&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;POST&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">token&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="nf">Sys.getenv&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;MY_API_KEY&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#39;{&amp;#34;command&amp;#34;: &amp;#34;%s&amp;#34;}&amp;#39;&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>&amp;quot;%s&amp;quot;&lt;/code> placeholder in &lt;code>data&lt;/code> is where mirai inserts the daemon launch command at launch time. Each argument can be a plain value or a function &amp;ndash; use functions for anything that changes between launches (tokens, cookies, dynamic URLs).&lt;/p>
+&lt;p>This opens up a wide range of deployment targets: Kubernetes job APIs, other cloud container services, or any internal job scheduler with an HTTP interface. If you can launch a process with an HTTP call, mirai can use it.&lt;/p>
+&lt;h2 id="c-level-dispatcher">C-level dispatcher
+&lt;a href="#c-level-dispatcher">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The overhead of distributing your tasks is now negligible. In a
+&lt;a href="https://mirai.r-lib.org/reference/mirai_map.html" target="_blank" rel="noopener">&lt;code>mirai_map()&lt;/code>&lt;/a> over thousands of items, what you measure is the time of your actual computation, not the framework &amp;ndash; per-task dispatch overhead is now in the tens of microseconds, where existing R parallelism solutions typically operate in the millisecond range.&lt;/p>
+&lt;p>Under the hood, the dispatcher &amp;ndash; the process that sits between your session and the daemons, routing tasks to available workers &amp;ndash; has been re-implemented entirely in C code within
+&lt;a href="https://nanonext.r-lib.org" target="_blank" rel="noopener">nanonext&lt;/a>. This eliminates the R interpreter overhead that remained, while the dispatcher continues to be event-driven and consume zero CPU when idle.&lt;/p>
+&lt;p>This also removes the bottleneck when coordinating large numbers of daemons, which matters directly for the kind of scaled-out deployments that the HTTP launcher enables &amp;ndash; dozens of Workbench jobs or cloud instances all connecting to a single dispatcher. The two features are designed to work together: deploy broadly, dispatch efficiently. mirai is built to scale from 2 cores on your laptop to 200 across a cluster, without the framework slowing you down.&lt;/p>
+&lt;h2 id="race_mirai">&lt;code>race_mirai()&lt;/code>
+&lt;a href="#race_mirai">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://mirai.r-lib.org/reference/race_mirai.html" target="_blank" rel="noopener">&lt;code>race_mirai()&lt;/code>&lt;/a> lets you process results as they arrive, rather than waiting for the slowest task. Suppose you&amp;rsquo;re fitting 10 models with different hyperparameters in parallel &amp;ndash; some converge quickly, others take much longer. Without
+&lt;a href="https://mirai.r-lib.org/reference/race_mirai.html" target="_blank" rel="noopener">&lt;code>race_mirai()&lt;/code>&lt;/a>, you wait for the slowest fit to complete before seeing any results. With it, you can inspect or save each model the instant it finishes &amp;ndash; updating a progress display, freeing memory, or deciding whether to continue the remaining fits at all.&lt;/p>
+&lt;p>
+&lt;a href="https://mirai.r-lib.org/reference/race_mirai.html" target="_blank" rel="noopener">&lt;code>race_mirai()&lt;/code>&lt;/a> returns the integer &lt;em>index&lt;/em> of the first resolved mirai. This makes the &amp;ldquo;process as completed&amp;rdquo; pattern clean and efficient:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">4&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Launch 10 model fits in parallel&lt;/span>
+&lt;span class="n">fits&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">lapply&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">param_grid&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">p&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">mirai&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">fit_model&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">p&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">p&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">p&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;span class="c1"># Process each result as soon as it&amp;#39;s ready&lt;/span>
+&lt;span class="n">remaining&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">fits&lt;/span>
+&lt;span class="nf">while &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">length&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">remaining&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="m">0&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">idx&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">race_mirai&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">remaining&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">cat&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Finished model with params:&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">remaining[[idx]]&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">p&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;\n&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">remaining&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="n">remaining[&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">idx]&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Send off a batch of tasks, then process results in the order they finish &amp;ndash; no polling, no wasted time waiting on the slowest one. If any mirai is already resolved when you call
+&lt;a href="https://mirai.r-lib.org/reference/race_mirai.html" target="_blank" rel="noopener">&lt;code>race_mirai()&lt;/code>&lt;/a>, it returns immediately. This pattern applies whenever tasks have variable completion times &amp;ndash; parallel model fits, API calls, simulations, or any batch where you want to stream results as they land.&lt;/p>
+&lt;h2 id="synchronous-mode">Synchronous mode
+&lt;a href="#synchronous-mode">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>When tasks don&amp;rsquo;t behave as expected, you need a way to inspect them interactively.&lt;/p>
+&lt;p>Without synchronous mode, errors in a mirai return as &lt;code>miraiError&lt;/code> objects &amp;ndash; you can see that something went wrong, but you can&amp;rsquo;t step through the code to find out why. The task ran in a separate process, and by the time you see the error, that process has moved on.&lt;/p>
+&lt;p>&lt;code>daemons(sync = TRUE)&lt;/code>, introduced in 2.5.1, solves this. It runs everything in the current process &amp;ndash; no background processes, no networking &amp;ndash; just sequential execution. You can use
+&lt;a href="https://rdrr.io/r/base/browser.html" target="_blank" rel="noopener">&lt;code>browser()&lt;/code>&lt;/a> and other interactive debugging tools directly:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sync&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">mirai&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="p">{&lt;/span>
+&lt;span class="nf">browser&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;span class="n">mypkg&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">some_complex_function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">},&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">my_data&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>You can scope synchronous mode to a specific compute profile, isolating the problematic task for inspection while the rest of your pipeline keeps running in parallel.&lt;/p>
+&lt;h2 id="daemon-synchronization-with-everywhere">Daemon synchronization with &lt;code>everywhere()&lt;/code>
+&lt;a href="#daemon-synchronization-with-everywhere">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://mirai.r-lib.org/reference/everywhere.html" target="_blank" rel="noopener">&lt;code>everywhere()&lt;/code>&lt;/a> runs setup operations on all daemons &amp;ndash; loading packages, sourcing scripts, or preparing datasets &amp;ndash; so they&amp;rsquo;re ready before you send work.&lt;/p>
+&lt;p>When launching remote daemons &amp;ndash; via SSH, HPC schedulers, or the new HTTP launcher &amp;ndash; there&amp;rsquo;s an inherent delay between requesting a daemon and that daemon being ready to accept work. The new &lt;code>.min&lt;/code> argument ensures that setup has completed on at least that many daemons before returning:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">n&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">8&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">url&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">host_url&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="n">remote&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">http_config&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;span class="c1"># Wait until all 8 daemons are connected before continuing&lt;/span>
+&lt;span class="nf">everywhere&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mypackage&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">.min&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">8&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># Now send work once all daemons are ready&lt;/span>
+&lt;span class="n">mp&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">mirai_map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tasks&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">process&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This creates a synchronization point, ensuring your pipeline doesn&amp;rsquo;t start sending work before all daemons are ready. It&amp;rsquo;s especially useful for remote deployments where connection times are unpredictable.&lt;/p>
+&lt;h2 id="minor-improvements-and-fixes">Minor improvements and fixes
+&lt;a href="#minor-improvements-and-fixes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;ul>
+&lt;li>&lt;code>miraiError&lt;/code> objects now have
+&lt;a href="https://rdrr.io/r/base/conditions.html" target="_blank" rel="noopener">&lt;code>conditionCall()&lt;/code>&lt;/a> and
+&lt;a href="https://rdrr.io/r/base/conditions.html" target="_blank" rel="noopener">&lt;code>conditionMessage()&lt;/code>&lt;/a> methods, making them easier to use with R&amp;rsquo;s standard condition handling.&lt;/li>
+&lt;li>The default exit behavior for daemons has been updated with a 200ms grace period before forceful termination, which allows OpenTelemetry disconnection events to be traced.&lt;/li>
+&lt;li>OpenTelemetry span names and attributes have been revised to better follow semantic conventions.&lt;/li>
+&lt;li>
+&lt;a href="https://mirai.r-lib.org/reference/daemons.html" target="_blank" rel="noopener">&lt;code>daemons()&lt;/code>&lt;/a> now properly validates that &lt;code>url&lt;/code> is a character value where supplied.&lt;/li>
+&lt;li>Fixed a bug where repeated mirai cancellation could sometimes cause a daemon to exit prematurely.&lt;/li>
+&lt;/ul>
+&lt;h2 id="try-it-now">Try it now
+&lt;a href="#try-it-now">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;mirai&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">mirai&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">4&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">system.time&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">mirai_map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="m">4&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">\&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">x&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="nf">Sys.sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">1&lt;/span>&lt;span class="p">))&lt;/span>&lt;span class="n">[]&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; user system elapsed&lt;/span>
+&lt;span class="c1">#&amp;gt; 0.000 0.001 1.003&lt;/span>
+&lt;span class="nf">daemons&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Four one-second tasks, one second of wall time. If those were four model fits that each took a minute, you&amp;rsquo;d go from four minutes down to one &amp;ndash; and if you needed more power, switching to Workbench or a Slurm cluster is a one-line change. Visit
+&lt;a href="https://mirai.r-lib.org" target="_blank" rel="noopener">mirai.r-lib.org&lt;/a> for the full documentation.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A big thank you to all the folks who helped make this release happen:&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/agilly" target="_blank" rel="noopener">@agilly&lt;/a>,
+&lt;a href="https://github.com/aimundo" target="_blank" rel="noopener">@aimundo&lt;/a>,
+&lt;a href="https://github.com/barnabasharris" target="_blank" rel="noopener">@barnabasharris&lt;/a>,
+&lt;a href="https://github.com/beevabeeva" target="_blank" rel="noopener">@beevabeeva&lt;/a>,
+&lt;a href="https://github.com/boshek" target="_blank" rel="noopener">@boshek&lt;/a>,
+&lt;a href="https://github.com/eliocamp" target="_blank" rel="noopener">@eliocamp&lt;/a>,
+&lt;a href="https://github.com/jan-swissre" target="_blank" rel="noopener">@jan-swissre&lt;/a>,
+&lt;a href="https://github.com/jeroenjanssens" target="_blank" rel="noopener">@jeroenjanssens&lt;/a>,
+&lt;a href="https://github.com/kentqin-cve" target="_blank" rel="noopener">@kentqin-cve&lt;/a>,
+&lt;a href="https://github.com/mcol" target="_blank" rel="noopener">@mcol&lt;/a>,
+&lt;a href="https://github.com/michaelmayer2" target="_blank" rel="noopener">@michaelmayer2&lt;/a>,
+&lt;a href="https://github.com/pmac0451" target="_blank" rel="noopener">@pmac0451&lt;/a>,
+&lt;a href="https://github.com/r2evans" target="_blank" rel="noopener">@r2evans&lt;/a>,
+&lt;a href="https://github.com/shikokuchuo" target="_blank" rel="noopener">@shikokuchuo&lt;/a>,
+&lt;a href="https://github.com/t-kalinowski" target="_blank" rel="noopener">@t-kalinowski&lt;/a>,
+&lt;a href="https://github.com/VincentGuyader" target="_blank" rel="noopener">@VincentGuyader&lt;/a>,
+&lt;a href="https://github.com/wlandau" target="_blank" rel="noopener">@wlandau&lt;/a>, and
+&lt;a href="https://github.com/xwanner" target="_blank" rel="noopener">@xwanner&lt;/a>.&lt;/p>
+&lt;section class="footnotes" role="doc-endnotes">
+&lt;hr>
+&lt;ol>
+&lt;li id="fn:1" role="doc-endnote">
+&lt;p>Requires Posit Workbench version 2026.01 or later, which enables launcher authentication using the session cookie. &lt;a href="#fnref:1" class="footnote-backref" role="doc-backlink">&amp;#x21a9;&amp;#xfe0e;&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/section></description></item><item><title>mirai 2.5.0</title><link>https://www.tidyverse.org/blog/2025/09/mirai-2-5-0/</link><pubDate>Fri, 05 Sep 2025 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2025/09/mirai-2-5-0/</guid><description>&lt;!--
 TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
