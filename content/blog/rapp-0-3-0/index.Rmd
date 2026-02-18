@@ -5,7 +5,6 @@ slug: rapp-0-3-0
 title: Rapp 0.3.0
 date: 2026-02-18
 author: Tomasz Kalinowski
-# title: "Rapp 0.3.0: write command line apps as plain R scripts
 description: >
   Rapp is an R front-end (like Rscript) that turns simple scripts into polished CLIs,
   with automatic argument parsing, generated help, and support for
@@ -21,29 +20,17 @@ categories: [package]
 tags: [r-lib, package, programming, yaml]
 ---
 
-<!--
-TODO:
-* [ ] Look over / edit the post's title in the yaml
-* [ ] Edit (or delete) the description; note this appears in the Twitter card
-* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
-* [ ] Find photo & update yaml metadata
-* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
-* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
-* [ ] `hugodown::use_tidy_thumbnails()`
-* [ ] Add intro sentence, e.g. the standard tagline for the package
-* [ ] `usethis::use_tidy_thanks()`
--->
-
 We're excited to share our first tidyverse blog post for Rapp, alongside the `0.3.0` release. Rapp helps you turn R scripts into polished command-line tools, with argument parsing and help generation built in.
 
 ## Why a command-line interface for R?
 
-A command-line interface (CLI) lets you run programs from a terminal by typing commands. (So, no need to open an IDE or any interactive R session.) This is useful when you want to:
+A command-line interface (CLI) lets you run programs from a terminal, without opening an IDE or starting an interactive R session. This is useful when you want to:
 
 - automate tasks via cron jobs, scheduled tasks, or CI/CD pipelines
 - chain R scripts together with other tools in data pipelines
 - let others run your R code without needing to know R
 - package reusable tools that feel native to the terminal
+- expose specific actions through a clean interface that LLM agents can invoke
 
 There are several established packages for building CLIs in R, including argparse, optparse, and docopt, where you explicitly parse and handle command-line arguments in code. Rapp takes a different approach: it derives the CLI surface from the structure of your R script and injects values at runtime, so you never need to handle CLI arguments manually.
 
@@ -51,7 +38,7 @@ There are several established packages for building CLIs in R, including argpars
 
 At its core, Rapp is an alternative front-end to R: a drop-in replacement for `Rscript` that automatically turns common R expression patterns into command-line options, switches, positional arguments, and subcommands. You write normal R code and Rapp handles the CLI surface.
 
-Rapp also uses special `#|` comments (this is similar to Quarto's YAML-in-comments syntax) to add metadata like descriptions and short aliases. These comments are ignored by regular R.
+Rapp also uses special `#|` comments (similar to Quarto's YAML-in-comments syntax) to add metadata such as help descriptions and short aliases.
 
 ## A tiny example
 
@@ -80,7 +67,7 @@ cat(sample(c("heads", "tails"), flips, TRUE), sep = sep, fill = wrap)
 
 Let's break down how Rapp interprets this script:
 
-| R code | generated CLI option | What it does |
+| R code | Generated CLI option | What it does |
 |--------|------------|-------------|
 | `flips <- 1L` | `--flips` or `-n` | Integer option with default of 1 |
 | `sep <- " "` | `--sep` | String option with default of `" "` |
@@ -89,22 +76,15 @@ Let's break down how Rapp interprets this script:
 
 The `#| short: 'n'` comment adds `-n` as a short alias for `--flips`. The `#!/usr/bin/env Rapp` line (called a "shebang") lets you run the script directly on macOS and Linux without typing `Rapp` first.
 
-### Installation and running
+### Running the script
 
-First, install Rapp and its command-line launcher:
-
-```r
-install.packages("Rapp")
-Rapp::install_pkg_cli_apps("Rapp")
-```
-
-Then run your script from the terminal:
+With Rapp installed and `flip-coin` available on your `PATH` (see [Get started](#get-started) below), you can run the app from the terminal:
 
 ```sh
-Rapp flip-coin.R -n 3
+flip-coin -n 3
 #> heads tails heads
 
-Rapp flip-coin.R --seed 42 -n 5
+flip-coin --seed 42 -n 5
 #> tails heads tails tails heads
 ```
 
@@ -113,7 +93,7 @@ Rapp flip-coin.R --seed 42 -n 5
 Rapp generates `--help` from your script (and `--help-yaml` if you want a machine-readable spec):
 
 ```sh
-Rapp flip-coin.R --help
+flip-coin --help
 ```
 
 ```text
@@ -199,12 +179,6 @@ Rapp::install_pkg_cli_apps("mypackage")
 ```
 
 (There's also `uninstall_pkg_cli_apps()` to remove a package's launchers.)
-
-## When to use Rapp vs. alternatives
-
-If you've built CLIs in R before, you may have used [argparse](https://cran.r-project.org/web/packages/argparse/index.html), [optparse](https://cran.r-project.org/web/packages/optparse/index.html), or [docopt](https://cran.r-project.org/web/packages/docopt/index.html). These are solid, well-established packages (each with its own style for defining arguments).
-
-Rapp takes a different approach: instead of writing argument definitions, you write plain R code and Rapp infers the CLI from it. This keeps your script readable, easy to test interactively, and quick to iterate on (without having to maintain separate argument definitions).
 
 ## Get started
 
