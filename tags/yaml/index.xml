@@ -1,4 +1,230 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>yaml | Tidyverse</title><link>https://www.tidyverse.org/tags/yaml/</link><atom:link href="https://www.tidyverse.org/tags/yaml/index.xml" rel="self" type="application/rss+xml"/><description>yaml</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 07 Jan 2026 00:00:00 +0000</lastBuildDate><item><title>yaml12: YAML 1.2 for R and Python</title><link>https://www.tidyverse.org/blog/2026/01/yaml12-0-1-0/</link><pubDate>Wed, 07 Jan 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/01/yaml12-0-1-0/</guid><description>&lt;!--
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>yaml | Tidyverse</title><link>https://www.tidyverse.org/tags/yaml/</link><atom:link href="https://www.tidyverse.org/tags/yaml/index.xml" rel="self" type="application/rss+xml"/><description>yaml</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 18 Feb 2026 00:00:00 +0000</lastBuildDate><item><title>Rapp 0.3.0</title><link>https://www.tidyverse.org/blog/2026/02/rapp-0-3-0/</link><pubDate>Wed, 18 Feb 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/02/rapp-0-3-0/</guid><description>&lt;p>We&amp;rsquo;re excited to share our first tidyverse blog post for Rapp, alongside the &lt;code>0.3.0&lt;/code> release. Rapp helps you turn R scripts into polished command-line tools, with argument parsing and help generation built in.&lt;/p>
+&lt;h2 id="why-a-command-line-interface-for-r">Why a command-line interface for R?
+&lt;a href="#why-a-command-line-interface-for-r">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A command-line interface (CLI) lets you run programs from a terminal, without opening an IDE or starting an interactive R session. This is useful when you want to:&lt;/p>
+&lt;ul>
+&lt;li>automate tasks via cron jobs, scheduled tasks, or CI/CD pipelines&lt;/li>
+&lt;li>chain R scripts together with other tools in data pipelines&lt;/li>
+&lt;li>let others run your R code without needing to know R&lt;/li>
+&lt;li>package reusable tools that feel native to the terminal&lt;/li>
+&lt;li>expose specific actions through a clean interface that LLM agents can invoke&lt;/li>
+&lt;/ul>
+&lt;p>There are several established packages for building CLIs in R, including argparse, optparse, and docopt, where you explicitly parse and handle command-line arguments in code. Rapp takes a different approach: it derives the CLI surface from the structure of your R script and injects values at runtime, so you never need to handle CLI arguments manually.&lt;/p>
+&lt;h2 id="how-rapp-works">How Rapp works
+&lt;a href="#how-rapp-works">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>At its core, Rapp is an alternative front-end to R: a drop-in replacement for &lt;code>Rscript&lt;/code> that automatically turns common R expression patterns into command-line options, switches, positional arguments, and subcommands. You write normal R code and Rapp handles the CLI surface.&lt;/p>
+&lt;p>Rapp also uses special &lt;code>#|&lt;/code> comments (similar to Quarto&amp;rsquo;s YAML-in-comments syntax) to add metadata such as help descriptions and short aliases.&lt;/p>
+&lt;h2 id="a-tiny-example">A tiny example
+&lt;a href="#a-tiny-example">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Here&amp;rsquo;s a complete Rapp script (from the package examples), a coin flipper:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">#!/usr/bin/env Rapp&lt;/span>
+&lt;span class="c1">#| name: flip-coin&lt;/span>
+&lt;span class="c1">#| description: |&lt;/span>
+&lt;span class="c1">#| Flip a coin.&lt;/span>
+&lt;span class="c1">#| description: Number of coin flips&lt;/span>
+&lt;span class="c1">#| short: &amp;#39;n&amp;#39;&lt;/span>
+&lt;span class="n">flips&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="m">1L&lt;/span>
+&lt;span class="n">sep&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="s">&amp;#34; &amp;#34;&lt;/span>
+&lt;span class="n">wrap&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="kc">TRUE&lt;/span>
+&lt;span class="n">seed&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="kc">NA_integer_&lt;/span>
+&lt;span class="nf">if &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">!&lt;/span>&lt;span class="nf">is.na&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">seed&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">seed&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="nf">cat&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">sample&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;heads&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;tails&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">flips&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">TRUE&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">sep&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">sep&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">fill&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">wrap&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Let&amp;rsquo;s break down how Rapp interprets this script:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>R code&lt;/th>
+&lt;th>Generated CLI option&lt;/th>
+&lt;th>What it does&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>&lt;code>flips &amp;lt;- 1L&lt;/code>&lt;/td>
+&lt;td>&lt;code>--flips&lt;/code> or &lt;code>-n&lt;/code>&lt;/td>
+&lt;td>Integer option with default of 1&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>sep &amp;lt;- &amp;quot; &amp;quot;&lt;/code>&lt;/td>
+&lt;td>&lt;code>--sep&lt;/code>&lt;/td>
+&lt;td>String option with default of &lt;code>&amp;quot; &amp;quot;&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>wrap &amp;lt;- TRUE&lt;/code>&lt;/td>
+&lt;td>&lt;code>--wrap&lt;/code> / &lt;code>--no-wrap&lt;/code>&lt;/td>
+&lt;td>Boolean toggle (TRUE/FALSE becomes on/off)&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>&lt;code>seed &amp;lt;- NA_integer_&lt;/code>&lt;/td>
+&lt;td>&lt;code>--seed&lt;/code>&lt;/td>
+&lt;td>Optional integer (NA means &amp;ldquo;not set&amp;rdquo;)&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>The &lt;code>#| short: 'n'&lt;/code> comment adds &lt;code>-n&lt;/code> as a short alias for &lt;code>--flips&lt;/code>. The &lt;code>#!/usr/bin/env Rapp&lt;/code> line (called a &amp;ldquo;shebang&amp;rdquo;) lets you run the script directly on macOS and Linux without typing &lt;code>Rapp&lt;/code> first.&lt;/p>
+&lt;h3 id="running-the-script">Running the script
+&lt;a href="#running-the-script">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>With Rapp installed and &lt;code>flip-coin&lt;/code> available on your &lt;code>PATH&lt;/code> (see
+&lt;a href="#get-started">Get started&lt;/a> below), you can run the app from the terminal:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sh" data-lang="sh">flip-coin -n &lt;span class="m">3&lt;/span>
+&lt;span class="c1">#&amp;gt; heads tails heads&lt;/span>
+flip-coin --seed &lt;span class="m">42&lt;/span> -n &lt;span class="m">5&lt;/span>
+&lt;span class="c1">#&amp;gt; tails heads tails tails heads&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="auto-generated-help">Auto-generated help
+&lt;a href="#auto-generated-help">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Rapp generates &lt;code>--help&lt;/code> from your script (and &lt;code>--help-yaml&lt;/code> if you want a machine-readable spec):&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sh" data-lang="sh">flip-coin --help
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-text" data-lang="text">Usage: flip-coin [OPTIONS]
+Flip a coin.
+Options:
+-n, --flips &amp;lt;FLIPS&amp;gt; Number of coin flips [default: 1] [type: integer]
+--sep &amp;lt;SEP&amp;gt; [default: &amp;#34; &amp;#34;] [type: string]
+--wrap / --no-wrap [default: true] Disable with `--no-wrap`.
+--seed &amp;lt;SEED&amp;gt; [default: NA] [type: integer]
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="callout-warning">
+&lt;h2 id="breaking-change-in-030-positional-arguments-are-now-required-by-default">Breaking change in 0.3.0: positional arguments are now required by default
+&lt;a href="#breaking-change-in-030-positional-arguments-are-now-required-by-default">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>If you&amp;rsquo;re upgrading from an earlier version of Rapp, note that positional arguments are now &lt;strong>required&lt;/strong> unless explicitly marked optional.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># Before 0.3.0: this positional was optional&lt;/span>
+&lt;span class="n">name&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="kc">NULL&lt;/span>
+&lt;span class="c1"># In 0.3.0+: add this comment to keep it optional&lt;/span>
+&lt;span class="c1">#| required: false&lt;/span>
+&lt;span class="n">name&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="kc">NULL&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>If your scripts use positional arguments with &lt;code>NULL&lt;/code> defaults that should remain optional, add &lt;code>#| required: false&lt;/code> above them.&lt;/p>
+&lt;/div>
+&lt;h2 id="highlights-in-030">Highlights in 0.3.0
+&lt;a href="#highlights-in-030">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Rapp will be new to most readers, so rather than listing every change, here are the main ideas (and what&amp;rsquo;s improved in 0.3.0).&lt;/p>
+&lt;h3 id="options-switches-and-repeatable-flags-from-plain-r">Options, switches, and repeatable flags from plain R
+&lt;a href="#options-switches-and-repeatable-flags-from-plain-r">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Rapp recognizes a small set of &amp;ldquo;declarative&amp;rdquo; patterns at the top level of your script:&lt;/p>
+&lt;ul>
+&lt;li>Scalar literals like &lt;code>flips &amp;lt;- 1L&lt;/code> become options like &lt;code>--flips 10&lt;/code>.&lt;/li>
+&lt;li>Logical defaults like &lt;code>wrap &amp;lt;- TRUE&lt;/code> become toggles like &lt;code>--wrap&lt;/code> / &lt;code>--no-wrap&lt;/code>.&lt;/li>
+&lt;li>&lt;code>#| short: n&lt;/code> adds a short alias like &lt;code>-n&lt;/code> (new in 0.3.0).&lt;/li>
+&lt;li>
+&lt;a href="https://rdrr.io/r/base/c.html" target="_blank" rel="noopener">&lt;code>c()&lt;/code>&lt;/a> and
+&lt;a href="https://rdrr.io/r/base/list.html" target="_blank" rel="noopener">&lt;code>list()&lt;/code>&lt;/a> defaults declare repeatable options (new in 0.3.0): callers can supply the same flag multiple times and values are appended.&lt;/li>
+&lt;/ul>
+&lt;h3 id="subcommands-with-switch">Subcommands with &lt;code>switch()&lt;/code>
+&lt;a href="#subcommands-with-switch">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>Rapp can now turn a
+&lt;a href="https://rdrr.io/r/base/switch.html" target="_blank" rel="noopener">&lt;code>switch()&lt;/code>&lt;/a> block into subcommands (and you can nest
+&lt;a href="https://rdrr.io/r/base/switch.html" target="_blank" rel="noopener">&lt;code>switch()&lt;/code>&lt;/a> blocks for nested commands). Here&amp;rsquo;s a small sketch of a &lt;code>todo&lt;/code>-style app:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">#!/usr/bin/env Rapp&lt;/span>
+&lt;span class="c1">#| name: todo&lt;/span>
+&lt;span class="c1">#| description: Manage a simple todo list.&lt;/span>
+&lt;span class="c1">#| description: Path to the todo list file.&lt;/span>
+&lt;span class="c1">#| short: s&lt;/span>
+&lt;span class="n">store&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="s">&amp;#34;.todo.yml&amp;#34;&lt;/span>
+&lt;span class="nf">switch&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">command&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="s">&amp;#34;&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="c1">#| description: Display the todos&lt;/span>
+&lt;span class="n">list&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">limit&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="m">30L&lt;/span>
+&lt;span class="c1"># ...&lt;/span>
+&lt;span class="p">},&lt;/span>
+&lt;span class="c1">#| description: Add a new todo&lt;/span>
+&lt;span class="n">add&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="n">task&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="kc">NULL&lt;/span>
+&lt;span class="c1"># ...&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Help is scoped to the command you&amp;rsquo;re asking about, so &lt;code>todo --help&lt;/code> lists the commands, and &lt;code>todo list --help&lt;/code> shows just the options/arguments for &lt;code>list&lt;/code> (plus any parent/global options).&lt;/p>
+&lt;h3 id="installable-launchers-for-package-clis">Installable launchers for package CLIs
+&lt;a href="#installable-launchers-for-package-clis">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>A big part of sharing CLI tools is making them easy to run after installation. In &lt;code>0.3.0&lt;/code>, &lt;code>install_pkg_cli_apps()&lt;/code> installs lightweight launchers for scripts in a package&amp;rsquo;s &lt;code>exec/&lt;/code> directory that use either &lt;code>#!/usr/bin/env Rapp&lt;/code> or &lt;code>#!/usr/bin/env Rscript&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">Rapp&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">install_pkg_cli_apps&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;mypackage&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>(There&amp;rsquo;s also &lt;code>uninstall_pkg_cli_apps()&lt;/code> to remove a package&amp;rsquo;s launchers.)&lt;/p>
+&lt;h2 id="get-started">Get started
+&lt;a href="#get-started">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Here&amp;rsquo;s the quickest path to your first Rapp script:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># 1. Install the package&lt;/span>
+&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Rapp&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># 2. Install the command-line launcher&lt;/span>
+&lt;span class="n">Rapp&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">install_pkg_cli_apps&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Rapp&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Then create a script (e.g., &lt;code>hello.R&lt;/code>):&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1">#!/usr/bin/env Rapp&lt;/span>
+&lt;span class="c1">#| name: hello&lt;/span>
+&lt;span class="c1">#| description: Say hello&lt;/span>
+&lt;span class="n">name&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="s">&amp;#34;world&amp;#34;&lt;/span>
+&lt;span class="nf">cat&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Hello,&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;\n&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>And run it:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-sh" data-lang="sh">Rapp hello.R --name &lt;span class="s2">&amp;#34;R users&amp;#34;&lt;/span>
+&lt;span class="c1">#&amp;gt; Hello, R users&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h3 id="learn-more">Learn more
+&lt;a href="#learn-more">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h3>&lt;p>To dig deeper into Rapp:&lt;/p>
+&lt;ul>
+&lt;li>browse examples in the package: &lt;code>system.file(&amp;quot;examples&amp;quot;, package = &amp;quot;Rapp&amp;quot;)&lt;/code>&lt;/li>
+&lt;li>read the full documentation: &lt;a href="https://github.com/r-lib/Rapp">https://github.com/r-lib/Rapp&lt;/a>&lt;/li>
+&lt;li>note that Rapp requires R ≥ 4.1.0&lt;/li>
+&lt;/ul>
+&lt;p>If you try Rapp, we&amp;rsquo;d love feedback! We especially want to hear about your experiences with edge cases in argument parsing, help output, and how commands should feel. Issues and ideas are welcome at &lt;a href="https://github.com/r-lib/Rapp/issues">https://github.com/r-lib/Rapp/issues&lt;/a>.&lt;/p></description></item><item><title>yaml12: YAML 1.2 for R and Python</title><link>https://www.tidyverse.org/blog/2026/01/yaml12-0-1-0/</link><pubDate>Wed, 07 Jan 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/01/yaml12-0-1-0/</guid><description>&lt;!--
 TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
