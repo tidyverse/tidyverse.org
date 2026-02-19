@@ -1,0 +1,339 @@
+---
+output: hugodown::hugo_document
+
+slug: ggplot2-4-0-0-s7
+title: ggplot2 migrates to S7
+date: 2025-05-26
+author: Teun van den Brand
+description: >
+    The ggplot2 package is migrating to S7 and we'd like to minimise any problems.
+    This guide details the classes and functions that ggplot2 has migrated and
+    how these might affect downstream packages.
+
+photo:
+  url: https://unsplash.com/photos/silhouette-of-person-standing-on-grass-field-during-sunset-Fr33DHTpLZk
+  author: Inhyeok Park
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package] 
+tags: [ggplot2, s7, package maintenance]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+
+We are on the verge of releasing version 4.0.0 of the ggplot2 package. 
+That is right: a new major version release! 
+We only tend to do these when something fundamental changes in ggplot2.
+For example: ggplot2 2.0.0 brought the ggproto extension system and 3.0.0 switched to tidy evaluation.
+This time around, we're swapping out the S3 object oriented programming system for the newer S7 system.
+Because of this major change, we expect that some packages might break, despite our best efforts to minimise the implications of the switch.
+This here is a guide for package authors that might be affected by the changes.
+It details some changes in classes and functions that may affect downstream packages, and gives recommendations how broken parts might be repaired.
+If you don't maintain a package that depends on ggplot2, you can skip reading this guide and simply take away that there will be a release soon.
+
+## Testing compatibility
+
+If you are a package author that depends on ggplot2 and you want to know how your package might be affected, you can try the current development version from GitHub using the code below.
+
+```r
+pak::pak("tidyverse/ggplot2")
+```
+
+It should also automatically install scales 1.4.0, which is needed for this release.
+One of the things to inspect first is the result of R CMD check on your package, with the development version of ggplot2 installed.
+It can be invoked by `devtools::check()`.
+This is also the check CRAN runs on your package to keep tabs on whether your package continues to work.
+If you are lucky, it will happily report that there are no problems and you can stop reading this guide!
+If you are unlucky, it will list errors and warnings associated with running your package.
+It might be that your examples no longer work, test assumptions are no longer met or vignettes run amock.
+If you use visual snapshots from the vdiffr package, you may certainly expect (mostly harmless) imperceptible changes.
+
+As you're still reading, I'm assuming there are problems to solve.
+The next step is determining who should fix these problems.
+We have tried to facilitate some backwards compatibility, but we also cannot anticipate every contingency.
+If something is broken with classes, generics, methods or object oriented programming in general, this guide describes problems and remedies.
+Because ggplot2 does not go back to S3, we hope that you will facilitate the migration to S7 in your code where appropriate.
+If there are other issues that pop up that you think might be best repaired in ggplot2, you can post an issue in the [issue tracker](https://github.com/tidyverse/ggplot2/issues).
+
+That said, let's go through S7 a bit. [S7](https://rconsortium.github.io/S7/) is a newer object oriented programming system that is built on top of the older S3 system.
+It was build by a collaboration of developers from different parts in the R community, ranging from R Core, to Bioconductor to the tidyverse.
+It aims to succeed the simpler S3 and more complex S4 systems.
+Aside from simply modernising ggplot2, the migration to S7 also enables features that are hard to implement in S3, such as double dispatch.
+For years now, people have been asking for more control over how plots are declared at both sides of the `+` operator, which S7 will facilitate.
+
+## Classes
+
+The ggplot2 package uses a mixture of object oriented programming systems.
+One of these systems is the ggproto system that powers the extension mechanism and remains unchanged.
+The other system is S3 which has been supplanted by S7 in the recent ggplot2 update.
+You might notice this from the new S7 class objects that ggplot2 defines, like `class_ggplot` or `class_theme`.
+
+```{r}
+library(ggplot2)
+class_ggplot
+```
+
+### Properties
+
+In prior incarnations, ggplot2 defined the ggplot class as a named list with the `"ggplot"` class attribute.
+Classes in S7 are more formal than in S3 and have properties which can have restricted classes.
+For example, in the ggplot class, the `data` property can be anything (because it will go through `fortify()` to become a data frame), the `facet` property must be the `Facet` ggproto class, and the `theme` property must be an S7 theme object.
+
+In contrast to S3, we cannot simply add new items to `ggplot` object ^[This still 'works' for backwards compatibility reasons, but it will be phased out in the future, so it should be avoided.].
+The way to add additional information to classes in S7 is to make a subclass with additional properties.
+For example, if we want to add colour information to a new plot, we can do the following:
+
+```{r}
+inked_ggplot <- S7::new_class(
+  name = "inked_ggplot",
+  parent = class_ggplot, 
+  properties = list(ink = S7::class_character)
+)
+
+inked_ggplot
+```
+
+When you define a new class, the object you've assigned it to automatically becomes the class definition which comes with a free, standard constructor.
+This means that we can start building new plots with our subclass right away.
+Note that we haven't implemented any behaviour around the `ink` property (yet), so it will just print like a normal plot.
+
+```{r}
+my_plot <- inked_ggplot(data = mpg, ink = "red") +
+  geom_point(aes(displ, hwy))
+my_plot
+```
+
+In contrast to S3, where you would change list-items by using `$`, in S7 you can use `@` to read and write properties.
+So if we want to change the stored `ink` colour, we can use:
+
+```{r}
+my_plot@ink <- "blue"
+```
+
+### Testing
+
+In S3, the recommended way to test for the class of an object is to use a testing function.
+An example is `is.factor()` but it may be that such a testing function doesn't exist. In that case you can use `inherits()`.
+In S7, it is still recommended to use dedicating testing functions.
+However, if these are absent, you can use `S7::S7_inherits()`.
+If we wanted to write a testing function for our new class, we can do that as follows:
+
+```{r}
+is_inked_ggplot <- function(x) S7::S7_inherits(x, inked_ggplot)
+
+# Is not our class
+is_inked_ggplot(ggplot())
+
+# Is our class
+is_inked_ggplot(my_plot)
+```
+
+### Overview
+
+To give an overview of ggplot2's S7 classes, we include the table below.
+The table also lists the recommended way to test for the class.
+
+```{r, echo=FALSE}
+cls <- tibble::tribble(
+  ~`Old S3 Class`, ~`New S7 Class`,       ~`Testing functions`,
+  '"ggplot2"',       "class_ggplot",       "`is_ggplot(x)`",
+  '"ggplot_built"',  "class_ggplot_built", "`S7::S7_inherits(x, class_ggplot_built)`",
+  '"labs"',          "class_labels",       "`S7::S7_inherits(x, class_labels)`",
+  '"uneval"',        "class_mapping",      "`is_mapping(x)`",
+  '"theme"',         "class_theme",        "`is_theme(x)`",
+  '"element_blank"', "element_blank",      '`is_theme_element(x, "blank")`',
+  '"element_line"',  "element_line",       '`is_theme_element(x, "line")`',
+  '"element_rect"',  "element_rect",       '`is_theme_element(x, "rect")`',
+  '"element_text"',  "element_text",       '`is_theme_element(x, "text")`',
+  NA,                "element_polygon",    '`is_theme_element(x, "polygon")`',
+  NA,                "element_point",      '`is_theme_element(x, "point")`',
+  NA,                "element_geom",       '`is_theme_element(x, "geom")`'
+)
+knitr::kable(cls)
+```
+
+### Testing
+
+It should be noted that the `is_*()` testing functions in ggplot2 already know about the S7-ness of the new classes.
+This is handy when it comes to test expectations, because the testing function can be used instead of the S3/S7 class expectations.
+Previously, you might have used `testthat::expect_s3_class()`, but it is better now to test with `testthat::expect_s7_class()` or use an `is_*()` function instead.
+
+```{r}
+testthat::test_that(
+  "the plot object has the ggplot class",
+  {
+    plot <- ggplot()
+    
+    # Works regardless of S3 or S7
+    testthat::expect_true(is_ggplot(plot))
+    
+    # This will become dysfunctional in the future.
+    # Do not use this!
+    testthat::expect_s3_class(plot, "ggplot")
+    
+    # This will work in the new version
+    testthat::expect_s7_class(plot, class_ggplot)
+  }
+)
+```
+
+The ggplot2 package manually appends the `"ggplot"` class for backwards compatibility reasons (likewise for `"theme"`).
+However, once this phases out, the `testthat::expect_s3_class()` expectation will become untenable.
+It is also currently flawed, as it does not work for subclasses!
+
+```{r, error=TRUE}
+testthat::test_that(
+  "the inked plot has the ggplot class",
+  {
+    plot <- inked_ggplot()
+    testthat::expect_s3_class(plot, "ggplot")
+  }
+)
+```
+
+The advice herein is thus to use `is_ggplot()`.
+
+## Generics and methods
+
+If you are new to object oriented programming in R, you might be unfamiliar with what the terms 'generic' and 'methods' mean.
+They are a form of 'polymorphism', that allow us to use a single function, called the 'generic' function, with different implementations for different classes (where one such implementation is called a 'method').
+A well known generic is `print()`, which does different things for different classes. 
+For example `print(1:10)` prints the numeric vector to the console, but `print(my_plot)` opens a graphics device and renders the plot.
+
+### Your methods for ggplot's generics
+
+The ggplot2 package also declares some generic functions and contains methods for these, most of which revolve around plot construction.
+The migration to S7 means that the generics and methods defined by ggplot2 also migrate.
+
+It is also good to mention that when your package registers a method for one of ggplot2's generics, ggplot2's generic is called an 'external generic' from the point of view of your package. With S7, you should include `S7::methods_register()` in your package's `.onLoad()` call.
+
+While it is possible to define S7 methods for S3 generics, it is not possible to define S3 methods for S7 generics.
+
+```{r, error=TRUE}
+# Declare an S7 generic
+apply_ink <- S7::new_generic("apply_ink", "plot")
+
+# Attempt to implement an S3 method
+apply_ink.inked_ggplot <- function(plot, ...) {
+  # Edit plot to our liking
+  plot@theme <- theme_gray(ink = plot@ink) + plot@theme
+  plot
+}
+
+# Burn your fingers
+apply_ink(my_plot)
+```
+
+To allow for a smoother transition from S3 to S7, we plan to keep S3 generics around for another release cycle but will permanently disable them in the future in favour of the S7 generics.
+Here is an overview of which S7 generics supplant which S3 generics:
+
+```{r, echo=FALSE}
+generics <- tibble::tribble(
+  ~`Old S3 Generic`,   ~`New S7 Generic`,   ~`Description`,
+  "`ggplot_add()`",    "`update_ggplot()`", "Determines what happens when you `+` an object to a plot.",
+  "`ggplot_build()`",  "`build_ggplot()`",  "Processes data for display in a plot.",
+  "`ggplot_gtable()`", "`gtable_ggplot()`", "Renders a processed plot to a gtable object.",
+  "`element_grob()`",  "`draw_element()`",  "Renders a theme element."
+)
+knitr::kable(generics)
+```
+
+If your package implements methods for one of the old S3 generics, we recommend to replace these with S7 in a timely manner.
+An important difference between S3 and S7 is that S7 does not use `NextMethod()` to magically invoke parental methods on children.
+Instead, you can use `S7::super()` to explicitly convert the subclass to a parent before invoking the generic again.
+
+```{r}
+S7::method(build_ggplot, inked_ggplot) <- function(plot, ...) {
+  # Edit plot to our liking
+  plot@theme <- theme_gray(ink = plot@ink) + plot@theme
+  
+  # Invoke next method
+  build_ggplot(S7::super(plot, to = class_ggplot), ...)
+}
+
+my_plot
+```
+
+Just to show that the new property in our subclass works as expected:
+
+```{r}
+my_plot@ink <- "red"
+my_plot
+```
+
+### Your generics with methods for ggplot2's classes
+
+Alternatively, it might be that you package has generic functions and methods that handle some of ggplot2's classes.
+The S7 system has its own way of handling class names, which means that S3 function name patterns of the form `{generic_name}.{class_name}` no longer invoke the correct method for S7 classes.
+
+```{r, error=TRUE}
+# Declare S3 generic
+foo <- function(x, ...) {
+  UseMethod("foo")
+}
+
+# Implement S3 method
+foo.labels <- function(x, ...) {
+  x[] <- lapply(x, toupper)
+  x
+}
+
+# Burn your fingers
+foo(labs(colour = "my lowercase title"))
+```
+
+Please note that the `ggplot()` and `theme()` still produces objects with the `"ggplot"` and `"theme"` class for backwards compatibility, but this is scheduled to be removed in the future.
+The best remedy the dilemma with S3 would be to use `S7::method()`, which also works for S3 generics.
+
+```{r}
+# Note that `foo()` is still an S3 generic
+S7::method(foo, class_labels) <- function(x, ...) {
+  x[] <- lapply(x, toupper)
+  x
+}
+
+# Note text has updated
+foo(labs(colour = "my lowercase title"))
+```
+
+If that is not an option, because you may not want to depend on S7, you can *currently* use a little hack.
+The hack is to prepend the S7 class prefix in the class name of the S3 method.
+This prefix is the name of the package that defines the class, followed by `::`.
+
+```{r}
+`foo.ggplot2::labels` <- function(x, ...) {
+  x[] <- lapply(x, toupper)
+  x
+}
+```
+
+## Checklist
+
+Because all of the above might be hard to parse in its entirety, here is a dainty checklist of common migration issues.
+
+<input type= "checkbox"> Do I wrap a gglot class that should become an S7 class with extra properties?</input>
+
+<input type= "checkbox"> Are there cases where `inherits()` is used which should be replaced with test functions or `S7::S7_inherits()`?</input>
+
+<input type= "checkbox"> Do I edit objects with `$`, `[` or `[[` that were previously lists but are now properties to edit with `@`?</input>
+
+<input type= "checkbox"> Are there tests that assume S3 classes, that should use `testthat::expect_s7_class()` instead?</input>
+
+<input type= "checkbox"> Do I implement methods for one of the S3 generics that should become S7 methods?</input>
+
+<input type= "checkbox"> Do I have a generic that may need to facilitate methods for ggplot2's new S7 classes?</input>
+
+<input type= "checkbox"> If I assume ggplot2's S7 classes in my code, do I need to bump the required ggplot2 version in the DESCRIPTION file?</input>
+
+Thank you for reading, we hope that most of it was not necessary!
