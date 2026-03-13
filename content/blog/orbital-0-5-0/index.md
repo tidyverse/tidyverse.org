@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, orbital]
-rmd_hash: f7312fb6828a2356
+rmd_hash: 8b4d1963a7ba0bcc
 
 ---
 
@@ -34,7 +34,7 @@ TODO:
 
 We're over the moon to announce the release of [orbital](https://orbital.tidymodels.org/) 0.5.0. orbital lets you predict in databases using tidymodels workflows. orbital uses [tidypredict](https://tidypredict.tidymodels.org/) under the hood to translate fitted models into expressions. This post will also cover things from tidypredict's 1.1.0 release.
 
-This blogpost about the R orbital package, but there's also a [python version](https://posit-dev.github.io/orbital/) that works on scikit-learn models.
+This blogpost is about the R orbital package, but there's also a [python version](https://posit-dev.github.io/orbital/) that works on scikit-learn models.
 
 You can install both from CRAN with:
 
