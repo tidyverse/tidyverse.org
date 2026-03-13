@@ -3,7 +3,7 @@ output: hugodown::hugo_document
 
 slug: orbital-0-5-0
 title: orbital 0.5.0
-date: 2026-03-12
+date: 2026-03-13
 author: Emil Hvitfeldt
 description: >
     orbital 0.5.0 is on CRAN! More models and faster execution.
@@ -15,7 +15,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package] 
 tags: [tidymodels, orbital]
-rmd_hash: b9dd4b4a9766ee9b
+rmd_hash: 923fb447670fac7b
 
 ---
 
