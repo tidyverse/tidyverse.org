@@ -1,4 +1,146 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>tidymodels | Tidyverse</title><link>https://www.tidyverse.org/tags/tidymodels/</link><atom:link href="https://www.tidyverse.org/tags/tidymodels/index.xml" rel="self" type="application/rss+xml"/><description>tidymodels</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Mon, 12 Jan 2026 00:00:00 +0000</lastBuildDate><item><title>orbital 0.4.0</title><link>https://www.tidyverse.org/blog/2026/01/orbital-0-4-0/</link><pubDate>Mon, 12 Jan 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/01/orbital-0-4-0/</guid><description>&lt;!--
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>tidymodels | Tidyverse</title><link>https://www.tidyverse.org/tags/tidymodels/</link><atom:link href="https://www.tidyverse.org/tags/tidymodels/index.xml" rel="self" type="application/rss+xml"/><description>tidymodels</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 13 Mar 2026 00:00:00 +0000</lastBuildDate><item><title>orbital 0.5.0</title><link>https://www.tidyverse.org/blog/2026/03/orbital-0-5-0/</link><pubDate>Fri, 13 Mar 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/03/orbital-0-5-0/</guid><description>&lt;!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with [`hugodown::tidy_show_meta()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html))
+* [x] Find photo &amp; update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] [`hugodown::use_tidy_thumbnails()`](https://rdrr.io/pkg/hugodown/man/use_tidy_post.html)
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] [`usethis::use_tidy_thanks()`](https://usethis.r-lib.org/reference/use_tidy_thanks.html)
+-->
+&lt;p>We&amp;rsquo;re over the moon to announce the release of
+&lt;a href="https://orbital.tidymodels.org/" target="_blank" rel="noopener">orbital&lt;/a> 0.5.0. orbital lets you predict in databases using tidymodels workflows. orbital uses
+&lt;a href="https://tidypredict.tidymodels.org/" target="_blank" rel="noopener">tidypredict&lt;/a> under the hood to translate fitted models into expressions. This post will also cover things from tidypredict&amp;rsquo;s 1.1.0 release.&lt;/p>
+&lt;p>You can install both from CRAN with:&lt;/p>
+&lt;div class="highlight">
+&lt;pre class='chroma'>&lt;code class='language-r' data-lang='r'>&lt;span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/utils/install.packages.html'>install.packages&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='nf'>&lt;a href='https://rdrr.io/r/base/c.html'>c&lt;/a>&lt;/span>&lt;span class='o'>(&lt;/span>&lt;span class='s'>"orbital"&lt;/span>, &lt;span class='s'>"tidypredict"&lt;/span>&lt;span class='o'>)&lt;/span>&lt;span class='o'>)&lt;/span>&lt;/span>&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>This blog post will cover the highlights, which are support for more models, faster performance, and more vignettes.&lt;/p>
+&lt;p>You can see a full list of changes in the
+&lt;a href="https://orbital.tidymodels.org/news/index.html#orbital-050" target="_blank" rel="noopener">orbital release notes&lt;/a> and
+&lt;a href="https://tidypredict.tidymodels.org/news/index.html#tidypredict-110" target="_blank" rel="noopener">tidypredict release notes&lt;/a>.&lt;/p>
+&lt;h2 id="newly-supported-models">Newly supported models
+&lt;a href="#newly-supported-models">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We have added support for new models as well as more prediction types for existing supported models.&lt;/p>
+&lt;p>The newly supported models are.&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>decision_tree(engine = &amp;quot;rpart&amp;quot;)&lt;/code>&lt;/li>
+&lt;li>&lt;code>boost_tree(engine = &amp;quot;lightgbm&amp;quot;)&lt;/code>&lt;/li>
+&lt;li>&lt;code>boost_tree(engine = &amp;quot;catboost&amp;quot;)&lt;/code> (More on this soon)&lt;/li>
+&lt;/ul>
+&lt;p>All of which support regression, classification and probability estimates.&lt;/p>
+&lt;p>The following models now also support classification and probability estimates in addition to regression.&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>mars(engine = &amp;quot;earth&amp;quot;)&lt;/code>&lt;/li>
+&lt;li>&lt;code>multinom_reg(engine = &amp;quot;glmnet&amp;quot;)&lt;/code>&lt;/li>
+&lt;li>&lt;code>rand_forest(engine = &amp;quot;randomForest&amp;quot;)&lt;/code>&lt;/li>
+&lt;li>&lt;code>rand_forest(engine = &amp;quot;ranger&amp;quot;)&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>If there is a model type you specifically need
+&lt;a href="https://github.com/tidymodels/tidypredict/issues/232" target="_blank" rel="noopener">please let us know&lt;/a> so we can prioritize new additions.&lt;/p>
+&lt;h2 id="nested-case_when-support">Nested &lt;code>case_when()&lt;/code> support
+&lt;a href="#nested-case_when-support">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>All tree based models were previously implemented as a flat &lt;code>case_when()&lt;/code> statement. This means that a small tree with 3 leaves would look like this.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">case_when&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="m">5&lt;/span> &lt;span class="o">&amp;amp;&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="m">3&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="s">&amp;#34;low&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="m">5&lt;/span> &lt;span class="o">&amp;amp;&lt;/span> &lt;span class="n">y&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="m">3&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="s">&amp;#34;med&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="m">5&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="s">&amp;#34;high&amp;#34;&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>And while this works, it comes with a number of downsides. In this example we have to calculate &lt;code>x &amp;lt;= 5&lt;/code> more than once. This might not be that big of a deal in this sized tree but it compounds very fast as the tree grows deeper.&lt;/p>
+&lt;p>We are also not using the information effectively. Since trees are exhaustive we shouldn&amp;rsquo;t have to calculate the last condition as all other choices have been ruled out. With these considerations in mind we have switched all trees to be expressed as nested &lt;code>case_when()&lt;/code> statements.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">case_when&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">x&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="m">5&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="nf">case_when&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;span class="n">y&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="m">3&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="s">&amp;#34;low&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;span class="n">.default&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;med&amp;#34;&lt;/span>
+&lt;span class="p">),&lt;/span>
+&lt;span class="n">.default&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;high&amp;#34;&lt;/span>
+&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This &lt;code>case_when()&lt;/code> evaluates exactly the same as the previous flat &lt;code>case_when()&lt;/code> statement. While this might be a little harder to read it provides a lot of benefit in terms of performance. Each condition is evaluated at most 1 time. This has a really big influence on the computational speed.&lt;/p>
+&lt;p>This also means that the R version of orbital now matches what the
+&lt;a href="https://posit-dev.github.io/orbital/" target="_blank" rel="noopener">python version of orbital&lt;/a> does when creating a tree.&lt;/p>
+&lt;h2 id="new-separate_trees-argument">New &lt;code>separate_trees&lt;/code> argument
+&lt;a href="#new-separate_trees-argument">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Some models like the ensemble tree models can be represented as a combination of multiple smaller models.This typically manifests as a single massive expression in the following format:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">.pred&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;(tree1) + (tree2) + (tree3) + ... + (tree100)&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This can create trouble for two main reasons. The first one is that this can cause us to hit expression nesting depth when trying to execute these in a database if we have too many trees or have too deep trees. The second related issue is that databases will not be able to recognize that these trees could be calculated in parallel and combined afterwards.&lt;/p>
+&lt;p>This is where the new &lt;code>separate_trees&lt;/code> argument comes in. When setting &lt;code>separate_trees = TRUE&lt;/code> in
+&lt;a href="https://orbital.tidymodels.org/reference/orbital.html" target="_blank" rel="noopener">&lt;code>orbital()&lt;/code>&lt;/a> you change the internal representation of the orbital object to not have a single massive expression for &lt;code>.pred&lt;/code> and instead split them out into multiple expressions like so.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">.pred_tree_001&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;case_when(...)&amp;#34;&lt;/span>
+&lt;span class="n">.pred_tree_002&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;case_when(...)&amp;#34;&lt;/span>
+&lt;span class="n">.pred_tree_003&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;case_when(...)&amp;#34;&lt;/span>
+&lt;span class="kc">...&lt;/span>
+&lt;span class="n">.pred&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;.pred_tree_001 + .pred_tree_002 + .pred_tree_003 + ...&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This representation allows the database query optimizer to potentially evaluate trees in parallel, since each intermediate column is independent.&lt;/p>
+&lt;p>The &lt;code>separate_trees&lt;/code> argument works for the following engines.&lt;/p>
+&lt;ul>
+&lt;li>xgboost&lt;/li>
+&lt;li>lightgbm&lt;/li>
+&lt;li>catboost&lt;/li>
+&lt;li>ranger&lt;/li>
+&lt;li>randomForest&lt;/li>
+&lt;/ul>
+&lt;p>This change alone allows us to work with model types previously not possible with orbital. Together with the nested tree support you can now productionize some of the most popular machine learning models.&lt;/p>
+&lt;h2 id="splines-support">splines support
+&lt;a href="#splines-support">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Spline transformations are commonly used in preprocessing to capture non-linear relationships between predictors and the outcome.&lt;/p>
+&lt;p>With this release, orbital now supports &lt;code>step_spline_b()&lt;/code>, &lt;code>step_spline_convex()&lt;/code>, &lt;code>step_spline_monotone()&lt;/code>, &lt;code>step_spline_natural()&lt;/code>, and &lt;code>step_spline_nonnegative()&lt;/code> from the recipes package. Under the hood, splines are translated into piecewise polynomial expressions that can be evaluated directly in SQL.&lt;/p>
+&lt;h2 id="more-vignettes">More vignettes
+&lt;a href="#more-vignettes">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We have added a handful of new vignettes as well in this release.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>
+&lt;a href="https://orbital.tidymodels.org/articles/sql-size.html" target="_blank" rel="noopener">SQL expression sizes&lt;/a>: Goes over how different hyperparameters in models affect SQL sizes. This is useful information especially when working with boosted trees as there are many different combinations of hyperparameters that produce similar performance at different SQL expression sizes. With a little effort you could pick a model that runs 10-100 times faster with minimal loss in predictive performance.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://orbital.tidymodels.org/articles/separate-trees.html" target="_blank" rel="noopener">Parallel tree evaluation in databases&lt;/a>: A more in-depth look at how the &lt;code>separate_trees&lt;/code> argument works. Also includes a section on why and when you should consider using it.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://orbital.tidymodels.org/articles/database-deployment.html" target="_blank" rel="noopener">Database deployment&lt;/a>: Shows examples of how we can deploy an orbital model using tables and views.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>
+&lt;a href="https://tidypredict.tidymodels.org/articles/float-precision.html" target="_blank" rel="noopener">Float precision at split boundaries&lt;/a>: Some models like xgboost and Cubist models operate on 32-bit doubles instead of on 64-bit doubles like we have in R. This can cause some problems where predictions don&amp;rsquo;t match exactly. If you use any of these models you should read this vignette to see if this issue is a dealbreaker for you or not.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A special thanks to
+&lt;a href="https://github.com/emilyriederer" target="_blank" rel="noopener">Emily Riederer&lt;/a> who helped workshop and benchmark these new features.&lt;/p></description></item><item><title>orbital 0.4.0</title><link>https://www.tidyverse.org/blog/2026/01/orbital-0-4-0/</link><pubDate>Mon, 12 Jan 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/01/orbital-0-4-0/</guid><description>&lt;!--
 TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
