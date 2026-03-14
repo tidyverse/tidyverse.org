@@ -1,0 +1,221 @@
+---
+output: hugodown::hugo_document
+
+slug: tidymodels-errors-q4
+title: "Three ways errors are about to get better in tidymodels"
+date: 2023-11-10
+author: Simon Couch
+description: >
+    The tidymodels team's biannual spring cleaning gave us a chance to revisit 
+    the way we raise some error messages.
+
+photo:
+  url: https://unsplash.com/photos/vYcH7pI6v1Q
+  author: Nagesh Badu
+
+categories: [programming] 
+tags: [tidymodels, package maintenance, tune, parsnip]
+---
+
+```{r, include = FALSE} 
+options(width = 70)
+```
+
+Twice a year, the tidymodels team comes together for "[spring cleaning](https://www.tidyverse.org/blog/2023/06/spring-cleaning-2023/)," a week-long project devoted to package maintenance. Ahead of the week, we come up with a list of maintenance tasks that we'd like to see consistently implemented across our packages. Many of these tasks can be completed by running one usethis function, while others are much more involved, like issue triage.^[Issue triage consists of categorizing, prioritizing, and consolidating issues in a repository's issue tracker.] In tidymodels, triaging issues in our core packages helps us to better understand common ways that users struggle to wrap their heads around an API choice we've made or find the information they need. So, among other things, refinements to the wording of our error messages is a common output of our spring cleanings. This blog post will call out three kinds of changes to our erroring that came out of this spring cleaning:
+
+* Improving existing errors: [The outcome went missing](#outcome)
+* Do something where we once did nothing: [Predicting with things that can't predict](#predict)
+* Make a place and point to it: [Model formulas](#model)
+
+To demonstrate, we'll walk through some examples using the tidymodels packages: 
+
+```{r load-tidymodels}
+library(tidymodels)
+```
+
+Note that my installed versions include the current dev version of a few tidymodels packages. You can install those versions with:
+
+```{r inst-dev, eval = FALSE}
+pak::pak(paste0("tidymodels/", c("tune", "parsnip", "recipes")))
+```
+
+
+## The outcome went missing `r emo::ji("ghost")` {#outcome}
+
+The tidymodels packages focus on _supervised_ machine learning problems, predicting the value of an outcome using predictors.^[See the [tidyclust](tidyclust.tidymodels.org) package for unsupervised learning with tidymodels!] For example, in the code:
+
+```{r}
+linear_spec <- linear_reg()
+
+linear_fit <- fit(linear_spec, mpg ~ hp, mtcars)
+```
+
+The `mpg` variable is the outcome. There are many ways that an analyst may mistakenly fail to pass an outcome. In the most straightforward case, they might omit the outcome on the LHS of the formula:
+
+``` r
+fit(linear_spec, ~ hp, mtcars)
+#> Error in lm.fit(x, y, offset = offset, singular.ok = singular.ok, ...) : 
+#>   incompatible dimensions
+```
+
+In this case, parsnip used to defer to the modeling engine to raise an error, which may or may not be informative.
+
+There are many less obvious ways an analyst may mistakenly supply no outcome variable. For example, try spotting the issue in the following code, defining a recipe to perform principal component analysis (PCA) on the numeric variables in the data before fitting the model:
+
+``` r
+mtcars_rec <-
+  recipe(mpg ~ ., mtcars) %>%
+  step_pca(all_numeric())
+
+workflow(mtcars_rec, linear_spec) %>% fit(mtcars)
+#> Error: object '.' not found
+```
+
+A head-scratcher! To help diagnose what's happening here, we could first try seeing what data is actually being passed to the model. 
+
+```{r taxi-rec, include = FALSE}
+mtcars_rec <-
+  recipe(mpg ~ ., mtcars) %>%
+  step_pca(all_numeric())
+```
+
+```{r}
+mtcars_rec_trained <-
+  mtcars_rec %>% 
+  prep(mtcars) 
+
+mtcars_rec_trained %>% bake(NULL)
+```
+
+Mmm. What happened to `mpg`? We mistakenly told `step_pca()` to perform PCA on _all_ of the numeric variables, not just the numeric _predictors_! As a result, it incorporated `mpg` into the principal components, removing each of the original numeric variables after the fact. Rewriting using the correct tidyselect specification `all_numeric_predictors()`:
+
+```{r}
+mtcars_rec_new <- 
+  recipe(mpg ~ ., mtcars) %>%
+  step_pca(all_numeric_predictors())
+
+workflow(mtcars_rec_new, linear_spec) %>% fit(mtcars)
+```
+
+Works like a charm. That error we saw previously could be much more helpful, though. With the current developmental version of parsnip, this looks like:
+
+```{r no-outcome-parsnip, error = TRUE}
+fit(linear_spec, ~ hp, mtcars)
+```
+
+Or, with workflows:
+
+```{r no-outcome-workflows, error = TRUE}
+workflow(mtcars_rec, linear_spec) %>% fit(mtcars)
+```
+
+Much better.
+
+## Predicting with things that can't predict {#predict}
+
+Earlier this year, Dr. Louise E. Sinks put out a [wonderful blog post](https://lsinks.github.io/posts/2023-04-10-tidymodels/tidymodels_tutorial.html) documenting what it felt like to approach the various object types defined in the tidymodels as a newcomer to the collection of packages. They wrote:
+
+> I found it confusing that `fit`, `last_fit`, `fit_resamples`, etc., did not all produce objects that contained the same information and could be acted on by the same functions. 
+
+This makes sense. While we try to forefront the intended mental model for fitting and predicting with tidymodels in our APIs and documentation, we also need to be proactive in anticipating common challenges in constructing that mental model.
+
+For example, we've found that it's sometimes not clear to users which outputs they can call `predict()` on. One such situation, as Louise points out, is with `fit_resamples()`:
+
+```{r fit-resamples}
+# fit a linear regression model to bootstrap resamples of mtcars
+mtcars_res <- fit_resamples(linear_reg(), mpg ~ ., bootstraps(mtcars))
+
+mtcars_res
+```
+
+With previous tidymodels versions, mistakenly trying to predict with this object resulted in the following output:
+
+``` r
+predict(mtcars_res)
+#> Error in UseMethod("predict") : 
+#>   no applicable method for 'predict' applied to an object of class
+#>   "c('resample_results', 'tune_results', 'tbl_df', 'tbl', 'data.frame')"
+```
+
+Some R developers may recognize this error as what results when we didn't define any `predict()` method for `tune_results` objects. We didn't do so because prediction isn't well-defined for tuning results. _But_, this error message does little to help a user understand why that's the case.
+
+We've recently made some changes to error more informatively in this case. We do so by defining a "dummy" `predict()` method for tuning results, implemented only for the sake of erroring more informatively. The same code will now give the following output:
+
+```r
+predict(mtcars_res)
+#> Error in `predict()`:
+#> ! `predict()` is not well-defined for tuning results.
+#> ℹ To predict with the optimal model configuration from tuning
+#>   results, ensure that the tuning result was generated with the
+#>   control option `save_workflow = TRUE`, run `fit_best()`, and
+#>   then predict using `predict()` on its output.
+#> ℹ To collect predictions from tuning results, ensure that the
+#>   tuning result was generated with the control option `save_pred
+#>   = TRUE` and run `collect_predictions()`.
+```
+
+References to important concepts or functions, like [control options](https://tune.tidymodels.org/reference/control_grid.html), [`fit_best()`](https://tune.tidymodels.org/reference/fit_best.html?q=fit_best), and [`collect_predictions()`](https://tune.tidymodels.org/reference/collect_predictions.html?q=collect), link to the help-files for those functions using [cli's erroring tools](https://cli.r-lib.org/reference/cli_abort.html).
+
+We hope new error messages like this will help to get folks back on track.
+
+## Model formulas {#model}
+
+In R, formulas provide a compact, symbolic notation to specify model terms. Many modeling functions in R make use of "specials," or nonstandard notations used in formulas. Specials are defined and handled as a special case by a given modeling package. parsnip defers to engine packages to handle specials, so you can work with them as usual. For example, the mgcv package provides support for generalized additive models in R, and defines a special called `s()` to indicate smoothing terms. You can interface with it via tidymodels like so:
+
+```{r}
+# define a generalized additive model specification
+gam_spec <- gen_additive_mod("regression")
+
+# fit the specification using a formula with specials
+fit(gam_spec, mpg ~ cyl + s(disp, k = 5), mtcars)
+```
+
+While parsnip can handle specials just fine, the package is often used in conjunction with the greater tidymodels package ecosystem, which defines its own pre-processing infrastructure and functionality via packages like hardhat and recipes. The specials defined in many modeling packages introduce conflicts with that infrastructure. To support specials while also maintaining consistent syntax elsewhere in the ecosystem, **tidymodels delineates between two types of formulas: preprocessing formulas and model formulas**. Preprocessing formulas determine the input variables, while model formulas determine the model structure.
+
+This is a tricky abstraction, and one that users have tripped up on in the past. Users could generate all sorts of different errors by 1) mistakenly passing model formulas where preprocessing formulas were expected, or 2) forgetting to pass a model formula where it's needed. For an example of 1), we could pass recipes the same formula we passed to parsnip:
+
+```r
+recipe(mpg ~ cyl + s(disp, k = 5), mtcars)
+#> Error in `inline_check()`:
+#> ! No in-line functions should be used here; use steps to 
+#>   define baking actions.
+```
+
+But we _just_ used a special with another tidymodels function! Rude!
+
+Or, to demonstrate 2), we pass the preprocessing formula as we ought to but forget to provide the model formula:
+
+```{r, include = FALSE}
+gam_wflow <- 
+  workflow() %>%
+  add_formula(mpg ~ .) %>%
+  add_model(gam_spec) 
+```
+
+```r
+gam_wflow <- 
+  workflow() %>%
+  add_formula(mpg ~ .) %>%
+  add_model(gam_spec) 
+
+gam_wflow %>% fit(mtcars)
+#> Error in `fit_xy()`:
+#> ! `fit()` must be used with GAM models (due to its use of formulas).
+```
+
+Uh, but I _did_ just use `fit()`!
+
+Since the distinction between model formulas and preprocessor formulas comes up in functions across tidymodels, we decide to create a [central page](https://parsnip.tidymodels.org/dev/reference/model_formula.html) that documents the concept itself, hopefully making the syntax associated with it come more easily to users. Then, we link to it _all over the place_. For example, those errors now look like:
+
+```{r, error = TRUE}
+recipe(mpg ~ cyl + s(disp, k = 5), mtcars)
+```
+
+Or:
+
+
+```{r, error = TRUE}
+gam_wflow %>% fit(mtcars)
+```
+
+While I've only outlined three, there are all sorts of improvements to error messages on their way to the tidymodels packages in upcoming releases. If you happen to stumble across them, we hope they quickly set you back on the right path. `r emo::ji("map")`
