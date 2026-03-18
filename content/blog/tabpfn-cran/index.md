@@ -1,7 +1,7 @@
 ---
 output: hugodown::hugo_document
 slug: tabpfn-0-1-0
-title: tabpfn v0.1.0
+title: tabpfn 0.1.0
 date: 2026-03-20
 author: Max Kuhn
 description: >
