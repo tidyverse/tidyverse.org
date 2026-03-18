@@ -9,8 +9,6 @@ categories: [package]
 tags:
   - dplyr
   - tidyverse
-tags:
-  - dplyr
 photo:
   url: https://unsplash.com/photos/BiZ-_6kNjbI
   author: Sophie Elvis
