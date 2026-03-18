@@ -5142,7 +5142,226 @@ visualisation:&lt;/p>
 &lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>,
 &lt;a href="https://github.com/zeehio" target="_blank" rel="noopener">@zeehio&lt;/a>,
 &lt;a href="https://github.com/zlskidmore" target="_blank" rel="noopener">@zlskidmore&lt;/a>, and
-&lt;a href="https://github.com/zuccaval" target="_blank" rel="noopener">@zuccaval&lt;/a>.&lt;/p></description></item><item><title>forcats 0.4.0</title><link>https://www.tidyverse.org/blog/2019/05/forcats-0-4-0/</link><pubDate>Fri, 10 May 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/05/forcats-0-4-0/</guid><description>&lt;p>We are pleased to announce that
+&lt;a href="https://github.com/zuccaval" target="_blank" rel="noopener">@zuccaval&lt;/a>.&lt;/p></description></item><item><title>dplyr 0.8.1</title><link>https://www.tidyverse.org/blog/2019/05/dplyr-0-8-1/</link><pubDate>Fri, 17 May 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/05/dplyr-0-8-1/</guid><description>
+&lt;h2 id="introduction">Introduction
+&lt;a href="#introduction">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>We&amp;rsquo;re delighted to announce the release of dplyr 0.8.1 on CRAN 🎉 !&lt;/p>
+&lt;p>This is a minor release that address follow ups from the community after the
+release of the
+&lt;a href="https://www.tidyverse.org/articles/2019/02/dplyr-0-8-0/" target="_blank" rel="noopener">0.8.0 version&lt;/a>.&lt;/p>
+&lt;h2 id="group_map-and-group_modify">group_map() and group_modify()
+&lt;a href="#group_map-and-group_modify">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Shortly after the release of 0.8.0, we were notified by several members of the
+community that &lt;code>group_map()&lt;/code> was great, except it didn&amp;rsquo;t do what they had expected 😬.&lt;/p>
+&lt;p>Because the function was (and still is) marked as experimental, we allowed ourselves to
+rectify the situation:&lt;/p>
+&lt;ul>
+&lt;li>The name &lt;code>group_map()&lt;/code> is now used for iterating on groups of grouped tibbles,
+characterised by &lt;code>.x&lt;/code> and &lt;code>.y&lt;/code> as before, but making no assumptions about the return
+type of each operation and combining the results in a &lt;em>list&lt;/em>. We can see this as
+iterating, in the
+&lt;a href="https://purrr.tidyverse.org/reference/map.html" target="_blank" rel="noopener">purrr::map()&lt;/a>
+sense on the groups.&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dplyr&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">warn.conflicts&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">FALSE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1"># a list of vectors&lt;/span>
+&lt;span class="n">iris&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Species&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">~&lt;/span> &lt;span class="nf">quantile&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">.x&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">Petal.Length&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">probs&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0.25&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">0.5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">0.75&lt;/span>&lt;span class="p">)))&lt;/span>
+&lt;span class="c1">#&amp;gt; [[1]]&lt;/span>
+&lt;span class="c1">#&amp;gt; 25% 50% 75% &lt;/span>
+&lt;span class="c1">#&amp;gt; 1.400 1.500 1.575 &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[2]]&lt;/span>
+&lt;span class="c1">#&amp;gt; 25% 50% 75% &lt;/span>
+&lt;span class="c1">#&amp;gt; 4.00 4.35 4.60 &lt;/span>
+&lt;span class="c1">#&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; [[3]]&lt;/span>
+&lt;span class="c1">#&amp;gt; 25% 50% 75% &lt;/span>
+&lt;span class="c1">#&amp;gt; 5.100 5.550 5.875&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;ul>
+&lt;li>The behaviour we previously had was renamed &lt;code>group_modify()&lt;/code> to loosely echo
+&lt;a href="https://purrr.tidyverse.org/reference/modify.html" target="_blank" rel="noopener">purrr::modify()&lt;/a>. In particular,
+&lt;code>group_modify()&lt;/code> always returns a grouped tibble, which combines the tibbles returned
+by evaluating each operation with a reconstructed grouping structure.&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="c1"># to use group_modify() the lambda must return a data frame&lt;/span>
+&lt;span class="n">iris&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_by&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Species&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">group_modify&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">~&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="nf">quantile&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">.x&lt;/span>&lt;span class="o">$&lt;/span>&lt;span class="n">Petal.Length&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">probs&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">c&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">0.25&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">0.5&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">0.75&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="n">tibble&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="nf">enframe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;prob&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">value&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;quantile&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">})&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 9 x 3&lt;/span>
+&lt;span class="c1">#&amp;gt; # Groups: Species [3]&lt;/span>
+&lt;span class="c1">#&amp;gt; Species prob quantile&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;fct&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt;&lt;/span>
+&lt;span class="c1">#&amp;gt; 1 setosa 25% 1.4 &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 setosa 50% 1.5 &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 setosa 75% 1.58&lt;/span>
+&lt;span class="c1">#&amp;gt; 4 versicolor 25% 4 &lt;/span>
+&lt;span class="c1">#&amp;gt; 5 versicolor 50% 4.35&lt;/span>
+&lt;span class="c1">#&amp;gt; 6 versicolor 75% 4.6 &lt;/span>
+&lt;span class="c1">#&amp;gt; 7 virginica 25% 5.1 &lt;/span>
+&lt;span class="c1">#&amp;gt; 8 virginica 50% 5.55&lt;/span>
+&lt;span class="c1">#&amp;gt; 9 virginica 75% 5.88&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="attention-to-details-in-column-wise-functions">Attention to details in column wise functions
+&lt;a href="#attention-to-details-in-column-wise-functions">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>As we are phasing &lt;code>funs()&lt;/code> out and prefer use of &lt;code>purrr&lt;/code>-style lambda functions
+in column wise verbs, we missed a few subtleties.&lt;/p>
+&lt;p>Specifically, lambdas can now refer to:&lt;/p>
+&lt;ul>
+&lt;li>local variables (from the scope):&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">to_inch&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kc">...&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;span class="c1"># the local variable `inch` can be used in the lambda&lt;/span>
+&lt;span class="n">inch&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="m">0.393701&lt;/span>
+&lt;span class="n">data&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate_at&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">vars&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kc">...&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">. &lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">inch&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="p">}&lt;/span>
+&lt;span class="n">iris&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">to_inch&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">Species&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 150 x 5&lt;/span>
+&lt;span class="c1">#&amp;gt; Sepal.Length Sepal.Width Petal.Length Petal.Width Species&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;fct&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 2.01 1.38 0.551 0.0787 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 1.93 1.18 0.551 0.0787 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 1.85 1.26 0.512 0.0787 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 1.81 1.22 0.591 0.0787 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 5 1.97 1.42 0.551 0.0787 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 6 2.13 1.54 0.669 0.157 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 7 1.81 1.34 0.551 0.118 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 8 1.97 1.34 0.591 0.0787 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 9 1.73 1.14 0.551 0.0787 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 10 1.93 1.22 0.591 0.0394 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 140 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;ul>
+&lt;li>other columns of the data (from the data mask):&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">iris&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">as_tibble&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="o">%&amp;gt;%&lt;/span>
+&lt;span class="nf">mutate_at&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">vars&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">starts_with&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Sepal&amp;#34;&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">. &lt;/span>&lt;span class="o">/&lt;/span> &lt;span class="n">Petal.Width&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="c1">#&amp;gt; # A tibble: 150 x 5&lt;/span>
+&lt;span class="c1">#&amp;gt; Sepal.Length Sepal.Width Petal.Length Petal.Width Species&lt;/span>
+&lt;span class="c1">#&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;fct&amp;gt; &lt;/span>
+&lt;span class="c1">#&amp;gt; 1 25.5 17.5 1.4 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 2 24.5 15 1.4 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 3 23.5 16 1.3 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 4 23.0 15.5 1.5 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 5 25 18 1.4 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 6 13.5 9.75 1.7 0.4 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 7 15.3 11.3 1.4 0.3 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 8 25 17 1.5 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 9 22 14.5 1.4 0.2 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; 10 49 31 1.5 0.1 setosa &lt;/span>
+&lt;span class="c1">#&amp;gt; # … with 140 more rows&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="thanks">Thanks
+&lt;a href="#thanks">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>Thanks to all contributors for this release.&lt;/p>
+&lt;p>
+&lt;a href="https://github.com/abalter" target="_blank" rel="noopener">@abalter&lt;/a>,
+&lt;a href="https://github.com/ambevill" target="_blank" rel="noopener">@ambevill&lt;/a>,
+&lt;a href="https://github.com/amitusa17" target="_blank" rel="noopener">@amitusa17&lt;/a>,
+&lt;a href="https://github.com/AntoineHffmnn" target="_blank" rel="noopener">@AntoineHffmnn&lt;/a>,
+&lt;a href="https://github.com/anuj2054" target="_blank" rel="noopener">@anuj2054&lt;/a>,
+&lt;a href="https://github.com/batpigandme" target="_blank" rel="noopener">@batpigandme&lt;/a>,
+&lt;a href="https://github.com/behrman" target="_blank" rel="noopener">@behrman&lt;/a>,
+&lt;a href="https://github.com/billdenney" target="_blank" rel="noopener">@billdenney&lt;/a>,
+&lt;a href="https://github.com/burchill" target="_blank" rel="noopener">@burchill&lt;/a>,
+&lt;a href="https://github.com/cgrandin" target="_blank" rel="noopener">@cgrandin&lt;/a>,
+&lt;a href="https://github.com/clemenshug" target="_blank" rel="noopener">@clemenshug&lt;/a>,
+&lt;a href="https://github.com/codetrainee" target="_blank" rel="noopener">@codetrainee&lt;/a>,
+&lt;a href="https://github.com/ColinFay" target="_blank" rel="noopener">@ColinFay&lt;/a>,
+&lt;a href="https://github.com/dan-reznik" target="_blank" rel="noopener">@dan-reznik&lt;/a>,
+&lt;a href="https://github.com/davidsjoberg" target="_blank" rel="noopener">@davidsjoberg&lt;/a>,
+&lt;a href="https://github.com/DesiQuintans" target="_blank" rel="noopener">@DesiQuintans&lt;/a>,
+&lt;a href="https://github.com/dirkschumacher" target="_blank" rel="noopener">@dirkschumacher&lt;/a>,
+&lt;a href="https://github.com/earowang" target="_blank" rel="noopener">@earowang&lt;/a>,
+&lt;a href="https://github.com/echasnovski" target="_blank" rel="noopener">@echasnovski&lt;/a>,
+&lt;a href="https://github.com/eipi10" target="_blank" rel="noopener">@eipi10&lt;/a>,
+&lt;a href="https://github.com/grabear" target="_blank" rel="noopener">@grabear&lt;/a>,
+&lt;a href="https://github.com/grandtiger" target="_blank" rel="noopener">@grandtiger&lt;/a>,
+&lt;a href="https://github.com/gregorp" target="_blank" rel="noopener">@gregorp&lt;/a>,
+&lt;a href="https://github.com/hadley" target="_blank" rel="noopener">@hadley&lt;/a>,
+&lt;a href="https://github.com/hanyroze" target="_blank" rel="noopener">@hanyroze&lt;/a>,
+&lt;a href="https://github.com/hidekoji" target="_blank" rel="noopener">@hidekoji&lt;/a>,
+&lt;a href="https://github.com/huftis" target="_blank" rel="noopener">@huftis&lt;/a>,
+&lt;a href="https://github.com/iago-pssjd" target="_blank" rel="noopener">@iago-pssjd&lt;/a>,
+&lt;a href="https://github.com/javierluraschi" target="_blank" rel="noopener">@javierluraschi&lt;/a>,
+&lt;a href="https://github.com/jennybc" target="_blank" rel="noopener">@jennybc&lt;/a>,
+&lt;a href="https://github.com/jgellar" target="_blank" rel="noopener">@jgellar&lt;/a>,
+&lt;a href="https://github.com/jhrcook" target="_blank" rel="noopener">@jhrcook&lt;/a>,
+&lt;a href="https://github.com/jimhester" target="_blank" rel="noopener">@jimhester&lt;/a>,
+&lt;a href="https://github.com/joel23888" target="_blank" rel="noopener">@joel23888&lt;/a>,
+&lt;a href="https://github.com/JohnMount" target="_blank" rel="noopener">@JohnMount&lt;/a>,
+&lt;a href="https://github.com/johnmous" target="_blank" rel="noopener">@johnmous&lt;/a>,
+&lt;a href="https://github.com/jonathan-g" target="_blank" rel="noopener">@jonathan-g&lt;/a>,
+&lt;a href="https://github.com/jwbeck97" target="_blank" rel="noopener">@jwbeck97&lt;/a>,
+&lt;a href="https://github.com/jzadra" target="_blank" rel="noopener">@jzadra&lt;/a>,
+&lt;a href="https://github.com/karimn" target="_blank" rel="noopener">@karimn&lt;/a>,
+&lt;a href="https://github.com/kendonB" target="_blank" rel="noopener">@kendonB&lt;/a>,
+&lt;a href="https://github.com/koncina" target="_blank" rel="noopener">@koncina&lt;/a>,
+&lt;a href="https://github.com/kperkins" target="_blank" rel="noopener">@kperkins&lt;/a>,
+&lt;a href="https://github.com/kputschko" target="_blank" rel="noopener">@kputschko&lt;/a>,
+&lt;a href="https://github.com/krlmlr" target="_blank" rel="noopener">@krlmlr&lt;/a>,
+&lt;a href="https://github.com/kyzphong" target="_blank" rel="noopener">@kyzphong&lt;/a>,
+&lt;a href="https://github.com/lionel-" target="_blank" rel="noopener">@lionel-&lt;/a>,
+&lt;a href="https://github.com/llrs" target="_blank" rel="noopener">@llrs&lt;/a>,
+&lt;a href="https://github.com/mariodejung" target="_blank" rel="noopener">@mariodejung&lt;/a>,
+&lt;a href="https://github.com/MichaelAdolph" target="_blank" rel="noopener">@MichaelAdolph&lt;/a>,
+&lt;a href="https://github.com/michaelwhammer" target="_blank" rel="noopener">@michaelwhammer&lt;/a>,
+&lt;a href="https://github.com/MilesMcBain" target="_blank" rel="noopener">@MilesMcBain&lt;/a>,
+&lt;a href="https://github.com/mjherold" target="_blank" rel="noopener">@mjherold&lt;/a>,
+&lt;a href="https://github.com/moodymudskipper" target="_blank" rel="noopener">@moodymudskipper&lt;/a>,
+&lt;a href="https://github.com/msberends" target="_blank" rel="noopener">@msberends&lt;/a>,
+&lt;a href="https://github.com/mvkorpel" target="_blank" rel="noopener">@mvkorpel&lt;/a>,
+&lt;a href="https://github.com/nathancday" target="_blank" rel="noopener">@nathancday&lt;/a>,
+&lt;a href="https://github.com/nicokuz" target="_blank" rel="noopener">@nicokuz&lt;/a>,
+&lt;a href="https://github.com/nolistic" target="_blank" rel="noopener">@nolistic&lt;/a>,
+&lt;a href="https://github.com/oscci" target="_blank" rel="noopener">@oscci&lt;/a>,
+&lt;a href="https://github.com/paulponcet" target="_blank" rel="noopener">@paulponcet&lt;/a>,
+&lt;a href="https://github.com/PhilippRuchser" target="_blank" rel="noopener">@PhilippRuchser&lt;/a>,
+&lt;a href="https://github.com/philstraforelli" target="_blank" rel="noopener">@philstraforelli&lt;/a>,
+&lt;a href="https://github.com/psychometrician" target="_blank" rel="noopener">@psychometrician&lt;/a>,
+&lt;a href="https://github.com/Ranonymous" target="_blank" rel="noopener">@Ranonymous&lt;/a>,
+&lt;a href="https://github.com/rinebob" target="_blank" rel="noopener">@rinebob&lt;/a>,
+&lt;a href="https://github.com/romagnolid" target="_blank" rel="noopener">@romagnolid&lt;/a>,
+&lt;a href="https://github.com/romainfrancois" target="_blank" rel="noopener">@romainfrancois&lt;/a>,
+&lt;a href="https://github.com/rvg02010" target="_blank" rel="noopener">@rvg02010&lt;/a>,
+&lt;a href="https://github.com/slyrus" target="_blank" rel="noopener">@slyrus&lt;/a>,
+&lt;a href="https://github.com/snp" target="_blank" rel="noopener">@snp&lt;/a>,
+&lt;a href="https://github.com/sowla" target="_blank" rel="noopener">@sowla&lt;/a>,
+&lt;a href="https://github.com/ThiAmm" target="_blank" rel="noopener">@ThiAmm&lt;/a>,
+&lt;a href="https://github.com/thothal" target="_blank" rel="noopener">@thothal&lt;/a>,
+&lt;a href="https://github.com/wfmackey" target="_blank" rel="noopener">@wfmackey&lt;/a>,
+&lt;a href="https://github.com/will458" target="_blank" rel="noopener">@will458&lt;/a>,
+&lt;a href="https://github.com/wkdavis" target="_blank" rel="noopener">@wkdavis&lt;/a>,
+&lt;a href="https://github.com/yutannihilation" target="_blank" rel="noopener">@yutannihilation&lt;/a>,
+&lt;a href="https://github.com/ZahraEconomist" target="_blank" rel="noopener">@ZahraEconomist&lt;/a>, and
+&lt;a href="https://github.com/zooman" target="_blank" rel="noopener">@zooman&lt;/a>.&lt;/p></description></item><item><title>forcats 0.4.0</title><link>https://www.tidyverse.org/blog/2019/05/forcats-0-4-0/</link><pubDate>Fri, 10 May 2019 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2019/05/forcats-0-4-0/</guid><description>&lt;p>We are pleased to announce that
 &lt;a href="http://forcats.tidyverse.org/" target="_blank" rel="noopener">forcats 0.4.0&lt;/a> is now on CRAN.
 The forcats package provides a suite of useful tools that solve common problems with factors in R. This version benefited from the hard work of contributors new and old at our first
 &lt;a href="https://www.tidyverse.org/articles/2018/11/tidyverse-developer-day-2019/" target="_blank" rel="noopener">tidyverse dev day&lt;/a>. For a complete set of changes, please see the
