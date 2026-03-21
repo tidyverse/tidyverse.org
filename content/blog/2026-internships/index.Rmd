@@ -55,7 +55,7 @@ The core of the role is to identify the tasks users perform with our tools — s
 
 ### R Modeling Intern (Tidymodels Team)
 
-The [tidymodels](https://www.tidymodels.org/) R internship is focused on different tasks, including: expanding tabular deep learning models (in [brulee](https://brulee.tidymodels.org/)), additional performance metrics for [survival analysis models](https://www.tidymodels.org/learn/#category=survival%20analysis), modernizing the [caret package](https://topepo.github.io/caret/), and/or Rust bindings for predictive models. The intern is welcome to suggest R-based projects focused on modeling and/or data analysis.
+The [tidymodels](https://www.tidymodels.org/) R internship is focused on different tasks, including: expand content on [tidymodels.org](https://www.tidymodels.org/), expanding tabular deep learning models (in [brulee](https://brulee.tidymodels.org/)), additional performance metrics for [survival analysis models](https://www.tidymodels.org/learn/#category=survival%20analysis), modernizing the [caret package](https://topepo.github.io/caret/), and/or Rust bindings for predictive models. The intern is welcome to suggest R-based projects focused on modeling and/or data analysis.
 
 ### Shiny Accessibility and Testing Intern (Shiny Team)
 
