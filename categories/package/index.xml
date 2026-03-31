@@ -1,4 +1,118 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>package | Tidyverse</title><link>https://www.tidyverse.org/categories/package/</link><atom:link href="https://www.tidyverse.org/categories/package/index.xml" rel="self" type="application/rss+xml"/><description>package</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 13 Mar 2026 00:00:00 +0000</lastBuildDate><item><title>orbital 0.5.0</title><link>https://www.tidyverse.org/blog/2026/03/orbital-0-5-0/</link><pubDate>Fri, 13 Mar 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/03/orbital-0-5-0/</guid><description>&lt;!--
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>package | Tidyverse</title><link>https://www.tidyverse.org/categories/package/</link><atom:link href="https://www.tidyverse.org/categories/package/index.xml" rel="self" type="application/rss+xml"/><description>package</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Tue, 31 Mar 2026 00:00:00 +0000</lastBuildDate><item><title>tabpfn 0.1.0</title><link>https://www.tidyverse.org/blog/2026/03/tabpfn-0-1-0/</link><pubDate>Tue, 31 Mar 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/03/tabpfn-0-1-0/</guid><description>&lt;!--
+TODO:
+* [ ] Look over / edit the post's title in the yaml
+* [ ] Edit (or delete) the description; note this appears in the Twitter card
+* [ ] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [ ] Find photo &amp; update yaml metadata
+* [ ] Create `thumbnail-sq.jpg`; height and width should be equal
+* [ ] Create `thumbnail-wd.jpg`; width should be >5x height
+* [ ] `hugodown::use_tidy_thumbnails()`
+* [ ] Add intro sentence, e.g. the standard tagline for the package
+* [ ] `usethis::use_tidy_thanks()`
+-->
+&lt;p>We&amp;rsquo;re stoked to announce the release of
+&lt;a href="https://tabpfn.tidymodels.org/" target="_blank" rel="noopener">tabpfn&lt;/a> 0.1.0.
+&lt;a href="https://github.com/PriorLabs/TabPFN" target="_blank" rel="noopener">TabPFN&lt;/a> is a precompiled deep learning Python model for prediction. The &lt;em>R package tabpfn&lt;/em> is an interface to this model via reticulate.&lt;/p>
+&lt;p>You can install it from CRAN with:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">install.packages&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;tabpfn&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>
+&lt;h2 id="what-is-tabpfn">What is TabPFN?
+&lt;a href="#what-is-tabpfn">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The &amp;ldquo;tab&amp;rdquo; means &lt;em>tabular&lt;/em>, which is code for everyday rectangular data structures that we find in csv files and databases.&lt;/p>
+&lt;p>The &amp;ldquo;pfn&amp;rdquo; is more complicated &amp;ndash; it stands for &amp;ldquo;prior fitted network&amp;rdquo;. The model is trained on fully synthetic datasets. The developers created a complex graph model that can simulate a wide variety of data-generating methods, including correlation structures, distributional skewness, missing-data mechanisms, interactions, latent variables, and more. It can also simulate random supervised relationships linking potential predictors to the outcome data. The training process for the model simulated a very large number of these data sets that, in effect, constitute a &amp;ldquo;training set data point&amp;rdquo;. For example, during training, if a batch size of 64 was used, that means 64 randomly generated datasets were used in that iteration.&lt;/p>
+&lt;p>From these data sets, a complex deep learning model is created that captures a huge number of possible relationships. The model is sophisticated enough and trained in a manner that allows it to effectively emulate Bayesian estimation.&lt;/p>
+&lt;p>When we use the pre-trained model, our training set matters, even though there is no new estimation. The model includes an
+&lt;a href="https://en.wikipedia.org/wiki/Attention_%28machine_learning%29" target="_blank" rel="noopener">attention mechanism&lt;/a> that &amp;ldquo;primes the model&amp;rdquo; by focusing on the types of relationships in your training data. In that way, the pre-fitted network is deliberately biased to effectively predict our new samples. This leads to
+&lt;a href="https://scholar.google.com/scholar?as_sdt=0%2C7&amp;amp;as_vis=1&amp;amp;q=%22in&amp;#43;context&amp;#43;learning%22" target="_blank" rel="noopener">in-context learning&lt;/a>.&lt;/p>
+&lt;p>And it works; in fact, it works really well.&lt;/p>
+&lt;h2 id="license-for-the-underyling-model">License for the Underyling Model
+&lt;a href="#license-for-the-underyling-model">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>
+&lt;a href="https://priorlabs.ai/" target="_blank" rel="noopener">PriorLabs&lt;/a> created TabPFN. Version 2.5 of the model, which contained several improvements, requires an API key for accessing the model parameter. Without one, an error occurs:&lt;/p>
+&lt;blockquote>
+&lt;p>This model is gated and requires you to accept its terms. Please follow these steps: 1. Visit
+&lt;a href="https://huggingface.co/Prior-Labs/tabpfn_2_5" target="_blank" rel="noopener">https://huggingface.co/Prior-Labs/tabpfn_2_5&lt;/a> in your browser and accept the terms of use. 2. Log in to your Hugging Face account via the command line by running: hf auth login (Alternatively, you can set the &lt;code>HF_TOKEN&lt;/code> environment variable with a read token).&lt;/p>
+&lt;/blockquote>
+&lt;p>The license includes provisions for &amp;ldquo;Non-Commercial Use Only&amp;rdquo; if you are just trying it out.&lt;/p>
+&lt;p>Instructions for installing the package and obtaining the API key are in the
+&lt;a href="https://tabpfn.tidymodels.org/reference/tab_pfn.html#license-requirements" target="_blank" rel="noopener">package&amp;rsquo;s manual&lt;/a>.&lt;/p>
+&lt;p>Also, the model is most efficient when a GPU is available (by an order of magnitude or two). This may seem obvious to anyone already working with deep learning models, but it is a fairly new requirement for those strictly working with traditional tabular data models.&lt;/p>
+&lt;h2 id="usage">Usage
+&lt;a href="#usage">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>The syntax is idiomatic R: it supports fitting interfaces via data frames/vectors, formulas, and recipes. The standard R &lt;code>predict()&lt;/code> method is used for prediction. &lt;code>augument()&lt;/code> is also available for prediction.&lt;/p>
+&lt;p>When evaluating pre-trained models, there is a possibility that they may have memorized well-known datasets (e.g., Ames housing, Palmer penguins). TabPFN isn&amp;rsquo;t trained that way, but just in case we are worried about that, we&amp;rsquo;ll use lesser-known data.
+&lt;a href="https://scholar.google.com/scholar?as_sdt=0%2C7&amp;amp;q=Worley%2C&amp;#43;B.&amp;#43;A.&amp;#43;%281987%29.&amp;#43;%22Deterministic&amp;#43;uncertainty&amp;#43;analysis%22" target="_blank" rel="noopener">Worley (1987)&lt;/a> derived a mechanistic model for the flow rate of liquids from two aquifers positioned vertically (i.e., the &amp;ldquo;upper&amp;rdquo; and &amp;ldquo;lower&amp;rdquo; aquifers). We&amp;rsquo;ll generate some of that data and add completely noisy predictors to increase the difficulty. The outcome is very skewed, so we&amp;rsquo;ll log that too.&lt;/p>
+&lt;p>Additionally, we&amp;rsquo;ll load the tidymodels library for simulation, data splitting, and visualization.&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tabpfn&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tidymodels&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">probably&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">17&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">aquifier_data&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span>
+&lt;span class="nf">sim_regression&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">2000&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">method&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;worley_1987&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span>
+&lt;span class="nf">bind_cols&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">sim_noise&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">2000&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="m">50&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span>
+&lt;span class="nf">mutate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">outcome&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">log10&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">outcome&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>We&amp;rsquo;ll use a stratified 3:1 training and testing split:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="nf">set.seed&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="m">8223&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">aquifier_split&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">initial_split&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">aquifier_data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">strata&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">outcome&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">aquifier_split&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## &amp;lt;Training/Testing/Total&amp;gt;
+## &amp;lt;1500/500/2000&amp;gt;
+&lt;/code>&lt;/pre>&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">aquifier_train&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">training&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">aquifier_split&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;span class="n">aquifier_test&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">testing&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">aquifier_split&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>and &amp;ldquo;fit&amp;rdquo; the model:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">tab_fit&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">tab_pfn&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">outcome&lt;/span> &lt;span class="o">~&lt;/span> &lt;span class="n">.,&lt;/span> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">aquifier_train&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Again, the model does not actually fit anything new. This computes the embeddings for the training set data and stores them for the prediction stage.&lt;/p>
+&lt;p>To make predictions, &lt;code>predict()&lt;/code> returns the model&amp;rsquo;s results. As previously mentioned, a GPU is not strictly required for these computations. However, if more than a trivial amount of data are being predicted, execution time can be very long.&lt;/p>
+&lt;p>Since we&amp;rsquo;ll want to evaluate and plot the data, we&amp;rsquo;ll use &lt;code>augment()&lt;/code>, which just runs &lt;code>predict()&lt;/code> and binds the results to the data being predicted:&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">tab_pred&lt;/span> &lt;span class="o">&amp;lt;-&lt;/span> &lt;span class="nf">augment&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tab_fit&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">aquifier_test&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>How does it work?&lt;/p>
+&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">tab_pred&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span> &lt;span class="nf">metrics&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">outcome&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.pred&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;pre>&lt;code>## # A tibble: 3 × 3
+## .metric .estimator .estimate
+## &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dbl&amp;gt;
+## 1 rmse standard 0.104
+## 2 rsq standard 0.937
+## 3 mae standard 0.0829
+&lt;/code>&lt;/pre>&lt;div class="highlight">&lt;pre class="chroma">&lt;code class="language-r" data-lang="r">&lt;span class="n">tab_pred&lt;/span> &lt;span class="o">|&amp;gt;&lt;/span> &lt;span class="nf">cal_plot_regression&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">outcome&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">.pred&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;img src="figure/unnamed-chunk-6-1.png" alt="plot of chunk unnamed-chunk-6">&lt;/p>
+&lt;p>That looks good, especially with no training.&lt;/p>
+&lt;h2 id="next-steps">Next Steps
+&lt;a href="#next-steps">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>There is a lot more functionality to add to the package, including additional prediction types and interpretability tools. Many of these are available in
+&lt;a href="https://github.com/priorlabs/tabpfn-extensions" target="_blank" rel="noopener">extensions&lt;/a>.&lt;/p>
+&lt;p>We&amp;rsquo;ll also add a new parsnip model type for TabPFN and other integrations with tidymodels in the summer.&lt;/p>
+&lt;h2 id="acknowledgements">Acknowledgements
+&lt;a href="#acknowledgements">
+&lt;svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+&lt;path d="M0 0h24v24H0z" fill="currentColor">&lt;/path>
+&lt;path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z">&lt;/path>
+&lt;/svg>
+&lt;/a>
+&lt;/h2>&lt;p>A huge thanks to Tomasz Kalinowski and Daniel Falbel for their support on this and all of their hard work on reticulate and torch.&lt;/p>
+&lt;p>Thanks also to the contributors to date:
+&lt;a href="https://github.com/frankiethull" target="_blank" rel="noopener">@frankiethull&lt;/a>,
+&lt;a href="https://github.com/mthulin" target="_blank" rel="noopener">@mthulin&lt;/a>, and
+&lt;a href="https://github.com/t-kalinowski" target="_blank" rel="noopener">@t-kalinowski&lt;/a>.&lt;/p></description></item><item><title>orbital 0.5.0</title><link>https://www.tidyverse.org/blog/2026/03/orbital-0-5-0/</link><pubDate>Fri, 13 Mar 2026 00:00:00 +0000</pubDate><guid>https://www.tidyverse.org/blog/2026/03/orbital-0-5-0/</guid><description>&lt;!--
 TODO:
 * [x] Look over / edit the post's title in the yaml
 * [x] Edit (or delete) the description; note this appears in the Twitter card
