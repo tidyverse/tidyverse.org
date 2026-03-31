@@ -2,7 +2,7 @@
 output: hugodown::hugo_document
 slug: tabpfn-0-1-0
 title: tabpfn 0.1.0
-date: 2026-03-20
+date: 2026-03-31
 author: Max Kuhn
 description: >
     A new R package for tabular deep learning models. 
@@ -68,8 +68,7 @@ The syntax is idiomatic R: it supports fitting interfaces via data frames/vector
 
 When evaluating pre-trained models, there is a possibility that they may have memorized well-known datasets (e.g., Ames housing, Palmer penguins). TabPFN isn't trained that way, but just in case we are worried about that, we'll use lesser-known data. [Worley (1987)](https://scholar.google.com/scholar?as_sdt=0%2C7&q=Worley%2C+B.+A.+%281987%29.+%22Deterministic+uncertainty+analysis%22) derived a mechanistic model for the flow rate of liquids from two aquifers positioned vertically (i.e., the "upper" and "lower" aquifers). We'll generate some of that data and add completely noisy predictors to increase the difficulty. The outcome is very skewed, so we'll log that too. 
 
-While tabpfn is not a tidymodels package, we'll load the tidymodels library for simulation, data splitting, and visualization. 
-
+Additionally, we'll load the tidymodels library for simulation, data splitting, and visualization. 
 
 ``` r
 library(tabpfn)
@@ -111,8 +110,9 @@ tab_fit <- tab_pfn(outcome ~ ., data = aquifier_train)
 
 Again, the model does not actually fit anything new. This computes the embeddings for the training set data and stores them for the prediction stage. 
 
-To make predictions, `predict()` returns the model's results. Since we'll want to evaluate and plot the data, we'll use `augment()`, which just runs `predict()` and binds the results to the data being predicted: 
+To make predictions, `predict()` returns the model's results. As previously mentioned, a GPU is not strictly required for these computations. However, if more than a trivial amount of data are being predicted, execution time can be very long. 
 
+Since we'll want to evaluate and plot the data, we'll use `augment()`, which just runs `predict()` and binds the results to the data being predicted: 
 
 ``` r
 tab_pred <- augment(tab_fit, aquifier_test)
@@ -146,7 +146,7 @@ That looks good, especially with no training.
 
 There is a lot more functionality to add to the package, including additional prediction types and interpretability tools. Many of these are available in [extensions](https://github.com/priorlabs/tabpfn-extensions). 
 
-We'll also add a new parsnip model type for TabPFN and other integrations with tidymodels. 
+We'll also add a new parsnip model type for TabPFN and other integrations with tidymodels in the summer. 
 
 ## Acknowledgements
 
