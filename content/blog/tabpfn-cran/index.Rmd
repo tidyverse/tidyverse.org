@@ -28,7 +28,7 @@ TODO:
 * [ ] `usethis::use_tidy_thanks()`
 -->
 
-We're stoked to announce the release of [tabpfn](https://tabpfn.tidymodels.org/) 0.1.0. [TabPFN](https://github.com/PriorLabs/TabPFN) is a precompiled deep learning Python model for prediction. The _R package tabpfn_ is an interface to this model via reticulate. 
+We're stoked to announce the release of [tabpfn](https://tabpfn.tidymodels.org/) 0.1.0. [TabPFN](https://github.com/PriorLabs/TabPFN) is a precompiled deep learning Python model for prediction. The _R package tabpfn_ is an interface to this model via [reticulate](https://rstudio.github.io/reticulate/). 
 
 You can install it from CRAN with:
 
@@ -41,7 +41,7 @@ install.packages("tabpfn")
 
 The "tab" means _tabular_, which is code for everyday rectangular data structures that we find in csv files and databases. 
 
-The "pfn" is more complicated -- it stands for "prior fitted network". The model is trained on fully synthetic datasets. The developers created a complex graph model that can simulate a wide variety of data-generating methods, including correlation structures, distributional skewness, missing-data mechanisms, interactions, latent variables, and more. It can also simulate random supervised relationships linking potential predictors to the outcome data. The training process for the model simulated a very large number of these data sets that, in effect, constitute a "training set data point". For example, during training, if a batch size of 64 was used, that means 64 randomly generated datasets were used in that iteration. 
+The "PFN" is more complicated -- it stands for "Prior Fitted Network". The model is trained on fully synthetic datasets. The developers created a complex graph model that can simulate a wide variety of data-generating methods, including correlation structures, distributional skewness, missing-data mechanisms, interactions, latent variables, and more. It can also simulate random supervised relationships linking potential predictors to the outcome data. The training process for the model simulated a very large number of these data sets that, in effect, constitute a "training set data point". For example, during training, if a batch size of 64 was used, that means 64 randomly generated datasets were used in that iteration. 
 
 From these data sets, a complex deep learning model is created that captures a huge number of possible relationships. The model is sophisticated enough and trained in a manner that allows it to effectively emulate Bayesian estimation. 
 
@@ -63,7 +63,7 @@ Also, the model is most efficient when a GPU is available (by an order of magnit
 
 ## Usage
 
-The syntax is idiomatic R: it supports fitting interfaces via data frames/vectors, formulas, and recipes. The standard R `predict()` method is used for prediction. `augument()` is also available for prediction. 
+The syntax is idiomatic R: it supports fitting interfaces via data frames/vectors, formulas, and recipes. The standard R `predict()` method is used for prediction. `augment()` is also available for prediction. 
 
 When evaluating pre-trained models, there is a possibility that they may have memorized well-known datasets (e.g., Ames housing, Palmer penguins). TabPFN isn't trained that way, but just in case we are worried about that, we'll use lesser-known data. [Worley (1987)](https://scholar.google.com/scholar?as_sdt=0%2C7&q=Worley%2C+B.+A.+%281987%29.+%22Deterministic+uncertainty+analysis%22) derived a mechanistic model for the flow rate of liquids from two aquifers positioned vertically (i.e., the "upper" and "lower" aquifers). We'll generate some of that data and add completely noisy predictors to increase the difficulty. The outcome is very skewed, so we'll log that too. 
 
