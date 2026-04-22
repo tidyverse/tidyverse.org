@@ -40,7 +40,7 @@ See the [change log](https://cloud.r-project.org/web/packages/odbc/news/news.htm
 Use `DBI::Id()` reference a table within a schema.
 This will allow odbc to handle any quoting necessary for your particular database. e.g. you can write to a table named `my.iris` even if there is a schema named `my`.
 
-```{r, eval = FALSE}
+```r
 library(DBI)
 
 con <- dbConnect(odbc::odbc(), "MicrosoftSQLServer", UID = "SA", PWD = "Password12")
