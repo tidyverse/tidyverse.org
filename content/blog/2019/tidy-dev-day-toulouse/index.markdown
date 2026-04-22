@@ -21,7 +21,7 @@ requests on the day, and [nearly **30** more](https://github.com/search?q=is%3Ap
 Acion](https://lacion.rbind.io/post/my-first-user/) and [Dragos
 Moldovan-Grünfeld](https://www.mango-solutions.com/blog/user2019-roundup-workflow-reproducibility-and-friends).
 
-<!--html_preserve-->{{% tweet "1148252922272190464" %}}<!--/html_preserve-->
+<!--html_preserve-->{{% x user="hadleywickham" id="1148252922272190464" %}}<!--/html_preserve-->
 
 The event was particularly successful thanks to a few changes we made after our 
 [first try](https://www.tidyverse.org/articles/2018/11/tidyverse-developer-day-2019/):
