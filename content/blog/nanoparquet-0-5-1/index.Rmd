@@ -1,0 +1,244 @@
+---
+output: hugodown::hugo_document
+
+slug: nanoparquet-0-5-1
+title: nanoparquet 0.5.1
+date: 2026-04-22
+author: Gábor Csárdi
+description: >
+    nanoparquet 0.5.1 (and 0.5.0) bring lots of bug fixes and some new
+    features: reading and writing of list columns, bit64::integer64 and
+    blob::blob support and the ability to write a parquet file to the
+    standard output.
+
+photo:
+  url: https://pixabay.com/photos/chocolate-box-square-brown-white-7892542/
+  author: ykaiavu
+
+# one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
+categories: [package]
+tags: [package, parquet]
+---
+
+<!--
+TODO:
+* [x] Look over / edit the post's title in the yaml
+* [x] Edit (or delete) the description; note this appears in the Twitter card
+* [x] Pick category and tags (see existing with `hugodown::tidy_show_meta()`)
+* [x] Find photo & update yaml metadata
+* [x] Create `thumbnail-sq.jpg`; height and width should be equal
+* [x] Create `thumbnail-wd.jpg`; width should be >5x height
+* [x] `hugodown::use_tidy_thumbnails()`
+* [x] Add intro sentence, e.g. the standard tagline for the package
+* [x] `usethis::use_tidy_thanks()`
+-->
+
+We're very chuffed to announce the release of
+[nanoparquet](https://nanoparquet.r-lib.org/) 0.5.1 (and 0.5.0).
+nanoparquet is a small, self-sufficient R package for reading and
+writing Parquet files.
+
+You can install it from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("nanoparquet")
+```
+
+This blog post will go over some of the improvements in nanoparquet 0.5.0
+and 0.5.1.
+
+You can see a full list of changes in the release notes
+[here](https://github.com/r-lib/nanoparquet/releases/tag/v0.5.0) and
+[here](https://github.com/r-lib/nanoparquet/releases/tag/v0.5.1).
+
+```{r setup}
+library(nanoparquet)
+```
+
+```{r include = FALSE}
+library(pillar)
+```
+
+## List columns
+
+Parquet has a `LIST` type for columns whose values are variable-length
+sequences of scalars. nanoparquet 0.5.0 adds support for reading and
+writing such columns.
+
+> **Note:** for now nanoparquet supports one level of nesting: each
+> element of a list column must be an atomic vector of a single type,
+> not a list of lists. All elements in a column must have the same scalar
+> type.
+
+To write a list column, put a regular R list into your data frame.
+Each element must be an atomic vector (integer, double, or character),
+`NULL` for a missing list, or an empty vector for an empty list.
+`NA` values inside an element vector encode missing elements.
+
+```{r list-write}
+df <- data.frame(id = 1:4)
+df$scores <- list(c(80L, 95L, 70L), c(100L), NULL, integer(0))
+write_parquet(df, tmp <- tempfile(fileext = ".parquet"))
+```
+
+```{r list-write-schema}
+read_parquet_schema(tmp)
+```
+
+
+`read_parquet()` reads `LIST` columns back as R list columns:
+
+```{r list-read}
+as.data.frame(read_parquet(tmp))
+```
+
+`infer_parquet_schema()` shows how nanoparquet maps each column to a Parquet
+type. For list columns, the `r_type` shows e.g. `list(integer)`:
+
+```{r list-schema}
+infer_parquet_schema(df)[2:7]
+```
+
+A `LIST` column occupies three rows in the schema: the outer list node,
+a repeated group node, and the leaf element node.
+
+When you need to specify the element type explicitly, you can use
+`parquet_schema()`:
+
+```{r list-explicit-schema}
+schema <- parquet_schema(
+  id     = "INT32",
+  scores = list("LIST", element = "INT32")
+)
+write_parquet(df, tmp2 <- tempfile(fileext = ".parquet"), schema = schema)
+```
+
+```{r list-explicit-schema-schema}
+read_parquet_schema(tmp2)
+```
+
+## New types
+
+### `bit64::integer64`
+
+Parquet's `INT64` type holds 64-bit integers. R's native `integer` is
+only 32 bits, so nanoparquet has mapped `INT64` to `double` by default.
+nanoparquet 0.5.1 adds support for `bit64::integer64`, which gives you true
+64-bit integer arithmetic in R.
+
+`write_parquet()` now writes `bit64::integer64` columns as `INT64`:
+
+```{r include = FALSE}
+suppressPackageStartupMessages(library(bit64))
+```
+
+```{r bit64-write}
+library(bit64)
+df2 <- data.frame(id = as.integer64(c(1e18, 2e18, 3e18)))
+write_parquet(df2, tmp3 <- tempfile(fileext = ".parquet"))
+read_parquet_schema(tmp3)
+```
+
+To read `INT64` columns back as `bit64::integer64` instead of the default
+`double`, use the `read_int64_type` option. The bit64 package must be
+installed; if it isn't, nanoparquet throws a clear error.
+
+```{r bit64-read}
+read_parquet(tmp3, options = parquet_options(read_int64_type = "integer64"))
+```
+
+### `blob::blob`
+
+`read_parquet()` previously returned raw `BYTE_ARRAY` and
+`FIXED_LEN_BYTE_ARRAY` columns (i.e. those without a string, UUID, or
+decimal annotation) as plain lists of raw vectors. They are now returned as
+`blob::blob` objects, which print more neatly and come with the full set of
+blob helpers. `write_parquet()` now also accepts `blob::blob` columns, so
+round-tripping binary data is straightforward:
+
+```{r blob}
+library(blob)
+df3 <- data.frame(id = 1:3)
+df3$payload <- blob::blob(
+  charToRaw("hello"),
+  charToRaw("world"),
+  charToRaw("!")
+)
+write_parquet(df3, tmp4 <- tempfile(fileext = ".parquet"))
+as.data.frame(read_parquet(tmp4))
+```
+
+## nanoparquet as a filter
+
+In Unix, a _filter_ is a program that reads from standard input and writes
+to standard output, making it a composable building block in shell pipelines.
+`write_parquet()` now supports writing to standard output via
+`file = ":stdout:"`:
+
+```{r stdout, eval = FALSE}
+write_parquet(mtcars, ":stdout:")
+```
+
+The most common use case is from the command line:
+
+```sh
+Rscript --quiet -e 'nanoparquet::write_parquet(mtcars, ":stdout:")' > mtcars.parquet
+```
+
+You can build this into a data pipeline. For example, to convert a CSV
+to Parquet, and then process Parquet with another tool in one shot,
+without an intermediate `.parquet` file on the disk, you can do:
+
+```sh
+cat data.csv |
+  Rscript --quiet -e '
+    df <- read.csv(file("stdin"))
+    nanoparquet::write_parquet(df, ":stdout:")
+  ' | another-parquet-tool
+```
+
+Since nanoparquet 0.4.0, `read_parquet()` can also read from an R
+connection, so you can pipe Parquet data _in_ as well:
+
+```{r stdin, eval = FALSE}
+url <- "https://raw.githubusercontent.com/r-lib/nanoparquet/main/inst/extdata/userdata1.parquet"
+con <- pipe(paste("curl --silent", url))
+df <- read_parquet(con)
+```
+
+## Acknowledgements
+
+We thank all contributors to nanoparquet so far, for opening issues,
+submitting pull requests, and providing feedback:
+[&#x0040;Aariq](https://github.com/Aariq),
+[&#x0040;alvarocombo](https://github.com/alvarocombo),
+[&#x0040;apalacio9502](https://github.com/apalacio9502),
+[&#x0040;atsyplenkov](https://github.com/atsyplenkov),
+[&#x0040;cboettig](https://github.com/cboettig),
+[&#x0040;ChandlerLutz](https://github.com/ChandlerLutz),
+[&#x0040;cmrnp](https://github.com/cmrnp),
+[&#x0040;D3SL](https://github.com/D3SL),
+[&#x0040;damonbayer](https://github.com/damonbayer),
+[&#x0040;DavideMessinaARS](https://github.com/DavideMessinaARS),
+[&#x0040;eitsupi](https://github.com/eitsupi),
+[&#x0040;gksmyth](https://github.com/gksmyth),
+[&#x0040;hadley](https://github.com/hadley),
+[&#x0040;jack-davison](https://github.com/jack-davison),
+[&#x0040;jeroenjanssens](https://github.com/jeroenjanssens),
+[&#x0040;lbm364dl](https://github.com/lbm364dl),
+[&#x0040;lschneiderbauer](https://github.com/lschneiderbauer),
+[&#x0040;mrcaseb](https://github.com/mrcaseb),
+[&#x0040;pmarks](https://github.com/pmarks),
+[&#x0040;PMassicotte](https://github.com/PMassicotte),
+[&#x0040;r2evans](https://github.com/r2evans),
+[&#x0040;RealTYPICAL](https://github.com/RealTYPICAL),
+[&#x0040;tanho63](https://github.com/tanho63),
+[&#x0040;thisisnic](https://github.com/thisisnic),
+[&#x0040;torfason](https://github.com/torfason),
+[&#x0040;TurnaevEvgeny](https://github.com/TurnaevEvgeny),
+[&#x0040;Upipa](https://github.com/Upipa),
+[&#x0040;vankesteren](https://github.com/vankesteren),
+[&#x0040;vincentarelbundock](https://github.com/vincentarelbundock),
+[&#x0040;wlandau](https://github.com/wlandau),
+[&#x0040;YipengUva](https://github.com/YipengUva), and
+[&#x0040;yutannihilation](https://github.com/yutannihilation).
