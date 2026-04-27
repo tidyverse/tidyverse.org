@@ -1,9 +1,8 @@
 ---
 output: hugodown::hugo_document
-
 slug: processx-3-9-0
 title: processx 3.9.0
-date: 2026-04-22
+date: 2026-04-27
 author: Gábor Csárdi
 description: >
     processx 3.9.0 brings kernel-level process pipelines, pseudo-terminal
@@ -17,7 +16,7 @@ photo:
 # one of: "deep-dive", "learn", "package", "programming", "roundup", or "other"
 categories: [package]
 tags: [package, processx, processes, system]
-rmd_hash: df91576295ca84bf
+rmd_hash: d24f657f2df3a587
 
 ---
 
@@ -48,7 +47,7 @@ This blog post discusses the major new features in processx 3.9.0. You can see a
 
 ## Pipelines
 
-The headline feature of this release is the new (experimental) `pipeline` R6 class. It lets you connect two or more processes with kernel-level pipes, exactly like a Unix shell pipeline (`cmd1 | cmd2 | cmd3`): data flows directly between child processes without passing through R.
+New new `pipeline` class lets you connect two or more processes with kernel-level pipes, exactly like a Unix shell pipeline (`cmd1 | cmd2 | cmd3`): data flows directly between child processes without passing through R.
 
 <div class="highlight">
 
@@ -82,7 +81,7 @@ The key benefit over calling [`run()`](http://processx.r-lib.org/reference/run.h
 
 Because each step in the pipeline is a regular `process` object under the hood, you can access individual processes via `$get_processes()` --- useful for reading per-process stderr or checking exit codes when a stage fails.
 
-`pipeline` works on Unix and Windows and is currently experimental: the API may change based on user feedback.
+`pipeline` works on Unix and Windows and is currently experimental: the API may still change.
 
 ## Pseudo-terminal support
 
@@ -141,7 +140,7 @@ This is useful when you want child processes to clean up after an R crash, witho
 <pre class='chroma'><code class='language-r' data-lang='r'><span><span class='nv'>p</span> <span class='o'>&lt;-</span> <span class='nv'><a href='http://processx.r-lib.org/reference/process.html'>process</a></span><span class='o'>$</span><span class='nf'>new</span><span class='o'>(</span><span class='s'>"sleep"</span>, <span class='s'>"1"</span><span class='o'>)</span></span>
 <span><span class='nv'>p</span><span class='o'>$</span><span class='nf'>wait</span><span class='o'>(</span><span class='o'>)</span></span>
 <span><span class='nv'>p</span><span class='o'>$</span><span class='nf'>get_end_time</span><span class='o'>(</span><span class='o'>)</span> <span class='o'>-</span> <span class='nv'>p</span><span class='o'>$</span><span class='nf'>get_start_time</span><span class='o'>(</span><span class='o'>)</span></span>
-<span><span class='c'>#&gt; Time difference of 1.010595 secs</span></span>
+<span><span class='c'>#&gt; Time difference of 1.010295 secs</span></span>
 <span></span></code></pre>
 
 </div>
