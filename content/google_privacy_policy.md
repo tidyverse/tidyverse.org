@@ -43,7 +43,7 @@ There are two ways to use these packages without authorizing the Tidyverse API P
 
 Overview of the scopes requested by various Tidyverse API Packages and their rationale:
 
-  * `userinfo.email` (read only): All OAuth tokens obtained with the Tidyverse API Packages request this scope so that cached tokens can be labelled with the associated Google user, allowing you to more easily access Google APIs with more than one identity. The Tidyverse API Packages do NOT have access to and do NOT store your Google password.
+  * `userinfo.email` (read only): All OAuth tokens obtained through gargle request this scope so that cached tokens can be labelled with the associated Google user, allowing you to more easily access Google APIs with more than one identity. The Tidyverse API Packages do NOT have access to and do NOT store your Google password.
   * BigQuery and Google Cloud Platform (read/write): The bigrquery package lets you upload, query, and modify data stored in Google BigQuery, as well as retrieve metadata about projects, datasets, tables, and jobs.
   * Drive (read/write): The googledrive package allows you to manage your Drive files and therefore the default scopes include read/write access. The googledrive package makes it possible for you to get a token with more limited scope, e.g. read only.
   * Gemini (`generative-language.retriever`): The ellmer package uses this scope to send your prompts to the Gemini API and receive responses, when you sign in through the browser with `chat_google_gemini()`.
@@ -52,7 +52,7 @@ Overview of the scopes requested by various Tidyverse API Packages and their rat
 
 ### Sharing user data
 
-The packages only communicate with Google APIs. No user data is shared with the owners of the Tidyverse API Packages, RStudio, or any other servers.
+When working with Google APIs, the packages only communicate with Google. No user data is shared with the owners of the Tidyverse API Packages, RStudio, or any other servers.
 
 ### Storing user data
 
