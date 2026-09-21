@@ -13,6 +13,7 @@ The tidyverse team maintains several packages that make it easier to work with G
 
   * [gargle](https://gargle.r-lib.org) provides general R infrastructure for Google APIs, such as auth
   * [bigrquery](https://bigrquery.r-dbi.org) wraps the [BigQuery API](https://developers.google.com/bigquery/)
+  * [ellmer](https://ellmer.tidyverse.org) wraps the [Gemini API](https://ai.google.dev/gemini-api/docs), among other LLM providers
   * [googledrive](https://googledrive.tidyverse.org) wraps the [Drive API](https://developers.google.com/drive/)
   * [gmailr](https://gmailr.r-lib.org) wraps the [Gmail API](https://developers.google.com/gmail/api/)
   * [googlesheets4](https://googlesheets4.tidyverse.org) wraps the [Sheets API](https://developers.google.com/sheets/api/)
@@ -45,6 +46,7 @@ Overview of the scopes requested by various Tidyverse API Packages and their rat
   * `userinfo.email` (read only): All OAuth tokens obtained with the Tidyverse API Packages request this scope so that cached tokens can be labelled with the associated Google user, allowing you to more easily access Google APIs with more than one identity. The Tidyverse API Packages do NOT have access to and do NOT store your Google password.
   * BigQuery and Google Cloud Platform (read/write): The bigrquery package lets you upload, query, and modify data stored in Google BigQuery, as well as retrieve metadata about projects, datasets, tables, and jobs.
   * Drive (read/write): The googledrive package allows you to manage your Drive files and therefore the default scopes include read/write access. The googledrive package makes it possible for you to get a token with more limited scope, e.g. read only.
+  * Gemini (`generative-language.retriever`): The ellmer package uses this scope to send your prompts to the Gemini API and receive responses, when you sign in through the browser with `chat_google_gemini()`.
   * Gmail (read/write):  The gmailr package allows you to fully manage your Gmail account and therefore the default scope grants that ability. The gmailr package makes it possible for you to get a token with more limited scope, e.g. read or compose only.
   * Sheets (read/write): The googlesheets4 package allows you to manage your spreadsheets and therefore the default scopes include read/write access. The googlesheets4 package makes it possible for you to get a token with more limited scope, e.g. read only.
 
@@ -57,6 +59,8 @@ The packages only communicate with Google APIs. No user data is shared with the 
 These packages may store your credentials on your local machine, for later reuse by you. **Use caution when using these packages on a shared machine**.
 
 By default, an OAuth token is cached in a local file, such as `~/.R/gargle/gargle-oauth`. See the documentation for [`gargle::gargle_options()`](https://gargle.r-lib.org/reference/gargle_options.html) and [`gargle::credentials_user_oauth2()`](https://gargle.r-lib.org/reference/credentials_user_oauth2.html) for information on how to control the location of the token cache or suppress token caching, globally or at the individual token level.
+
+ellmer's browser-based OAuth flow does not write its token to disk; the token is held in memory for the current R session only.
 
 # Data protection policy
 
