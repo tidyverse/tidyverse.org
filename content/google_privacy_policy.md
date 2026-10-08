@@ -16,7 +16,7 @@ The tidyverse team maintains several packages that make it easier to work with G
   * [gmailr](https://gmailr.r-lib.org) wraps the [Gmail API](https://developers.google.com/gmail/api/)
   * [googledrive](https://googledrive.tidyverse.org) wraps the [Drive API](https://developers.google.com/drive/)
   * [googlesheets4](https://googlesheets4.tidyverse.org) wraps the [Sheets API](https://developers.google.com/sheets/api/)
-  * [ellmer](https://ellmer.tidyverse.org) supports working with LLMs from R, including the Google Gemini AI
+  * [ellmer](https://ellmer.tidyverse.org) supports working with LLMs from R, including the [Google Gemini API](https://ai.google.dev/gemini-api/docs)
   
 All of these packages are governed by common policies recorded here. These packages use internal resources owned by the "Tidyverse API Packages" project (bigrquery, googledrive, googlesheets4) or the "ellmer (an R package from the tidyverse)" project (ellmer) on Google Cloud Platform. That is the name you will see in a consent screen. *Exception: gmailr does NOT use any resources owned by Tidyverse API Packages, due to [special requirements around Gmail and its scopes](https://developers.google.com/terms/api-services-user-data-policy#additional-requirements-for-specific-api-scopes). You MUST provide your own OAuth client to gmailr, whereas that is possible, but not mandatory, for the other packages listed here.*
 
@@ -48,7 +48,7 @@ Overview of the scopes requested by various Tidyverse API Packages or by ellmer 
   * Gmail (read/write):  The gmailr package allows you to fully manage your Gmail account and therefore the default scope grants that ability. The gmailr package makes it possible for you to get a token with more limited scope, e.g. read or compose only.
   * Drive (read/write): The googledrive package allows you to manage your Drive files and therefore the default scopes include read/write access. The googledrive package makes it possible for you to get a token with more limited scope, e.g. read only.
   * Sheets (read/write): The googlesheets4 package allows you to manage your spreadsheets and therefore the default scopes include read/write access. The googlesheets4 package makes it possible for you to get a token with more limited scope, e.g. read only.
-  * Gemini (view/query): The ellmer package allows you to send prompts to Gemini models and receive responses, and therefore requests access to the Generative Language API Semantic Retriever when you sign in through the browser with `chat_google_gemini()`.
+  * Gemini (view/query): The ellmer package allows you to send prompts to Gemini models and receive responses. When you sign in through the browser with `chat_google_gemini()`, it requests the `generative-language.retriever` scope, which the consent screen describes as "Generative Language API Semantic Retriever". This is the scope Google recommends for OAuth access to the Gemini API (also known as the Generative Language API).
 
 ### Sharing user data
 
