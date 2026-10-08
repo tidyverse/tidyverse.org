@@ -60,7 +60,7 @@ These packages may store your credentials on your local machine, for later reuse
 
 By default, an OAuth token is cached in a local file, such as `~/.R/gargle/gargle-oauth`. See the documentation for [`gargle::gargle_options()`](https://gargle.r-lib.org/reference/gargle_options.html) and [`gargle::credentials_user_oauth2()`](https://gargle.r-lib.org/reference/credentials_user_oauth2.html) for information on how to control the location of the token cache or suppress token caching, globally or at the individual token level.
 
-DO WE NEED TO SAY ANYTHING SPECIAL OR DIFFERENT HERE FOR ELLMER?
+ellmer never caches an OAuth token to disk and its token is held in memory for the current R session only.
 
 # Data protection policy
 
