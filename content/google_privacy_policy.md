@@ -27,6 +27,10 @@ terms of service. See <https://developers.google.com/terms/>.
 
 ## Google account and user data
 
+### Retention and deletion of user data
+
+The owners of the Tidyverse API Packages and ellmer projects do not receive, collect, or store Google user data. Because we never hold this data, we do not retain it, there is no data retention period, and there is no user data for us to delete. A request to delete your data is therefore not applicable; your data stays on your own machine, under your control, and is communicated directly between your machine and the Google APIs.
+
 ### Accessing user data
 
 These packages access Google resources from your local machine. Your machine communicates directly with the Google APIs.
@@ -56,6 +60,10 @@ The packages only communicate with Google APIs. No user data is shared with the 
 
 ### Storing user data
 
+The owners of the Tidyverse API Packages and ellmer projects do not store Google user data. Data you retrieve by using these packages exists only on your own machine, in whatever objects or files your own code creates.
+
+### Storing credentials
+
 These packages may store your credentials on your local machine, for later reuse by you. **Use caution when using these packages on a shared machine**.
 
 gargle, gmailr, bigrquery, googledrive, googlesheets4: By default and only with the user's permission, an OAuth token is cached in a local file, such as `~/.R/gargle/gargle-oauth`. See the documentation for [`gargle::gargle_options()`](https://gargle.r-lib.org/reference/gargle_options.html) and [`gargle::credentials_user_oauth2()`](https://gargle.r-lib.org/reference/credentials_user_oauth2.html) for information on how to control the location of the token cache or suppress token caching, globally or at the individual token level.
@@ -64,7 +72,7 @@ ellmer never caches an OAuth token to disk and its token is held in memory for t
 
 # Data protection policy
 
-We do not collect any data about you and we do not have any access to data that you retrieve by using this package. Security procedures are in place to protect the confidentiality of any that we might come across, and we use best practices, such as encryption and mandatory usage of 2FA, as a matter of course.
+We do not collect any data about you and we do not have any access to data that you retrieve by using these packages.
 
 # Policies for authors of packages or other applications
 
